@@ -1,0 +1,14 @@
+{
+  "author": "DFST",
+  "license": "Apache-2.0",
+  "description": "MinaTokens Library",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspace @minatokens/api build",
+    "login": "npm login",
+    "publish:api": "cd packages/api && npm publish --access public && cd ../.."
+  },
+  "packageManager": "yarn@4.5.3"
+}

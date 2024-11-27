@@ -1,0 +1,59 @@
+{
+  "name": "@minatokens/api",
+  "version": "0.1.0",
+  "author": "DFST",
+  "description": "MinaTokens API",
+  "type": "module",
+  "keywords": [
+    "typescript",
+    "mina-protocol",
+    "zkcloudworker",
+    "minatokens",
+    "tokens",
+    "fungible-token",
+    "NFT",
+    "cloud",
+    "proving"
+  ],
+  "main": "dist/web/index.js",
+  "exports": {
+    "types": "./dist/node/index.d.ts",
+    "browser": "./dist/web/index.js",
+    "node": {
+      "import": "./dist/node/index.js",
+      "require": "./dist/node/index.cjs"
+    },
+    "default": "./dist/web/index.js"
+  },
+  "types": "./dist/node/index.d.ts",
+  "homepage": "https://docs.minatokens.com",
+  "bugs": {
+    "url": "https://github.com/zkcloudworker/minatokens-lib/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zkcloudworker/minatokens-lib.git"
+  },
+  "license": "Apache-2.0",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.3",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "yarn@4.5.2"
+}
