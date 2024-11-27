@@ -1,17 +1,17 @@
 {
-  "name": "@minatokens/api",
+  "name": "@minatokens/storage",
   "version": "0.1.0",
   "author": "DFST",
-  "description": "MinaTokens API",
+  "description": "MinaTokens Storage Library",
   "type": "module",
+  "license": "Apache-2.0",
   "keywords": [
     "typescript",
     "mina-protocol",
     "zkcloudworker",
     "minatokens",
-    "tokens",
-    "fungible-token",
-    "NFT",
+    "storage",
+    "whitelist",
     "cloud",
     "proving"
   ],
@@ -34,7 +34,6 @@
     "type": "git",
     "url": "git+https://github.com/zkcloudworker/minatokens-lib.git"
   },
-  "license": "Apache-2.0",
   "files": [
     "dist",
     "src",
@@ -53,9 +52,16 @@
   "devDependencies": {
     "@types/node": "^22.10.0",
     "esbuild": "^0.24.0",
+    "o1js": "^2.1.0",
     "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "o1js": "^2.1.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
   }
 }
