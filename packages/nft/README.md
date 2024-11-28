@@ -1,6 +1,6 @@
 # NFT Standard on Mina Protocol
 
-![Logo](/img/cover.png)
+![Logo](/packages/nft/img/cover.png)
 
 The MinaNFT project is an innovative Non-Fungible Token (NFT) platform that integrates the unique privacy features of the Mina blockchain. It is designed to redefine the NFT space by offering a range of functionalities that go beyond traditional NFT capabilities.
 
