@@ -15,7 +15,8 @@ import {
   Struct,
 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
-import { FungibleToken, tokenVerificationKeys } from "./token.js";
+import { FungibleToken } from "./FungibleToken.js";
+import { tokenVerificationKeys } from "./vk.js";
 
 export interface FungibleTokenBidContractDeployProps
   extends Exclude<DeployArgs, undefined> {

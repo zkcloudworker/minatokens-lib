@@ -68,9 +68,9 @@ var MinaTokensAPI = class {
       callParams: params
     });
   }
-  proveJobResult(params) {
+  getProof(params) {
     return this.apiCall({
-      endpoint: "result",
+      endpoint: "proof",
       callParams: params
     });
   }
@@ -93,7 +93,7 @@ var MinaTokensAPI = class {
     console.log("Waiting for job result...");
     while (errorCount < 100 && Date.now() - startTime < 1e3 * 60 * 10) {
       try {
-        const jobResult = await this.proveJobResult({ jobId });
+        const jobResult = await this.getProof({ jobId });
         if (jobResult.hash) {
           const hash = jobResult.hash;
           console.log("Transaction hash:", hash);

@@ -1,42 +1,13 @@
-export declare const fungibleTokenVerificationKeys: {
-    testnet: {
-        admin: {
-            hash: string;
-            data: string;
-        };
-        token: {
-            hash: string;
-            data: string;
-        };
-    };
-    mainnet: {
-        admin: {
-            hash: string;
-            data: string;
-        };
-        token: {
-            hash: string;
-            data: string;
-        };
-    };
-    testnet_v1: {
-        admin: {
-            hash: string;
-            data: string;
-        };
-        token: {
-            hash: string;
-            data: string;
-        };
-    };
-    mainnet_v1: {
-        admin: {
-            hash: string;
-            data: string;
-        };
-        token: {
-            hash: string;
-            data: string;
+export declare const tokenVerificationKeys: {
+    [key in "mainnet" | "testnet"]: {
+        o1js: string;
+        zkcloudworker: string;
+        vk: {
+            [key: string]: {
+                hash: string;
+                data: string;
+                type: "token" | "admin" | "upgrade" | "user";
+            };
         };
     };
 };

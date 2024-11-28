@@ -1,12 +1,9 @@
-export interface DeployTransaction {
-  txType: "deploy";
-  senderAddress: string;
-  tokenAddress: string;
-  adminContractAddress: string;
-  symbol: string;
-  tokenContractPrivateKey: string;
-  adminContractPrivateKey: string;
-  wallet_payload: {
+export interface TransactionPayloads {
+  sender: string;
+  nonce: number;
+  memo: string;
+  fee: number;
+  walletPayload: {
     nonce: number;
     transaction: string;
     onlySign: boolean;
@@ -15,7 +12,7 @@ export interface DeployTransaction {
       memo: string;
     };
   };
-  mina_signer_payload: {
+  minaSignerPayload: {
     zkappCommand: any;
     feePayer: {
       feePayer: string;
@@ -24,14 +21,9 @@ export interface DeployTransaction {
       memo: string;
     };
   };
-  serializedTransaction: string;
+  proverPayload: string;
+  signedData: string;
   transaction: string;
-  uri: string;
-  memo: string;
-  nonce: number;
-  whitelist?: string;
-  developerAddress: string;
-  developerFee?: number;
 }
 
 export interface DeployTokenParams {
@@ -39,7 +31,7 @@ export interface DeployTokenParams {
   symbol: string;
   decimals?: number;
   uri: string;
-  whitelist?: { address: string; amount?: number }[];
+  whitelist?: { address: string; amount?: number }[] | string;
   nonce?: number;
   memo?: string;
   developerFee?: number;
@@ -74,40 +66,30 @@ export const tokenTransactionTypes: (
   "whitelistOffer",
   "whitelistAdmin",
 ];
-export interface TokenTransaction {
-  txType: FungibleTokenTransactionType;
+
+export interface TokenTransactionPayloads extends TransactionPayloads {
+  txType: FungibleTokenTransactionType | "deploy";
   tokenAddress: string;
   symbol: string;
-  wallet_payload: {
-    nonce: number;
-    transaction: string;
-    onlySign: boolean;
-    feePayer: {
-      fee: number;
-      memo: string;
-    };
-  };
-  mina_signer_payload: {
-    zkappCommand: any;
-    feePayer: {
-      feePayer: string;
-      fee: number;
-      nonce: number;
-      memo: string;
-    };
-  };
+  whitelist?: string;
+  developerAddress?: string;
+  developerFee?: number;
+  sendTransaction?: boolean;
+}
+export interface DeployTransaction extends TokenTransactionPayloads {
+  txType: "deploy";
+  adminContractAddress: string;
+  tokenContractPrivateKey?: string;
+  adminContractPrivateKey?: string;
+  uri: string;
+}
+export interface TokenTransaction extends TokenTransactionPayloads {
+  txType: FungibleTokenTransactionType;
   to: string;
   toPrivateKey?: string;
   from: string;
   amount?: number;
   price?: number;
-  memo: string;
-  nonce: number;
-  whitelist?: string;
-  serializedTransaction: string;
-  transaction: string;
-  developerAddress: string;
-  developerFee?: number;
 }
 
 export interface ProveTokenTransaction {
@@ -135,7 +117,7 @@ export interface TransactionTokenParams {
   to?: string;
   amount?: number;
   price?: number;
-  whitelist?: { address: string; amount?: number }[];
+  whitelist?: { address: string; amount?: number }[] | string;
   nonce?: number;
   memo?: string;
   developerFee?: number;

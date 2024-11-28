@@ -1,7 +1,8 @@
 import { __decorate, __metadata } from "tslib";
 import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, assert, Mina, } from "o1js";
 import { Whitelist } from "@minatokens/storage";
-import { FungibleToken, tokenVerificationKeys } from "./token.js";
+import { FungibleToken } from "./FungibleToken.js";
+import { tokenVerificationKeys } from "./vk.js";
 export class FungibleTokenBidContract extends SmartContract {
     constructor() {
         super(...arguments);

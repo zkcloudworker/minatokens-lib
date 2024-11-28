@@ -1,15 +1,12 @@
 import { Whitelist, WhitelistedAddressList } from "@minatokens/storage";
 import { FungibleTokenTransactionType, blockchain } from "./types.js";
 import { fetchMinaAccount } from "./fetch.js";
-import {
-  FungibleToken,
-  WhitelistedFungibleToken,
-  FungibleTokenAdmin,
-  FungibleTokenWhitelistedAdmin,
-  FungibleTokenOfferContract,
-  FungibleTokenBidContract,
-  tokenVerificationKeys,
-} from "./token.js";
+import { FungibleToken, WhitelistedFungibleToken } from "./FungibleToken.js";
+import { FungibleTokenAdmin } from "./FungibleTokenAdmin.js";
+import { FungibleTokenWhitelistedAdmin } from "./FungibleTokenWhitelistedAdmin.js";
+import { FungibleTokenBidContract } from "./bid.js";
+import { FungibleTokenOfferContract } from "./offer.js";
+import { tokenVerificationKeys } from "./vk.js";
 import {
   PublicKey,
   Mina,
@@ -19,7 +16,6 @@ import {
   Bool,
   Transaction,
   Struct,
-  VerificationKey,
   Field,
 } from "o1js";
 
@@ -43,8 +39,7 @@ export async function buildTokenDeployTransaction(params: {
 }): Promise<{
   tx: Transaction<false, false>;
   isWhitelisted: boolean;
-  adminVerificationKey: VerificationKey;
-  tokenVerificationKey: VerificationKey;
+  verificationKeyHashes: string[];
   whitelist: string | undefined;
 }> {
   const {
@@ -167,14 +162,10 @@ export async function buildTokenDeployTransaction(params: {
   return {
     tx,
     isWhitelisted,
-    adminVerificationKey: {
-      hash: Field(adminVerificationKey.hash),
-      data: adminVerificationKey.data,
-    },
-    tokenVerificationKey: {
-      hash: Field(tokenVerificationKey.hash),
-      data: tokenVerificationKey.data,
-    },
+    verificationKeyHashes: [
+      adminVerificationKey.hash,
+      tokenVerificationKey.hash,
+    ],
     whitelist: whitelist?.toString(),
   };
 }
@@ -217,10 +208,7 @@ export async function buildTokenTransaction(params: {
   adminContractAddress: PublicKey;
   adminAddress: PublicKey;
   symbol: string;
-  adminVerificationKey: VerificationKey;
-  tokenVerificationKey: VerificationKey;
-  offerVerificationKey: VerificationKey;
-  bidVerificationKey: VerificationKey;
+  verificationKeyHashes: string[];
   whitelist: string | undefined;
 }> {
   const {
@@ -250,11 +238,17 @@ export async function buildTokenTransaction(params: {
     throw new Error("Sender does not have account");
   }
 
-  const { symbol, adminContractAddress, adminAddress, isWhitelisted } =
-    await getTokenSymbolAndAdmin({
-      tokenAddress,
-      chain,
-    });
+  const {
+    symbol,
+    adminContractAddress,
+    adminAddress,
+    isWhitelisted,
+    verificationKeyHashes,
+  } = await getTokenSymbolAndAdmin({
+    txType,
+    tokenAddress,
+    chain,
+  });
   const memo = params.memo ?? `${txType} ${symbol}`;
 
   const whitelistedAdminContract = new FungibleTokenWhitelistedAdmin(
@@ -502,21 +496,13 @@ export async function buildTokenTransaction(params: {
     adminContractAddress,
     adminAddress,
     symbol,
-    adminVerificationKey: {
-      hash: Field(adminVerificationKey.hash),
-      data: adminVerificationKey.data,
-    },
-    tokenVerificationKey: {
-      hash: Field(tokenVerificationKey.hash),
-      data: tokenVerificationKey.data,
-    },
-    offerVerificationKey,
-    bidVerificationKey,
+    verificationKeyHashes,
     whitelist: whitelist?.toString(),
   };
 }
 
 export async function getTokenSymbolAndAdmin(params: {
+  txType: FungibleTokenTransactionType;
   tokenAddress: PublicKey;
   chain: blockchain;
 }): Promise<{
@@ -524,10 +510,27 @@ export async function getTokenSymbolAndAdmin(params: {
   adminAddress: PublicKey;
   symbol: string;
   isWhitelisted: boolean;
+  verificationKeyHashes: string[];
 }> {
-  const { tokenAddress, chain } = params;
+  const { txType, tokenAddress, chain } = params;
   const vk =
     tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
+  const verificationKeyHashes: string[] = [];
+  if (
+    txType === "whitelistBid" ||
+    txType === "bid" ||
+    txType === "withdrawBid"
+  ) {
+    verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
+  }
+  if (
+    txType === "whitelistOffer" ||
+    txType === "offer" ||
+    txType === "withdrawOffer"
+  ) {
+    verificationKeyHashes.push(vk.FungibleTokenOfferContract.hash);
+  }
+
   class FungibleTokenState extends Struct({
     decimals: UInt8,
     admin: PublicKey,
@@ -549,13 +552,8 @@ export async function getTokenSymbolAndAdmin(params: {
   if (!verificationKey) {
     throw new Error("Token contract verification key not found");
   }
-  if (
-    verificationKey.hash.toJSON() !== vk.FungibleToken.hash ||
-    verificationKey.data !== vk.FungibleToken.data ||
-    verificationKey.hash.toJSON() !== vk.WhitelistedFungibleToken.hash ||
-    verificationKey.data !== vk.WhitelistedFungibleToken.data
-  ) {
-    throw new Error("Unknown token verification key");
+  if (!verificationKeyHashes.includes(verificationKey.hash.toJSON())) {
+    verificationKeyHashes.push(verificationKey.hash.toJSON());
   }
   if (account.zkapp?.appState === undefined) {
     throw new Error("Token contract state not found");
@@ -580,6 +578,9 @@ export async function getTokenSymbolAndAdmin(params: {
   if (!adminVerificationKey) {
     throw new Error("Admin verification key not found");
   }
+  if (!verificationKeyHashes.includes(adminVerificationKey.hash.toJSON())) {
+    verificationKeyHashes.push(adminVerificationKey.hash.toJSON());
+  }
   let isWhitelisted = false;
   if (
     vk.FungibleTokenWhitelistedAdmin.hash ===
@@ -602,10 +603,34 @@ export async function getTokenSymbolAndAdmin(params: {
   }
   const adminAddress = PublicKey.fromFields([adminAddress0, adminAddress1]);
 
+  for (const hash of verificationKeyHashes) {
+    const found = Object.values(vk).some((key) => key.hash === hash);
+    if (!found)
+      throw new Error(`Final check: unknown verification key hash: ${hash}`);
+  }
+
+  // Sort verification key hashes by type: upgrade -> admin -> token -> user
+  verificationKeyHashes.sort((a, b) => {
+    const typeA = Object.values(vk).find((key) => key.hash === a)?.type;
+    const typeB = Object.values(vk).find((key) => key.hash === b)?.type;
+    if (typeA === undefined || typeB === undefined) {
+      throw new Error("Unknown verification key hash");
+    }
+    const typeOrder = {
+      upgrade: 0,
+      admin: 1,
+      token: 2,
+      user: 3,
+    };
+
+    return typeOrder[typeA] - typeOrder[typeB];
+  });
+
   return {
     adminContractAddress: adminContractPublicKey,
     adminAddress: adminAddress,
     symbol,
     isWhitelisted,
+    verificationKeyHashes,
   };
 }

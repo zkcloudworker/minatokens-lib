@@ -1,6 +1,6 @@
 import { WhitelistedAddressList } from "@minatokens/storage";
 import { FungibleTokenTransactionType, blockchain } from "./types.js";
-import { PublicKey, UInt64, UInt8, Transaction, VerificationKey } from "o1js";
+import { PublicKey, UInt64, UInt8, Transaction } from "o1js";
 export declare function buildTokenDeployTransaction(params: {
     chain: blockchain;
     fee: UInt64;
@@ -21,8 +21,7 @@ export declare function buildTokenDeployTransaction(params: {
 }): Promise<{
     tx: Transaction<false, false>;
     isWhitelisted: boolean;
-    adminVerificationKey: VerificationKey;
-    tokenVerificationKey: VerificationKey;
+    verificationKeyHashes: string[];
     whitelist: string | undefined;
 }>;
 export declare function getTokenTransactionSender(params: {
@@ -52,13 +51,11 @@ export declare function buildTokenTransaction(params: {
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
     symbol: string;
-    adminVerificationKey: VerificationKey;
-    tokenVerificationKey: VerificationKey;
-    offerVerificationKey: VerificationKey;
-    bidVerificationKey: VerificationKey;
+    verificationKeyHashes: string[];
     whitelist: string | undefined;
 }>;
 export declare function getTokenSymbolAndAdmin(params: {
+    txType: FungibleTokenTransactionType;
     tokenAddress: PublicKey;
     chain: blockchain;
 }): Promise<{
@@ -66,4 +63,5 @@ export declare function getTokenSymbolAndAdmin(params: {
     adminAddress: PublicKey;
     symbol: string;
     isWhitelisted: boolean;
+    verificationKeyHashes: string[];
 }>;
