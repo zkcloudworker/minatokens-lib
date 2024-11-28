@@ -12,7 +12,7 @@ export declare class MinaTokensAPI {
     buildDeployTokenTransaction(params: DeployTokenParams): Promise<DeployTransaction>;
     tokenTransaction(params: TransactionTokenParams): Promise<TokenTransaction>;
     proveTokenTransaction(params: ProveTokenTransaction): Promise<JobId>;
-    proveJobResult(params: JobId): Promise<JobResult>;
+    getProof(params: JobId): Promise<JobResult>;
     faucet(params: FaucetParams): Promise<FaucetResponse>;
     txStatus(params: TransactionStatusParams): Promise<TransactionStatus>;
     waitForJobResult(jobId: string): Promise<string | undefined>;

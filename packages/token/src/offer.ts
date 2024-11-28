@@ -14,7 +14,8 @@ import {
   Mina,
 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
-import { FungibleToken, tokenVerificationKeys } from "./token.js";
+import { FungibleToken } from "./FungibleToken.js";
+import { tokenVerificationKeys } from "./vk.js";
 
 export interface FungibleTokenOfferContractDeployProps
   extends Exclude<DeployArgs, undefined> {
