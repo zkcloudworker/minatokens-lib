@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token",
+    "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/nft",
     "login": "npm login",
     "clean": "rm -rf node_modules && rm -rf packages/*/node_modules"
   }
