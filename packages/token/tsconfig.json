@@ -25,10 +25,17 @@
   },
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
-    "out": "docs",
-    "plugin": [],
+    "out": "docs/token",
+    "plugin": ["typedoc-plugin-markdown"],
     "excludeExternals": true,
-    "sourceLinkTemplate": "https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/{path}#L{line}"
+    "sourceLinkTemplate": "https://github.com/zkcloudworker/minatokens-lib/blob/main/{path}#L{line}",
+    "outputFileStrategy": "modules",
+    "useCodeBlocks": true,
+    "flattenOutputFiles": true,
+    "hideGroupHeadings": true,
+    "expandObjects": true,
+    "expandParameters": true,
+    "mergeReadme": false
   },
   "include": ["src/**/*"],
   "exclude": ["dist/**", "node_modules"],
