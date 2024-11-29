@@ -1,0 +1,38 @@
+---
+title: BalanceRequestParams
+category: 6749c4dba3a7a4005bae1197
+hidden: false
+slug: Interface.BalanceRequestParams
+order: 5
+---
+
+# Interface: BalanceRequestParams
+
+## Properties overview
+
+- address:  string; [↗](#address)
+- tokenAddress:  string; [↗](#tokenaddress)
+
+## Properties
+
+### address
+
+```ts
+address: string;
+```
+
+#### Defined in
+
+[types.ts:127](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L127)
+
+***
+
+### tokenAddress
+
+```ts
+tokenAddress: string;
+```
+
+#### Defined in
+
+[types.ts:126](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L126)

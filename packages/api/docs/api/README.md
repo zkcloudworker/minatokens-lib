@@ -1,9 +1,6 @@
----
-title: MinaTokens API
-category: 6749f91cfa3765005489621e
-hidden: false
-order: 1
----
+**@minatokens/api**
+
+***
 
 # MinaTokens API
 
