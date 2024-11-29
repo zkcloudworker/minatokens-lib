@@ -48,11 +48,14 @@
   "scripts": {
     "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
     "publish": "npm publish --access public",
-    "login": "npm login"
+    "login": "npm login",
+    "docs": "typedoc --plugin typedoc-plugin-markdown --out ./docs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "esbuild": "^0.24.0",
+    "typedoc": "^0.27.1",
+    "typedoc-plugin-markdown": "^4.3.0",
     "typescript": "^5.7.2"
   },
   "publishConfig": {
