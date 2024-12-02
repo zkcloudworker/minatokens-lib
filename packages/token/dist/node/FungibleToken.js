@@ -1,7 +1,7 @@
 import { FungibleTokenContract, } from "./FungibleTokenContract.js";
-import { FungibleTokenAdmin } from "./FungibleTokenAdmin.js";
-import { FungibleTokenWhitelistedAdmin } from "./FungibleTokenWhitelistedAdmin.js";
-export { FungibleToken, WhitelistedFungibleToken };
+import { FungibleTokenAdmin } from "./FungibleTokenStandardAdmin.js";
+import { FungibleTokenAdvancedAdmin } from "./FungibleTokenAdvancedAdmin.js";
+export { FungibleToken, AdvancedFungibleToken };
 const FungibleToken = FungibleTokenContract(FungibleTokenAdmin);
-const WhitelistedFungibleToken = FungibleTokenContract(FungibleTokenWhitelistedAdmin);
+const AdvancedFungibleToken = FungibleTokenContract(FungibleTokenAdvancedAdmin);
 //# sourceMappingURL=FungibleToken.js.map

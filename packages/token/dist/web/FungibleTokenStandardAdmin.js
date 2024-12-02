@@ -88,4 +88,4 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], FungibleTokenAdmin.prototype, "canResume", null);
-//# sourceMappingURL=FungibleTokenAdmin.js.map
+//# sourceMappingURL=FungibleTokenStandardAdmin.js.map

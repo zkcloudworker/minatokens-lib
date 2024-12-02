@@ -7,6 +7,6 @@ export * from "./types.js";
 export * from "./fetch.js";
 export * from "./vk.js";
 export * from "./FungibleToken.js";
-export * from "./FungibleTokenAdmin.js";
-export * from "./FungibleTokenWhitelistedAdmin.js";
+export * from "./FungibleTokenStandardAdmin.js";
+export * from "./FungibleTokenAdvancedAdmin.js";
 export * from "./FungibleTokenContract.js";

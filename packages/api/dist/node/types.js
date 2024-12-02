@@ -1,15 +1,16 @@
 export const tokenTransactionTypes = [
-    "deploy",
+    "launch",
     "mint",
     "transfer",
     "bid",
     "offer",
     "buy",
     "sell",
+    "airdrop",
     "withdrawBid",
     "withdrawOffer",
-    "whitelistBid",
-    "whitelistOffer",
-    "whitelistAdmin",
+    "updateBidWhitelist",
+    "updateOfferWhitelist",
+    "updateAdminWhitelist",
 ];
 //# sourceMappingURL=types.js.map

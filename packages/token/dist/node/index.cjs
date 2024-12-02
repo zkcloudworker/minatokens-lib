@@ -20,26 +20,26 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // dist/node/index.js
 var node_exports = {};
 __export(node_exports, {
+  AdvancedAdminData: () => AdvancedAdminData,
+  AdvancedFungibleToken: () => AdvancedFungibleToken,
   BalanceChangeEvent: () => BalanceChangeEvent,
   BurnEvent: () => BurnEvent,
   FungibleToken: () => FungibleToken,
   FungibleTokenAdmin: () => FungibleTokenAdmin,
+  FungibleTokenAdvancedAdmin: () => FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract: () => FungibleTokenBidContract,
   FungibleTokenContract: () => FungibleTokenContract,
   FungibleTokenErrors: () => FungibleTokenErrors,
   FungibleTokenOfferContract: () => FungibleTokenOfferContract,
-  FungibleTokenWhitelistedAdmin: () => FungibleTokenWhitelistedAdmin,
   LAUNCH_FEE: () => LAUNCH_FEE,
   MintEvent: () => MintEvent,
   PauseEvent: () => PauseEvent,
   SetAdminEvent: () => SetAdminEvent,
   TRANSACTION_FEE: () => TRANSACTION_FEE,
-  WhitelistedFungibleToken: () => WhitelistedFungibleToken,
   buildTokenDeployTransaction: () => buildTokenDeployTransaction,
   buildTokenTransaction: () => buildTokenTransaction,
   fetchMinaAccount: () => fetchMinaAccount,
   getTokenSymbolAndAdmin: () => getTokenSymbolAndAdmin,
-  getTokenTransactionSender: () => getTokenTransactionSender,
   tokenContracts: () => tokenContracts,
   tokenVerificationKeys: () => tokenVerificationKeys
 });
@@ -321,7 +321,7 @@ var BalanceChangeEvent = class extends (0, import_o1js.Struct)({
 }) {
 };
 
-// dist/node/FungibleTokenAdmin.js
+// dist/node/FungibleTokenStandardAdmin.js
 var import_tslib2 = require("tslib");
 var import_o1js2 = require("o1js");
 var FungibleTokenAdmin = class extends import_o1js2.SmartContract {
@@ -405,20 +405,69 @@ var FungibleTokenAdmin = class extends import_o1js2.SmartContract {
   (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], FungibleTokenAdmin.prototype, "canResume", null);
 
-// dist/node/FungibleTokenWhitelistedAdmin.js
+// dist/node/FungibleTokenAdvancedAdmin.js
 var import_tslib3 = require("tslib");
 var import_o1js3 = require("o1js");
 var import_storage = require("@minatokens/storage");
-var FungibleTokenWhitelistedAdmin = class extends import_o1js3.SmartContract {
+var AdvancedAdminData = class _AdvancedAdminData extends (0, import_o1js3.Struct)({
+  totalSupply: import_o1js3.UInt64,
+  requireAdminSignatureForMint: import_o1js3.Bool,
+  anyoneCanMint: import_o1js3.Bool
+}) {
+  static new(params = {}) {
+    const { totalSupply, requireAdminSignatureForMint, anyoneCanMint } = params;
+    return new _AdvancedAdminData({
+      totalSupply: import_o1js3.UInt64.from(totalSupply ?? 0),
+      requireAdminSignatureForMint: (0, import_o1js3.Bool)(requireAdminSignatureForMint ?? false),
+      anyoneCanMint: (0, import_o1js3.Bool)(anyoneCanMint ?? false)
+    });
+  }
+  pack() {
+    const totalSupplyBits = this.totalSupply.value.toBits(64);
+    return import_o1js3.Field.fromBits([
+      ...totalSupplyBits,
+      this.requireAdminSignatureForMint,
+      this.anyoneCanMint
+    ]);
+  }
+  static unpack(packed) {
+    const bits = packed.toBits(64 + 1 + 1);
+    const totalSupply = import_o1js3.UInt64.Unsafe.fromField(import_o1js3.Field.fromBits(bits.slice(0, 64)));
+    const requireAdminSignatureForMint = bits[64];
+    const anyoneCanMint = bits[64 + 1];
+    return new _AdvancedAdminData({
+      totalSupply,
+      requireAdminSignatureForMint,
+      anyoneCanMint
+    });
+  }
+};
+var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
   constructor() {
     super(...arguments);
     this.adminPublicKey = (0, import_o1js3.State)();
+    this.tokenContract = (0, import_o1js3.State)();
     this.whitelist = (0, import_o1js3.State)();
+    this.adminData = (0, import_o1js3.State)();
     this.events = { updateWhitelist: import_storage.Whitelist };
+  }
+  /**
+   * Overrides the approveBase method to prevent transfers of tokens.
+   *
+   * @param forest - The account update forest.
+   */
+  async approveBase(forest) {
+    throw Error("Transfer not allowed");
   }
   async deploy(props) {
     await super.deploy(props);
     this.adminPublicKey.set(props.adminPublicKey);
+    this.tokenContract.set(props.tokenContract);
+    this.adminData.set(new AdvancedAdminData({
+      totalSupply: props.totalSupply,
+      requireAdminSignatureForMint: props.requireAdminSignatureForMint,
+      anyoneCanMint: props.anyoneCanMint
+    }).pack());
     this.whitelist.set(props.whitelist);
     this.account.permissions.set({
       ...import_o1js3.Permissions.default(),
@@ -427,30 +476,51 @@ var FungibleTokenWhitelistedAdmin = class extends import_o1js3.SmartContract {
     });
   }
   /** Update the verification key.
-   * Note that because we have set the permissions for setting the verification key to `impossibleDuringCurrentVersion()`, this will only be possible in case of a protocol update that requires an update.
+   * Note that because we have set the permissions for setting
+   * the verification key to `impossibleDuringCurrentVersion()`,
+   * this will only be possible in case of a protocol update that requires an update.
    */
   async updateVerificationKey(vk) {
     this.account.verificationKey.set(vk);
   }
   async ensureAdminSignature() {
-    const admin = await import_o1js3.Provable.witnessAsync(import_o1js3.PublicKey, async () => {
-      let pk = await this.adminPublicKey.fetch();
-      (0, import_o1js3.assert)(pk !== void 0, "could not fetch admin public key");
-      return pk;
-    });
-    this.adminPublicKey.requireEquals(admin);
-    return import_o1js3.AccountUpdate.createSigned(admin);
+    const admin = this.adminPublicKey.getAndRequireEquals();
+    const adminUpdate = import_o1js3.AccountUpdate.createSigned(admin);
+    adminUpdate.body.useFullCommitment = (0, import_o1js3.Bool)(true);
+    return adminUpdate;
   }
   async canMint(_accountUpdate) {
     const address = _accountUpdate.body.publicKey;
     const balanceChange = _accountUpdate.body.balanceChange;
     balanceChange.isPositive().assertTrue();
+    const adminData = AdvancedAdminData.unpack(this.adminData.getAndRequireEquals());
+    const tokenContract = this.tokenContract.getAndRequireEquals();
+    const tokenId = import_o1js3.TokenId.derive(tokenContract);
+    const adminTokenId = this.deriveTokenId();
+    _accountUpdate.body.tokenId.assertEquals(tokenId);
+    const checkTotalSupply = adminData.totalSupply.equals(import_o1js3.UInt64.MAXINT()).not();
+    const tokenUpdate = import_o1js3.AccountUpdate.createIf(checkTotalSupply, tokenContract, tokenId);
+    const maxAdditionalSupply = import_o1js3.Provable.if(checkTotalSupply, adminData.totalSupply.sub(balanceChange.magnitude), import_o1js3.UInt64.MAXINT());
+    tokenUpdate.body.preconditions.account.balance.value.lower = import_o1js3.UInt64.zero;
+    tokenUpdate.body.preconditions.account.balance.value.upper = maxAdditionalSupply;
     const whitelist = this.whitelist.getAndRequireEquals();
     const whitelistedAmount = await whitelist.getWhitelistedAmount(address);
-    return balanceChange.magnitude.lessThanOrEqual(
-      whitelistedAmount.orElse(import_o1js3.UInt64.from(0))
-      // here can be a minimum amount allowed by travel rule instead of 0
+    whitelistedAmount.isSome.or(adminData.anyoneCanMint).assertTrue("Cannot mint to non-whitelisted address");
+    const maxMintAmount = import_o1js3.Provable.if(
+      adminData.anyoneCanMint,
+      import_o1js3.Provable.if(whitelistedAmount.isSome, whitelistedAmount.value, import_o1js3.UInt64.MAXINT()),
+      // blacklist
+      whitelistedAmount.value
     );
+    const trackMintUpdate = import_o1js3.AccountUpdate.create(address, adminTokenId);
+    const alreadyMinted = trackMintUpdate.account.balance.getAndRequireEquals();
+    alreadyMinted.add(balanceChange.magnitude).assertLessThanOrEqual(maxMintAmount);
+    trackMintUpdate.balance.addInPlace(balanceChange.magnitude);
+    this.self.approve(trackMintUpdate);
+    const adminSignatureUpdate = import_o1js3.AccountUpdate.createIf(adminData.requireAdminSignatureForMint, this.adminPublicKey.getAndRequireEquals());
+    adminSignatureUpdate.requireSignature();
+    adminSignatureUpdate.body.useFullCommitment = (0, import_o1js3.Bool)(true);
+    return (0, import_o1js3.Bool)(true);
   }
   async canChangeAdmin(_admin) {
     await this.ensureAdminSignature();
@@ -477,57 +547,65 @@ var FungibleTokenWhitelistedAdmin = class extends import_o1js3.SmartContract {
 (0, import_tslib3.__decorate)([
   (0, import_o1js3.state)(import_o1js3.PublicKey),
   (0, import_tslib3.__metadata)("design:type", Object)
-], FungibleTokenWhitelistedAdmin.prototype, "adminPublicKey", void 0);
+], FungibleTokenAdvancedAdmin.prototype, "adminPublicKey", void 0);
+(0, import_tslib3.__decorate)([
+  (0, import_o1js3.state)(import_o1js3.PublicKey),
+  (0, import_tslib3.__metadata)("design:type", Object)
+], FungibleTokenAdvancedAdmin.prototype, "tokenContract", void 0);
 (0, import_tslib3.__decorate)([
   (0, import_o1js3.state)(import_storage.Whitelist),
   (0, import_tslib3.__metadata)("design:type", Object)
-], FungibleTokenWhitelistedAdmin.prototype, "whitelist", void 0);
+], FungibleTokenAdvancedAdmin.prototype, "whitelist", void 0);
+(0, import_tslib3.__decorate)([
+  (0, import_o1js3.state)(import_o1js3.Field),
+  (0, import_tslib3.__metadata)("design:type", Object)
+], FungibleTokenAdvancedAdmin.prototype, "adminData", void 0);
 (0, import_tslib3.__decorate)([
   import_o1js3.method,
   (0, import_tslib3.__metadata)("design:type", Function),
   (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js3.VerificationKey]),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
-], FungibleTokenWhitelistedAdmin.prototype, "updateVerificationKey", null);
+], FungibleTokenAdvancedAdmin.prototype, "updateVerificationKey", null);
 (0, import_tslib3.__decorate)([
   import_o1js3.method.returns(import_o1js3.Bool),
   (0, import_tslib3.__metadata)("design:type", Function),
   (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js3.AccountUpdate]),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
-], FungibleTokenWhitelistedAdmin.prototype, "canMint", null);
+], FungibleTokenAdvancedAdmin.prototype, "canMint", null);
 (0, import_tslib3.__decorate)([
   import_o1js3.method.returns(import_o1js3.Bool),
   (0, import_tslib3.__metadata)("design:type", Function),
   (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js3.PublicKey]),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
-], FungibleTokenWhitelistedAdmin.prototype, "canChangeAdmin", null);
+], FungibleTokenAdvancedAdmin.prototype, "canChangeAdmin", null);
 (0, import_tslib3.__decorate)([
   import_o1js3.method.returns(import_o1js3.Bool),
   (0, import_tslib3.__metadata)("design:type", Function),
   (0, import_tslib3.__metadata)("design:paramtypes", []),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
-], FungibleTokenWhitelistedAdmin.prototype, "canPause", null);
+], FungibleTokenAdvancedAdmin.prototype, "canPause", null);
 (0, import_tslib3.__decorate)([
   import_o1js3.method.returns(import_o1js3.Bool),
   (0, import_tslib3.__metadata)("design:type", Function),
   (0, import_tslib3.__metadata)("design:paramtypes", []),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
-], FungibleTokenWhitelistedAdmin.prototype, "canResume", null);
+], FungibleTokenAdvancedAdmin.prototype, "canResume", null);
 (0, import_tslib3.__decorate)([
   import_o1js3.method,
   (0, import_tslib3.__metadata)("design:type", Function),
   (0, import_tslib3.__metadata)("design:paramtypes", [import_storage.Whitelist]),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
-], FungibleTokenWhitelistedAdmin.prototype, "updateWhitelist", null);
+], FungibleTokenAdvancedAdmin.prototype, "updateWhitelist", null);
 
 // dist/node/FungibleToken.js
 var FungibleToken = FungibleTokenContract(FungibleTokenAdmin);
-var WhitelistedFungibleToken = FungibleTokenContract(FungibleTokenWhitelistedAdmin);
+var AdvancedFungibleToken = FungibleTokenContract(FungibleTokenAdvancedAdmin);
 
 // dist/node/vk.js
 var tokenVerificationKeys = {
   mainnet: {
     o1js: "2.1.0",
-    zkcloudworker: "0.20.2",
+    zkcloudworker: "0.20.4",
     vk: {
       FungibleToken: {
         hash: "27787098481477206239805523694633411816874383698563160451006881053714904356680",
@@ -539,14 +617,14 @@ var tokenVerificationKeys = {
         data: "AABvj1TjS95sAoY8puZRG2h4hxjs9c5enwfo4vZAQC/COWHgEjNupRIxb3LVxaRU2mkaG94By4OqrJ3M7YXNs4oiAhMdOuU5+NrHN3RCJtswX+WPvwaHJnihtSy2FcJPyghvBVTi2i7dtWIPQLVDIzC5ARu8f8H9JWjzjVVYE/rQLruuq2qUsCrqdVsdRaw+6OjIFeAXS6mzvrVv5iYGslg5CV5mgLBg3xC408jZJ0pe8ua2mcIEDMGEdSR/+VuhPQaqxZTJPBVhazVc1P9gRyS26SdOohL85UmEc4duqlJOOlXOFuwOT6dvoiUcdQtzuPp1pzA/LHueqm9yQG9mlT0Df8uY/A+rwM4l/ypTP/o0+5GCM9jJf9bl/z0DpGWheCJY+LZbIGeBUOpg0Gx1+KZsD9ivWJ0vxNz8zKcAS1i3FqFhahkJHiiKgikn6Qig5+Yf3MJs0WKSNkCkgW2B48srVTR9ykLyO+68NiWLEnLXvJd+rmUHR4K92whqctZZ8zvd2+5u+b62pkvFqqZZ9r24SMQOe9Bl2ZfMew2DyFLMPzwTowHw8onMEXcVKabFs9zQVp66AMf/wlipirNztdguAP2Hmpi/swGffC3cXDOY7T51PcPNIq+JcNbtKixzm7oIFyZ0FUgAhg5L7sDAkgRAXnQlKGuhGr24T+lV1YAdTheSiQ4YBcpnqpfVYnYG5iziTEdl5+3SENlC7E6MhR2PDoc/TmMvbEHnhNlo6tskqcmEUBQj+At5EO2NmogFDJIN6sRfrXOdH5l+QV7vR2v385RKRtfnmcJeUQcpq5/JTgVwagDJ/FarTN5jFsrBBRTeW3yZ5/CfVNA7NNWxoKhjBaHVIhn/fLT5sFLYzYdCx/uTsusyZmE2d6iqnLS+j1IXNJX/zR0ZD3aGuoUc4MaFZQnN5om4dfpbloe4Roob3BuDhBHTKoYC+nVsyEvDRyiYLEOjJ45/bSwTCfwngYKtNmo3sVTvQ9mqBf0cLdBCn8skp3S/gz324TFm8iJ+t8EWUdazjEF5SUgJ9OwSu7zKajU0z/lSuyQnY0u+PSkffBqQbMqayligd7M5K8XrSUs4vcz8xdT/N2lmYysr8WKzFxePtNnTBtOZwACL2/MwrhmYUhUwRHJP7qo1NJU0dD43n9ABs5DJ2D7S/qWyvx9G38ACltexG+ZMj8niqYfJiy0MqH5O4Df/c6DNekL1d6QYnjO0/3LMvY/f/y1+b7nPHI8+1Wqp5jZH8UsuN63SSMdfBEe6x46AG/R+YS/wH78GKekabWu9QQnUJdjXyXiqF4qRebvfcmpQz91anvVz3ggBqCv4sYqCIvP0ysDtMdi36zFErV+8SdUu+NsPDGvdPSCGdLuC25izxb21up2HORmlM5R7yuIW3rCiq8DeLD0OHjqOBZ+IEv9zEkb5fHTJvxoxnZlArtZSBpD6iIDPVDymuK+BsOggZav3K+TytjeD2Gcld5NfyRISFWUIMkZNFQRL8AQpET6RJnG1HSW0CaRfNeomtjCBWIr85wFCrp06j/D1J8B3EyhloZLJJ6ywxt41smXVugxA8LRTO+6lVBOBF14jHQCCUl6u7uiWCe1z4/bC5wQXPwWSljp8NVU8Erp1U9ModNK7W63Pkh0efvgSD5d0nLzbfa0jTdxZ1JkfKsnvYk43Ed+vmXooHZhUeZAIX8ZCizhb1Gfvm02JFwxYXmiYAOp5wkGzweU2I5zo8r5yZFI1r4XibNQs7eAfKGRv3gh8/EuLkX/bdettgPvNsI8ndpQ3kL/V8W2PQN4/hjC9AKCYBeXQG42bRncYZdLe++R2KA1ZdPDxQPF3sxUIKhzmRWqbozrtv310Maorwv6eZJjldlCJwICR9QgcDwDuNj+UFJnX3RWsdIWsUbI1T4wO0sE2sBiMX/OqmiGJEAnBegioistlFyfRvm54h+duNOl/ol1Fva7NoXvsL/wThAWUly7bnc7/Al2bBQlUrmEX46UnKXzYntkZDee7Lx1u1BBkJAj/5BH1YZOPmMCh498rBUiHmc+4uQqebqNSHdOSgC39ESss4u7GNhWj3fi9XXta6UT9wapEMGq0WTg2Kry6xNP2YZ5X8eaapRQc/KzYgz9XjQL6TKpqNuGEbRlmfYvIuoFbnOkZI7RYoGp3YheMs1pQErwOxLzZa9W3Okwx16TSDwPLR0xMdAyogMrOdKN4JSMyNnmOaoVf6PkN+K9fz7RuHtvgjKpuz4vsK5Z2wRneqPrnfu6PkgHcRQrd0SxqCbN23Z/yp8qOcN6XU49iCNEBjztT00tolQ9hCPMSE/eTZ+ioez7m3pJFVks3T5Rk/e+6MeowJWIOv20x6CPS9mhpr1JPwdNFrWdgs19VsobntCpF/rWxksdrYyk=",
         type: "admin"
       },
-      WhitelistedFungibleToken: {
+      AdvancedFungibleToken: {
         hash: "27787098481477206239805523694633411816874383698563160451006881053714904356680",
         data: "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",
         type: "token"
       },
-      FungibleTokenWhitelistedAdmin: {
-        hash: "19641412157595882526013339127483017677791543136878603715474182835463393277622",
-        data: "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",
+      FungibleTokenAdvancedAdmin: {
+        hash: "2931120461061235161978506008581824014095267189097447502927119423687960099073",
+        data: "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",
         type: "admin"
       },
       FungibleTokenBidContract: {
@@ -563,7 +641,7 @@ var tokenVerificationKeys = {
   },
   testnet: {
     o1js: "2.1.0",
-    zkcloudworker: "0.20.2",
+    zkcloudworker: "0.20.4",
     vk: {
       FungibleToken: {
         hash: "22278758441605771858700252645311428360030262698072838723799702480887091310093",
@@ -575,14 +653,14 @@ var tokenVerificationKeys = {
         data: "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",
         type: "admin"
       },
-      WhitelistedFungibleToken: {
+      AdvancedFungibleToken: {
         hash: "22278758441605771858700252645311428360030262698072838723799702480887091310093",
         data: "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",
         type: "token"
       },
-      FungibleTokenWhitelistedAdmin: {
-        hash: "20172938263834569171197221661527530681186299670687606810012808881888777415767",
-        data: "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",
+      FungibleTokenAdvancedAdmin: {
+        hash: "14641799426193485346025163690737509332164402673361215430380084537307571675856",
+        data: "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",
         type: "admin"
       },
       FungibleTokenBidContract: {
@@ -973,8 +1051,8 @@ var FungibleTokenOfferContract = class _FungibleTokenOfferContract extends impor
 // dist/node/build.js
 var import_o1js7 = require("o1js");
 async function buildTokenDeployTransaction(params) {
-  const { fee, sender, nonce, memo, tokenAddress, adminContractAddress, uri, symbol, developerAddress, developerFee, provingKey, provingFee, decimals, chain } = params;
-  const isWhitelisted = params.whitelist !== void 0;
+  const { fee, sender, nonce, memo, tokenAddress, adminContractAddress, uri, symbol, developerAddress, developerFee, provingKey, provingFee, decimals, chain, adminType } = params;
+  const isAdvanced = adminType === "advanced";
   if (memo && typeof memo !== "string")
     throw new Error("Memo must be a string");
   if (memo && memo.length > 30)
@@ -983,13 +1061,13 @@ async function buildTokenDeployTransaction(params) {
     throw new Error("Symbol must be a string");
   if (symbol.length >= 7)
     throw new Error("Symbol must be less than 7 characters");
-  const adminContract = isWhitelisted ? FungibleTokenWhitelistedAdmin : FungibleTokenAdmin;
-  const tokenContract = isWhitelisted ? WhitelistedFungibleToken : FungibleToken;
+  const adminContract = isAdvanced ? FungibleTokenAdvancedAdmin : FungibleTokenAdmin;
+  const tokenContract = isAdvanced ? AdvancedFungibleToken : FungibleToken;
   const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
-  if (!vk || !vk.FungibleTokenWhitelistedAdmin || !vk.FungibleTokenWhitelistedAdmin.hash || !vk.FungibleTokenWhitelistedAdmin.data || !vk.FungibleTokenAdmin || !vk.FungibleTokenAdmin.hash || !vk.FungibleTokenAdmin.data || !vk.WhitelistedFungibleToken || !vk.WhitelistedFungibleToken.hash || !vk.WhitelistedFungibleToken.data || !vk.FungibleToken || !vk.FungibleToken.hash || !vk.FungibleToken.data)
-    throw new Error("Cannot get verification keys");
-  const adminVerificationKey = isWhitelisted ? vk.FungibleTokenWhitelistedAdmin : vk.FungibleTokenAdmin;
-  const tokenVerificationKey = isWhitelisted ? vk.WhitelistedFungibleToken : vk.FungibleToken;
+  if (!vk || !vk.FungibleTokenOfferContract || !vk.FungibleTokenOfferContract.hash || !vk.FungibleTokenOfferContract.data || !vk.FungibleTokenBidContract || !vk.FungibleTokenBidContract.hash || !vk.FungibleTokenBidContract.data || !vk.FungibleTokenAdvancedAdmin || !vk.FungibleTokenAdvancedAdmin.hash || !vk.FungibleTokenAdvancedAdmin.data || !vk.FungibleTokenAdmin || !vk.FungibleTokenAdmin.hash || !vk.FungibleTokenAdmin.data || !vk.AdvancedFungibleToken || !vk.AdvancedFungibleToken.hash || !vk.AdvancedFungibleToken.data || !vk.FungibleToken || !vk.FungibleToken.hash || !vk.FungibleToken.data)
+    throw new Error("Cannot get verification key from vk");
+  const adminVerificationKey = isAdvanced ? vk.FungibleTokenAdvancedAdmin : vk.FungibleTokenAdmin;
+  const tokenVerificationKey = isAdvanced ? vk.AdvancedFungibleToken : vk.FungibleToken;
   if (!adminVerificationKey || !tokenVerificationKey)
     throw new Error("Cannot get verification keys");
   await fetchMinaAccount({
@@ -999,10 +1077,10 @@ async function buildTokenDeployTransaction(params) {
   if (!import_o1js7.Mina.hasAccount(sender)) {
     throw new Error("Sender does not have account");
   }
-  const whitelist = params.whitelist ? typeof params.whitelist === "string" ? import_storage4.Whitelist.fromString(params.whitelist) : await import_storage4.Whitelist.create({ list: params.whitelist, name: symbol }) : void 0;
+  const whitelist = params.whitelist ? typeof params.whitelist === "string" ? import_storage4.Whitelist.fromString(params.whitelist) : await import_storage4.Whitelist.create({ list: params.whitelist, name: symbol }) : import_storage4.Whitelist.empty();
   const zkToken = new tokenContract(tokenAddress);
   const zkAdmin = new adminContract(adminContractAddress);
-  const tx = await import_o1js7.Mina.transaction({ sender, fee, memo: memo ?? `deploy ${symbol}`, nonce }, async () => {
+  const tx = await import_o1js7.Mina.transaction({ sender, fee, memo: memo ?? `launch ${symbol}`, nonce }, async () => {
     const feeAccountUpdate = import_o1js7.AccountUpdate.createSigned(sender);
     feeAccountUpdate.balance.subInPlace(3e9);
     feeAccountUpdate.send({
@@ -1015,13 +1093,14 @@ async function buildTokenDeployTransaction(params) {
         amount: developerFee
       });
     }
-    if (isWhitelisted && !whitelist) {
-      throw new Error("Whitelisted addresses not found");
-    }
     await zkAdmin.deploy({
       adminPublicKey: sender,
+      tokenContract: tokenAddress,
       verificationKey: adminVerificationKey,
-      whitelist
+      whitelist,
+      totalSupply: params.totalSupply ?? import_o1js7.UInt64.MAXINT(),
+      requireAdminSignatureForMint: params.requireAdminSignatureForMint ?? (0, import_o1js7.Bool)(false),
+      anyoneCanMint: params.anyoneCanMint ?? (0, import_o1js7.Bool)(false)
     });
     zkAdmin.account.zkappUri.set(uri);
     await zkToken.deploy({
@@ -1041,24 +1120,16 @@ async function buildTokenDeployTransaction(params) {
   });
   return {
     tx,
-    isWhitelisted,
+    isAdvanced,
     verificationKeyHashes: [
       adminVerificationKey.hash,
       tokenVerificationKey.hash
     ],
-    whitelist: whitelist?.toString()
+    whitelist: whitelist.toString()
   };
 }
-function getTokenTransactionSender(params) {
-  const { txType, from, to } = params;
-  if (txType === "buy" || txType === "withdrawOffer" || txType === "withdrawBid") {
-    return to;
-  }
-  return from;
-}
 async function buildTokenTransaction(params) {
-  const { txType, chain, fee, nonce, tokenAddress, from, to, amount, price, developerAddress, developerFee, provingKey, provingFee } = params;
-  const sender = getTokenTransactionSender({ txType, from, to });
+  const { txType, sender, chain, fee, nonce, tokenAddress, from, to, amount, price, developerAddress, developerFee, provingKey, provingFee } = params;
   await fetchMinaAccount({
     publicKey: sender,
     force: true
@@ -1066,35 +1137,32 @@ async function buildTokenTransaction(params) {
   if (!import_o1js7.Mina.hasAccount(sender)) {
     throw new Error("Sender does not have account");
   }
-  const { symbol, adminContractAddress, adminAddress, isWhitelisted, verificationKeyHashes } = await getTokenSymbolAndAdmin({
+  const { symbol, adminContractAddress, adminAddress, isAdvanced, isToNewAccount, verificationKeyHashes } = await getTokenSymbolAndAdmin({
     txType,
     tokenAddress,
-    chain
+    chain,
+    to
   });
   const memo = params.memo ?? `${txType} ${symbol}`;
-  const whitelistedAdminContract = new FungibleTokenWhitelistedAdmin(adminContractAddress);
-  const tokenContract = isWhitelisted && txType === "mint" ? WhitelistedFungibleToken : FungibleToken;
-  if ((txType === "whitelistAdmin" || txType === "whitelistBid" || txType === "whitelistOffer") && !params.whitelist) {
+  const adminContract = new FungibleTokenAdmin(adminContractAddress);
+  const advancedAdminContract = new FungibleTokenAdvancedAdmin(adminContractAddress);
+  const tokenContract = isAdvanced && txType === "mint" ? AdvancedFungibleToken : FungibleToken;
+  if ((txType === "updateAdminWhitelist" || txType === "updateBidWhitelist" || txType === "updateOfferWhitelist") && !params.whitelist) {
     throw new Error("Whitelist is required");
   }
-  const whitelist = params.whitelist ? typeof params.whitelist === "string" ? import_storage4.Whitelist.fromString(params.whitelist) : await import_storage4.Whitelist.create({ list: params.whitelist, name: symbol }) : void 0;
+  const whitelist = params.whitelist ? typeof params.whitelist === "string" ? import_storage4.Whitelist.fromString(params.whitelist) : await import_storage4.Whitelist.create({ list: params.whitelist, name: symbol }) : import_storage4.Whitelist.empty();
   const zkToken = new tokenContract(tokenAddress);
   const tokenId = zkToken.deriveTokenId();
-  if (txType === "mint" && adminAddress.toBase58() !== sender.toBase58())
-    throw new Error("Invalid sender for mint");
-  await fetchMinaAccount({
-    publicKey: tokenAddress,
-    tokenId,
-    force: true
-  });
+  if (txType === "mint" && isAdvanced === false && adminAddress.toBase58() !== sender.toBase58())
+    throw new Error("Invalid sender for FungibleToken mint with standard admin");
   await fetchMinaAccount({
     publicKey: from,
     tokenId,
     force: [
       "offer",
-      "whitelistOffer",
+      "updateOfferWhitelist",
       "bid",
-      "whitelistBid",
+      "updateBidWhitelist",
       "sell",
       "transfer",
       "withdrawOffer"
@@ -1105,7 +1173,7 @@ async function buildTokenTransaction(params) {
     tokenId,
     force: [
       "sell",
-      "whitelistAdmin",
+      "updateAdminWhitelist",
       "withdrawBid",
       "withdrawOffer"
     ].includes(txType)
@@ -1113,19 +1181,17 @@ async function buildTokenTransaction(params) {
   const isNewAccount = import_o1js7.Mina.hasAccount(to, tokenId) === false;
   const offerContract = new FungibleTokenOfferContract([
     "offer",
-    "whitelistOffer"
+    "updateOfferWhitelist"
   ].includes(txType) ? to : from, tokenId);
   const bidContract = new FungibleTokenBidContract([
     "bid",
-    "whitelistBid"
+    "updateBidWhitelist"
   ].includes(txType) ? from : to, tokenId);
   const offerContractDeployment = new FungibleTokenOfferContract(to, tokenId);
   const bidContractDeployment = new FungibleTokenBidContract(from, tokenId);
   const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
-  if (!vk || !vk.FungibleTokenOfferContract || !vk.FungibleTokenOfferContract.hash || !vk.FungibleTokenOfferContract.data || !vk.FungibleTokenBidContract || !vk.FungibleTokenBidContract.hash || !vk.FungibleTokenBidContract.data || !vk.FungibleTokenWhitelistedAdmin || !vk.FungibleTokenWhitelistedAdmin.hash || !vk.FungibleTokenWhitelistedAdmin.data || !vk.FungibleTokenAdmin || !vk.FungibleTokenAdmin.hash || !vk.FungibleTokenAdmin.data || !vk.WhitelistedFungibleToken || !vk.WhitelistedFungibleToken.hash || !vk.WhitelistedFungibleToken.data || !vk.FungibleToken || !vk.FungibleToken.hash || !vk.FungibleToken.data)
-    throw new Error("Cannot get verification key");
-  const adminVerificationKey = isWhitelisted ? vk.FungibleTokenWhitelistedAdmin : vk.FungibleTokenAdmin;
-  const tokenVerificationKey = isWhitelisted ? vk.WhitelistedFungibleToken : vk.FungibleToken;
+  if (!vk || !vk.FungibleTokenOfferContract || !vk.FungibleTokenOfferContract.hash || !vk.FungibleTokenOfferContract.data || !vk.FungibleTokenBidContract || !vk.FungibleTokenBidContract.hash || !vk.FungibleTokenBidContract.data || !vk.FungibleTokenAdvancedAdmin || !vk.FungibleTokenAdvancedAdmin.hash || !vk.FungibleTokenAdvancedAdmin.data || !vk.FungibleTokenAdmin || !vk.FungibleTokenAdmin.hash || !vk.FungibleTokenAdmin.data || !vk.AdvancedFungibleToken || !vk.AdvancedFungibleToken.hash || !vk.AdvancedFungibleToken.data || !vk.FungibleToken || !vk.FungibleToken.hash || !vk.FungibleToken.data)
+    throw new Error("Cannot get verification key from vk");
   const offerVerificationKey = FungibleTokenOfferContract._verificationKey ?? {
     hash: (0, import_o1js7.Field)(vk.FungibleTokenOfferContract.hash),
     data: vk.FungibleTokenOfferContract.data
@@ -1134,10 +1200,11 @@ async function buildTokenTransaction(params) {
     hash: (0, import_o1js7.Field)(vk.FungibleTokenBidContract.hash),
     data: vk.FungibleTokenBidContract.data
   };
+  const accountCreationFee = (isNewAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced ? 1e9 : 0);
   const tx = await import_o1js7.Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = import_o1js7.AccountUpdate.createSigned(sender);
-    if (isNewAccount) {
-      feeAccountUpdate.balance.subInPlace(1e9);
+    if (accountCreationFee > 0) {
+      feeAccountUpdate.balance.subInPlace(accountCreationFee);
     }
     feeAccountUpdate.send({
       to: provingKey,
@@ -1226,21 +1293,16 @@ async function buildTokenTransaction(params) {
         await bidContract.withdraw(amount);
         await zkToken.approveAccountUpdate(bidContract.self);
         break;
-      case "whitelistAdmin":
-        if (!whitelist)
-          throw new Error("Whitelist is required");
-        await whitelistedAdminContract.updateWhitelist(whitelist);
+      case "updateAdminWhitelist":
+        if (!isAdvanced)
+          throw new Error("Invalid admin type for updateAdminWhitelist");
+        await advancedAdminContract.updateWhitelist(whitelist);
         break;
-      case "whitelistBid":
-        if (!whitelist)
-          throw new Error("Whitelist is required");
+      case "updateBidWhitelist":
         await bidContract.updateWhitelist(whitelist);
         break;
-      case "whitelistOffer":
-        if (!whitelist)
-          throw new Error("Whitelist is required");
+      case "updateOfferWhitelist":
         await offerContract.updateWhitelist(whitelist);
-        await zkToken.approveAccountUpdate(offerContract.self);
         break;
       default:
         throw new Error(`Unknown transaction type: ${txType}`);
@@ -1248,7 +1310,7 @@ async function buildTokenTransaction(params) {
   });
   return {
     tx,
-    isWhitelisted,
+    isAdvanced,
     adminContractAddress,
     adminAddress,
     symbol,
@@ -1257,13 +1319,13 @@ async function buildTokenTransaction(params) {
   };
 }
 async function getTokenSymbolAndAdmin(params) {
-  const { txType, tokenAddress, chain } = params;
+  const { txType, tokenAddress, chain, to } = params;
   const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
   const verificationKeyHashes = [];
-  if (txType === "whitelistBid" || txType === "bid" || txType === "withdrawBid") {
+  if (txType === "updateBidWhitelist" || txType === "bid" || txType === "withdrawBid") {
     verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
   }
-  if (txType === "whitelistOffer" || txType === "offer" || txType === "withdrawOffer") {
+  if (txType === "updateOfferWhitelist" || txType === "offer" || txType === "withdrawOffer") {
     verificationKeyHashes.push(vk.FungibleTokenOfferContract.hash);
   }
   class FungibleTokenState extends (0, import_o1js7.Struct)({
@@ -1281,6 +1343,11 @@ async function getTokenSymbolAndAdmin(params) {
   await fetchMinaAccount({ publicKey: tokenAddress, force: true });
   if (!import_o1js7.Mina.hasAccount(tokenAddress)) {
     throw new Error("Token contract account not found");
+  }
+  const tokenId = import_o1js7.TokenId.derive(tokenAddress);
+  await fetchMinaAccount({ publicKey: tokenAddress, tokenId, force: true });
+  if (!import_o1js7.Mina.hasAccount(tokenAddress, tokenId)) {
+    throw new Error("Token contract totalSupply account not found");
   }
   const account = import_o1js7.Mina.getAccount(tokenAddress);
   const verificationKey = account.zkapp?.verificationKey;
@@ -1311,13 +1378,23 @@ async function getTokenSymbolAndAdmin(params) {
   if (!verificationKeyHashes.includes(adminVerificationKey.hash.toJSON())) {
     verificationKeyHashes.push(adminVerificationKey.hash.toJSON());
   }
-  let isWhitelisted = false;
-  if (vk.FungibleTokenWhitelistedAdmin.hash === adminVerificationKey.hash.toJSON() && vk.FungibleTokenWhitelistedAdmin.data === adminVerificationKey.data) {
-    isWhitelisted = true;
+  let isAdvanced = false;
+  if (vk.FungibleTokenAdvancedAdmin.hash === adminVerificationKey.hash.toJSON() && vk.FungibleTokenAdvancedAdmin.data === adminVerificationKey.data) {
+    isAdvanced = true;
   } else if (vk.FungibleTokenAdmin.hash === adminVerificationKey.hash.toJSON() && vk.FungibleTokenAdmin.data === adminVerificationKey.data) {
-    isWhitelisted = false;
+    isAdvanced = false;
   } else {
     throw new Error("Unknown admin verification key");
+  }
+  let isToNewAccount = void 0;
+  if (isAdvanced && to) {
+    const adminTokenId = import_o1js7.TokenId.derive(adminContractPublicKey);
+    await fetchMinaAccount({
+      publicKey: to,
+      tokenId: adminTokenId,
+      force: false
+    });
+    isToNewAccount = !import_o1js7.Mina.hasAccount(to, adminTokenId);
   }
   const adminAddress0 = adminContract.zkapp?.appState[0];
   const adminAddress1 = adminContract.zkapp?.appState[1];
@@ -1348,7 +1425,8 @@ async function getTokenSymbolAndAdmin(params) {
     adminContractAddress: adminContractPublicKey,
     adminAddress,
     symbol,
-    isWhitelisted,
+    isAdvanced,
+    isToNewAccount,
     verificationKeyHashes
   };
 }
@@ -1361,33 +1439,33 @@ var TRANSACTION_FEE = 1e8;
 var tokenContracts = {
   FungibleToken,
   FungibleTokenAdmin,
-  WhitelistedFungibleToken,
-  FungibleTokenWhitelistedAdmin,
+  AdvancedFungibleToken,
+  FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract,
   FungibleTokenOfferContract
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AdvancedAdminData,
+  AdvancedFungibleToken,
   BalanceChangeEvent,
   BurnEvent,
   FungibleToken,
   FungibleTokenAdmin,
+  FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract,
   FungibleTokenContract,
   FungibleTokenErrors,
   FungibleTokenOfferContract,
-  FungibleTokenWhitelistedAdmin,
   LAUNCH_FEE,
   MintEvent,
   PauseEvent,
   SetAdminEvent,
   TRANSACTION_FEE,
-  WhitelistedFungibleToken,
   buildTokenDeployTransaction,
   buildTokenTransaction,
   fetchMinaAccount,
   getTokenSymbolAndAdmin,
-  getTokenTransactionSender,
   tokenContracts,
   tokenVerificationKeys
 });

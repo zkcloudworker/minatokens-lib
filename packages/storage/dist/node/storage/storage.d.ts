@@ -1,4 +1,5 @@
 import { Field, Bool } from "o1js";
+export type IpfsHash = string;
 declare const Storage_base: (new (value: {
     url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
 }) => {
@@ -65,11 +66,13 @@ export declare class Storage extends Storage_base {
      * @param url The string representing the storage URL.
      * @returns A new Storage instance.
      */
-    static fromString(url: string): Storage;
+    static fromString(url: IpfsHash): Storage;
     /**
      * Converts the Storage instance to a string.
      * @returns The string representation of the storage URL.
      */
-    toString(): string;
+    toString(): IpfsHash;
+    static empty(): Storage;
+    isEmpty(): Bool;
 }
 export {};

@@ -1,6 +1,6 @@
 {
   "name": "@minatokens/token",
-  "version": "0.2.3",
+  "version": "0.3.11",
   "author": "DFST",
   "description": "MinaTokens Fungible Token Library",
   "type": "module",
@@ -51,16 +51,18 @@
     "docs": "typedoc"
   },
   "devDependencies": {
-    "@minatokens/storage": "^0.1.0",
+    "@minatokens/storage": "^0.3.2",
+    "@minatokens/api": "^0.3.2",
     "@types/node": "^22.10.0",
     "esbuild": "^0.24.0",
     "o1js": "^2.1.0",
-    "typedoc": "^0.27.1",
+    "typedoc": "^0.27.2",
     "typedoc-plugin-markdown": "^4.3.0",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
-    "@minatokens/storage": "^0.1.0",
+    "@minatokens/storage": "^0.3.2",
+    "@minatokens/api": "^0.3.2",
     "o1js": "^2.1.0"
   },
   "publishConfig": {

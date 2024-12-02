@@ -1,130 +1,5 @@
 import { Field, Option, PublicKey, UInt64, Bool } from "o1js";
-import { Storage } from "../storage/storage.js";
-declare const WhitelistMap_base: typeof import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase;
-/** Represents the whitelist using an Indexed Merkle Map. */
-export declare class WhitelistMap extends WhitelistMap_base {
-}
-declare const WhitelistMapOption_base: import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<Option<import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase, {
-    root: bigint;
-    length: bigint;
-    data: {
-        nodes: (bigint | undefined)[][];
-        sortedLeaves: {
-            readonly value: bigint;
-            readonly key: bigint;
-            readonly nextKey: bigint;
-            readonly index: number;
-        }[];
-    };
-}>, {
-    root: bigint;
-    length: bigint;
-    data: {
-        nodes: (bigint | undefined)[][];
-        sortedLeaves: {
-            readonly value: bigint;
-            readonly key: bigint;
-            readonly nextKey: bigint;
-            readonly index: number;
-        }[];
-    };
-} | undefined> & (new (option: {
-    isSome: Bool;
-    value: import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase;
-}) => Option<import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase, {
-    root: bigint;
-    length: bigint;
-    data: {
-        nodes: (bigint | undefined)[][];
-        sortedLeaves: {
-            readonly value: bigint;
-            readonly key: bigint;
-            readonly nextKey: bigint;
-            readonly index: number;
-        }[];
-    };
-}>) & {
-    fromValue(value: import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase | {
-        root: bigint;
-        length: bigint;
-        data: {
-            nodes: (bigint | undefined)[][];
-            sortedLeaves: {
-                readonly value: bigint;
-                readonly key: bigint;
-                readonly nextKey: bigint;
-                readonly index: number;
-            }[];
-        };
-    } | {
-        isSome: boolean | Bool;
-        value: import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase | {
-            root: bigint;
-            length: bigint;
-            data: {
-                nodes: (bigint | undefined)[][];
-                sortedLeaves: {
-                    readonly value: bigint;
-                    readonly key: bigint;
-                    readonly nextKey: bigint;
-                    readonly index: number;
-                }[];
-            };
-        };
-    } | undefined): Option<import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase, {
-        root: bigint;
-        length: bigint;
-        data: {
-            nodes: (bigint | undefined)[][];
-            sortedLeaves: {
-                readonly value: bigint;
-                readonly key: bigint;
-                readonly nextKey: bigint;
-                readonly index: number;
-            }[];
-        };
-    }>;
-    from(value?: import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase | {
-        root: bigint;
-        length: bigint;
-        data: {
-            nodes: (bigint | undefined)[][];
-            sortedLeaves: {
-                readonly value: bigint;
-                readonly key: bigint;
-                readonly nextKey: bigint;
-                readonly index: number;
-            }[];
-        };
-    } | undefined): Option<import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase, {
-        root: bigint;
-        length: bigint;
-        data: {
-            nodes: (bigint | undefined)[][];
-            sortedLeaves: {
-                readonly value: bigint;
-                readonly key: bigint;
-                readonly nextKey: bigint;
-                readonly index: number;
-            }[];
-        };
-    }>;
-    none(): Option<import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase, {
-        root: bigint;
-        length: bigint;
-        data: {
-            nodes: (bigint | undefined)[][];
-            sortedLeaves: {
-                readonly value: bigint;
-                readonly key: bigint;
-                readonly nextKey: bigint;
-                readonly index: number;
-            }[];
-        };
-    }>;
-};
-export declare class WhitelistMapOption extends WhitelistMapOption_base {
-}
+import { OffChainList, OffchainMapOption } from "./offchain-map.js";
 declare const UInt64Option_base: Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<Option<UInt64, bigint>, bigint | undefined>, "fromFields"> & {
     fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => Option<UInt64, bigint>;
 } & (new (option: {
@@ -140,136 +15,74 @@ declare const UInt64Option_base: Omit<import("node_modules/o1js/dist/node/lib/pr
 };
 export declare class UInt64Option extends UInt64Option_base {
 }
-declare const WhitelistedAddress_base: (new (value: {
-    address: PublicKey;
-    amount: UInt64;
-}) => {
-    address: PublicKey;
-    amount: UInt64;
-}) & {
-    _isStruct: true;
-} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
-    address: PublicKey;
-    amount: UInt64;
-}, {
-    address: {
-        x: bigint;
-        isOdd: boolean;
-    };
-    amount: bigint;
-}>, "fromFields"> & {
-    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
-        address: PublicKey;
-        amount: UInt64;
-    };
-} & {
-    fromValue: (value: {
-        address: PublicKey | {
-            x: Field | bigint;
-            isOdd: Bool | boolean;
-        };
-        amount: bigint | UInt64;
-    }) => {
-        address: PublicKey;
-        amount: UInt64;
-    };
-    toInput: (x: {
-        address: PublicKey;
-        amount: UInt64;
-    }) => {
-        fields?: Field[] | undefined;
-        packed?: [Field, number][] | undefined;
-    };
-    toJSON: (x: {
-        address: PublicKey;
-        amount: UInt64;
-    }) => {
-        address: string;
-        amount: string;
-    };
-    fromJSON: (x: {
-        address: string;
-        amount: string;
-    }) => {
-        address: PublicKey;
-        amount: UInt64;
-    };
-    empty: () => {
-        address: PublicKey;
-        amount: UInt64;
-    };
-};
-export declare class WhitelistedAddress extends WhitelistedAddress_base {
+export declare class WhitelistedAddress {
+    address: PublicKey | string;
+    amount?: UInt64 | number;
 }
-export type WhitelistedAddressList = WhitelistedAddress[] | {
-    address: string;
-    amount?: number;
-}[];
 declare const Whitelist_base: (new (value: {
-    root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    storage: Storage;
+    list: OffChainList;
 }) => {
-    root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    storage: Storage;
+    list: OffChainList;
 }) & {
     _isStruct: true;
 } & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
-    root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    storage: Storage;
+    list: OffChainList;
 }, {
-    root: bigint;
-    storage: {
-        url: bigint[];
+    list: {
+        root: bigint;
+        storage: {
+            url: bigint[];
+        };
     };
 }>, "fromFields"> & {
     fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
-        root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage;
+        list: OffChainList;
     };
 } & {
     fromValue: (value: {
-        root: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage | {
-            url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | bigint[];
+        list: OffChainList | {
+            root: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+            storage: import("../index.js").Storage | {
+                url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | bigint[];
+            };
         };
     }) => {
-        root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage;
+        list: OffChainList;
     };
     toInput: (x: {
-        root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage;
+        list: OffChainList;
     }) => {
         fields?: Field[] | undefined;
         packed?: [Field, number][] | undefined;
     };
     toJSON: (x: {
-        root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage;
+        list: OffChainList;
     }) => {
-        root: string;
-        storage: {
-            url: string[];
+        list: {
+            root: string;
+            storage: {
+                url: string[];
+            };
         };
     };
     fromJSON: (x: {
-        root: string;
-        storage: {
-            url: string[];
+        list: {
+            root: string;
+            storage: {
+                url: string[];
+            };
         };
     }) => {
-        root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage;
+        list: OffChainList;
     };
     empty: () => {
-        root: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        storage: Storage;
+        list: OffChainList;
     };
 };
 export declare class Whitelist extends Whitelist_base {
     isNone(): Bool;
     isSome(): Bool;
-    load(): Promise<WhitelistMapOption>;
+    load(): Promise<OffchainMapOption>;
     /**
      * The function fetches a whitelisted amount associated with a given address using a map and returns it
      * as a UInt64Option.
@@ -292,10 +105,7 @@ export declare class Whitelist extends Whitelist_base {
      * @returns A new `Whitelist` instance.
      */
     static create(params: {
-        list: WhitelistedAddress[] | {
-            address: string;
-            amount?: number;
-        }[];
+        list: WhitelistedAddress[];
         name?: string;
         keyvalues?: object;
         timeout?: number;

@@ -1,5 +1,5 @@
 import { FungibleTokenAdminBase } from "./FungibleTokenContract.js";
-export { FungibleToken, WhitelistedFungibleToken };
+export { FungibleToken, AdvancedFungibleToken };
 declare const FungibleToken: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
         decimals: import("o1js").State<import("o1js").UInt8>;
@@ -204,7 +204,7 @@ declare const FungibleToken: {
         gates: import("node_modules/o1js/dist/node/snarky.js").Gate[];
     }>>;
 };
-declare const WhitelistedFungibleToken: {
+declare const AdvancedFungibleToken: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
         decimals: import("o1js").State<import("o1js").UInt8>;
         admin: import("o1js").State<import("o1js").PublicKey>;
