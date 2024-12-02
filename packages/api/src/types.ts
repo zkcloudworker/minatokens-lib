@@ -1,3 +1,35 @@
+export type FungibleTokenTransactionType =
+  | "mint"
+  | "transfer"
+  | "bid"
+  | "offer"
+  | "buy"
+  | "sell"
+  | "airdrop"
+  | "withdrawBid"
+  | "withdrawOffer"
+  | "updateBidWhitelist"
+  | "updateOfferWhitelist"
+  | "updateAdminWhitelist";
+
+export const tokenTransactionTypes: (
+  | FungibleTokenTransactionType
+  | "launch"
+)[] = [
+  "launch",
+  "mint",
+  "transfer",
+  "bid",
+  "offer",
+  "buy",
+  "sell",
+  "airdrop",
+  "withdrawBid",
+  "withdrawOffer",
+  "updateBidWhitelist",
+  "updateOfferWhitelist",
+  "updateAdminWhitelist",
+];
 export interface TransactionPayloads {
   sender: string;
   nonce: number;
@@ -26,49 +58,8 @@ export interface TransactionPayloads {
   transaction: string;
 }
 
-export interface DeployTokenParams {
-  adminAddress: string;
-  symbol: string;
-  decimals?: number;
-  uri: string;
-  whitelist?: { address: string; amount?: number }[] | string;
-  nonce?: number;
-  memo?: string;
-  developerFee?: number;
-}
-export type FungibleTokenTransactionType =
-  | "mint"
-  | "transfer"
-  | "bid"
-  | "offer"
-  | "buy"
-  | "sell"
-  | "withdrawBid"
-  | "withdrawOffer"
-  | "whitelistBid"
-  | "whitelistOffer"
-  | "whitelistAdmin";
-
-export const tokenTransactionTypes: (
-  | FungibleTokenTransactionType
-  | "deploy"
-)[] = [
-  "deploy",
-  "mint",
-  "transfer",
-  "bid",
-  "offer",
-  "buy",
-  "sell",
-  "withdrawBid",
-  "withdrawOffer",
-  "whitelistBid",
-  "whitelistOffer",
-  "whitelistAdmin",
-];
-
 export interface TokenTransactionPayloads extends TransactionPayloads {
-  txType: FungibleTokenTransactionType | "deploy";
+  txType: FungibleTokenTransactionType | "launch";
   tokenAddress: string;
   symbol: string;
   whitelist?: string;
@@ -77,7 +68,8 @@ export interface TokenTransactionPayloads extends TransactionPayloads {
   sendTransaction?: boolean;
 }
 export interface DeployTransaction extends TokenTransactionPayloads {
-  txType: "deploy";
+  txType: "launch";
+  adminType: "standard" | "advanced";
   adminContractAddress: string;
   tokenContractPrivateKey?: string;
   adminContractPrivateKey?: string;
@@ -280,40 +272,3 @@ export interface TokenSymbolAndAdmin {
   adminAddress: string;
   tokenSymbol: string;
 }
-
-export type ApiResponse<T> =
-  | {
-      /** Bad request - invalid input parameters */
-      status: 400;
-      json: { error: string };
-    }
-  | {
-      /** Unauthorized - user not authenticated */
-      status: 401;
-      json: { error: string };
-    }
-  | {
-      /** Forbidden - user doesn't have permission */
-      status: 403;
-      json: { error: string };
-    }
-  | {
-      /** Too many requests */
-      status: 429;
-      json: { error: string };
-    }
-  | {
-      /** Internal server error - something went wrong during deployment */
-      status: 500;
-      json: { error: string };
-    }
-  | {
-      /** Service unavailable - blockchain or other external service is down */
-      status: 503;
-      json: { error: string };
-    }
-  | {
-      /** Success - API response */
-      status: 200;
-      json: T;
-    };

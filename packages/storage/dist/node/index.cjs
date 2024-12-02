@@ -20,11 +20,13 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // dist/node/index.js
 var node_exports = {};
 __export(node_exports, {
+  FieldOption: () => FieldOption,
+  OffChainList: () => OffChainList,
+  OffchainMap: () => OffchainMap,
+  OffchainMapOption: () => OffchainMapOption,
   Storage: () => Storage,
   UInt64Option: () => UInt64Option,
   Whitelist: () => Whitelist,
-  WhitelistMap: () => WhitelistMap,
-  WhitelistMapOption: () => WhitelistMapOption,
   WhitelistedAddress: () => WhitelistedAddress,
   bigintFromBase56: () => bigintFromBase56,
   bigintFromBase64: () => bigintFromBase64,
@@ -340,6 +342,8 @@ var Storage = class _Storage extends (0, import_o1js3.Struct)({
    * @returns A new Storage instance.
    */
   static fromString(url) {
+    if (url === "")
+      return _Storage.empty();
     const fields = import_o1js3.Encoding.stringToFields(url);
     if (fields.length !== 2)
       throw new Error("Invalid string length");
@@ -350,30 +354,33 @@ var Storage = class _Storage extends (0, import_o1js3.Struct)({
    * @returns The string representation of the storage URL.
    */
   toString() {
-    if (this.url[0].toBigInt() === 0n && this.url[1].toBigInt() === 0n) {
-      throw new Error("Invalid string");
+    if (this.isEmpty().toBoolean()) {
+      return "";
     }
     return import_o1js3.Encoding.stringFromFields([this.url[0], this.url[1]]);
+  }
+  static empty() {
+    return new _Storage({ url: [(0, import_o1js3.Field)(0), (0, import_o1js3.Field)(0)] });
+  }
+  isEmpty() {
+    return this.url[0].equals((0, import_o1js3.Field)(0)).and(this.url[1].equals((0, import_o1js3.Field)(0)));
   }
 };
 
 // dist/node/whitelist/whitelist.js
+var import_o1js5 = require("o1js");
+
+// dist/node/whitelist/offchain-map.js
 var import_o1js4 = require("o1js");
 var { IndexedMerkleMap: IndexedMerkleMap2 } = import_o1js4.Experimental;
-var WHITELIST_HEIGHT = 20;
-var WhitelistMap = class extends IndexedMerkleMap2(WHITELIST_HEIGHT) {
+var OFFCHAIN_MAP_HEIGHT = 20;
+var OffchainMap = class extends IndexedMerkleMap2(OFFCHAIN_MAP_HEIGHT) {
 };
-var WhitelistMapOption = class extends (0, import_o1js4.Option)(WhitelistMap) {
+var OffchainMapOption = class extends (0, import_o1js4.Option)(OffchainMap) {
 };
-var UInt64Option = class extends (0, import_o1js4.Option)(import_o1js4.UInt64) {
+var FieldOption = class extends (0, import_o1js4.Option)(import_o1js4.Field) {
 };
-var WhitelistedAddress = class extends (0, import_o1js4.Struct)({
-  address: import_o1js4.PublicKey,
-  amount: import_o1js4.UInt64
-  // Maximum permitted amount of the transaction
-}) {
-};
-var Whitelist = class _Whitelist extends (0, import_o1js4.Struct)({
+var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
   /** The root hash of the Merkle tree representing the whitelist. */
   root: import_o1js4.Field,
   /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
@@ -387,79 +394,87 @@ var Whitelist = class _Whitelist extends (0, import_o1js4.Struct)({
   }
   async load() {
     const isNone = this.isNone();
-    const map = await import_o1js4.Provable.witnessAsync(WhitelistMapOption, async () => {
+    const map = await import_o1js4.Provable.witnessAsync(OffchainMapOption, async () => {
       if (isNone.toBoolean())
-        return WhitelistMapOption.none();
+        return OffchainMapOption.none();
       else
-        return WhitelistMapOption.fromValue(await loadIndexedMerkleMap({
+        return OffchainMapOption.fromValue(await loadIndexedMerkleMap({
           url: createIpfsURL({ hash: this.storage.toString() }),
-          type: WhitelistMap
+          type: OffchainMap
         }));
     });
     isNone.assertEquals(map.isSome.not());
-    const root = import_o1js4.Provable.if(map.isSome, map.orElse(new WhitelistMap()).root, (0, import_o1js4.Field)(0));
+    const root = import_o1js4.Provable.if(map.isSome, map.orElse(new OffchainMap()).root, (0, import_o1js4.Field)(0));
     root.equals(this.root);
     return map;
   }
   /**
-   * The function fetches a whitelisted amount associated with a given address using a map and returns it
-   * as a UInt64Option.
-   * @param {PublicKey} address - The `address` parameter is of type `PublicKey`, which represents a
-   * public key used in cryptography for various purposes such as encryption, digital signatures, and
-   * authentication. In the context of the `fetchWhitelistedAmount` function, the `address` parameter is
-   * used to retrieve a whitelisted amount
-   * @returns The `fetchWhitelistedAmount` function returns a `Promise` that resolves to a `UInt64Option`
+   * The function fetches a whitelisted amount associated with a given key using a map and returns it
+   * as a FieldOption.
+   * @param {Field} key - The `key` parameter is of type `Field`,
+   * which represents a field element in the context of a cryptographic system.
+   * @returns The `getValue` function returns a `Promise` that resolves to a `FieldOption`
    * object. This object contains a `value` property representing the amount retrieved from a map based
-   * on the provided address. The `isSome` property indicates whether the value is present or not.
-   * The value is not present if the whitelist is NOT empty and the address is NOT whitelisted.
-   * The value is present if the whitelist is NOT empty or the address IS whitelisted.
-   * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
+   * on the provided key. The `isSome` property indicates whether the value is present or not.
+   * The value is not present if the list is NOT empty and the key is NOT in the map.
+   * The value is present if the list IS empty or the key IS in the map.
+   * The value is present and equals to Field(0) if the list IS empty.
    */
-  async getWhitelistedAmount(address) {
+  async getValue(key) {
     const map = await this.load();
-    const key = import_o1js4.Poseidon.hashPacked(import_o1js4.PublicKey, address);
-    const value = map.orElse(new WhitelistMap()).getOption(key);
-    const valueField = value.orElse(import_o1js4.UInt64.MAXINT().value);
-    valueField.assertLessThanOrEqual(import_o1js4.UInt64.MAXINT().value);
-    const amount = import_o1js4.UInt64.Unsafe.fromField(valueField);
-    return new UInt64Option({
-      value: amount,
+    const value = map.orElse(new OffchainMap()).getOption(key);
+    const valueField = value.orElse((0, import_o1js4.Field)(0));
+    return new FieldOption({
+      value: valueField,
       isSome: value.isSome.or(this.isNone())
     });
   }
   static empty() {
-    return new _Whitelist({
+    return new _OffChainList({
       root: (0, import_o1js4.Field)(0),
       storage: Storage.empty()
     });
   }
   /**
-   * Creates a new whitelist and pins it to IPFS.
-   * @param params - The parameters for creating the whitelist.
-   * @returns A new `Whitelist` instance.
+   * Creates a new OffchainList
+   * and pins it to IPFS.
+   * @param params - The parameters for creating the list.
+   * @param params.list - The list of entries to be added to the map.
+   * @param params.data - The JSON data that should be added to the IPFS storage that represent the initial data
+   * @returns A new `OffChainList` instance.
    */
   static async create(params) {
-    const { name = "whitelist.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
-    const list = typeof params.list[0].address === "string" ? params.list.map((item) => new WhitelistedAddress({
-      address: import_o1js4.PublicKey.fromBase58(item.address),
-      amount: item.amount ? import_o1js4.UInt64.from(item.amount) : import_o1js4.UInt64.MAXINT()
-    })) : params.list;
-    const map = new WhitelistMap();
+    const { name = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
+    function toField(value) {
+      if (!value)
+        return (0, import_o1js4.Field)(0);
+      if (typeof value === "string")
+        return import_o1js4.Field.fromJSON(value);
+      if (typeof value === "bigint" || typeof value === "number")
+        return (0, import_o1js4.Field)(value);
+      return value;
+    }
+    const list = params.list.map((item) => ({
+      key: toField(item.key),
+      value: toField(item.value)
+    }));
+    const map = new OffchainMap();
     for (const item of list) {
-      map.insert(import_o1js4.Poseidon.hashPacked(import_o1js4.PublicKey, item.address), item.amount.toBigInt());
+      map.insert(item.key, item.value);
     }
     const serializedMap = serializeIndexedMap(map);
     const json = {
       map: serializedMap,
-      whitelist: list.map((item) => ({
-        address: item.address.toBase58(),
-        amount: Number(item.amount.toBigInt())
-      }))
+      list: list.map((item) => ({
+        key: item.key.toJSON(),
+        value: item.value?.toJSON()
+      })),
+      data: params.data
     };
     let attempt = 0;
     const start = Date.now();
     if (process.env.DEBUG === "true")
-      console.log("Whitelist.create:", { json, name, keyvalues, auth }, json.whitelist);
+      console.log("OffChainList.create:", { json, name, keyvalues });
     let hash = await pinJSON({
       data: json,
       name,
@@ -478,7 +493,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js4.Struct)({
     }
     if (!hash)
       throw new Error("Failed to pin whitelist");
-    return new _Whitelist({
+    return new _OffChainList({
       root: map.root,
       storage: Storage.fromString(hash)
     });
@@ -488,19 +503,113 @@ var Whitelist = class _Whitelist extends (0, import_o1js4.Struct)({
   }
   static fromString(str) {
     const json = JSON.parse(str);
-    return new _Whitelist({
+    return new _OffChainList({
       root: import_o1js4.Field.fromJSON(json.root),
       storage: Storage.fromString(json.storage)
     });
   }
 };
+
+// dist/node/whitelist/whitelist.js
+var UInt64Option = class extends (0, import_o1js5.Option)(import_o1js5.UInt64) {
+};
+var WhitelistedAddress = class {
+};
+var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
+  list: OffChainList
+}) {
+  isNone() {
+    return this.list.isNone();
+  }
+  isSome() {
+    return this.list.isSome();
+  }
+  async load() {
+    return this.list.load();
+  }
+  /**
+   * The function fetches a whitelisted amount associated with a given address using a map and returns it
+   * as a UInt64Option.
+   * @param {PublicKey} address - The `address` parameter is of type `PublicKey`, which represents a
+   * public key used in cryptography for various purposes such as encryption, digital signatures, and
+   * authentication. In the context of the `fetchWhitelistedAmount` function, the `address` parameter is
+   * used to retrieve a whitelisted amount
+   * @returns The `fetchWhitelistedAmount` function returns a `Promise` that resolves to a `UInt64Option`
+   * object. This object contains a `value` property representing the amount retrieved from a map based
+   * on the provided address. The `isSome` property indicates whether the value is present or not.
+   * The value is not present if the whitelist is NOT empty and the address is NOT whitelisted.
+   * The value is present if the whitelist is NOT empty or the address IS whitelisted.
+   * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
+   */
+  async getWhitelistedAmount(address) {
+    const map = await this.list.load();
+    const key = import_o1js5.Poseidon.hashPacked(import_o1js5.PublicKey, address);
+    const value = map.orElse(new OffchainMap()).getOption(key);
+    const valueField = value.orElse(import_o1js5.UInt64.MAXINT().value);
+    valueField.assertLessThanOrEqual(import_o1js5.UInt64.MAXINT().value);
+    const amount = import_o1js5.UInt64.Unsafe.fromField(valueField);
+    return new UInt64Option({
+      value: amount,
+      isSome: value.isSome.or(this.isNone())
+    });
+  }
+  static empty() {
+    return new _Whitelist({
+      list: OffChainList.empty()
+    });
+  }
+  /**
+   * Creates a new whitelist and pins it to IPFS.
+   * @param params - The parameters for creating the whitelist.
+   * @returns A new `Whitelist` instance.
+   */
+  static async create(params) {
+    const { name = "whitelist.json", keyvalues, timeout, attempts, auth } = params;
+    function parseAddress(address) {
+      return typeof address === "string" ? import_o1js5.PublicKey.fromBase58(address) : address;
+    }
+    function parseAmount(amount) {
+      if (amount === void 0)
+        return import_o1js5.UInt64.zero;
+      return typeof amount === "number" ? import_o1js5.UInt64.from(amount) : amount;
+    }
+    const entries = params.list.map((item) => ({
+      address: parseAddress(item.address),
+      amount: parseAmount(item.amount)
+    }));
+    const list = await OffChainList.create({
+      list: entries.map((item) => ({
+        key: import_o1js5.Poseidon.hashPacked(import_o1js5.PublicKey, item.address),
+        value: item.amount.value
+      })),
+      data: entries.map((item) => ({
+        address: item.address.toBase58(),
+        amount: Number(item.amount.toBigInt())
+      })),
+      name,
+      keyvalues,
+      timeout,
+      attempts,
+      auth
+    });
+    return new _Whitelist({ list });
+  }
+  toString() {
+    return this.list.toString();
+  }
+  static fromString(str) {
+    return new _Whitelist({ list: OffChainList.fromString(str) });
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  FieldOption,
+  OffChainList,
+  OffchainMap,
+  OffchainMapOption,
   Storage,
   UInt64Option,
   Whitelist,
-  WhitelistMap,
-  WhitelistMapOption,
   WhitelistedAddress,
   bigintFromBase56,
   bigintFromBase64,

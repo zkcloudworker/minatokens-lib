@@ -22,19 +22,19 @@ export class MinaTokensAPI {
             callParams: params,
         });
     }
-    buildDeployTokenTransaction(params) {
+    buildTransaction(params) {
         return this.apiCall({
-            endpoint: "deploy",
+            endpoint: params.txType,
             callParams: params,
         });
     }
-    tokenTransaction(params) {
+    buildAirdrop(params) {
         return this.apiCall({
-            endpoint: "transaction",
+            endpoint: "airdrop",
             callParams: params,
         });
     }
-    proveTokenTransaction(params) {
+    proveTransactions(params) {
         return this.apiCall({
             endpoint: "prove",
             callParams: params,

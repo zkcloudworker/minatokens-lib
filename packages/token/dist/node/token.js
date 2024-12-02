@@ -1,14 +1,14 @@
-import { FungibleToken, WhitelistedFungibleToken } from "./FungibleToken.js";
-import { FungibleTokenAdmin } from "./FungibleTokenAdmin.js";
-import { FungibleTokenWhitelistedAdmin } from "./FungibleTokenWhitelistedAdmin.js";
+import { FungibleToken, AdvancedFungibleToken } from "./FungibleToken.js";
+import { FungibleTokenAdmin } from "./FungibleTokenStandardAdmin.js";
+import { FungibleTokenAdvancedAdmin } from "./FungibleTokenAdvancedAdmin.js";
 import { FungibleTokenBidContract } from "./bid.js";
 import { FungibleTokenOfferContract } from "./offer.js";
 export { tokenContracts };
 const tokenContracts = {
     FungibleToken: FungibleToken,
     FungibleTokenAdmin: FungibleTokenAdmin,
-    WhitelistedFungibleToken: WhitelistedFungibleToken,
-    FungibleTokenWhitelistedAdmin: FungibleTokenWhitelistedAdmin,
+    AdvancedFungibleToken: AdvancedFungibleToken,
+    FungibleTokenAdvancedAdmin: FungibleTokenAdvancedAdmin,
     FungibleTokenBidContract: FungibleTokenBidContract,
     FungibleTokenOfferContract: FungibleTokenOfferContract,
 };

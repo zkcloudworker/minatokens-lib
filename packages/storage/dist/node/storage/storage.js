@@ -33,6 +33,8 @@ export class Storage extends Struct({
      * @returns A new Storage instance.
      */
     static fromString(url) {
+        if (url === "")
+            return Storage.empty();
         const fields = Encoding.stringToFields(url);
         if (fields.length !== 2)
             throw new Error("Invalid string length");
@@ -43,10 +45,16 @@ export class Storage extends Struct({
      * @returns The string representation of the storage URL.
      */
     toString() {
-        if (this.url[0].toBigInt() === 0n && this.url[1].toBigInt() === 0n) {
-            throw new Error("Invalid string");
+        if (this.isEmpty().toBoolean()) {
+            return "";
         }
         return Encoding.stringFromFields([this.url[0], this.url[1]]);
+    }
+    static empty() {
+        return new Storage({ url: [Field(0), Field(0)] });
+    }
+    isEmpty() {
+        return this.url[0].equals(Field(0)).and(this.url[1].equals(Field(0)));
     }
 }
 //# sourceMappingURL=storage.js.map

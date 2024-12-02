@@ -1,11 +1,9 @@
 import {
-  DeployTokenParams,
   DeployTransaction,
   JobId,
   ProveTokenTransaction,
   TokenTransaction,
   JobResult,
-  TransactionTokenParams,
   FaucetParams,
   FaucetResponse,
   TransactionStatusParams,
@@ -16,6 +14,44 @@ import {
   BalanceResponse,
   BalanceRequestParams,
 } from "./types.js";
+import { TransactionParams, AirdropTransactionParams } from "./transaction.js";
+
+export type ApiResponse<T> =
+  | {
+      /** Bad request - invalid input parameters */
+      status: 400;
+      json: { error: string };
+    }
+  | {
+      /** Unauthorized - user not authenticated */
+      status: 401;
+      json: { error: string };
+    }
+  | {
+      /** Forbidden - user doesn't have permission */
+      status: 403;
+      json: { error: string };
+    }
+  | {
+      /** Too many requests */
+      status: 429;
+      json: { error: string };
+    }
+  | {
+      /** Internal server error - something went wrong during deployment */
+      status: 500;
+      json: { error: string };
+    }
+  | {
+      /** Service unavailable - blockchain or other external service is down */
+      status: 503;
+      json: { error: string };
+    }
+  | {
+      /** Success - API response */
+      status: 200;
+      json: T;
+    };
 
 export class MinaTokensAPI {
   readonly chain: "mainnet" | "devnet" | "zeko" | "local";
@@ -51,22 +87,25 @@ export class MinaTokensAPI {
     });
   }
 
-  buildDeployTokenTransaction(params: DeployTokenParams) {
-    return this.apiCall<DeployTokenParams, DeployTransaction>({
-      endpoint: "deploy",
+  buildTransaction(params: TransactionParams) {
+    return this.apiCall<
+      TransactionParams,
+      DeployTransaction | TokenTransaction
+    >({
+      endpoint: params.txType,
       callParams: params,
     });
   }
 
-  tokenTransaction(params: TransactionTokenParams) {
-    return this.apiCall<TransactionTokenParams, TokenTransaction>({
-      endpoint: "transaction",
+  buildAirdrop(params: AirdropTransactionParams) {
+    return this.apiCall<AirdropTransactionParams, TokenTransaction[]>({
+      endpoint: "airdrop",
       callParams: params,
     });
   }
 
-  proveTokenTransaction(params: ProveTokenTransaction) {
-    return this.apiCall<ProveTokenTransaction, JobId>({
+  proveTransactions(params: ProveTokenTransaction[]) {
+    return this.apiCall<ProveTokenTransaction[], JobId>({
       endpoint: "prove",
       callParams: params,
     });

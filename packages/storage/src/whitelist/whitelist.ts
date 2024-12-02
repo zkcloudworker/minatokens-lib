@@ -1,76 +1,29 @@
+import { Struct, Field, Option, PublicKey, UInt64, Poseidon, Bool } from "o1js";
 import {
-  Experimental,
-  Struct,
-  Field,
-  Option,
-  Provable,
-  PublicKey,
-  UInt64,
-  Poseidon,
-  Bool,
-} from "o1js";
-import {
-  serializeIndexedMap,
-  loadIndexedMerkleMap,
-} from "../indexed-map/indexed-map.js";
-import { sleep } from "../util/sleep.js";
-import { Storage } from "../storage/storage.js";
-import { createIpfsURL } from "../storage/ipfs.js";
-import { pinJSON } from "../storage/pinata.js";
+  OffChainList,
+  OffchainMapOption,
+  OffchainMap,
+} from "./offchain-map.js";
 
-const { IndexedMerkleMap } = Experimental;
-type IndexedMerkleMap = Experimental.IndexedMerkleMap;
-const WHITELIST_HEIGHT = 20;
-
-/** Represents the whitelist using an Indexed Merkle Map. */
-export class WhitelistMap extends IndexedMerkleMap(WHITELIST_HEIGHT) {}
-export class WhitelistMapOption extends Option(WhitelistMap) {}
 export class UInt64Option extends Option(UInt64) {}
-export class WhitelistedAddress extends Struct({
-  address: PublicKey,
-  amount: UInt64, // Maximum permitted amount of the transaction
-}) {}
-
-export type WhitelistedAddressList =
-  | WhitelistedAddress[]
-  | { address: string; amount?: number }[];
+export class WhitelistedAddress {
+  address: PublicKey | string;
+  amount?: UInt64 | number; // Maximum permitted amount of the whitelisted transaction, default is 0
+}
 
 export class Whitelist extends Struct({
-  /** The root hash of the Merkle tree representing the whitelist. */
-  root: Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
-  storage: Storage,
+  list: OffChainList,
 }) {
   isNone(): Bool {
-    return this.root
-      .equals(Field(0))
-      .or(Storage.equals(this.storage, Storage.empty()));
+    return this.list.isNone();
   }
 
   isSome(): Bool {
-    return this.isNone().not();
+    return this.list.isSome();
   }
 
-  async load(): Promise<WhitelistMapOption> {
-    const isNone = this.isNone();
-    const map = await Provable.witnessAsync(WhitelistMapOption, async () => {
-      if (isNone.toBoolean()) return WhitelistMapOption.none();
-      else
-        return WhitelistMapOption.fromValue(
-          await loadIndexedMerkleMap({
-            url: createIpfsURL({ hash: this.storage.toString() }),
-            type: WhitelistMap,
-          })
-        );
-    });
-    isNone.assertEquals(map.isSome.not());
-    const root = Provable.if(
-      map.isSome,
-      map.orElse(new WhitelistMap()).root,
-      Field(0)
-    );
-    root.equals(this.root);
-    return map;
+  async load(): Promise<OffchainMapOption> {
+    return this.list.load();
   }
 
   /**
@@ -88,9 +41,9 @@ export class Whitelist extends Struct({
    * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
    */
   async getWhitelistedAmount(address: PublicKey): Promise<UInt64Option> {
-    const map = await this.load();
+    const map = await this.list.load();
     const key = Poseidon.hashPacked(PublicKey, address);
-    const value = map.orElse(new WhitelistMap()).getOption(key);
+    const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse(UInt64.MAXINT().value);
     valueField.assertLessThanOrEqual(UInt64.MAXINT().value);
     const amount = UInt64.Unsafe.fromField(valueField);
@@ -102,8 +55,7 @@ export class Whitelist extends Struct({
 
   static empty(): Whitelist {
     return new Whitelist({
-      root: Field(0),
-      storage: Storage.empty(),
+      list: OffChainList.empty(),
     });
   }
 
@@ -113,7 +65,7 @@ export class Whitelist extends Struct({
    * @returns A new `Whitelist` instance.
    */
   static async create(params: {
-    list: WhitelistedAddress[] | { address: string; amount?: number }[];
+    list: WhitelistedAddress[];
     name?: string;
     keyvalues?: object;
     timeout?: number;
@@ -123,82 +75,52 @@ export class Whitelist extends Struct({
     const {
       name = "whitelist.json",
       keyvalues,
-      timeout = 60 * 1000,
-      attempts = 5,
+      timeout,
+      attempts,
       auth,
     } = params;
-    const list: WhitelistedAddress[] =
-      typeof params.list[0].address === "string"
-        ? (params.list as { address: string; amount?: number }[]).map(
-            (item) =>
-              new WhitelistedAddress({
-                address: PublicKey.fromBase58(item.address),
-                amount: item.amount
-                  ? UInt64.from(item.amount)
-                  : UInt64.MAXINT(),
-              })
-          )
-        : (params.list as WhitelistedAddress[]);
-    const map = new WhitelistMap();
-    for (const item of list) {
-      map.insert(
-        Poseidon.hashPacked(PublicKey, item.address),
-        item.amount.toBigInt()
-      );
+
+    function parseAddress(address: string | PublicKey): PublicKey {
+      return typeof address === "string"
+        ? PublicKey.fromBase58(address)
+        : address;
     }
-    const serializedMap = serializeIndexedMap(map);
-    const json = {
-      map: serializedMap,
-      whitelist: list.map((item) => ({
+    function parseAmount(amount?: number | UInt64): UInt64 {
+      if (amount === undefined) return UInt64.zero;
+      return typeof amount === "number" ? UInt64.from(amount) : amount;
+    }
+
+    const entries: { address: PublicKey; amount: UInt64 }[] = params.list.map(
+      (item) => ({
+        address: parseAddress(item.address),
+        amount: parseAmount(item.amount),
+      })
+    );
+
+    const list = await OffChainList.create({
+      list: entries.map((item) => ({
+        key: Poseidon.hashPacked(PublicKey, item.address),
+        value: item.amount.value,
+      })),
+      data: entries.map((item) => ({
         address: item.address.toBase58(),
         amount: Number(item.amount.toBigInt()),
       })),
-    };
-    let attempt = 0;
-    const start = Date.now();
-    if (process.env.DEBUG === "true")
-      console.log(
-        "Whitelist.create:",
-        { json, name, keyvalues, auth },
-        json.whitelist
-      );
-    let hash = await pinJSON({
-      data: json,
       name,
       keyvalues,
+      timeout,
+      attempts,
       auth,
     });
-    while (!hash && attempt < attempts && Date.now() - start < timeout) {
-      attempt++;
-      await sleep(5000 * attempt); // handle rate-limits
-      hash = await pinJSON({
-        data: json,
-        name,
-        keyvalues,
-        auth,
-      });
-    }
-    if (!hash) throw new Error("Failed to pin whitelist");
 
-    return new Whitelist({
-      root: map.root,
-      storage: Storage.fromString(hash),
-    });
+    return new Whitelist({ list });
   }
 
   toString(): string {
-    return JSON.stringify(
-      { root: this.root.toJSON(), storage: this.storage.toString() },
-      null,
-      2
-    );
+    return this.list.toString();
   }
 
   static fromString(str: string): Whitelist {
-    const json = JSON.parse(str);
-    return new Whitelist({
-      root: Field.fromJSON(json.root),
-      storage: Storage.fromString(json.storage),
-    });
+    return new Whitelist({ list: OffChainList.fromString(str) });
   }
 }

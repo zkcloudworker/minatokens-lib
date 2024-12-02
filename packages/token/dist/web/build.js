@@ -1,15 +1,15 @@
 import { Whitelist } from "@minatokens/storage";
 import { fetchMinaAccount } from "./fetch.js";
-import { FungibleToken, WhitelistedFungibleToken } from "./FungibleToken.js";
-import { FungibleTokenAdmin } from "./FungibleTokenAdmin.js";
-import { FungibleTokenWhitelistedAdmin } from "./FungibleTokenWhitelistedAdmin.js";
+import { FungibleToken, AdvancedFungibleToken } from "./FungibleToken.js";
+import { FungibleTokenAdmin } from "./FungibleTokenStandardAdmin.js";
+import { FungibleTokenAdvancedAdmin } from "./FungibleTokenAdvancedAdmin.js";
 import { FungibleTokenBidContract } from "./bid.js";
 import { FungibleTokenOfferContract } from "./offer.js";
 import { tokenVerificationKeys } from "./vk.js";
-import { PublicKey, Mina, AccountUpdate, UInt8, Bool, Struct, Field, } from "o1js";
+import { PublicKey, Mina, AccountUpdate, UInt64, UInt8, Bool, Struct, Field, TokenId, } from "o1js";
 export async function buildTokenDeployTransaction(params) {
-    const { fee, sender, nonce, memo, tokenAddress, adminContractAddress, uri, symbol, developerAddress, developerFee, provingKey, provingFee, decimals, chain, } = params;
-    const isWhitelisted = params.whitelist !== undefined;
+    const { fee, sender, nonce, memo, tokenAddress, adminContractAddress, uri, symbol, developerAddress, developerFee, provingKey, provingFee, decimals, chain, adminType, } = params;
+    const isAdvanced = adminType === "advanced";
     if (memo && typeof memo !== "string")
         throw new Error("Memo must be a string");
     if (memo && memo.length > 30)
@@ -18,32 +18,36 @@ export async function buildTokenDeployTransaction(params) {
         throw new Error("Symbol must be a string");
     if (symbol.length >= 7)
         throw new Error("Symbol must be less than 7 characters");
-    const adminContract = isWhitelisted
-        ? FungibleTokenWhitelistedAdmin
+    const adminContract = isAdvanced
+        ? FungibleTokenAdvancedAdmin
         : FungibleTokenAdmin;
-    const tokenContract = isWhitelisted
-        ? WhitelistedFungibleToken
-        : FungibleToken;
+    const tokenContract = isAdvanced ? AdvancedFungibleToken : FungibleToken;
     const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
     if (!vk ||
-        !vk.FungibleTokenWhitelistedAdmin ||
-        !vk.FungibleTokenWhitelistedAdmin.hash ||
-        !vk.FungibleTokenWhitelistedAdmin.data ||
+        !vk.FungibleTokenOfferContract ||
+        !vk.FungibleTokenOfferContract.hash ||
+        !vk.FungibleTokenOfferContract.data ||
+        !vk.FungibleTokenBidContract ||
+        !vk.FungibleTokenBidContract.hash ||
+        !vk.FungibleTokenBidContract.data ||
+        !vk.FungibleTokenAdvancedAdmin ||
+        !vk.FungibleTokenAdvancedAdmin.hash ||
+        !vk.FungibleTokenAdvancedAdmin.data ||
         !vk.FungibleTokenAdmin ||
         !vk.FungibleTokenAdmin.hash ||
         !vk.FungibleTokenAdmin.data ||
-        !vk.WhitelistedFungibleToken ||
-        !vk.WhitelistedFungibleToken.hash ||
-        !vk.WhitelistedFungibleToken.data ||
+        !vk.AdvancedFungibleToken ||
+        !vk.AdvancedFungibleToken.hash ||
+        !vk.AdvancedFungibleToken.data ||
         !vk.FungibleToken ||
         !vk.FungibleToken.hash ||
         !vk.FungibleToken.data)
-        throw new Error("Cannot get verification keys");
-    const adminVerificationKey = isWhitelisted
-        ? vk.FungibleTokenWhitelistedAdmin
+        throw new Error("Cannot get verification key from vk");
+    const adminVerificationKey = isAdvanced
+        ? vk.FungibleTokenAdvancedAdmin
         : vk.FungibleTokenAdmin;
-    const tokenVerificationKey = isWhitelisted
-        ? vk.WhitelistedFungibleToken
+    const tokenVerificationKey = isAdvanced
+        ? vk.AdvancedFungibleToken
         : vk.FungibleToken;
     if (!adminVerificationKey || !tokenVerificationKey)
         throw new Error("Cannot get verification keys");
@@ -58,10 +62,10 @@ export async function buildTokenDeployTransaction(params) {
         ? typeof params.whitelist === "string"
             ? Whitelist.fromString(params.whitelist)
             : await Whitelist.create({ list: params.whitelist, name: symbol })
-        : undefined;
+        : Whitelist.empty();
     const zkToken = new tokenContract(tokenAddress);
     const zkAdmin = new adminContract(adminContractAddress);
-    const tx = await Mina.transaction({ sender, fee, memo: memo ?? `deploy ${symbol}`, nonce }, async () => {
+    const tx = await Mina.transaction({ sender, fee, memo: memo ?? `launch ${symbol}`, nonce }, async () => {
         const feeAccountUpdate = AccountUpdate.createSigned(sender);
         feeAccountUpdate.balance.subInPlace(3_000_000_000);
         feeAccountUpdate.send({
@@ -74,13 +78,14 @@ export async function buildTokenDeployTransaction(params) {
                 amount: developerFee,
             });
         }
-        if (isWhitelisted && !whitelist) {
-            throw new Error("Whitelisted addresses not found");
-        }
         await zkAdmin.deploy({
             adminPublicKey: sender,
+            tokenContract: tokenAddress,
             verificationKey: adminVerificationKey,
-            whitelist: whitelist,
+            whitelist,
+            totalSupply: params.totalSupply ?? UInt64.MAXINT(),
+            requireAdminSignatureForMint: params.requireAdminSignatureForMint ?? Bool(false),
+            anyoneCanMint: params.anyoneCanMint ?? Bool(false),
         });
         zkAdmin.account.zkappUri.set(uri);
         await zkToken.deploy({
@@ -97,26 +102,31 @@ export async function buildTokenDeployTransaction(params) {
     });
     return {
         tx,
-        isWhitelisted,
+        isAdvanced,
         verificationKeyHashes: [
             adminVerificationKey.hash,
             tokenVerificationKey.hash,
         ],
-        whitelist: whitelist?.toString(),
+        whitelist: whitelist.toString(),
     };
 }
-export function getTokenTransactionSender(params) {
-    const { txType, from, to } = params;
-    if (txType === "buy" ||
-        txType === "withdrawOffer" ||
-        txType === "withdrawBid") {
-        return to;
-    }
-    return from;
-}
+// export function getTokenTransactionSender(params: {
+//   txType: FungibleTokenTransactionType;
+//   from: PublicKey;
+//   to: PublicKey;
+// }) {
+//   const { txType, from, to } = params;
+//   if (
+//     txType === "buy" ||
+//     txType === "withdrawOffer" ||
+//     txType === "withdrawBid"
+//   ) {
+//     return to;
+//   }
+//   return from;
+// }
 export async function buildTokenTransaction(params) {
-    const { txType, chain, fee, nonce, tokenAddress, from, to, amount, price, developerAddress, developerFee, provingKey, provingFee, } = params;
-    const sender = getTokenTransactionSender({ txType, from, to });
+    const { txType, sender, chain, fee, nonce, tokenAddress, from, to, amount, price, developerAddress, developerFee, provingKey, provingFee, } = params;
     await fetchMinaAccount({
         publicKey: sender,
         force: true,
@@ -124,19 +134,19 @@ export async function buildTokenTransaction(params) {
     if (!Mina.hasAccount(sender)) {
         throw new Error("Sender does not have account");
     }
-    const { symbol, adminContractAddress, adminAddress, isWhitelisted, verificationKeyHashes, } = await getTokenSymbolAndAdmin({
+    const { symbol, adminContractAddress, adminAddress, isAdvanced, isToNewAccount, verificationKeyHashes, } = await getTokenSymbolAndAdmin({
         txType,
         tokenAddress,
         chain,
+        to,
     });
     const memo = params.memo ?? `${txType} ${symbol}`;
-    const whitelistedAdminContract = new FungibleTokenWhitelistedAdmin(adminContractAddress);
-    const tokenContract = isWhitelisted && txType === "mint"
-        ? WhitelistedFungibleToken
-        : FungibleToken;
-    if ((txType === "whitelistAdmin" ||
-        txType === "whitelistBid" ||
-        txType === "whitelistOffer") &&
+    const adminContract = new FungibleTokenAdmin(adminContractAddress);
+    const advancedAdminContract = new FungibleTokenAdvancedAdmin(adminContractAddress);
+    const tokenContract = isAdvanced && txType === "mint" ? AdvancedFungibleToken : FungibleToken;
+    if ((txType === "updateAdminWhitelist" ||
+        txType === "updateBidWhitelist" ||
+        txType === "updateOfferWhitelist") &&
         !params.whitelist) {
         throw new Error("Whitelist is required");
     }
@@ -144,24 +154,21 @@ export async function buildTokenTransaction(params) {
         ? typeof params.whitelist === "string"
             ? Whitelist.fromString(params.whitelist)
             : await Whitelist.create({ list: params.whitelist, name: symbol })
-        : undefined;
+        : Whitelist.empty();
     const zkToken = new tokenContract(tokenAddress);
     const tokenId = zkToken.deriveTokenId();
-    if (txType === "mint" && adminAddress.toBase58() !== sender.toBase58())
-        throw new Error("Invalid sender for mint");
-    await fetchMinaAccount({
-        publicKey: tokenAddress,
-        tokenId,
-        force: true,
-    });
+    if (txType === "mint" &&
+        isAdvanced === false &&
+        adminAddress.toBase58() !== sender.toBase58())
+        throw new Error("Invalid sender for FungibleToken mint with standard admin");
     await fetchMinaAccount({
         publicKey: from,
         tokenId,
         force: [
             "offer",
-            "whitelistOffer",
+            "updateOfferWhitelist",
             "bid",
-            "whitelistBid",
+            "updateBidWhitelist",
             "sell",
             "transfer",
             "withdrawOffer",
@@ -172,7 +179,7 @@ export async function buildTokenTransaction(params) {
         tokenId,
         force: [
             "sell",
-            "whitelistAdmin",
+            "updateAdminWhitelist",
             "withdrawBid",
             "withdrawOffer",
         ].includes(txType),
@@ -180,13 +187,13 @@ export async function buildTokenTransaction(params) {
     const isNewAccount = Mina.hasAccount(to, tokenId) === false;
     const offerContract = new FungibleTokenOfferContract([
         "offer",
-        "whitelistOffer",
+        "updateOfferWhitelist",
     ].includes(txType)
         ? to
         : from, tokenId);
     const bidContract = new FungibleTokenBidContract([
         "bid",
-        "whitelistBid",
+        "updateBidWhitelist",
     ].includes(txType)
         ? from
         : to, tokenId);
@@ -200,25 +207,19 @@ export async function buildTokenTransaction(params) {
         !vk.FungibleTokenBidContract ||
         !vk.FungibleTokenBidContract.hash ||
         !vk.FungibleTokenBidContract.data ||
-        !vk.FungibleTokenWhitelistedAdmin ||
-        !vk.FungibleTokenWhitelistedAdmin.hash ||
-        !vk.FungibleTokenWhitelistedAdmin.data ||
+        !vk.FungibleTokenAdvancedAdmin ||
+        !vk.FungibleTokenAdvancedAdmin.hash ||
+        !vk.FungibleTokenAdvancedAdmin.data ||
         !vk.FungibleTokenAdmin ||
         !vk.FungibleTokenAdmin.hash ||
         !vk.FungibleTokenAdmin.data ||
-        !vk.WhitelistedFungibleToken ||
-        !vk.WhitelistedFungibleToken.hash ||
-        !vk.WhitelistedFungibleToken.data ||
+        !vk.AdvancedFungibleToken ||
+        !vk.AdvancedFungibleToken.hash ||
+        !vk.AdvancedFungibleToken.data ||
         !vk.FungibleToken ||
         !vk.FungibleToken.hash ||
         !vk.FungibleToken.data)
-        throw new Error("Cannot get verification key");
-    const adminVerificationKey = isWhitelisted
-        ? vk.FungibleTokenWhitelistedAdmin
-        : vk.FungibleTokenAdmin;
-    const tokenVerificationKey = isWhitelisted
-        ? vk.WhitelistedFungibleToken
-        : vk.FungibleToken;
+        throw new Error("Cannot get verification key from vk");
     const offerVerificationKey = FungibleTokenOfferContract._verificationKey ?? {
         hash: Field(vk.FungibleTokenOfferContract.hash),
         data: vk.FungibleTokenOfferContract.data,
@@ -227,10 +228,12 @@ export async function buildTokenTransaction(params) {
         hash: Field(vk.FungibleTokenBidContract.hash),
         data: vk.FungibleTokenBidContract.data,
     };
+    const accountCreationFee = (isNewAccount ? 1_000_000_000 : 0) +
+        (isToNewAccount && txType === "mint" && isAdvanced ? 1_000_000_000 : 0);
     const tx = await Mina.transaction({ sender, fee, memo, nonce }, async () => {
         const feeAccountUpdate = AccountUpdate.createSigned(sender);
-        if (isNewAccount) {
-            feeAccountUpdate.balance.subInPlace(1_000_000_000);
+        if (accountCreationFee > 0) {
+            feeAccountUpdate.balance.subInPlace(accountCreationFee);
         }
         feeAccountUpdate.send({
             to: provingKey,
@@ -321,21 +324,16 @@ export async function buildTokenTransaction(params) {
                 await bidContract.withdraw(amount);
                 await zkToken.approveAccountUpdate(bidContract.self);
                 break;
-            case "whitelistAdmin":
-                if (!whitelist)
-                    throw new Error("Whitelist is required");
-                await whitelistedAdminContract.updateWhitelist(whitelist);
+            case "updateAdminWhitelist":
+                if (!isAdvanced)
+                    throw new Error("Invalid admin type for updateAdminWhitelist");
+                await advancedAdminContract.updateWhitelist(whitelist);
                 break;
-            case "whitelistBid":
-                if (!whitelist)
-                    throw new Error("Whitelist is required");
+            case "updateBidWhitelist":
                 await bidContract.updateWhitelist(whitelist);
                 break;
-            case "whitelistOffer":
-                if (!whitelist)
-                    throw new Error("Whitelist is required");
+            case "updateOfferWhitelist":
                 await offerContract.updateWhitelist(whitelist);
-                await zkToken.approveAccountUpdate(offerContract.self);
                 break;
             default:
                 throw new Error(`Unknown transaction type: ${txType}`);
@@ -343,7 +341,7 @@ export async function buildTokenTransaction(params) {
     });
     return {
         tx,
-        isWhitelisted,
+        isAdvanced,
         adminContractAddress,
         adminAddress,
         symbol,
@@ -352,15 +350,15 @@ export async function buildTokenTransaction(params) {
     };
 }
 export async function getTokenSymbolAndAdmin(params) {
-    const { txType, tokenAddress, chain } = params;
+    const { txType, tokenAddress, chain, to } = params;
     const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
     const verificationKeyHashes = [];
-    if (txType === "whitelistBid" ||
+    if (txType === "updateBidWhitelist" ||
         txType === "bid" ||
         txType === "withdrawBid") {
         verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
     }
-    if (txType === "whitelistOffer" ||
+    if (txType === "updateOfferWhitelist" ||
         txType === "offer" ||
         txType === "withdrawOffer") {
         verificationKeyHashes.push(vk.FungibleTokenOfferContract.hash);
@@ -380,6 +378,11 @@ export async function getTokenSymbolAndAdmin(params) {
     await fetchMinaAccount({ publicKey: tokenAddress, force: true });
     if (!Mina.hasAccount(tokenAddress)) {
         throw new Error("Token contract account not found");
+    }
+    const tokenId = TokenId.derive(tokenAddress);
+    await fetchMinaAccount({ publicKey: tokenAddress, tokenId, force: true });
+    if (!Mina.hasAccount(tokenAddress, tokenId)) {
+        throw new Error("Token contract totalSupply account not found");
     }
     const account = Mina.getAccount(tokenAddress);
     const verificationKey = account.zkapp?.verificationKey;
@@ -410,18 +413,27 @@ export async function getTokenSymbolAndAdmin(params) {
     if (!verificationKeyHashes.includes(adminVerificationKey.hash.toJSON())) {
         verificationKeyHashes.push(adminVerificationKey.hash.toJSON());
     }
-    let isWhitelisted = false;
-    if (vk.FungibleTokenWhitelistedAdmin.hash ===
-        adminVerificationKey.hash.toJSON() &&
-        vk.FungibleTokenWhitelistedAdmin.data === adminVerificationKey.data) {
-        isWhitelisted = true;
+    let isAdvanced = false;
+    if (vk.FungibleTokenAdvancedAdmin.hash === adminVerificationKey.hash.toJSON() &&
+        vk.FungibleTokenAdvancedAdmin.data === adminVerificationKey.data) {
+        isAdvanced = true;
     }
     else if (vk.FungibleTokenAdmin.hash === adminVerificationKey.hash.toJSON() &&
         vk.FungibleTokenAdmin.data === adminVerificationKey.data) {
-        isWhitelisted = false;
+        isAdvanced = false;
     }
     else {
         throw new Error("Unknown admin verification key");
+    }
+    let isToNewAccount = undefined;
+    if (isAdvanced && to) {
+        const adminTokenId = TokenId.derive(adminContractPublicKey);
+        await fetchMinaAccount({
+            publicKey: to,
+            tokenId: adminTokenId,
+            force: false,
+        });
+        isToNewAccount = !Mina.hasAccount(to, adminTokenId);
     }
     const adminAddress0 = adminContract.zkapp?.appState[0];
     const adminAddress1 = adminContract.zkapp?.appState[1];
@@ -453,7 +465,8 @@ export async function getTokenSymbolAndAdmin(params) {
         adminContractAddress: adminContractPublicKey,
         adminAddress: adminAddress,
         symbol,
-        isWhitelisted,
+        isAdvanced,
+        isToNewAccount,
         verificationKeyHashes,
     };
 }

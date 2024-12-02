@@ -50,19 +50,19 @@ var MinaTokensAPI = class {
       callParams: params
     });
   }
-  buildDeployTokenTransaction(params) {
+  buildTransaction(params) {
     return this.apiCall({
-      endpoint: "deploy",
+      endpoint: params.txType,
       callParams: params
     });
   }
-  tokenTransaction(params) {
+  buildAirdrop(params) {
     return this.apiCall({
-      endpoint: "transaction",
+      endpoint: "airdrop",
       callParams: params
     });
   }
-  proveTokenTransaction(params) {
+  proveTransactions(params) {
     return this.apiCall({
       endpoint: "prove",
       callParams: params
@@ -166,18 +166,19 @@ var MinaTokensAPI = class {
 
 // dist/node/types.js
 var tokenTransactionTypes = [
-  "deploy",
+  "launch",
   "mint",
   "transfer",
   "bid",
   "offer",
   "buy",
   "sell",
+  "airdrop",
   "withdrawBid",
   "withdrawOffer",
-  "whitelistBid",
-  "whitelistOffer",
-  "whitelistAdmin"
+  "updateBidWhitelist",
+  "updateOfferWhitelist",
+  "updateAdminWhitelist"
 ];
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

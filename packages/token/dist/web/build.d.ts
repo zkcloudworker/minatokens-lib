@@ -1,6 +1,7 @@
-import { WhitelistedAddressList } from "@minatokens/storage";
-import { FungibleTokenTransactionType, blockchain } from "./types.js";
-import { PublicKey, UInt64, UInt8, Transaction } from "o1js";
+import { WhitelistedAddress } from "@minatokens/storage";
+import { FungibleTokenTransactionType } from "@minatokens/api";
+import { blockchain } from "./types.js";
+import { PublicKey, UInt64, UInt8, Bool, Transaction } from "o1js";
 export declare function buildTokenDeployTransaction(params: {
     chain: blockchain;
     fee: UInt64;
@@ -9,10 +10,14 @@ export declare function buildTokenDeployTransaction(params: {
     tokenAddress: PublicKey;
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
+    adminType: "standard" | "advanced";
     uri: string;
     symbol: string;
     memo?: string;
-    whitelist?: WhitelistedAddressList | string;
+    whitelist?: WhitelistedAddress[] | string;
+    totalSupply?: UInt64;
+    requireAdminSignatureForMint?: Bool;
+    anyoneCanMint?: Bool;
     developerAddress?: PublicKey;
     developerFee?: UInt64;
     provingKey: PublicKey;
@@ -20,15 +25,10 @@ export declare function buildTokenDeployTransaction(params: {
     decimals: UInt8;
 }): Promise<{
     tx: Transaction<false, false>;
-    isWhitelisted: boolean;
+    isAdvanced: boolean;
     verificationKeyHashes: string[];
-    whitelist: string | undefined;
+    whitelist: string;
 }>;
-export declare function getTokenTransactionSender(params: {
-    txType: FungibleTokenTransactionType;
-    from: PublicKey;
-    to: PublicKey;
-}): PublicKey;
 export declare function buildTokenTransaction(params: {
     txType: FungibleTokenTransactionType;
     chain: blockchain;
@@ -36,32 +36,35 @@ export declare function buildTokenTransaction(params: {
     nonce: number;
     memo?: string;
     tokenAddress: PublicKey;
+    sender: PublicKey;
     from: PublicKey;
     to: PublicKey;
     amount?: UInt64;
     price?: UInt64;
-    whitelist?: WhitelistedAddressList | string;
+    whitelist?: WhitelistedAddress[] | string;
     developerAddress?: PublicKey;
     developerFee?: UInt64;
     provingKey: PublicKey;
     provingFee: UInt64;
 }): Promise<{
     tx: Transaction<false, false>;
-    isWhitelisted: boolean;
+    isAdvanced: boolean;
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
     symbol: string;
     verificationKeyHashes: string[];
-    whitelist: string | undefined;
+    whitelist?: string;
 }>;
 export declare function getTokenSymbolAndAdmin(params: {
     txType: FungibleTokenTransactionType;
+    to?: PublicKey;
     tokenAddress: PublicKey;
     chain: blockchain;
 }): Promise<{
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
     symbol: string;
-    isWhitelisted: boolean;
+    isAdvanced: boolean;
+    isToNewAccount?: boolean;
     verificationKeyHashes: string[];
 }>;

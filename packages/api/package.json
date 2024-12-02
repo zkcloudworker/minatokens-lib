@@ -1,6 +1,6 @@
 {
   "name": "@minatokens/api",
-  "version": "0.2.3",
+  "version": "0.3.2",
   "author": "DFST",
   "description": "MinaTokens API",
   "type": "module",
@@ -54,7 +54,7 @@
   "devDependencies": {
     "@types/node": "^22.10.0",
     "esbuild": "^0.24.0",
-    "typedoc": "^0.27.1",
+    "typedoc": "^0.27.2",
     "typedoc-plugin-markdown": "^4.3.0",
     "typescript": "^5.7.2"
   },
