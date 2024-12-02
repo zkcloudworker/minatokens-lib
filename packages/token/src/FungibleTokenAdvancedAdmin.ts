@@ -142,35 +142,41 @@ export class FungibleTokenAdvancedAdmin
 
   @method.returns(Bool)
   public async canMint(_accountUpdate: AccountUpdate) {
+    // We use many conditional account updates here to allow other contracts to call this method
+    // without hitting the account update limit
     const address = _accountUpdate.body.publicKey;
     const balanceChange = _accountUpdate.body.balanceChange;
     balanceChange.isPositive().assertTrue();
+    const amount: UInt64 = balanceChange.magnitude;
 
     const adminData = AdvancedAdminData.unpack(
       this.adminData.getAndRequireEquals()
     );
+    amount.assertLessThanOrEqual(adminData.totalSupply);
+
     const tokenContract = this.tokenContract.getAndRequireEquals();
     const tokenId = TokenId.derive(tokenContract); // it is NOT this.tokenId
     const adminTokenId = this.deriveTokenId(); // it is NOT this.tokenId
+
+    // Does this guarantee that the call is from the token contract?
+    // TODO: If not, consider adding a sync method to handle the case when
+    // the contract will be called not from the token contract
+    // and the totalSupply will run out of sync with the token contract
     _accountUpdate.body.tokenId.assertEquals(tokenId);
 
     // Create a conditional AccountUpdate to check total supply in case it is limited
-    const checkTotalSupply = adminData.totalSupply
-      .equals(UInt64.MAXINT())
-      .not();
+    const maxAdditionalSupply = adminData.totalSupply.sub(amount);
     const tokenUpdate = AccountUpdate.createIf(
-      checkTotalSupply,
-      tokenContract,
-      tokenId
+      adminData.totalSupply.equals(UInt64.MAXINT()).not(),
+      this.address,
+      adminTokenId
     );
-    const maxAdditionalSupply = Provable.if(
-      checkTotalSupply,
-      adminData.totalSupply.sub(balanceChange.magnitude),
-      UInt64.MAXINT()
+    tokenUpdate.account.balance.requireBetween(
+      UInt64.zero,
+      maxAdditionalSupply
     );
-    tokenUpdate.body.preconditions.account.balance.value.lower = UInt64.zero;
-    tokenUpdate.body.preconditions.account.balance.value.upper =
-      maxAdditionalSupply;
+    tokenUpdate.balance.addInPlace(amount);
+    this.self.approve(tokenUpdate);
 
     const whitelist = this.whitelist.getAndRequireEquals();
     const whitelistedAmount = await whitelist.getWhitelistedAmount(address);
@@ -186,17 +192,22 @@ export class FungibleTokenAdvancedAdmin
       ), // blacklist
       whitelistedAmount.value
     );
+    amount.assertLessThanOrEqual(maxMintAmount);
 
-    // create an account update to check if the tokens already have been minted
+    // create a conditional account update to check if the tokens already have been minted
     // we will keep track of the total amount minted in the admin contract
     // It is the responsibility of Mina.transaction to fund the new account
     // We will not handle it here to save one account update
-    const trackMintUpdate = AccountUpdate.create(address, adminTokenId);
-    const alreadyMinted = trackMintUpdate.account.balance.getAndRequireEquals();
-    alreadyMinted
-      .add(balanceChange.magnitude)
-      .assertLessThanOrEqual(maxMintAmount);
-    trackMintUpdate.balance.addInPlace(balanceChange.magnitude);
+    const trackMintUpdate = AccountUpdate.createIf(
+      whitelist.isSome(), // we do not track minting if the whitelist is empty
+      address,
+      adminTokenId
+    );
+    trackMintUpdate.account.balance.requireBetween(
+      UInt64.zero,
+      maxMintAmount.sub(amount)
+    );
+    trackMintUpdate.balance.addInPlace(amount);
     this.self.approve(trackMintUpdate);
 
     // This conditional account update will be created only if admin signature is required

@@ -493,16 +493,18 @@ var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
     const address = _accountUpdate.body.publicKey;
     const balanceChange = _accountUpdate.body.balanceChange;
     balanceChange.isPositive().assertTrue();
+    const amount = balanceChange.magnitude;
     const adminData = AdvancedAdminData.unpack(this.adminData.getAndRequireEquals());
+    amount.assertLessThanOrEqual(adminData.totalSupply);
     const tokenContract = this.tokenContract.getAndRequireEquals();
     const tokenId = import_o1js3.TokenId.derive(tokenContract);
     const adminTokenId = this.deriveTokenId();
     _accountUpdate.body.tokenId.assertEquals(tokenId);
-    const checkTotalSupply = adminData.totalSupply.equals(import_o1js3.UInt64.MAXINT()).not();
-    const tokenUpdate = import_o1js3.AccountUpdate.createIf(checkTotalSupply, tokenContract, tokenId);
-    const maxAdditionalSupply = import_o1js3.Provable.if(checkTotalSupply, adminData.totalSupply.sub(balanceChange.magnitude), import_o1js3.UInt64.MAXINT());
-    tokenUpdate.body.preconditions.account.balance.value.lower = import_o1js3.UInt64.zero;
-    tokenUpdate.body.preconditions.account.balance.value.upper = maxAdditionalSupply;
+    const maxAdditionalSupply = adminData.totalSupply.sub(amount);
+    const tokenUpdate = import_o1js3.AccountUpdate.createIf(adminData.totalSupply.equals(import_o1js3.UInt64.MAXINT()).not(), this.address, adminTokenId);
+    tokenUpdate.account.balance.requireBetween(import_o1js3.UInt64.zero, maxAdditionalSupply);
+    tokenUpdate.balance.addInPlace(amount);
+    this.self.approve(tokenUpdate);
     const whitelist = this.whitelist.getAndRequireEquals();
     const whitelistedAmount = await whitelist.getWhitelistedAmount(address);
     whitelistedAmount.isSome.or(adminData.anyoneCanMint).assertTrue("Cannot mint to non-whitelisted address");
@@ -512,10 +514,15 @@ var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
       // blacklist
       whitelistedAmount.value
     );
-    const trackMintUpdate = import_o1js3.AccountUpdate.create(address, adminTokenId);
-    const alreadyMinted = trackMintUpdate.account.balance.getAndRequireEquals();
-    alreadyMinted.add(balanceChange.magnitude).assertLessThanOrEqual(maxMintAmount);
-    trackMintUpdate.balance.addInPlace(balanceChange.magnitude);
+    amount.assertLessThanOrEqual(maxMintAmount);
+    const trackMintUpdate = import_o1js3.AccountUpdate.createIf(
+      whitelist.isSome(),
+      // we do not track minting if the whitelist is empty
+      address,
+      adminTokenId
+    );
+    trackMintUpdate.account.balance.requireBetween(import_o1js3.UInt64.zero, maxMintAmount.sub(amount));
+    trackMintUpdate.balance.addInPlace(amount);
     this.self.approve(trackMintUpdate);
     const adminSignatureUpdate = import_o1js3.AccountUpdate.createIf(adminData.requireAdminSignatureForMint, this.adminPublicKey.getAndRequireEquals());
     adminSignatureUpdate.requireSignature();
@@ -623,8 +630,8 @@ var tokenVerificationKeys = {
         type: "token"
       },
       FungibleTokenAdvancedAdmin: {
-        hash: "2931120461061235161978506008581824014095267189097447502927119423687960099073",
-        data: "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",
+        hash: "18469601365192855444287994399290051894647400722914713028913144871179274784711",
+        data: "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",
         type: "admin"
       },
       FungibleTokenBidContract: {
@@ -659,8 +666,8 @@ var tokenVerificationKeys = {
         type: "token"
       },
       FungibleTokenAdvancedAdmin: {
-        hash: "14641799426193485346025163690737509332164402673361215430380084537307571675856",
-        data: "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",
+        hash: "5663804628938796130349221782481905453391854490394485303353398329651146956330",
+        data: "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",
         type: "admin"
       },
       FungibleTokenBidContract: {
@@ -1082,7 +1089,7 @@ async function buildTokenDeployTransaction(params) {
   const zkAdmin = new adminContract(adminContractAddress);
   const tx = await import_o1js7.Mina.transaction({ sender, fee, memo: memo ?? `launch ${symbol}`, nonce }, async () => {
     const feeAccountUpdate = import_o1js7.AccountUpdate.createSigned(sender);
-    feeAccountUpdate.balance.subInPlace(3e9);
+    feeAccountUpdate.balance.subInPlace(3e9 + (isAdvanced ? 1e9 : 0));
     feeAccountUpdate.send({
       to: provingKey,
       amount: provingFee
@@ -1102,6 +1109,10 @@ async function buildTokenDeployTransaction(params) {
       requireAdminSignatureForMint: params.requireAdminSignatureForMint ?? (0, import_o1js7.Bool)(false),
       anyoneCanMint: params.anyoneCanMint ?? (0, import_o1js7.Bool)(false)
     });
+    if (isAdvanced) {
+      const adminUpdate = import_o1js7.AccountUpdate.create(adminContractAddress, import_o1js7.TokenId.derive(adminContractAddress));
+      zkAdmin.approve(adminUpdate);
+    }
     zkAdmin.account.zkappUri.set(uri);
     await zkToken.deploy({
       symbol,
@@ -1200,7 +1211,7 @@ async function buildTokenTransaction(params) {
     hash: (0, import_o1js7.Field)(vk.FungibleTokenBidContract.hash),
     data: vk.FungibleTokenBidContract.data
   };
-  const accountCreationFee = (isNewAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced ? 1e9 : 0);
+  const accountCreationFee = (isNewAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
   const tx = await import_o1js7.Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = import_o1js7.AccountUpdate.createSigned(sender);
     if (accountCreationFee > 0) {

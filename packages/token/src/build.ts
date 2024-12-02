@@ -135,7 +135,9 @@ export async function buildTokenDeployTransaction(params: {
     { sender, fee, memo: memo ?? `launch ${symbol}`, nonce },
     async () => {
       const feeAccountUpdate = AccountUpdate.createSigned(sender);
-      feeAccountUpdate.balance.subInPlace(3_000_000_000);
+      feeAccountUpdate.balance.subInPlace(
+        3_000_000_000 + (isAdvanced ? 1_000_000_000 : 0)
+      );
       feeAccountUpdate.send({
         to: provingKey,
         amount: provingFee,
@@ -156,6 +158,13 @@ export async function buildTokenDeployTransaction(params: {
           params.requireAdminSignatureForMint ?? Bool(false),
         anyoneCanMint: params.anyoneCanMint ?? Bool(false),
       });
+      if (isAdvanced) {
+        const adminUpdate = AccountUpdate.create(
+          adminContractAddress,
+          TokenId.derive(adminContractAddress)
+        );
+        zkAdmin.approve(adminUpdate);
+      }
       zkAdmin.account.zkappUri.set(uri);
       await zkToken.deploy({
         symbol,
@@ -391,7 +400,12 @@ export async function buildTokenTransaction(params: {
 
   const accountCreationFee =
     (isNewAccount ? 1_000_000_000 : 0) +
-    (isToNewAccount && txType === "mint" && isAdvanced ? 1_000_000_000 : 0);
+    (isToNewAccount &&
+    txType === "mint" &&
+    isAdvanced &&
+    advancedAdminContract.whitelist.get().isSome().toBoolean()
+      ? 1_000_000_000
+      : 0);
 
   const tx = await Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = AccountUpdate.createSigned(sender);
