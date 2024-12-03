@@ -52,21 +52,36 @@ export interface TokenTransaction extends TokenTransactionPayloads {
     amount?: number;
     price?: number;
 }
+export interface TokenTransactions {
+    txs: TokenTransaction[];
+}
 export interface ProveTokenTransaction {
     tx: DeployTransaction | TokenTransaction;
     signedData: string;
     sendTransaction?: boolean;
 }
+export interface ProveTokenTransactions {
+    txs: ProveTokenTransaction[];
+}
 export interface JobId {
     jobId: string;
 }
+export type JobStatus = "created" | "started" | "finished" | "failed" | "used" | "restarted";
 export interface JobResult {
     success: boolean;
     error?: string;
     tx?: string;
     hash?: string;
-    jobStatus?: string;
 }
+export type JobResults = {
+    success: true;
+    results?: JobResult[];
+    jobStatus?: JobStatus;
+} | {
+    success: false;
+    error?: string;
+    jobStatus?: JobStatus;
+};
 export interface TransactionTokenParams {
     txType: FungibleTokenTransactionType;
     tokenAddress: string;

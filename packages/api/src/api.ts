@@ -1,9 +1,8 @@
 import {
   DeployTransaction,
   JobId,
-  ProveTokenTransaction,
   TokenTransaction,
-  JobResult,
+  TokenTransactions,
   FaucetParams,
   FaucetResponse,
   TransactionStatusParams,
@@ -13,6 +12,8 @@ import {
   NFTRequestParams,
   BalanceResponse,
   BalanceRequestParams,
+  ProveTokenTransactions,
+  JobResults,
 } from "./types.js";
 import { TransactionParams, AirdropTransactionParams } from "./transaction.js";
 
@@ -98,21 +99,21 @@ export class MinaTokensAPI {
   }
 
   buildAirdrop(params: AirdropTransactionParams) {
-    return this.apiCall<AirdropTransactionParams, TokenTransaction[]>({
+    return this.apiCall<AirdropTransactionParams, TokenTransactions>({
       endpoint: "airdrop",
       callParams: params,
     });
   }
 
-  proveTransactions(params: ProveTokenTransaction[]) {
-    return this.apiCall<ProveTokenTransaction[], JobId>({
+  proveTransactions(params: ProveTokenTransactions) {
+    return this.apiCall<ProveTokenTransactions, JobId>({
       endpoint: "prove",
       callParams: params,
     });
   }
 
   getProof(params: JobId) {
-    return this.apiCall<JobId, JobResult>({
+    return this.apiCall<JobId, JobResults>({
       endpoint: "proof",
       callParams: params,
     });
@@ -132,23 +133,27 @@ export class MinaTokensAPI {
     });
   }
 
-  async waitForJobResult(jobId: string): Promise<string | undefined> {
+  async waitForProofs(
+    jobId: string
+  ): Promise<(string | undefined)[] | undefined> {
     console.log("Job ID:", jobId);
     let errorCount = 0;
     const startTime = Date.now();
     console.log("Waiting for job result...");
     while (errorCount < 100 && Date.now() - startTime < 1000 * 60 * 10) {
       try {
-        const jobResult = await this.getProof({ jobId });
+        const jobResults = await this.getProof({ jobId });
+        const jobStatus = jobResults.jobStatus;
 
-        if (jobResult.hash) {
-          const hash = jobResult.hash;
-          console.log("Transaction hash:", hash);
-          return hash;
+        if (
+          jobResults.success &&
+          (jobStatus === "finished" || jobStatus === "used")
+        ) {
+          return jobResults.results?.map((result) => result.hash ?? "") ?? [];
         }
-        const jobStatus = jobResult.jobStatus;
+
         if (jobStatus === "failed") {
-          console.log(`Job ${jobId} failed`);
+          console.error(`Job ${jobId} failed`);
           return undefined;
         }
       } catch (error) {
@@ -208,7 +213,7 @@ export class MinaTokensAPI {
         ? "https://zekotokens.com/api/v1"
         : "http://localhost:3000/api/v1";
     try {
-      const response = await fetch(`${endpointUrl}/${endpoint}`, {
+      const response = await fetch(`${endpointUrl}/${endpoint.toLowerCase()}`, {
         method: "POST",
         headers: {
           "x-api-key": this.apiKey,
@@ -226,7 +231,18 @@ export class MinaTokensAPI {
         );
       }
 
-      return (await response.json()) as TResponse;
+      const result = (await response.json()) as TResponse;
+      if (process.env.DEBUG === "true") {
+        console.log(
+          `API call:\nendpoint: ${endpoint}\nbody: ${JSON.stringify(
+            callParams
+          )}\nstatus: ${response.status}\nstatusText: ${
+            response.statusText
+          }\nresponse: ${JSON.stringify(result)}`
+        );
+      }
+
+      return result;
     } catch (error: any) {
       throw new Error(
         error?.message ?? (error ? String(error) : "Token API call failed")

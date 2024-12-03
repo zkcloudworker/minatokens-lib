@@ -1,4 +1,4 @@
-import { DeployTransaction, JobId, ProveTokenTransaction, TokenTransaction, JobResult, FaucetParams, FaucetResponse, TransactionStatusParams, TransactionStatus, TokenState, NFTRequestAnswer, NFTRequestParams, BalanceResponse, BalanceRequestParams } from "./types.js";
+import { DeployTransaction, JobId, TokenTransaction, TokenTransactions, FaucetParams, FaucetResponse, TransactionStatusParams, TransactionStatus, TokenState, NFTRequestAnswer, NFTRequestParams, BalanceResponse, BalanceRequestParams, ProveTokenTransactions, JobResults } from "./types.js";
 import { TransactionParams, AirdropTransactionParams } from "./transaction.js";
 export type ApiResponse<T> = {
     /** Bad request - invalid input parameters */
@@ -52,12 +52,12 @@ export declare class MinaTokensAPI {
     getBalance(params: BalanceRequestParams): Promise<BalanceResponse>;
     getNFTInfo(params: NFTRequestParams): Promise<NFTRequestAnswer>;
     buildTransaction(params: TransactionParams): Promise<DeployTransaction | TokenTransaction>;
-    buildAirdrop(params: AirdropTransactionParams): Promise<TokenTransaction[]>;
-    proveTransactions(params: ProveTokenTransaction[]): Promise<JobId>;
-    getProof(params: JobId): Promise<JobResult>;
+    buildAirdrop(params: AirdropTransactionParams): Promise<TokenTransactions>;
+    proveTransactions(params: ProveTokenTransactions): Promise<JobId>;
+    getProof(params: JobId): Promise<JobResults>;
     faucet(params: FaucetParams): Promise<FaucetResponse>;
     txStatus(params: TransactionStatusParams): Promise<TransactionStatus>;
-    waitForJobResult(jobId: string): Promise<string | undefined>;
+    waitForProofs(jobId: string): Promise<(string | undefined)[] | undefined>;
     waitForTransaction(hash: string, timeout?: number): Promise<void>;
     apiCall<TParams, TResponse>(params: {
         endpoint: string;

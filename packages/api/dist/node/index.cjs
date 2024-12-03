@@ -86,22 +86,20 @@ var MinaTokensAPI = class {
       callParams: params
     });
   }
-  async waitForJobResult(jobId) {
+  async waitForProofs(jobId) {
     console.log("Job ID:", jobId);
     let errorCount = 0;
     const startTime = Date.now();
     console.log("Waiting for job result...");
     while (errorCount < 100 && Date.now() - startTime < 1e3 * 60 * 10) {
       try {
-        const jobResult = await this.getProof({ jobId });
-        if (jobResult.hash) {
-          const hash = jobResult.hash;
-          console.log("Transaction hash:", hash);
-          return hash;
+        const jobResults = await this.getProof({ jobId });
+        const jobStatus = jobResults.jobStatus;
+        if (jobResults.success && (jobStatus === "finished" || jobStatus === "used")) {
+          return jobResults.results?.map((result) => result.hash ?? "") ?? [];
         }
-        const jobStatus = jobResult.jobStatus;
         if (jobStatus === "failed") {
-          console.log(`Job ${jobId} failed`);
+          console.error(`Job ${jobId} failed`);
           return void 0;
         }
       } catch (error) {
@@ -142,7 +140,7 @@ var MinaTokensAPI = class {
     }
     const endpointUrl = this.chain === "devnet" ? "https://minatokens.com/api/v1" : this.chain === "zeko" ? "https://zekotokens.com/api/v1" : "http://localhost:3000/api/v1";
     try {
-      const response = await fetch(`${endpointUrl}/${endpoint}`, {
+      const response = await fetch(`${endpointUrl}/${endpoint.toLowerCase()}`, {
         method: "POST",
         headers: {
           "x-api-key": this.apiKey,
@@ -151,10 +149,19 @@ var MinaTokensAPI = class {
         body: JSON.stringify(callParams)
       });
       if (!response.ok) {
-        const result = await response.json();
-        throw new Error(`API call failed: ${response.status} ${response.statusText} ${result?.error ?? "unknown error"}`);
+        const result2 = await response.json();
+        throw new Error(`API call failed: ${response.status} ${response.statusText} ${result2?.error ?? "unknown error"}`);
       }
-      return await response.json();
+      const result = await response.json();
+      if (process.env.DEBUG === "true") {
+        console.log(`API call:
+endpoint: ${endpoint}
+body: ${JSON.stringify(callParams)}
+status: ${response.status}
+statusText: ${response.statusText}
+response: ${JSON.stringify(result)}`);
+      }
+      return result;
     } catch (error) {
       throw new Error(error?.message ?? (error ? String(error) : "Token API call failed"));
     }
