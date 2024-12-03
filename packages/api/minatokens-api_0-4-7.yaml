@@ -1,0 +1,2578 @@
+openapi: 3.0.0
+info:
+  title: MinaTokens API
+  description: API for interacting with Mina Fungible Tokens and NFTs.
+  version: "0.4.7"
+servers:
+  - url: https://minatokens.com/api/v1/
+    description: devnet
+  - url: https://zekotokens.com/api/v1/
+    description: zeko
+tags:
+  - name: Fungible Token
+    description: Fungible Token Requests
+  - name: NFT
+    description: NFT Requests
+  - name: Transaction
+    description: Transaction Requests
+  - name: Faucet
+    description: Faucet Requests
+paths:
+  /launch:
+    post:
+      tags:
+        - Fungible Token
+      summary: Deploy a new fungible token contract.
+      description: |
+        The `launch` endpoint is used to deploy a new fungible token on the Mina blockchain.
+        It allows users to create a new token with customizable parameters such as symbol,
+        decimals, URI, and admin contract type (standard or advanced).
+      operationId: launchToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LaunchTokenTransactionBaseParams"
+            examples:
+              launchExample:
+                summary: Example of a launch request
+                value:
+                  txType: launch
+                  adminContract: advanced
+                  sender: B62qjFmTAzmLvPXRhUn8H83BoqtQxFtqHe8DkYBrj44TP6uKWWNfa1a
+                  symbol: TEST7
+                  decimals: 9
+                  uri: https://minatokens.com
+                  whitelist:
+                    - address: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                      amount: 1000000000000
+                    - address: B62qoQ7oMLTHHaW4g2DtRiKbAi41xGWRGhm59A9mof5pVZuUJhwLyUG
+                      amount: 1000000000000
+                    - address: B62qjrWFfTuosipqFV2wrWCPWHo2UHk3sdcJAsvNj61eowfrXBq4X8F
+                      amount: 1000000000000
+                  canMint: whitelist
+      responses:
+        "200":
+          description: Successful deployment of a new token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeployTransaction"
+              examples:
+                launchResponseExample:
+                  summary: Example of a successful launch response
+                  value:
+                    txType: launch
+                    adminType: advanced
+                    sender: B62qjFmTAzmLvPXRhUn8H83BoqtQxFtqHe8DkYBrj44TP6uKWWNfa1a
+                    nonce: 54
+                    memo: deploy token TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":...}'
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during deployment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /nft:
+    post:
+      tags:
+        - NFT
+      summary: Retrieve NFT Info
+      description: Retrieves detailed information about a Mina NFT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NFTRequestParams"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NFTRequestAnswer"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during deployment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /faucet:
+    post:
+      tags:
+        - Faucet
+      summary: Request Funds from Faucet
+      description: Requests funds from the faucet for testing purposes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FaucetParams"
+      responses:
+        "200":
+          description: Faucet response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FaucetResponse"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during deployment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /info:
+    post:
+      tags:
+        - Fungible Token
+      summary: Retrieve information about a fungible token.
+      description: |
+        The `info` endpoint retrieves detailed information about a specific fungible token deployed on the Mina blockchain.
+      operationId: getTokenInfo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tokenAddress
+              properties:
+                tokenAddress:
+                  type: string
+                  description: The address of the token contract.
+                  example: B62qpFzLKkGKMZcmY6wrbyn8Sf9sWUT1HG4omSbvFKH2nXSNjCoQ6Xs
+            examples:
+              getTokenInfoRequest:
+                summary: Example of an info request
+                value:
+                  tokenAddress: B62qphSRYqif9bPjw4Kg2G3CA7V7NzHqtpRzeXkY164n3C9jXqGAfkA
+
+      responses:
+        "200":
+          description: Successful retrieval of token information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenState"
+              examples:
+                getTokenInfoSuccess:
+                  summary: Example of a successful info response
+                  value:
+                    tokenAddress: B62qphSRYqif9bPjw4Kg2G3CA7V7NzHqtpRzeXkY164n3C9jXqGAfkA
+                    tokenId: xJweNxCErRwi5DfHCw7pAmTNioKxDGqHxDmRifXE6bLqPzHtHm
+                    adminContractAddress: B62qp4Z6cwEWWtmge5rkbXagzUdYHMxjMVnE1nevRkpvo4ZbA9pLTYF
+                    adminAddress: B62qjFmTAzmLvPXRhUn8H83BoqtQxFtqHe8DkYBrj44TP6uKWWNfa1a
+                    adminTokenBalance: 0
+                    totalSupply: 1000
+                    isPaused: false
+                    decimals: 9
+                    tokenSymbol: TEST
+                    verificationKeyHash: "22278758441605771858700252645311428360030262698072838723799702480887091310093"
+                    uri: https://minatokens.com
+                    version: 0
+                    adminTokenSymbol: ""
+                    adminUri: https://minatokens.com
+                    adminVerificationKeyHash: "20172938263834569171197221661527530681186299670687606810012808881888777415767"
+                    adminVersion: 0
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /balance:
+    post:
+      tags:
+        - Fungible Token
+      summary: Retrieve the balance of a specific token for an address.
+      description: |
+        The `balance` endpoint retrieves the balance of a specific fungible token for a given Mina address.
+      operationId: getBalance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BalanceRequestParams"
+            examples:
+              getBalanceRequest:
+                summary: Example of a balance request
+                value:
+                  tokenAddress: B62qouKMtMcUxabk72vwZS7tY3XYEca1CPKgXPfznCHUiVjP9E6xxQz
+                  address: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+      responses:
+        "200":
+          description: Successful retrieval of balance.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalanceResponse"
+              examples:
+                getBalanceSuccess:
+                  summary: Example of a successful balance response
+                  value:
+                    tokenAddress: B62qouKMtMcUxabk72vwZS7tY3XYEca1CPKgXPfznCHUiVjP9E6xxQz
+                    address: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                    balance: null
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /prove:
+    post:
+      tags:
+        - Transaction
+      summary: Generate proofs for signed token transactions.
+      description: |
+        The `prove` endpoint initiates the proof generation process for a set of signed token transactions.
+        It returns a job ID which can be used to check the status and retrieve the proofs or tx hashes using the `/proof` endpoint.
+      operationId: proveTransactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProveTokenTransactions"
+      responses:
+        "200":
+          description: Successfully initiated proof generation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobId"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /proof:
+    post:
+      tags:
+        - Transaction
+      summary: Check the status of a proof generation job and retrieve proofs.
+      description: |
+        The `proof` endpoint allows you to check the status of a proof generation job initiated via the `/prove` endpoint.
+        It returns the status of the job and the proofs or tx hashes if they are ready.
+      operationId: getProof
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobId"
+            examples:
+              getProofRequest:
+                summary: Example of a proof request
+                value:
+                  jobId: zkCWDYE3gAJOGRDqNlhke0u1NWVXlWgKS2uk2q0FgZdRbPoF
+      responses:
+        "200":
+          description: Successfully retrieved job status and proofs.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobResults"
+              examples:
+                getProofSuccess:
+                  summary: Example of a successful proof response
+                  value:
+                    success: true
+                    results:
+                      - success: true
+                        hash: 5JtZ672XEVjGHMg2eMTTvoPJFgXduFu94ip7GgQLZhZSB1PoV6Lx
+                        error: ""
+                    jobStatus: used
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /tx-status:
+    post:
+      tags:
+        - Transaction
+      summary: Retrieve the status of a transaction by its hash.
+      description: |
+        The `tx-status` endpoint allows you to check the current status of a transaction on the Mina blockchain by providing the transaction hash. It returns whether the transaction has been applied, failed, or is still pending.
+      operationId: txStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionStatusParams"
+            examples:
+              txStatusRequest:
+                summary: Example of a tx-status request
+                value:
+                  hash: 5JuEaWqCkiizzjA3mjrva5hjYeohiGKQFcffUdZxrEJM4xDirhK1
+      responses:
+        "200":
+          description: Successfully retrieved transaction status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionStatus"
+              examples:
+                txStatusSuccess:
+                  summary: Example of a successful tx-status response
+                  value:
+                    hash: 5JuEaWqCkiizzjA3mjrva5hjYeohiGKQFcffUdZxrEJM4xDirhK1
+                    status: applied
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /mint:
+    post:
+      tags:
+        - Fungible Token
+      summary: Mint new tokens to a specified address.
+      description: |
+        The `mint` endpoint allows authorized users to mint new tokens of a fungible token on the Mina blockchain.
+        This transaction increases the total supply of the token by creating new tokens and assigning them to a specified address.
+        The sender must have the authority to mint tokens, typically the admin of the token contract.
+      operationId: mintTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MintTokenTransactionParams"
+            examples:
+              mintRequestExample:
+                summary: Example of a mint request
+                value:
+                  txType: mint
+                  sender: B62qjFmTAzmLvPXRhUn8H83BoqtQxFtqHe8DkYBrj44TP6uKWWNfa1a
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  to: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  amount: 1000000000000
+      responses:
+        "200":
+          description: Successfully built mint transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+              examples:
+                mintResponseExample:
+                  summary: Example of a successful mint response
+                  value:
+                    txType: mint
+                    sender: B62qjFmTAzmLvPXRhUn8H83BoqtQxFtqHe8DkYBrj44TP6uKWWNfa1a
+                    nonce: 53
+                    memo: mint 1000 TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":{"publicKey":"B62qjFmTAzm..."},"authorization":"..."}]}'
+                    # Additional fields as per the TokenTransaction schema
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /transfer:
+    post:
+      tags:
+        - Fungible Token
+      summary: Transfer tokens from one address to another.
+      description: |
+        The `transfer` endpoint allows users to transfer tokens of a fungible token on the Mina blockchain from one address to another.
+        The sender must have sufficient balance and appropriate permissions to perform the transfer.
+      operationId: transferTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferTokenTransactionParams"
+            examples:
+              transferRequestExample:
+                summary: Example of a transfer request
+                value:
+                  txType: transfer
+                  sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  to: B62qjrWFfTuosipqFV2wrWCPWHo2UHk3sdcJAsvNj61eowfrXBq4X8F
+                  amount: 50000000000
+      responses:
+        "200":
+          description: Successfully built transfer transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+              examples:
+                transferResponseExample:
+                  summary: Example of a successful transfer response
+                  value:
+                    txType: transfer
+                    sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                    nonce: 55
+                    memo: transfer 50 TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":{"publicKey":"B62qmoZqbXP3zRDF..."}' # Truncated for brevity
+                    # Additional fields as per the TokenTransaction schema
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /airdrop:
+    post:
+      tags:
+        - Fungible Token
+      summary: Distribute tokens to multiple addresses via airdrop.
+      description: |
+        The `/airdrop` endpoint allows users to distribute tokens to multiple addresses in a single transaction.
+        This is efficient for distributing tokens during events like token launches or community rewards.
+      operationId: airdropTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AirdropTransactionParams"
+            examples:
+              airdropRequestExample:
+                summary: Example of an airdrop request
+                value:
+                  txType: airdrop
+                  sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  recipients:
+                    - address: B62qmGzXCEPwS7qAQB39y69CE3ePe1N4q8HjtjKDb2wkAFakWkvSpxi
+                      amount: 10000000000
+                    - address: B62qqvBCxJ6cvagtdNJr1RawLYQbjfdFN35fckk3vWCnHyqhsBsFHPT
+                      amount: 10000000000
+                    - address: B62qrY6SNPNWbGiiR8SL9zFyGeuvpymZL5h8sbGF6pRL5YEL1Mm1jL7
+                      amount: 10000000000
+      responses:
+        "200":
+          description: Successfully built airdrop transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AirdropTransactionResponse"
+              examples:
+                airdropResponseExample:
+                  summary: Example of a successful airdrop response
+                  value:
+                    txs:
+                      - txType: transfer
+                        sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                        nonce: 56
+                        memo: transfer TEST7
+                        fee: "100000000"
+                        walletPayload:
+                          transaction: '{"feePayer":{"body":{"publicKey":"B62qmoZqb..."}' # Truncated for brevity
+                      # Additional transactions as per the airdrop operation
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /bid:
+    post:
+      tags:
+        - Fungible Token
+      summary: Place a bid on a token
+      description: |
+        The `bid` endpoint allows users to place a bid on an token.
+      operationId: placeBid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BidTransactionParams"
+      responses:
+        "200":
+          description: Successfully built bid transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /offer:
+    post:
+      tags:
+        - Fungible Token
+      summary: Create an offer to sell tokens at a specified price.
+      description: |
+        The `/offer` endpoint allows users to create an offer to sell a specified amount of tokens at a given price.
+      operationId: createOffer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfferTransactionParams"
+            examples:
+              offerRequestExample:
+                summary: Example of an offer request
+                value:
+                  txType: offer
+                  sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  amount: 500000000000
+                  price: 100000000
+      responses:
+        "200":
+          description: Successfully created offer transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+              examples:
+                offerResponseExample:
+                  summary: Example of a successful offer response
+                  value:
+                    txType: offer
+                    sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                    nonce: 53
+                    memo: offer 500 TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":{"publicKey":"B62qmoZqbXP3zRDF..."}' # Truncated for brevity
+                    # Additional fields as per the TokenTransaction schema
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /buy:
+    post:
+      tags:
+        - Fungible Token
+      summary: Purchase tokens from an existing offer.
+      description: |
+        The `/buy` endpoint allows users to purchase tokens from an existing offer on the Mina blockchain.
+        This endpoint facilitates the transaction where tokens are transferred from the offer address to the buyer's address in exchange for the specified price.
+      operationId: buyTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BuyTransactionParams"
+            examples:
+              buyRequestExample:
+                summary: Example of a buy request
+                value:
+                  txType: buy
+                  sender: B62qoQ7oMLTHHaW4g2DtRiKbAi41xGWRGhm59A9mof5pVZuUJhwLyUG
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  offerAddress: B62qn8Y8yRtZc6YpSCMLMFt3os14mndVMq5Aaf4JN834kYLs8riFS3c
+                  amount: 10000000000
+      responses:
+        "200":
+          description: Successfully built buy transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+              examples:
+                buyResponseExample:
+                  summary: Example of a successful buy response
+                  value:
+                    txType: buy
+                    sender: B62qoQ7oMLTHHaW4g2DtRiKbAi41xGWRGhm59A9mof5pVZuUJhwLyUG
+                    nonce: 12
+                    memo: buy 10 TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":{"publicKey":"B62qoQ7oMLTHHaW4g2Dt..."}' # Truncated for brevity
+                    # Additional fields as per the TokenTransaction schema
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /sell:
+    post:
+      tags:
+        - Fungible Token
+      summary: Sell a token to the Bid contract.
+      description: |
+        The `/sell` endpoint allows token owners to sell their tokens to the Bid contract.
+      operationId: sellToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SellTransactionParams"
+      responses:
+        "200":
+          description: Successfully built sell transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /withdrawbid:
+    post:
+      tags:
+        - Fungible Token
+      summary: Withdraw a previously placed bid on an token.
+      description: |
+        The `/withdrawbid` endpoint allows users to withdraw a bid they have previously placed using the `/bid` endpoint.
+        This transaction cancels the active bid, releasing any locked funds.
+      operationId: withdrawBid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawBidTransactionParams"
+      responses:
+        "200":
+          description: Successfully built withdraw bid transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /withdrawoffer:
+    post:
+      tags:
+        - Fungible Token
+      summary: Withdraw a previously made offer to sell a token.
+      description: |
+        The `/withdrawoffer` endpoint allows users to withdraw an offer they have previously made using the `/offer` endpoint.
+        This transaction cancels the active offer, releasing any locked tokens.
+      operationId: withdrawOffer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawOfferTransactionParams"
+      responses:
+        "200":
+          description: Successfully built withdraw offer transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /updatebidwhitelist:
+    post:
+      tags:
+        - Fungible Token
+      summary: Update the bid whitelist
+      description: |
+        The `/updatebidwhitelist` endpoint allows administrators to update the whitelist of addresses permitted to interact with the Bid contract.
+        This is essential for managing participation in bidding processes, especially for controlled or private auctions.
+      operationId: updateBidWhitelist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBidWhitelistTransactionParams"
+      responses:
+        "200":
+          description: Successfully built update bid whitelist transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /updateofferwhitelist:
+    post:
+      tags:
+        - Fungible Token
+      summary: Update the offer whitelist
+      description: |
+        The `/updateofferwhitelist` endpoint allows administrators to update the whitelist of addresses permitted to interact with the Offer contract.
+        This is essential for managing participation in offer processes, especially for controlled or private sales.
+      operationId: updateOfferWhitelist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOfferWhitelistTransactionParams"
+      responses:
+        "200":
+          description: Successfully built update offer whitelist transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /updateadminwhitelist:
+    post:
+      tags:
+        - Fungible Token
+      summary: Update the advanced admin whitelist
+      description: |
+        The `/updateadminwhitelist` endpoint allows administrators to update the whitelist of admin contracts.
+      operationId: updateAdminWhitelist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAdminWhitelistTransactionParams"
+      responses:
+        "200":
+          description: Successfully built update admin whitelist transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          description: Bad request - invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user doesn't have permission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error - something went wrong during the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Service unavailable - blockchain or other external service is down.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: "API key for authorization. Get your API key at https://minatokens.com/api"
+  schemas:
+    BalanceRequestParams:
+      type: object
+      required:
+        - tokenAddress
+        - address
+      properties:
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        address:
+          type: string
+          description: The Mina address (public key) for which to retrieve the balance.
+    BalanceResponse:
+      type: object
+      properties:
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        address:
+          type: string
+          description: The Mina address for which the balance was requested.
+        balance:
+          type: number
+          nullable: true
+          description: The balance of the token for the specified address.
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message detailing the issue.
+    ProveTokenTransaction:
+      type: object
+      required:
+        - tx
+        - signedData
+      properties:
+        tx:
+          oneOf:
+            - $ref: "#/components/schemas/DeployTransaction"
+            - $ref: "#/components/schemas/TokenTransaction"
+          description: The transaction object.
+        signedData:
+          type: string
+          description: The signed data for the transaction.
+        sendTransaction:
+          type: boolean
+          description: Optional. Whether to broadcast the transaction after proving.
+    ProveTokenTransactions:
+      type: object
+      required:
+        - txs
+      properties:
+        txs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProveTokenTransaction"
+          description: Array of transactions to be proved.
+    JobId:
+      type: object
+      required:
+        - jobId
+      properties:
+        jobId:
+          type: string
+          description: The job ID returned by the `/prove` endpoint.
+    JobResults:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the job was successful.
+        jobStatus:
+          type: string
+          enum:
+            - created
+            - started
+            - finished
+            - failed
+            - used
+            - restarted
+          description: The current status of the job.
+        error:
+          type: string
+          description: Error message if the job failed.
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobResult"
+          description: Results for each transaction in the job.
+    JobResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the proof generation for this transaction was successful.
+        error:
+          type: string
+          description: Error message if proof generation failed for this transaction.
+        tx:
+          type: string
+          description: The transaction data.
+        hash:
+          type: string
+          description: The transaction hash if broadcasted.
+    TransactionStatusParams:
+      type: object
+      required:
+        - hash
+      properties:
+        hash:
+          type: string
+          description: The transaction hash to check the status of.
+    TransactionStatus:
+      type: object
+      properties:
+        hash:
+          type: string
+          description: The transaction hash.
+        status:
+          type: string
+          description: The status of the transaction (e.g., applied, failed, pending).
+    TxStatus:
+      type: object
+      properties:
+        blockHeight:
+          type: integer
+          format: int64
+          description: The height of the block containing the transaction.
+        stateHash:
+          type: string
+          description: The state hash of the block.
+        blockStatus:
+          type: string
+          description: The status of the block.
+        timestamp:
+          type: integer
+          format: int64
+          description: The timestamp of the block.
+        txHash:
+          type: string
+          description: The transaction hash.
+        txStatus:
+          type: string
+          description: The status of the transaction in the block.
+    FaucetParams:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          description: The Mina address (public key) to receive the test tokens.
+    FaucetResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the faucet request was successful.
+        hash:
+          type: string
+          description: The transaction hash of the faucet transfer if successful.
+        error:
+          type: string
+          description: Error message if the request failed.
+    NFTRequestParams:
+      type: object
+      properties:
+        contractAddress:
+          type: string
+          example: B62qs2NthDuxAT94tTFg6MtuaP1gaBxTZyNv9D3uQiQciy1VsaimNFT
+          description: Always set to this contract address for Mina NFTs.
+        nftAddress:
+          type: string
+          example: B62qoT6jXebkJVmsUmxCxGJmvHJUXPNF417rms4PATi5R6Hw7e56CRt
+          description: The unique NFT address.
+      required:
+        - contractAddress
+        - nftAddress
+    NFTRequestAnswer:
+      type: object
+      properties:
+        contractAddress:
+          type: string
+          example: B62qs2NthDuxAT94tTFg6MtuaP1gaBxTZyNv9D3uQiQciy1VsaimNFT
+        nftAddress:
+          type: string
+          example: B62qoT6jXebkJVmsUmxCxGJmvHJUXPNF417rms4PATi5R6Hw7e56CRt
+        tokenId:
+          type: string
+          example: wXqDrUzWtK58CaWCzN2g3zseU275dhSnRtBthcroeqT6HGKkos
+        tokenSymbol:
+          type: string
+          example: NFT
+        contractUri:
+          type: string
+          example: https://minanft.io
+          nullable: true
+        name:
+          type: string
+          example: Minaty 0001
+        metadataRoot:
+          type: object
+          properties:
+            data:
+              type: string
+            kind:
+              type: string
+        storage:
+          type: string
+          example: bafkreiffyjf6lpxw5uzniwam7lv7oyezfsxnnfj3yeo67ht3nch3gvgvwi
+        owner:
+          type: string
+          example: B62qkX4VQYdmgc7dmLyiPpMhLRfrWjWnyoGGhdqF4bXtTcbv6E1HWsD
+        price:
+          type: number
+          example: 0
+        version:
+          type: number
+          example: 1
+        metadata:
+          type: object
+          nullable: true
+        algolia:
+          type: object
+          nullable: true
+    MintTokenTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - to
+        - amount
+      properties:
+        txType:
+          type: string
+          enum:
+            - mint
+          description: Must be "mint".
+        sender:
+          type: string
+          description: The address of the sender (token admin).
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        to:
+          type: string
+          description: The address to which tokens are to be minted.
+        amount:
+          type: number
+          format: double
+          description: The amount of tokens to mint.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    TransferTokenTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - to
+        - amount
+      properties:
+        txType:
+          type: string
+          enum:
+            - transfer
+          description: Must be "transfer".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        to:
+          type: string
+          description: The address to which tokens are to be transferred.
+        amount:
+          type: number
+          format: double
+          description: The amount of tokens to transfer.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    BidTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - bidder
+        - nftAddress
+        - tokenId
+        - bidAmount
+      properties:
+        txType:
+          type: string
+          enum:
+            - bid
+          description: Must be "bid".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        bidder:
+          type: string
+          description: The address placing the bid.
+        nftAddress:
+          type: string
+          description: The address of the NFT.
+        tokenId:
+          type: string
+          description: The unique identifier of the NFT.
+        bidAmount:
+          type: number
+          format: double
+          description: The amount being bid for the NFT.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    OfferTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - amount
+        - price
+      properties:
+        txType:
+          type: string
+          enum:
+            - offer
+          description: Must be "offer".
+        sender:
+          type: string
+          description: The address initiating the offer.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        amount:
+          type: number
+          format: double
+          description: The amount of tokens being offered for sale.
+        price:
+          type: number
+          format: double
+          description: The price at which the tokens are being offered.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    BuyTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - offerAddress
+        - amount
+      properties:
+        txType:
+          type: string
+          enum:
+            - buy
+          description: Must be "buy".
+        sender:
+          type: string
+          description: The address initiating the purchase.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        offerAddress:
+          type: string
+          description: The address of the offer from which to buy tokens.
+        amount:
+          type: number
+          format: double
+          description: The amount of tokens to purchase.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    SellTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - seller
+        - nftAddress
+        - tokenId
+        - sellPrice
+      properties:
+        txType:
+          type: string
+          enum:
+            - sell
+          description: Must be "sell".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        seller:
+          type: string
+          description: The address of the seller (NFT owner).
+        nftAddress:
+          type: string
+          description: The address of the NFT.
+        tokenId:
+          type: string
+          description: The unique identifier of the NFT.
+        sellPrice:
+          type: number
+          format: double
+          description: The price at which the NFT is being offered for sale.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    AirdropTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - recipients
+      properties:
+        txType:
+          type: string
+          enum:
+            - airdrop
+          description: Must be "airdrop".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        recipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Recipient"
+          description: List of recipients with addresses and amounts.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    Recipient:
+      type: object
+      required:
+        - address
+        - amount
+      properties:
+        address:
+          type: string
+          description: The recipient's Mina address.
+        amount:
+          type: number
+          format: double
+          description: The amount of tokens to send to the recipient.
+    WithdrawBidTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - bidAddress
+        - amount
+      properties:
+        txType:
+          type: string
+          enum:
+            - withdrawBid
+          description: Must be "withdrawBid".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        bidAddress:
+          type: string
+          description: The address of the bid to withdraw.
+        amount:
+          type: number
+          format: double
+          description: The amount to withdraw from the bid.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+    WithdrawOfferTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - tokenAddress
+        - offerAddress
+        - amount
+      properties:
+        txType:
+          type: string
+          enum:
+            - withdrawoffer
+          description: Must be "withdrawoffer".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        offerAddress:
+          type: string
+          description: The address withdrawing the offer.
+        amount:
+          type: string
+          description: The address of the NFT.
+        tokenId:
+          type: string
+          description: The unique identifier of the NFT.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+    TokenTransaction:
+      allOf:
+        - $ref: "#/components/schemas/TokenTransactionPayloads"
+        - type: object
+          required:
+            - txType
+            - from
+            - to
+          properties:
+            txType:
+              type: string
+              enum:
+                - mint
+                - transfer
+                - bid
+                - offer
+                - buy
+                - sell
+                - airdrop
+                - withdrawBid
+                - withdrawOffer
+                - updateBidWhitelist
+                - updateOfferWhitelist
+                - updateAdminWhitelist
+              description: Type of the token transaction.
+            from:
+              type: string
+              description: The sender's address.
+            to:
+              type: string
+              description: The receiver's address.
+            toPrivateKey:
+              type: string
+              description: Optional. The private key of the recipient.
+            amount:
+              type: number
+              format: double
+              description: Optional. The amount involved in the transaction.
+            price:
+              type: number
+              format: double
+              description: Optional. The price involved in the transaction.
+    UpdateBidWhitelistTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - senderKey
+        - tokenAddress
+        - admin
+        - whitelist
+      properties:
+        txType:
+          type: string
+          enum:
+            - updatebidwhitelist
+          description: Must be "updatebidwhitelist".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        admin:
+          type: string
+          description: The administrator's address performing the update.
+        whitelist:
+          type: array
+          items:
+            type: string
+          description: An array of addresses to include in the bid whitelist.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+        validUntil:
+          type: integer
+          format: int64
+          description: Optional. The expiration block height for the transaction.
+        feePayer:
+          type: string
+          description: Optional. The address paying the transaction fee.
+        feePayerKey:
+          type: string
+          description: Optional. The private key of the fee payer.
+    UpdateOfferWhitelistTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - senderKey
+        - tokenAddress
+        - admin
+        - whitelist
+      properties:
+        txType:
+          type: string
+          enum:
+            - updateofferwhitelist
+          description: Must be "updateofferwhitelist".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        admin:
+          type: string
+          description: The administrator's address performing the update.
+        whitelist:
+          type: array
+          items:
+            type: string
+          description: An array of addresses to include in the offer whitelist.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+    UpdateAdminWhitelistTransactionParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - senderKey
+        - tokenAddress
+        - adminAddress
+        - whitelist
+      properties:
+        txType:
+          type: string
+          enum:
+            - updateadminwhitelist
+          description: Must be "updateadminwhitelist".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        senderKey:
+          type: string
+          description: The private key of the sender (required for signing).
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        adminAddress:
+          type: string
+          description: The address of the administrator performing the update.
+        whitelist:
+          oneOf:
+            - type: array
+              items:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: The address to include in the whitelist.
+                  amount:
+                    type: number
+                    format: double
+                    description: Optional. The amount associated with the address (if applicable).
+                required:
+                  - address
+            - type: string
+              description: A string representing the whitelist (e.g., a URL or identifier).
+          description: An array of addresses with optional amounts, or a string representing the whitelist.
+        fee:
+          type: number
+          format: double
+          description: Optional. The fee for the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: Optional. The nonce for the transaction.
+        memo:
+          type: string
+          description: Optional. A memo for the transaction.
+    LaunchTokenTransactionBaseParams:
+      type: object
+      required:
+        - txType
+        - sender
+        - adminContract
+        - symbol
+        - uri
+      properties:
+        txType:
+          type: string
+          enum:
+            - launch
+          description: Must be "launch".
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        adminContract:
+          type: string
+          enum:
+            - standard
+            - advanced
+          description: Specifies the type of admin contract.
+        symbol:
+          type: string
+          description: The symbol of the token.
+        decimals:
+          type: integer
+          format: int32
+          description: Optional. The number of decimal places for the token.
+        uri:
+          type: string
+          description: URI string pointing to the token metadata.
+        whitelist:
+          type: array
+          items:
+            type: object
+            properties:
+              address:
+                type: string
+                description: The recipient's Mina address.
+              amount:
+                type: number
+                format: double
+                description: The amount of tokens to mint to the recipient.
+          description: Optional. List of addresses to whitelist with initial token amounts.
+        canMint:
+          type: string
+          enum:
+            - whitelist
+            - anyone
+          description: Specifies who can mint tokens.
+        # Other properties...
+    TokenInfo:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The symbol of the token.
+        name:
+          type: string
+          description: Optional. The name of the token.
+        description:
+          type: string
+          description: Optional. Description of the token.
+        imageUrl:
+          type: string
+          format: uri
+          description: Optional. URL of the token image.
+        imageBase64:
+          type: string
+          description: Optional. Base64-encoded image data (max 1 MB).
+        twitter:
+          type: string
+          description: Optional. Twitter handle associated with the token.
+        discord:
+          type: string
+          description: Optional. Discord link associated with the token.
+        telegram:
+          type: string
+          description: Optional. Telegram link associated with the token.
+        instagram:
+          type: string
+          description: Optional. Instagram handle associated with the token.
+        facebook:
+          type: string
+          description: Optional. Facebook page associated with the token.
+        website:
+          type: string
+          format: uri
+          description: Optional. Official website of the token.
+        tokenContractCode:
+          type: string
+          description: Optional. Code for the token contract.
+        adminContractsCode:
+          type: array
+          items:
+            type: string
+          description: Optional. Code for the admin contracts.
+    DeployTransaction:
+      allOf:
+        - $ref: "#/components/schemas/TokenTransactionPayloads"
+        - type: object
+          required:
+            - txType
+            - adminType
+            - adminContractAddress
+            - uri
+          properties:
+            txType:
+              type: string
+              enum:
+                - launch
+              description: Must be "launch".
+            adminType:
+              type: string
+              enum:
+                - standard
+                - advanced
+              description: Type of the admin contract.
+            adminContractAddress:
+              type: string
+              description: The address of the admin contract.
+            tokenContractPrivateKey:
+              type: string
+              description: Optional. The private key for the token contract.
+            adminContractPrivateKey:
+              type: string
+              description: Optional. The private key for the admin contract.
+            uri:
+              type: string
+              description: The URI of the token metadata.
+    TokenTransactionPayloads:
+      type: object
+      required:
+        - sender
+        - nonce
+        - memo
+        - fee
+        - walletPayload
+        - minaSignerPayload
+        - proverPayload
+        - signedData
+        - transaction
+      properties:
+        sender:
+          type: string
+          description: The address initiating the transaction.
+        nonce:
+          type: integer
+          format: int64
+          description: The nonce for the transaction.
+        memo:
+          type: string
+          description: A memo for the transaction.
+        fee:
+          type: number
+          format: double
+          description: The fee for the transaction.
+        walletPayload:
+          type: object
+          properties:
+            nonce:
+              type: integer
+              format: int64
+              description: The nonce for the transaction.
+            transaction:
+              type: string
+              description: The transaction data.
+            onlySign:
+              type: boolean
+              description: Indicates if only signature is needed.
+            feePayer:
+              type: object
+              properties:
+                fee:
+                  type: number
+                  format: double
+                  description: The fee for the transaction.
+                memo:
+                  type: string
+                  description: A memo for the transaction.
+        minaSignerPayload:
+          type: object
+          properties:
+            zkappCommand:
+              type: object
+              description: The zkApp command data.
+            feePayer:
+              type: object
+              properties:
+                feePayer:
+                  type: string
+                  description: The fee payer's address.
+                fee:
+                  type: number
+                  format: double
+                  description: The fee for the transaction.
+                nonce:
+                  type: integer
+                  format: int64
+                  description: The nonce for the transaction.
+                memo:
+                  type: string
+                  description: A memo for the transaction.
+        proverPayload:
+          type: string
+          description: The payload for the prover.
+        signedData:
+          type: string
+          description: The signed data for the transaction.
+        transaction:
+          type: string
+          description: The raw transaction data.
+    TokenState:
+      type: object
+      required:
+        - tokenAddress
+        - tokenId
+        - adminContractAddress
+        - adminAddress
+        - adminTokenBalance
+        - totalSupply
+        - isPaused
+        - decimals
+        - tokenSymbol
+        - verificationKeyHash
+        - uri
+        - version
+        - adminTokenSymbol
+        - adminUri
+        - adminVerificationKeyHash
+        - adminVersion
+      properties:
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        tokenId:
+          type: string
+          description: The unique identifier of the token.
+        adminContractAddress:
+          type: string
+          description: The address of the admin contract.
+        adminAddress:
+          type: string
+          description: The address of the administrator.
+        adminTokenBalance:
+          type: number
+          format: double
+          description: The token balance of the administrator.
+        totalSupply:
+          type: number
+          format: double
+          description: The total supply of the token.
+        isPaused:
+          type: boolean
+          description: Indicates if the token contract is paused.
+        decimals:
+          type: integer
+          format: int32
+          description: The number of decimal places the token uses.
+        tokenSymbol:
+          type: string
+          description: The symbol of the token.
+        verificationKeyHash:
+          type: string
+          description: The verification key hash of the token contract.
+        uri:
+          type: string
+          description: The URI of the token metadata.
+        version:
+          type: integer
+          format: int32
+          description: The version number of the token contract.
+        adminTokenSymbol:
+          type: string
+          description: The symbol of the admin token.
+        adminUri:
+          type: string
+          description: The URI of the admin token metadata.
+        adminVerificationKeyHash:
+          type: string
+          description: The verification key hash of the admin contract.
+        adminVersion:
+          type: integer
+          format: int32
+    ProofResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the proof generation was successful.
+        hash:
+          type: string
+          description: The transaction hash if the proof was successfully applied.
+        error:
+          type: string
+          description: Error message if proof generation failed.
+    AirdropTransactionResponse:
+      type: object
+      properties:
+        txs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TokenTransaction"
+          description: List of token transactions created for the airdrop.
+security:
+  - ApiKeyAuth: []

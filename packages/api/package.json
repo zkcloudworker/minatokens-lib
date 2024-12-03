@@ -1,6 +1,6 @@
 {
   "name": "@minatokens/api",
-  "version": "0.3.2",
+  "version": "0.3.5",
   "author": "DFST",
   "description": "MinaTokens API",
   "type": "module",
