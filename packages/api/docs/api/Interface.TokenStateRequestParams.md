@@ -3,7 +3,7 @@ title: TokenStateRequestParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.TokenStateRequestParams
-order: 17
+order: 28
 ---
 
 # Interface: TokenStateRequestParams
@@ -22,4 +22,4 @@ tokenAddress: string;
 
 #### Defined in
 
-[types.ts:230](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L230)
+[types.ts:241](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L241)

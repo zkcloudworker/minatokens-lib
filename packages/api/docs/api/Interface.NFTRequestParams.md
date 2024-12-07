@@ -3,7 +3,7 @@ title: NFTRequestParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.NFTRequestParams
-order: 14
+order: 21
 ---
 
 # Interface: NFTRequestParams
@@ -23,7 +23,7 @@ contractAddress: string;
 
 #### Defined in
 
-[types.ts:252](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L252)
+[types.ts:263](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L263)
 
 ***
 
@@ -35,4 +35,4 @@ nftAddress: string;
 
 #### Defined in
 
-[types.ts:253](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L253)
+[types.ts:264](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L264)

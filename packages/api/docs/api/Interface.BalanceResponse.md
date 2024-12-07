@@ -3,7 +3,7 @@ title: BalanceResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.BalanceResponse
-order: 6
+order: 7
 ---
 
 # Interface: BalanceResponse
@@ -24,7 +24,7 @@ address: string;
 
 #### Defined in
 
-[types.ts:132](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L132)
+[types.ts:143](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L143)
 
 ***
 
@@ -36,7 +36,7 @@ balance: null | number;
 
 #### Defined in
 
-[types.ts:133](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L133)
+[types.ts:144](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L144)
 
 ***
 
@@ -48,4 +48,4 @@ tokenAddress: string;
 
 #### Defined in
 
-[types.ts:131](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L131)
+[types.ts:142](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L142)

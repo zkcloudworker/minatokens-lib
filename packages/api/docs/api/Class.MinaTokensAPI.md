@@ -16,17 +16,17 @@ order: 4
 ## Methods overview
 
 - apiCall() [↗](#apicall)
-- buildDeployTokenTransaction() [↗](#builddeploytokentransaction)
+- buildAirdrop() [↗](#buildairdrop)
+- buildTransaction() [↗](#buildtransaction)
 - faucet() [↗](#faucet)
 - getBalance() [↗](#getbalance)
 - getNFTInfo() [↗](#getnftinfo)
 - getProof() [↗](#getproof)
 - getTokenInfo() [↗](#gettokeninfo)
-- proveTokenTransaction() [↗](#provetokentransaction)
+- proveTransactions() [↗](#provetransactions)
 - sleep() [↗](#sleep)
-- tokenTransaction() [↗](#tokentransaction)
 - txStatus() [↗](#txstatus)
-- waitForJobResult() [↗](#waitforjobresult)
+- waitForProofs() [↗](#waitforproofs)
 - waitForTransaction() [↗](#waitfortransaction)
 
 ## Constructors
@@ -44,11 +44,11 @@ new MinaTokensAPI(params: {
 
 ##### params
 
-###### params.apiKey
+###### apiKey
 
 `string`
 
-###### params.chain
+###### chain
 
 `"mainnet"` \| `"devnet"` \| `"zeko"` \| `"local"`
 
@@ -58,7 +58,7 @@ new MinaTokensAPI(params: {
 
 #### Defined in
 
-[api.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L24)
+[api.ts:61](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L61)
 
 ## Properties
 
@@ -70,7 +70,7 @@ readonly apiKey: string;
 
 #### Defined in
 
-[api.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L22)
+[api.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L59)
 
 ***
 
@@ -82,7 +82,7 @@ readonly chain: "mainnet" | "devnet" | "zeko" | "local";
 
 #### Defined in
 
-[api.ts:21](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L21)
+[api.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L58)
 
 ## Methods
 
@@ -105,11 +105,11 @@ apiCall<TParams, TResponse>(params: {
 
 ##### params
 
-###### params.callParams
+###### callParams
 
 `TParams`
 
-###### params.endpoint
+###### endpoint
 
 `string`
 
@@ -119,29 +119,51 @@ apiCall<TParams, TResponse>(params: {
 
 #### Defined in
 
-[api.ts:157](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L157)
+[api.ts:201](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L201)
 
 ***
 
-### buildDeployTokenTransaction()
+### buildAirdrop()
 
 ```ts
-buildDeployTokenTransaction(params: DeployTokenParams): Promise<DeployTransaction>
+buildAirdrop(params: AirdropTransactionParams): Promise<TokenTransactions>
 ```
 
 #### Parameters
 
 ##### params
 
-[`DeployTokenParams`](interfacedeploytokenparams)
+[`AirdropTransactionParams`](interfaceairdroptransactionparams)
 
 #### Returns
 
-`Promise`\<[`DeployTransaction`](interfacedeploytransaction)\>
+`Promise`\<[`TokenTransactions`](interfacetokentransactions)\>
 
 #### Defined in
 
-[api.ts:54](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L54)
+[api.ts:101](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L101)
+
+***
+
+### buildTransaction()
+
+```ts
+buildTransaction(params: TransactionParams): Promise<DeployTransaction | TokenTransaction>
+```
+
+#### Parameters
+
+##### params
+
+[`TransactionParams`](typealiastransactionparams)
+
+#### Returns
+
+`Promise`\<[`DeployTransaction`](interfacedeploytransaction) \| [`TokenTransaction`](interfacetokentransaction)\>
+
+#### Defined in
+
+[api.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L91)
 
 ***
 
@@ -163,7 +185,7 @@ faucet(params: FaucetParams): Promise<FaucetResponse>
 
 #### Defined in
 
-[api.ts:82](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L82)
+[api.ts:122](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L122)
 
 ***
 
@@ -185,7 +207,7 @@ getBalance(params: BalanceRequestParams): Promise<BalanceResponse>
 
 #### Defined in
 
-[api.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L40)
+[api.ts:77](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L77)
 
 ***
 
@@ -207,14 +229,14 @@ getNFTInfo(params: NFTRequestParams): Promise<NFTRequestAnswer>
 
 #### Defined in
 
-[api.ts:47](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L47)
+[api.ts:84](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L84)
 
 ***
 
 ### getProof()
 
 ```ts
-getProof(params: JobId): Promise<JobResult>
+getProof(params: JobId): Promise<JobResults>
 ```
 
 #### Parameters
@@ -225,11 +247,11 @@ getProof(params: JobId): Promise<JobResult>
 
 #### Returns
 
-`Promise`\<[`JobResult`](interfacejobresult)\>
+`Promise`\<[`JobResults`](typealiasjobresults)\>
 
 #### Defined in
 
-[api.ts:75](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L75)
+[api.ts:115](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L115)
 
 ***
 
@@ -251,21 +273,21 @@ getTokenInfo(tokenAddress: string): Promise<TokenState>
 
 #### Defined in
 
-[api.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L33)
+[api.ts:70](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L70)
 
 ***
 
-### proveTokenTransaction()
+### proveTransactions()
 
 ```ts
-proveTokenTransaction(params: ProveTokenTransaction): Promise<JobId>
+proveTransactions(params: ProveTokenTransactions): Promise<JobId>
 ```
 
 #### Parameters
 
 ##### params
 
-[`ProveTokenTransaction`](interfaceprovetokentransaction)
+[`ProveTokenTransactions`](interfaceprovetokentransactions)
 
 #### Returns
 
@@ -273,7 +295,7 @@ proveTokenTransaction(params: ProveTokenTransaction): Promise<JobId>
 
 #### Defined in
 
-[api.ts:68](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L68)
+[api.ts:108](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L108)
 
 ***
 
@@ -295,29 +317,7 @@ sleep(ms: number): Promise<unknown>
 
 #### Defined in
 
-[api.ts:198](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L198)
-
-***
-
-### tokenTransaction()
-
-```ts
-tokenTransaction(params: TransactionTokenParams): Promise<TokenTransaction>
-```
-
-#### Parameters
-
-##### params
-
-[`TransactionTokenParams`](interfacetransactiontokenparams)
-
-#### Returns
-
-`Promise`\<[`TokenTransaction`](interfacetokentransaction)\>
-
-#### Defined in
-
-[api.ts:61](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L61)
+[api.ts:253](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L253)
 
 ***
 
@@ -339,14 +339,14 @@ txStatus(params: TransactionStatusParams): Promise<TransactionStatus>
 
 #### Defined in
 
-[api.ts:89](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L89)
+[api.ts:129](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L129)
 
 ***
 
-### waitForJobResult()
+### waitForProofs()
 
 ```ts
-waitForJobResult(jobId: string): Promise<undefined | string>
+waitForProofs(jobId: string): Promise<undefined | (undefined | string)[]>
 ```
 
 #### Parameters
@@ -357,11 +357,11 @@ waitForJobResult(jobId: string): Promise<undefined | string>
 
 #### Returns
 
-`Promise`\<`undefined` \| `string`\>
+`Promise`\<`undefined` \| (`undefined` \| `string`)[]\>
 
 #### Defined in
 
-[api.ts:96](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L96)
+[api.ts:136](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L136)
 
 ***
 
@@ -387,4 +387,4 @@ waitForTransaction(hash: string, timeout: number): Promise<void>
 
 #### Defined in
 
-[api.ts:124](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L124)
+[api.ts:168](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L168)

@@ -3,7 +3,7 @@ title: TransactionStatus
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.TransactionStatus
-order: 22
+order: 35
 ---
 
 # Interface: TransactionStatus
@@ -11,7 +11,7 @@ order: 22
 ## Properties overview
 
 - hash:  string; [↗](#hash)
-- status:  "applied" | "pending" | "failed" | "unknown"; [↗](#status)
+- status:  "failed" | "applied" | "pending" | "unknown"; [↗](#status)
 
 ## Properties
 
@@ -23,7 +23,7 @@ optional details: TxStatus;
 
 #### Defined in
 
-[types.ts:217](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L217)
+[types.ts:228](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L228)
 
 ***
 
@@ -35,7 +35,7 @@ optional error: string;
 
 #### Defined in
 
-[types.ts:216](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L216)
+[types.ts:227](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L227)
 
 ***
 
@@ -47,16 +47,16 @@ hash: string;
 
 #### Defined in
 
-[types.ts:214](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L214)
+[types.ts:225](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L225)
 
 ***
 
 ### status
 
 ```ts
-status: "applied" | "pending" | "failed" | "unknown";
+status: "failed" | "applied" | "pending" | "unknown";
 ```
 
 #### Defined in
 
-[types.ts:215](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L215)
+[types.ts:226](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L226)

@@ -1333,10 +1333,10 @@ async function getTokenSymbolAndAdmin(params) {
   const { txType, tokenAddress, chain, to } = params;
   const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
   const verificationKeyHashes = [];
-  if (txType === "updateBidWhitelist" || txType === "bid" || txType === "withdrawBid") {
+  if (txType === "updateBidWhitelist" || txType === "bid" || txType === "withdrawBid" || txType === "sell") {
     verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
   }
-  if (txType === "updateOfferWhitelist" || txType === "offer" || txType === "withdrawOffer") {
+  if (txType === "updateOfferWhitelist" || txType === "offer" || txType === "withdrawOffer" || txType === "buy") {
     verificationKeyHashes.push(vk.FungibleTokenOfferContract.hash);
   }
   class FungibleTokenState extends (0, import_o1js7.Struct)({
