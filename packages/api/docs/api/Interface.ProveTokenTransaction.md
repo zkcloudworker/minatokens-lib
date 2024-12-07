@@ -3,7 +3,7 @@ title: ProveTokenTransaction
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.ProveTokenTransaction
-order: 15
+order: 23
 ---
 
 # Interface: ProveTokenTransaction
@@ -23,7 +23,7 @@ optional sendTransaction: boolean;
 
 #### Defined in
 
-[types.ts:98](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L98)
+[types.ts:94](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L94)
 
 ***
 
@@ -35,7 +35,7 @@ signedData: string;
 
 #### Defined in
 
-[types.ts:97](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L97)
+[types.ts:93](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L93)
 
 ***
 
@@ -47,4 +47,4 @@ tx: DeployTransaction | TokenTransaction;
 
 #### Defined in
 
-[types.ts:96](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L96)
+[types.ts:92](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L92)

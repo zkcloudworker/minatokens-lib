@@ -3,7 +3,7 @@ title: TransactionTokenParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.TransactionTokenParams
-order: 24
+order: 37
 ---
 
 # Interface: TransactionTokenParams
@@ -24,7 +24,7 @@ optional amount: number;
 
 #### Defined in
 
-[types.ts:118](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L118)
+[types.ts:129](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L129)
 
 ***
 
@@ -36,7 +36,7 @@ optional developerFee: number;
 
 #### Defined in
 
-[types.ts:123](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L123)
+[types.ts:134](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L134)
 
 ***
 
@@ -48,7 +48,7 @@ from: string;
 
 #### Defined in
 
-[types.ts:116](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L116)
+[types.ts:127](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L127)
 
 ***
 
@@ -60,7 +60,7 @@ optional memo: string;
 
 #### Defined in
 
-[types.ts:122](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L122)
+[types.ts:133](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L133)
 
 ***
 
@@ -72,7 +72,7 @@ optional nonce: number;
 
 #### Defined in
 
-[types.ts:121](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L121)
+[types.ts:132](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L132)
 
 ***
 
@@ -84,7 +84,7 @@ optional price: number;
 
 #### Defined in
 
-[types.ts:119](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L119)
+[types.ts:130](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L130)
 
 ***
 
@@ -96,7 +96,7 @@ optional to: string;
 
 #### Defined in
 
-[types.ts:117](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L117)
+[types.ts:128](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L128)
 
 ***
 
@@ -108,7 +108,7 @@ tokenAddress: string;
 
 #### Defined in
 
-[types.ts:115](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L115)
+[types.ts:126](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L126)
 
 ***
 
@@ -120,7 +120,7 @@ txType: FungibleTokenTransactionType;
 
 #### Defined in
 
-[types.ts:114](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L114)
+[types.ts:125](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L125)
 
 ***
 
@@ -135,4 +135,4 @@ optional whitelist: string | {
 
 #### Defined in
 
-[types.ts:120](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L120)
+[types.ts:131](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L131)

@@ -3,7 +3,7 @@ title: TransactionPayloads
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.TransactionPayloads
-order: 21
+order: 34
 ---
 
 # Interface: TransactionPayloads
@@ -64,7 +64,7 @@ fee: number;
 
 #### Defined in
 
-[types.ts:5](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L5)
+[types.ts:37](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L37)
 
 ***
 
@@ -76,7 +76,7 @@ memo: string;
 
 #### Defined in
 
-[types.ts:4](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L4)
+[types.ts:36](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L36)
 
 ***
 
@@ -137,7 +137,7 @@ zkappCommand: any;
 
 #### Defined in
 
-[types.ts:15](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L15)
+[types.ts:47](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L47)
 
 ***
 
@@ -149,7 +149,7 @@ nonce: number;
 
 #### Defined in
 
-[types.ts:3](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L3)
+[types.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L35)
 
 ***
 
@@ -161,7 +161,7 @@ proverPayload: string;
 
 #### Defined in
 
-[types.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L24)
+[types.ts:56](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L56)
 
 ***
 
@@ -173,7 +173,7 @@ sender: string;
 
 #### Defined in
 
-[types.ts:2](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L2)
+[types.ts:34](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L34)
 
 ***
 
@@ -185,7 +185,7 @@ signedData: string;
 
 #### Defined in
 
-[types.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L25)
+[types.ts:57](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L57)
 
 ***
 
@@ -197,7 +197,7 @@ transaction: string;
 
 #### Defined in
 
-[types.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L26)
+[types.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L58)
 
 ***
 
@@ -256,4 +256,4 @@ transaction: string;
 
 #### Defined in
 
-[types.ts:6](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L6)
+[types.ts:38](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L38)

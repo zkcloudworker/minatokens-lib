@@ -364,12 +364,14 @@ export async function getTokenSymbolAndAdmin(params) {
     const verificationKeyHashes = [];
     if (txType === "updateBidWhitelist" ||
         txType === "bid" ||
-        txType === "withdrawBid") {
+        txType === "withdrawBid" ||
+        txType === "sell") {
         verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
     }
     if (txType === "updateOfferWhitelist" ||
         txType === "offer" ||
-        txType === "withdrawOffer") {
+        txType === "withdrawOffer" ||
+        txType === "buy") {
         verificationKeyHashes.push(vk.FungibleTokenOfferContract.hash);
     }
     class FungibleTokenState extends Struct({

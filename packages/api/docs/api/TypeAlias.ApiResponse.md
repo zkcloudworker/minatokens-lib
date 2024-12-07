@@ -3,7 +3,7 @@ title: ApiResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: TypeAlias.ApiResponse
-order: 26
+order: 45
 ---
 
 # Type Alias: ApiResponse\<T\>
@@ -282,4 +282,4 @@ Success - API response
 
 ## Defined in
 
-[types.ts:284](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L284)
+[api.ts:20](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/api.ts#L20)

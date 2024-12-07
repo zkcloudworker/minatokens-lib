@@ -3,7 +3,7 @@ title: NFTRequestAnswer
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.NFTRequestAnswer
-order: 13
+order: 20
 ---
 
 # Interface: NFTRequestAnswer
@@ -39,7 +39,7 @@ algolia: null | object;
 
 #### Defined in
 
-[types.ts:274](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L274)
+[types.ts:285](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L285)
 
 ***
 
@@ -51,7 +51,7 @@ contractAddress: string;
 
 #### Defined in
 
-[types.ts:259](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L259)
+[types.ts:270](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L270)
 
 ***
 
@@ -63,7 +63,7 @@ contractUri: null | string;
 
 #### Defined in
 
-[types.ts:263](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L263)
+[types.ts:274](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L274)
 
 ***
 
@@ -75,7 +75,7 @@ metadata: null | object;
 
 #### Defined in
 
-[types.ts:273](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L273)
+[types.ts:284](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L284)
 
 ***
 
@@ -102,7 +102,7 @@ kind: string;
 
 #### Defined in
 
-[types.ts:265](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L265)
+[types.ts:276](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L276)
 
 ***
 
@@ -114,7 +114,7 @@ name: string;
 
 #### Defined in
 
-[types.ts:264](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L264)
+[types.ts:275](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L275)
 
 ***
 
@@ -126,7 +126,7 @@ nftAddress: string;
 
 #### Defined in
 
-[types.ts:260](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L260)
+[types.ts:271](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L271)
 
 ***
 
@@ -138,7 +138,7 @@ owner: string;
 
 #### Defined in
 
-[types.ts:270](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L270)
+[types.ts:281](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L281)
 
 ***
 
@@ -150,7 +150,7 @@ price: number;
 
 #### Defined in
 
-[types.ts:271](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L271)
+[types.ts:282](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L282)
 
 ***
 
@@ -162,7 +162,7 @@ storage: string;
 
 #### Defined in
 
-[types.ts:269](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L269)
+[types.ts:280](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L280)
 
 ***
 
@@ -174,7 +174,7 @@ tokenId: string;
 
 #### Defined in
 
-[types.ts:261](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L261)
+[types.ts:272](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L272)
 
 ***
 
@@ -186,7 +186,7 @@ tokenSymbol: string;
 
 #### Defined in
 
-[types.ts:262](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L262)
+[types.ts:273](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L273)
 
 ***
 
@@ -198,4 +198,4 @@ version: number;
 
 #### Defined in
 
-[types.ts:272](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L272)
+[types.ts:283](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L283)

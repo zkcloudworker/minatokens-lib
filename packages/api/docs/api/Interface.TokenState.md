@@ -3,7 +3,7 @@ title: TokenState
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.TokenState
-order: 16
+order: 27
 ---
 
 # Interface: TokenState
@@ -37,7 +37,7 @@ adminAddress: string;
 
 #### Defined in
 
-[types.ts:236](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L236)
+[types.ts:247](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L247)
 
 ***
 
@@ -49,7 +49,7 @@ adminContractAddress: string;
 
 #### Defined in
 
-[types.ts:235](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L235)
+[types.ts:246](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L246)
 
 ***
 
@@ -61,7 +61,7 @@ adminTokenBalance: number;
 
 #### Defined in
 
-[types.ts:237](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L237)
+[types.ts:248](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L248)
 
 ***
 
@@ -73,7 +73,7 @@ adminTokenSymbol: string;
 
 #### Defined in
 
-[types.ts:245](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L245)
+[types.ts:256](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L256)
 
 ***
 
@@ -85,7 +85,7 @@ adminUri: string;
 
 #### Defined in
 
-[types.ts:246](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L246)
+[types.ts:257](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L257)
 
 ***
 
@@ -97,7 +97,7 @@ adminVerificationKeyHash: string;
 
 #### Defined in
 
-[types.ts:247](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L247)
+[types.ts:258](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L258)
 
 ***
 
@@ -109,7 +109,7 @@ adminVersion: number;
 
 #### Defined in
 
-[types.ts:248](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L248)
+[types.ts:259](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L259)
 
 ***
 
@@ -121,7 +121,7 @@ decimals: number;
 
 #### Defined in
 
-[types.ts:240](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L240)
+[types.ts:251](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L251)
 
 ***
 
@@ -133,7 +133,7 @@ isPaused: boolean;
 
 #### Defined in
 
-[types.ts:239](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L239)
+[types.ts:250](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L250)
 
 ***
 
@@ -145,7 +145,7 @@ tokenAddress: string;
 
 #### Defined in
 
-[types.ts:233](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L233)
+[types.ts:244](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L244)
 
 ***
 
@@ -157,7 +157,7 @@ tokenId: string;
 
 #### Defined in
 
-[types.ts:234](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L234)
+[types.ts:245](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L245)
 
 ***
 
@@ -169,7 +169,7 @@ tokenSymbol: string;
 
 #### Defined in
 
-[types.ts:241](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L241)
+[types.ts:252](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L252)
 
 ***
 
@@ -181,7 +181,7 @@ totalSupply: number;
 
 #### Defined in
 
-[types.ts:238](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L238)
+[types.ts:249](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L249)
 
 ***
 
@@ -193,7 +193,7 @@ uri: string;
 
 #### Defined in
 
-[types.ts:243](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L243)
+[types.ts:254](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L254)
 
 ***
 
@@ -205,7 +205,7 @@ verificationKeyHash: string;
 
 #### Defined in
 
-[types.ts:242](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L242)
+[types.ts:253](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L253)
 
 ***
 
@@ -217,4 +217,4 @@ version: number;
 
 #### Defined in
 
-[types.ts:244](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L244)
+[types.ts:255](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L255)

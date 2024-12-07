@@ -3,7 +3,7 @@ title: BalanceRequestParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.BalanceRequestParams
-order: 5
+order: 6
 ---
 
 # Interface: BalanceRequestParams
@@ -23,7 +23,7 @@ address: string;
 
 #### Defined in
 
-[types.ts:127](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L127)
+[types.ts:138](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L138)
 
 ***
 
@@ -35,4 +35,4 @@ tokenAddress: string;
 
 #### Defined in
 
-[types.ts:126](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L126)
+[types.ts:137](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L137)

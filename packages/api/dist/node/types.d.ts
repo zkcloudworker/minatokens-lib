@@ -82,21 +82,6 @@ export type JobResults = {
     error?: string;
     jobStatus?: JobStatus;
 };
-export interface TransactionTokenParams {
-    txType: FungibleTokenTransactionType;
-    tokenAddress: string;
-    from: string;
-    to?: string;
-    amount?: number;
-    price?: number;
-    whitelist?: {
-        address: string;
-        amount?: number;
-    }[] | string;
-    nonce?: number;
-    memo?: string;
-    developerFee?: number;
-}
 export interface BalanceRequestParams {
     tokenAddress: string;
     address: string;

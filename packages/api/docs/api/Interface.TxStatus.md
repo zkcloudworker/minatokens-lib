@@ -3,7 +3,7 @@ title: TxStatus
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.TxStatus
-order: 25
+order: 39
 ---
 
 # Interface: TxStatus
@@ -17,6 +17,8 @@ order: 25
   failureReason: string;
   index: number;
  }[]; [↗](#failures)
+- failureReason:  string; [↗](#failurereason)
+- index:  number; [↗](#index)
 - fee:  number; [↗](#fee)
 - feePayerAddress:  string; [↗](#feepayeraddress)
 - feePayerImg:  null | string; [↗](#feepayerimg)
@@ -79,6 +81,51 @@ order: 25
   verificationKey: null | string;
   verificationKeyHash: null | string;
  }[]; [↗](#updatedaccounts)
+- accountAddress:  string; [↗](#accountaddress)
+- accountImg:  null | string; [↗](#accountimg)
+- accountName:  null | string; [↗](#accountname)
+- callData:  string; [↗](#calldata)
+- callDepth:  number; [↗](#calldepth)
+- incrementNonce:  boolean; [↗](#incrementnonce)
+- isZkappAccount:  boolean; [↗](#iszkappaccount)
+- tokenId:  string; [↗](#tokenid)
+- totalBalanceChange:  number; [↗](#totalbalancechange)
+- totalBalanceChangeUsd:  number; [↗](#totalbalancechangeusd)
+- update:  {
+  appState: string[];
+  delegateeAddress: null | string;
+  delegateeImg: null | string;
+  delegateeName: null | string;
+  permissions: {
+     access: null | string;
+     editActionState: null | string;
+     editState: null | string;
+     incrementNonce: null | string;
+     receive: null | string;
+     send: null | string;
+     setDelegate: null | string;
+     setPermissions: null | string;
+     setTiming: null | string;
+     setTokenSymbol: null | string;
+     setVerificationKey: null | string;
+     setVotingFor: null | string;
+     setZkappUri: null | string;
+    };
+  timing: {
+     cliffAmount: null | string;
+     cliffTime: null | number;
+     initialMinimumBalance: null | string;
+     vestingIncrement: null | string;
+     vestingPeriod: null | number;
+    };
+  tokenSymbol: null | string;
+  verificationKey: null | string;
+  votingFor: null | string;
+  zkappUri: null | string;
+}; [↗](#update)
+- useFullCommitment:  boolean; [↗](#usefullcommitment)
+- verificationKey:  null | string; [↗](#verificationkey)
+- verificationKeyHash:  null | string; [↗](#verificationkeyhash)
 - updatedAccountsCount:  number; [↗](#updatedaccountscount)
 
 ## Properties
@@ -91,7 +138,7 @@ blockConfirmationsCount: number;
 
 #### Defined in
 
-[types.ts:207](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L207)
+[types.ts:218](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L218)
 
 ***
 
@@ -103,7 +150,7 @@ blockHeight: number;
 
 #### Defined in
 
-[types.ts:141](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L141)
+[types.ts:152](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L152)
 
 ***
 
@@ -115,7 +162,7 @@ blockStatus: string;
 
 #### Defined in
 
-[types.ts:143](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L143)
+[types.ts:154](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L154)
 
 ***
 
@@ -128,9 +175,21 @@ failures: {
  }[];
 ```
 
+#### failureReason
+
+```ts
+failureReason: string;
+```
+
+#### index
+
+```ts
+index: number;
+```
+
 #### Defined in
 
-[types.ts:147](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L147)
+[types.ts:158](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L158)
 
 ***
 
@@ -142,7 +201,7 @@ fee: number;
 
 #### Defined in
 
-[types.ts:155](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L155)
+[types.ts:166](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L166)
 
 ***
 
@@ -154,7 +213,7 @@ feePayerAddress: string;
 
 #### Defined in
 
-[types.ts:152](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L152)
+[types.ts:163](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L163)
 
 ***
 
@@ -166,7 +225,7 @@ feePayerImg: null | string;
 
 #### Defined in
 
-[types.ts:154](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L154)
+[types.ts:165](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L165)
 
 ***
 
@@ -178,7 +237,7 @@ feePayerName: null | string;
 
 #### Defined in
 
-[types.ts:153](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L153)
+[types.ts:164](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L164)
 
 ***
 
@@ -190,7 +249,7 @@ feeUsd: number;
 
 #### Defined in
 
-[types.ts:156](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L156)
+[types.ts:167](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L167)
 
 ***
 
@@ -202,7 +261,7 @@ isAccountHijack: null | boolean;
 
 #### Defined in
 
-[types.ts:210](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L210)
+[types.ts:221](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L221)
 
 ***
 
@@ -214,7 +273,7 @@ isZkappAccount: boolean;
 
 #### Defined in
 
-[types.ts:208](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L208)
+[types.ts:219](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L219)
 
 ***
 
@@ -226,7 +285,7 @@ memo: string;
 
 #### Defined in
 
-[types.ts:151](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L151)
+[types.ts:162](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L162)
 
 ***
 
@@ -238,7 +297,7 @@ nonce: number;
 
 #### Defined in
 
-[types.ts:209](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L209)
+[types.ts:220](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L220)
 
 ***
 
@@ -250,7 +309,7 @@ stateHash: string;
 
 #### Defined in
 
-[types.ts:142](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L142)
+[types.ts:153](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L153)
 
 ***
 
@@ -262,7 +321,7 @@ timestamp: number;
 
 #### Defined in
 
-[types.ts:144](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L144)
+[types.ts:155](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L155)
 
 ***
 
@@ -274,7 +333,7 @@ totalBalanceChange: number;
 
 #### Defined in
 
-[types.ts:157](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L157)
+[types.ts:168](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L168)
 
 ***
 
@@ -286,7 +345,7 @@ totalBalanceChangeUsd: number;
 
 #### Defined in
 
-[types.ts:158](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L158)
+[types.ts:169](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L169)
 
 ***
 
@@ -298,7 +357,7 @@ txHash: string;
 
 #### Defined in
 
-[types.ts:145](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L145)
+[types.ts:156](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L156)
 
 ***
 
@@ -310,7 +369,7 @@ txStatus: string;
 
 #### Defined in
 
-[types.ts:146](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L146)
+[types.ts:157](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L157)
 
 ***
 
@@ -366,9 +425,312 @@ updatedAccounts: {
  }[];
 ```
 
+#### accountAddress
+
+```ts
+accountAddress: string;
+```
+
+#### accountImg
+
+```ts
+accountImg: null | string;
+```
+
+#### accountName
+
+```ts
+accountName: null | string;
+```
+
+#### callData
+
+```ts
+callData: string;
+```
+
+#### callDepth
+
+```ts
+callDepth: number;
+```
+
+#### incrementNonce
+
+```ts
+incrementNonce: boolean;
+```
+
+#### isZkappAccount
+
+```ts
+isZkappAccount: boolean;
+```
+
+#### tokenId
+
+```ts
+tokenId: string;
+```
+
+#### totalBalanceChange
+
+```ts
+totalBalanceChange: number;
+```
+
+#### totalBalanceChangeUsd
+
+```ts
+totalBalanceChangeUsd: number;
+```
+
+#### update
+
+```ts
+update: {
+  appState: string[];
+  delegateeAddress: null | string;
+  delegateeImg: null | string;
+  delegateeName: null | string;
+  permissions: {
+     access: null | string;
+     editActionState: null | string;
+     editState: null | string;
+     incrementNonce: null | string;
+     receive: null | string;
+     send: null | string;
+     setDelegate: null | string;
+     setPermissions: null | string;
+     setTiming: null | string;
+     setTokenSymbol: null | string;
+     setVerificationKey: null | string;
+     setVotingFor: null | string;
+     setZkappUri: null | string;
+    };
+  timing: {
+     cliffAmount: null | string;
+     cliffTime: null | number;
+     initialMinimumBalance: null | string;
+     vestingIncrement: null | string;
+     vestingPeriod: null | number;
+    };
+  tokenSymbol: null | string;
+  verificationKey: null | string;
+  votingFor: null | string;
+  zkappUri: null | string;
+};
+```
+
+##### update.appState
+
+```ts
+appState: string[];
+```
+
+##### update.delegateeAddress
+
+```ts
+delegateeAddress: null | string;
+```
+
+##### update.delegateeImg
+
+```ts
+delegateeImg: null | string;
+```
+
+##### update.delegateeName
+
+```ts
+delegateeName: null | string;
+```
+
+##### update.permissions
+
+```ts
+permissions: {
+  access: null | string;
+  editActionState: null | string;
+  editState: null | string;
+  incrementNonce: null | string;
+  receive: null | string;
+  send: null | string;
+  setDelegate: null | string;
+  setPermissions: null | string;
+  setTiming: null | string;
+  setTokenSymbol: null | string;
+  setVerificationKey: null | string;
+  setVotingFor: null | string;
+  setZkappUri: null | string;
+};
+```
+
+##### update.permissions.access
+
+```ts
+access: null | string;
+```
+
+##### update.permissions.editActionState
+
+```ts
+editActionState: null | string;
+```
+
+##### update.permissions.editState
+
+```ts
+editState: null | string;
+```
+
+##### update.permissions.incrementNonce
+
+```ts
+incrementNonce: null | string;
+```
+
+##### update.permissions.receive
+
+```ts
+receive: null | string;
+```
+
+##### update.permissions.send
+
+```ts
+send: null | string;
+```
+
+##### update.permissions.setDelegate
+
+```ts
+setDelegate: null | string;
+```
+
+##### update.permissions.setPermissions
+
+```ts
+setPermissions: null | string;
+```
+
+##### update.permissions.setTiming
+
+```ts
+setTiming: null | string;
+```
+
+##### update.permissions.setTokenSymbol
+
+```ts
+setTokenSymbol: null | string;
+```
+
+##### update.permissions.setVerificationKey
+
+```ts
+setVerificationKey: null | string;
+```
+
+##### update.permissions.setVotingFor
+
+```ts
+setVotingFor: null | string;
+```
+
+##### update.permissions.setZkappUri
+
+```ts
+setZkappUri: null | string;
+```
+
+##### update.timing
+
+```ts
+timing: {
+  cliffAmount: null | string;
+  cliffTime: null | number;
+  initialMinimumBalance: null | string;
+  vestingIncrement: null | string;
+  vestingPeriod: null | number;
+};
+```
+
+##### update.timing.cliffAmount
+
+```ts
+cliffAmount: null | string;
+```
+
+##### update.timing.cliffTime
+
+```ts
+cliffTime: null | number;
+```
+
+##### update.timing.initialMinimumBalance
+
+```ts
+initialMinimumBalance: null | string;
+```
+
+##### update.timing.vestingIncrement
+
+```ts
+vestingIncrement: null | string;
+```
+
+##### update.timing.vestingPeriod
+
+```ts
+vestingPeriod: null | number;
+```
+
+##### update.tokenSymbol
+
+```ts
+tokenSymbol: null | string;
+```
+
+##### update.verificationKey
+
+```ts
+verificationKey: null | string;
+```
+
+##### update.votingFor
+
+```ts
+votingFor: null | string;
+```
+
+##### update.zkappUri
+
+```ts
+zkappUri: null | string;
+```
+
+#### useFullCommitment
+
+```ts
+useFullCommitment: boolean;
+```
+
+#### verificationKey
+
+```ts
+verificationKey: null | string;
+```
+
+#### verificationKeyHash
+
+```ts
+verificationKeyHash: null | string;
+```
+
 #### Defined in
 
-[types.ts:160](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L160)
+[types.ts:171](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L171)
 
 ***
 
@@ -380,4 +742,4 @@ updatedAccountsCount: number;
 
 #### Defined in
 
-[types.ts:159](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L159)
+[types.ts:170](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L170)

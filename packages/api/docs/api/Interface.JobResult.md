@@ -3,7 +3,7 @@ title: JobResult
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: Interface.JobResult
-order: 12
+order: 15
 ---
 
 # Interface: JobResult
@@ -22,7 +22,7 @@ optional error: string;
 
 #### Defined in
 
-[types.ts:107](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L107)
+[types.ts:115](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L115)
 
 ***
 
@@ -34,19 +34,7 @@ optional hash: string;
 
 #### Defined in
 
-[types.ts:109](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L109)
-
-***
-
-### jobStatus?
-
-```ts
-optional jobStatus: string;
-```
-
-#### Defined in
-
-[types.ts:110](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L110)
+[types.ts:117](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L117)
 
 ***
 
@@ -58,7 +46,7 @@ success: boolean;
 
 #### Defined in
 
-[types.ts:106](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L106)
+[types.ts:114](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L114)
 
 ***
 
@@ -70,4 +58,4 @@ optional tx: string;
 
 #### Defined in
 
-[types.ts:108](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L108)
+[types.ts:116](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/types.ts#L116)
