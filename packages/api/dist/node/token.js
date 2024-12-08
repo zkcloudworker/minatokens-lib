@@ -13,4 +13,4 @@ export const tokenTransactionTypes = [
     "updateOfferWhitelist",
     "updateAdminWhitelist",
 ];
-//# sourceMappingURL=types.js.map
+//# sourceMappingURL=token.js.map

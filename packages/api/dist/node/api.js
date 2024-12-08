@@ -34,6 +34,12 @@ export class MinaTokensAPI {
             callParams: params,
         });
     }
+    proveTransaction(params) {
+        return this.apiCall({
+            endpoint: "prove",
+            callParams: { txs: [params] },
+        });
+    }
     proveTransactions(params) {
         return this.apiCall({
             endpoint: "prove",

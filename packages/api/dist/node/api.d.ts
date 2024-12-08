@@ -1,5 +1,6 @@
-import { DeployTransaction, JobId, TokenTransaction, TokenTransactions, FaucetParams, FaucetResponse, TransactionStatusParams, TransactionStatus, TokenState, NFTRequestAnswer, NFTRequestParams, BalanceResponse, BalanceRequestParams, ProveTokenTransactions, JobResults } from "./types.js";
-import { TransactionParams, AirdropTransactionParams } from "./transaction.js";
+import { JobId, FaucetParams, FaucetResponse, TransactionStatusParams, TransactionStatus, BalanceResponse, BalanceRequestParams, JobResults } from "./transaction.js";
+import { TransactionParams, AirdropTransactionParams, TokenTransaction, TokenTransactions, ProveTokenTransactions, ProveTokenTransaction, TokenState } from "./token.js";
+import { NFTRequestAnswer, NFTRequestParams } from "./nft-v2.js";
 export type ApiResponse<T> = {
     /** Bad request - invalid input parameters */
     status: 400;
@@ -51,8 +52,9 @@ export declare class MinaTokensAPI {
     getTokenInfo(tokenAddress: string): Promise<TokenState>;
     getBalance(params: BalanceRequestParams): Promise<BalanceResponse>;
     getNFTInfo(params: NFTRequestParams): Promise<NFTRequestAnswer>;
-    buildTransaction(params: TransactionParams): Promise<DeployTransaction | TokenTransaction>;
+    buildTransaction(params: TransactionParams): Promise<TokenTransaction>;
     buildAirdrop(params: AirdropTransactionParams): Promise<TokenTransactions>;
+    proveTransaction(params: ProveTokenTransaction): Promise<JobId>;
     proveTransactions(params: ProveTokenTransactions): Promise<JobId>;
     getProof(params: JobId): Promise<JobResults>;
     faucet(params: FaucetParams): Promise<FaucetResponse>;

@@ -1,63 +1,38 @@
-import { WhitelistedAddress } from "@minatokens/storage";
-import { FungibleTokenTransactionType } from "@minatokens/api";
+import { FungibleTokenTransactionType, TransactionParams, LaunchTokenAdvancedAdminParams, LaunchTokenStandardAdminParams } from "@minatokens/api";
 import { blockchain } from "./types.js";
-import { PublicKey, UInt64, UInt8, Bool, Transaction } from "o1js";
-export declare function buildTokenDeployTransaction(params: {
+import { PublicKey, Transaction } from "o1js";
+export declare function buildTokenLaunchTransaction(params: {
     chain: blockchain;
-    fee: UInt64;
-    sender: PublicKey;
-    nonce: number;
-    tokenAddress: PublicKey;
-    adminContractAddress: PublicKey;
-    adminAddress: PublicKey;
-    adminType: "standard" | "advanced";
-    uri: string;
-    symbol: string;
-    memo?: string;
-    whitelist?: WhitelistedAddress[] | string;
-    totalSupply?: UInt64;
-    requireAdminSignatureForMint?: Bool;
-    anyoneCanMint?: Bool;
-    developerAddress?: PublicKey;
-    developerFee?: UInt64;
-    provingKey: PublicKey;
-    provingFee: UInt64;
-    decimals: UInt8;
+    args: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
+    developerAddress?: string;
+    provingKey?: string;
+    provingFee?: number;
 }): Promise<{
+    request: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
     tx: Transaction<false, false>;
     isAdvanced: boolean;
     verificationKeyHashes: string[];
-    whitelist: string;
 }>;
 export declare function buildTokenTransaction(params: {
-    txType: FungibleTokenTransactionType;
     chain: blockchain;
-    fee: UInt64;
-    nonce: number;
-    memo?: string;
-    tokenAddress: PublicKey;
-    sender: PublicKey;
-    from: PublicKey;
-    to: PublicKey;
-    amount?: UInt64;
-    price?: UInt64;
-    whitelist?: WhitelistedAddress[] | string;
-    developerAddress?: PublicKey;
-    developerFee?: UInt64;
-    provingKey: PublicKey;
-    provingFee: UInt64;
+    args: Exclude<TransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
+    developerAddress?: string;
+    provingKey?: string;
+    provingFee?: number;
 }): Promise<{
+    request: Exclude<TransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
     tx: Transaction<false, false>;
     isAdvanced: boolean;
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
     symbol: string;
     verificationKeyHashes: string[];
-    whitelist?: string;
 }>;
 export declare function getTokenSymbolAndAdmin(params: {
     txType: FungibleTokenTransactionType;
     to?: PublicKey;
+    offerAddress?: PublicKey;
+    bidAddress?: PublicKey;
     tokenAddress: PublicKey;
     chain: blockchain;
 }): Promise<{
