@@ -1,6 +1,6 @@
 {
   "name": "@minatokens/storage",
-  "version": "0.3.2",
+  "version": "0.5.0",
   "author": "DFST",
   "description": "MinaTokens Storage Library",
   "type": "module",
@@ -46,7 +46,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
-    "publish": "npm publish --access public",
+    "release": "npm run build && npm publish --access public --otp",
     "login": "npm login"
   },
   "devDependencies": {

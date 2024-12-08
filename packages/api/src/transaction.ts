@@ -1,160 +1,156 @@
-import { FungibleTokenTransactionType } from "./types.js";
-
-export interface TokenInfo {
-  symbol: string;
-  name?: string;
-  description?: string;
-  imageUrl?: string;
-  imageBase64?: string; // max 1 MB
-  twitter?: string;
-  discord?: string;
-  telegram?: string;
-  instagram?: string;
-  facebook?: string;
-  website?: string;
-  tokenContractCode?: string;
-  adminContractsCode?: string[];
-}
-
-export interface TokenTransactionBaseParams {
-  txType: FungibleTokenTransactionType | "launch";
+export interface TransactionPayloads {
   sender: string;
-  nonce?: number;
-  memo?: string;
-  developerFee?: number;
+  nonce: number;
+  memo: string;
+  fee: number;
+  walletPayload: {
+    nonce: number;
+    transaction: string;
+    onlySign: boolean;
+    feePayer: {
+      fee: number;
+      memo: string;
+    };
+  };
+  minaSignerPayload: {
+    zkappCommand: any;
+    feePayer: {
+      feePayer: string;
+      fee: number;
+      nonce: number;
+      memo: string;
+    };
+  };
+  proverPayload: string;
+  signedData: string;
+  transaction: string;
 }
 
-export interface LaunchTokenTransactionBaseParams
-  extends TokenTransactionBaseParams {
-  txType: "launch";
-  adminContract: "standard" | "advanced";
-  symbol: string;
-  decimals?: number;
-  uri: string | TokenInfo;
-
-  contractPrivateKey?: string;
-  adminContractPrivateKey?: string;
+export interface JobId {
+  jobId: string;
 }
 
-export interface LaunchTokenStandardAdminParams
-  extends LaunchTokenTransactionBaseParams {
-  adminContract: "standard";
+export type JobStatus =
+  | "created"
+  | "started"
+  | "finished"
+  | "failed"
+  | "used"
+  | "restarted";
+
+export interface JobResult {
+  success: boolean;
+  error?: string;
+  tx?: string;
+  hash?: string;
 }
 
-export interface LaunchTokenAdvancedAdminParams
-  extends LaunchTokenTransactionBaseParams {
-  adminContract: "advanced";
-  canMint: "whitelist" | "anyone";
-  requireAdminSignatureForMint?: boolean;
-  whitelist?: { address: string; amount?: number }[] | string;
-  totalSupply?: number; // UInt64.MAXINT() if not provided
+export type JobResults =
+  | { success: true; results?: JobResult[]; jobStatus?: JobStatus }
+  | { success: false; error?: string; jobStatus?: JobStatus };
+
+export interface BalanceRequestParams {
+  tokenAddress?: string;
+  tokenId?: string;
+  address: string;
 }
 
-export interface DeployedTokenTransactionBaseParams
-  extends TokenTransactionBaseParams {
-  txType: FungibleTokenTransactionType;
-  tokenAddress: string;
+export interface BalanceResponse {
+  tokenAddress?: string;
+  tokenId?: string;
+  address: string;
+  balance: number | null;
 }
 
-export interface MintTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "mint";
-  to: string;
-  amount: number;
+export interface TransactionStatusParams {
+  hash: string;
 }
 
-export interface TransferTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "transfer";
-  to: string;
-  amount: number;
+export interface TxStatus {
+  blockHeight: number;
+  stateHash: string;
+  blockStatus: "canonical" | string;
+  timestamp: number;
+  txHash: string;
+  txStatus: "applied" | string;
+  failures: {
+    index: number;
+    failureReason: string;
+  }[];
+  memo: string;
+  feePayerAddress: string;
+  feePayerName: string | null;
+  feePayerImg: string | null;
+  fee: number;
+  feeUsd: number;
+  totalBalanceChange: number;
+  totalBalanceChangeUsd: number;
+  updatedAccountsCount: number;
+  updatedAccounts: {
+    accountAddress: string;
+    accountName: string | null;
+    accountImg: string | null;
+    isZkappAccount: boolean;
+    verificationKey: string | null;
+    verificationKeyHash: string | null;
+    incrementNonce: boolean;
+    totalBalanceChange: number;
+    totalBalanceChangeUsd: number;
+    callDepth: number;
+    useFullCommitment: boolean;
+    callData: string;
+    tokenId: string;
+    update: {
+      appState: string[];
+      delegateeAddress: string | null;
+      delegateeName: string | null;
+      delegateeImg: string | null;
+      permissions: {
+        access: string | null;
+        editActionState: string | null;
+        editState: string | null;
+        incrementNonce: string | null;
+        receive: string | null;
+        send: string | null;
+        setDelegate: string | null;
+        setPermissions: string | null;
+        setTiming: string | null;
+        setTokenSymbol: string | null;
+        setVerificationKey: string | null;
+        setVotingFor: string | null;
+        setZkappUri: string | null;
+      };
+      timing: {
+        initialMinimumBalance: string | null;
+        cliffTime: number | null;
+        cliffAmount: string | null;
+        vestingPeriod: number | null;
+        vestingIncrement: string | null;
+      };
+      tokenSymbol: string | null;
+      verificationKey: string | null;
+      votingFor: string | null;
+      zkappUri: string | null;
+    };
+  }[];
+  blockConfirmationsCount: number;
+  isZkappAccount: boolean;
+  nonce: number;
+  isAccountHijack: boolean | null;
 }
 
-export interface AirdropTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "airdrop";
-  recipients: { address: string; amount: number; memo?: string }[];
+export interface TransactionStatus {
+  hash: string;
+  status: "pending" | "applied" | "failed" | "unknown";
+  error?: string;
+  details?: TxStatus;
 }
 
-export interface OfferTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "offer";
-  offerPrivateKey?: string;
-  amount: number;
-  price: number;
-  whitelist?: { address: string; amount?: number }[] | string;
+export interface FaucetParams {
+  address: string;
 }
 
-export interface BidTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "bid";
-  bidPrivateKey?: string;
-  amount: number;
-  price: number;
-  whitelist?: { address: string; amount?: number }[] | string;
+export interface FaucetResponse {
+  success: true;
+  hash?: string;
 }
-
-export interface BuyTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "buy";
-  offerAddress: string;
-  amount: number;
-}
-
-export interface SellTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "sell";
-  bidAddress: string;
-  amount: number;
-}
-
-export interface WithdrawBidTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "withdrawBid";
-  bidAddress: string;
-  amount: number;
-}
-
-export interface WithdrawOfferTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "withdrawOffer";
-  offerAddress: string;
-  amount: number;
-}
-
-export interface UpdateBidWhitelistTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "updateBidWhitelist";
-  bidAddress: string;
-  whitelist: { address: string; amount?: number }[] | string;
-}
-
-export interface UpdateOfferWhitelistTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "updateOfferWhitelist";
-  offerAddress: string;
-  whitelist: { address: string; amount?: number }[] | string;
-}
-
-export interface UpdateAdminWhitelistTransactionParams
-  extends DeployedTokenTransactionBaseParams {
-  txType: "updateAdminWhitelist";
-  adminAddress: string;
-  whitelist: { address: string; amount?: number }[] | string;
-}
-
-export type TransactionParams =
-  | LaunchTokenStandardAdminParams
-  | LaunchTokenAdvancedAdminParams
-  | MintTransactionParams
-  | TransferTransactionParams
-  | AirdropTransactionParams
-  | OfferTransactionParams
-  | BidTransactionParams
-  | BuyTransactionParams
-  | SellTransactionParams
-  | WithdrawBidTransactionParams
-  | WithdrawOfferTransactionParams
-  | UpdateBidWhitelistTransactionParams
-  | UpdateOfferWhitelistTransactionParams
-  | UpdateAdminWhitelistTransactionParams;

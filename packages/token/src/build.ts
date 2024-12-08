@@ -1,5 +1,10 @@
 import { Whitelist, WhitelistedAddress } from "@minatokens/storage";
-import { FungibleTokenTransactionType } from "@minatokens/api";
+import {
+  FungibleTokenTransactionType,
+  TransactionParams,
+  LaunchTokenAdvancedAdminParams,
+  LaunchTokenStandardAdminParams,
+} from "@minatokens/api";
 import { blockchain } from "./types.js";
 import { fetchMinaAccount } from "./fetch.js";
 import { FungibleToken, AdvancedFungibleToken } from "./FungibleToken.js";
@@ -21,50 +26,58 @@ import {
   TokenId,
 } from "o1js";
 
-export async function buildTokenDeployTransaction(params: {
+export async function buildTokenLaunchTransaction(params: {
   chain: blockchain;
-  fee: UInt64;
-  sender: PublicKey;
-  nonce: number;
-  tokenAddress: PublicKey;
-  adminContractAddress: PublicKey;
-  adminAddress: PublicKey;
-  adminType: "standard" | "advanced";
-  uri: string;
-  symbol: string;
-  memo?: string;
-  whitelist?: WhitelistedAddress[] | string;
-  totalSupply?: UInt64;
-  requireAdminSignatureForMint?: Bool;
-  anyoneCanMint?: Bool;
-  developerAddress?: PublicKey;
-  developerFee?: UInt64;
-  provingKey: PublicKey;
-  provingFee: UInt64;
-  decimals: UInt8;
+  args: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
+  developerAddress?: string;
+  provingKey?: string;
+  provingFee?: number;
+  // chain: blockchain;
+  // fee: UInt64;
+  // sender: PublicKey;
+  // nonce: number;
+  // tokenAddress: PublicKey;
+  // adminContractAddress: PublicKey;
+  // adminAddress: PublicKey;
+  // adminType: "standard" | "advanced";
+  // uri: string;
+  // symbol: string;
+  // memo?: string;
+  // whitelist?: WhitelistedAddress[] | string;
+  // totalSupply?: UInt64;
+  // requireAdminSignatureForMint?: Bool;
+  // anyoneCanMint?: Bool;
+  // developerAddress?: PublicKey;
+  // developerFee?: UInt64;
+  // provingKey: PublicKey;
+  // provingFee: UInt64;
+  // decimals: UInt8;
 }): Promise<{
+  request: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
   tx: Transaction<false, false>;
   isAdvanced: boolean;
   verificationKeyHashes: string[];
-  whitelist: string;
 }> {
-  const {
-    fee,
-    sender,
-    nonce,
-    memo,
-    tokenAddress,
-    adminContractAddress,
-    uri,
-    symbol,
-    developerAddress,
-    developerFee,
-    provingKey,
-    provingFee,
-    decimals,
-    chain,
-    adminType,
-  } = params;
+  // const {
+  //   fee,
+  //   sender,
+  //   nonce,
+  //   memo,
+  //   tokenAddress,
+  //   adminContractAddress,
+  //   uri,
+  //   symbol,
+  //   developerAddress,
+  //   developerFee,
+  //   provingKey,
+  //   provingFee,
+  //   decimals,
+  //   chain,
+  //   adminType,
+  // } = params;
+  const { chain, args } = params;
+  const { uri, symbol, memo, nonce, adminContract: adminType } = args;
+  //  whitelist, totalSupply, requireAdminSignatureForMint, anyoneCanMint,
   const isAdvanced = adminType === "advanced";
   if (memo && typeof memo !== "string")
     throw new Error("Memo must be a string");
@@ -74,6 +87,18 @@ export async function buildTokenDeployTransaction(params: {
     throw new Error("Symbol must be a string");
   if (symbol.length >= 7)
     throw new Error("Symbol must be less than 7 characters");
+  const sender = PublicKey.fromBase58(args.sender);
+  if (nonce === undefined) throw new Error("Nonce is required");
+  if (typeof nonce !== "number") throw new Error("Nonce must be a number");
+  const fee = 100_000_000;
+  if (uri && typeof uri !== "string") throw new Error("Uri must be a string");
+  if (!args.tokenAddress || typeof args.tokenAddress !== "string")
+    throw new Error("tokenAddress is required");
+  if (
+    !args.adminContractAddress ||
+    typeof args.adminContractAddress !== "string"
+  )
+    throw new Error("adminContractAddress is required");
 
   const adminContract = isAdvanced
     ? FungibleTokenAdvancedAdmin
@@ -122,14 +147,43 @@ export async function buildTokenDeployTransaction(params: {
     throw new Error("Sender does not have account");
   }
 
-  const whitelist = params.whitelist
-    ? typeof params.whitelist === "string"
-      ? Whitelist.fromString(params.whitelist)
-      : await Whitelist.create({ list: params.whitelist, name: symbol })
-    : Whitelist.empty();
+  const whitelist =
+    "whitelist" in args && args.whitelist
+      ? typeof args.whitelist === "string"
+        ? Whitelist.fromString(args.whitelist)
+        : await Whitelist.create({ list: args.whitelist, name: symbol })
+      : Whitelist.empty();
 
+  const tokenAddress = PublicKey.fromBase58(args.tokenAddress);
+  const adminContractAddress = PublicKey.fromBase58(args.adminContractAddress);
   const zkToken = new tokenContract(tokenAddress);
   const zkAdmin = new adminContract(adminContractAddress);
+
+  const provingKey = params.provingKey
+    ? PublicKey.fromBase58(params.provingKey)
+    : sender;
+  const provingFee = params.provingFee
+    ? UInt64.from(params.provingFee)
+    : undefined;
+  const developerFee = args.developerFee
+    ? UInt64.from(args.developerFee)
+    : undefined;
+  const developerAddress = params.developerAddress
+    ? PublicKey.fromBase58(params.developerAddress)
+    : undefined;
+  const totalSupply =
+    "totalSupply" in args && args.totalSupply
+      ? UInt64.from(args.totalSupply)
+      : UInt64.MAXINT();
+  const requireAdminSignatureForMint =
+    "requireAdminSignatureForMint" in args && args.requireAdminSignatureForMint
+      ? Bool(args.requireAdminSignatureForMint)
+      : Bool(false);
+  const anyoneCanMint =
+    "canMint" in args && args.canMint
+      ? Bool(args.canMint === "anyone")
+      : Bool(false);
+  const decimals = UInt8.from(args.decimals ?? 9);
 
   const tx = await Mina.transaction(
     { sender, fee, memo: memo ?? `launch ${symbol}`, nonce },
@@ -138,10 +192,11 @@ export async function buildTokenDeployTransaction(params: {
       feeAccountUpdate.balance.subInPlace(
         3_000_000_000 + (isAdvanced ? 1_000_000_000 : 0)
       );
-      feeAccountUpdate.send({
-        to: provingKey,
-        amount: provingFee,
-      });
+      if (provingFee && provingKey)
+        feeAccountUpdate.send({
+          to: provingKey,
+          amount: provingFee,
+        });
       if (developerAddress && developerFee) {
         feeAccountUpdate.send({
           to: developerAddress,
@@ -153,10 +208,9 @@ export async function buildTokenDeployTransaction(params: {
         tokenContract: tokenAddress,
         verificationKey: adminVerificationKey,
         whitelist,
-        totalSupply: params.totalSupply ?? UInt64.MAXINT(),
-        requireAdminSignatureForMint:
-          params.requireAdminSignatureForMint ?? Bool(false),
-        anyoneCanMint: params.anyoneCanMint ?? Bool(false),
+        totalSupply,
+        requireAdminSignatureForMint,
+        anyoneCanMint,
       });
       if (isAdvanced) {
         const adminUpdate = AccountUpdate.create(
@@ -183,13 +237,18 @@ export async function buildTokenDeployTransaction(params: {
     }
   );
   return {
+    request: isAdvanced
+      ? {
+          ...args,
+          whitelist: whitelist.toString(),
+        }
+      : args,
     tx,
     isAdvanced,
     verificationKeyHashes: [
       adminVerificationKey.hash,
       tokenVerificationKey.hash,
     ],
-    whitelist: whitelist.toString(),
   };
 }
 
@@ -210,47 +269,94 @@ export async function buildTokenDeployTransaction(params: {
 // }
 
 export async function buildTokenTransaction(params: {
-  txType: FungibleTokenTransactionType;
   chain: blockchain;
-  fee: UInt64;
-  nonce: number;
-  memo?: string;
-  tokenAddress: PublicKey;
-  sender: PublicKey;
-  from: PublicKey;
-  to: PublicKey;
-  amount?: UInt64;
-  price?: UInt64;
-  whitelist?: WhitelistedAddress[] | string;
-  developerAddress?: PublicKey;
-  developerFee?: UInt64;
-  provingKey: PublicKey;
-  provingFee: UInt64;
+  args: Exclude<
+    TransactionParams,
+    LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams
+  >;
+  developerAddress?: string;
+  provingKey?: string;
+  provingFee?: number;
+  // txType: FungibleTokenTransactionType;
+  // chain: blockchain;
+  // fee: UInt64;
+  // nonce: number;
+  // memo?: string;
+  // tokenAddress: PublicKey;
+  // sender: PublicKey;
+  // from: PublicKey;
+  // to: PublicKey;
+  // amount?: UInt64;
+  // price?: UInt64;
+  // whitelist?: WhitelistedAddress[] | string;
+  // developerAddress?: PublicKey;
+  // developerFee?: UInt64;
+  // provingKey: PublicKey;
+  // provingFee: UInt64;
 }): Promise<{
+  request: Exclude<
+    TransactionParams,
+    LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams
+  >;
   tx: Transaction<false, false>;
   isAdvanced: boolean;
   adminContractAddress: PublicKey;
   adminAddress: PublicKey;
   symbol: string;
   verificationKeyHashes: string[];
-  whitelist?: string;
 }> {
-  const {
-    txType,
-    sender,
-    chain,
-    fee,
-    nonce,
-    tokenAddress,
-    from,
-    to,
-    amount,
-    price,
-    developerAddress,
-    developerFee,
-    provingKey,
-    provingFee,
-  } = params;
+  const { chain, args } = params;
+  const { nonce, txType } = args;
+  if (nonce === undefined) throw new Error("Nonce is required");
+  if (typeof nonce !== "number") throw new Error("Nonce must be a number");
+  // const {
+  //   txType,
+  //   sender,
+  //   chain,
+  //   fee,
+  //   nonce,
+  //   tokenAddress,
+  //   from,
+  //   to,
+  //   amount,
+  //   price,
+  //   developerAddress,
+  //   developerFee,
+  //   provingKey,
+  //   provingFee,
+  // } = params;
+  const sender = PublicKey.fromBase58(args.sender);
+  const tokenAddress = PublicKey.fromBase58(args.tokenAddress);
+  const offerAddress =
+    "offerAddress" in args && args.offerAddress
+      ? PublicKey.fromBase58(args.offerAddress)
+      : undefined;
+  if (
+    !offerAddress &&
+    (txType === "offer" || txType === "buy" || txType === "withdrawOffer")
+  )
+    throw new Error("Offer address is required");
+
+  const bidAddress =
+    "bidAddress" in args && args.bidAddress
+      ? PublicKey.fromBase58(args.bidAddress)
+      : undefined;
+  if (
+    !bidAddress &&
+    (txType === "bid" || txType === "sell" || txType === "withdrawBid")
+  )
+    throw new Error("Bid address is required");
+
+  const to =
+    "to" in args && args.to ? PublicKey.fromBase58(args.to) : undefined;
+  if (
+    !to &&
+    (txType === "transfer" || txType === "airdrop" || txType === "mint")
+  )
+    throw new Error("To address is required");
+
+  const amount = "amount" in args ? UInt64.from(args.amount) : undefined;
+  const price = "price" in args ? UInt64.from(args.price) : undefined;
 
   await fetchMinaAccount({
     publicKey: sender,
@@ -273,10 +379,25 @@ export async function buildTokenTransaction(params: {
     tokenAddress,
     chain,
     to,
+    offerAddress,
+    bidAddress,
   });
-  const memo = params.memo ?? `${txType} ${symbol}`;
+  const memo = args.memo ?? `${txType} ${symbol}`;
+  const fee = 100_000_000;
+  const provingKey = params.provingKey
+    ? PublicKey.fromBase58(params.provingKey)
+    : sender;
+  const provingFee = params.provingFee
+    ? UInt64.from(params.provingFee)
+    : undefined;
+  const developerFee = args.developerFee
+    ? UInt64.from(args.developerFee)
+    : undefined;
+  const developerAddress = params.developerAddress
+    ? PublicKey.fromBase58(params.developerAddress)
+    : undefined;
 
-  const adminContract = new FungibleTokenAdmin(adminContractAddress);
+  //const adminContract = new FungibleTokenAdmin(adminContractAddress);
   const advancedAdminContract = new FungibleTokenAdvancedAdmin(
     adminContractAddress
   );
@@ -287,16 +408,17 @@ export async function buildTokenTransaction(params: {
     (txType === "updateAdminWhitelist" ||
       txType === "updateBidWhitelist" ||
       txType === "updateOfferWhitelist") &&
-    !params.whitelist
+    !args.whitelist
   ) {
     throw new Error("Whitelist is required");
   }
 
-  const whitelist = params.whitelist
-    ? typeof params.whitelist === "string"
-      ? Whitelist.fromString(params.whitelist)
-      : await Whitelist.create({ list: params.whitelist, name: symbol })
-    : Whitelist.empty();
+  const whitelist =
+    "whitelist" in args && args.whitelist
+      ? typeof args.whitelist === "string"
+        ? Whitelist.fromString(args.whitelist)
+        : await Whitelist.create({ list: args.whitelist, name: symbol })
+      : Whitelist.empty();
 
   const zkToken = new tokenContract(tokenAddress);
   const tokenId = zkToken.deriveTokenId();
@@ -311,59 +433,68 @@ export async function buildTokenTransaction(params: {
     );
 
   await fetchMinaAccount({
-    publicKey: from,
+    publicKey: sender,
     tokenId,
     force: (
       [
-        "offer",
-        "updateOfferWhitelist",
-        "bid",
-        "updateBidWhitelist",
-        "sell",
         "transfer",
-        "withdrawOffer",
-      ] satisfies FungibleTokenTransactionType[] as FungibleTokenTransactionType[]
-    ).includes(txType),
-  });
-
-  await fetchMinaAccount({
-    publicKey: to,
-    tokenId,
-    force: (
-      [
-        "sell",
-        "updateAdminWhitelist",
-        "withdrawBid",
-        "withdrawOffer",
-      ] satisfies FungibleTokenTransactionType[] as FungibleTokenTransactionType[]
-    ).includes(txType),
-  });
-
-  const isNewAccount = Mina.hasAccount(to, tokenId) === false;
-  const offerContract = new FungibleTokenOfferContract(
-    (
-      [
+        "airdrop",
         "offer",
-        "updateOfferWhitelist",
       ] satisfies FungibleTokenTransactionType[] as FungibleTokenTransactionType[]
-    ).includes(txType)
-      ? to
-      : from,
-    tokenId
-  );
-  const bidContract = new FungibleTokenBidContract(
-    (
-      [
-        "bid",
-        "updateBidWhitelist",
-      ] satisfies FungibleTokenTransactionType[] as FungibleTokenTransactionType[]
-    ).includes(txType)
-      ? from
-      : to,
-    tokenId
-  );
-  const offerContractDeployment = new FungibleTokenOfferContract(to, tokenId);
-  const bidContractDeployment = new FungibleTokenBidContract(from, tokenId);
+    ).includes(txType),
+  });
+
+  if (to)
+    await fetchMinaAccount({
+      publicKey: to,
+      tokenId,
+      force: false,
+    });
+
+  if (offerAddress)
+    await fetchMinaAccount({
+      publicKey: offerAddress,
+      tokenId,
+      force: (
+        [
+          "updateOfferWhitelist",
+          "buy",
+          "withdrawOffer",
+        ] satisfies FungibleTokenTransactionType[] as FungibleTokenTransactionType[]
+      ).includes(txType),
+    });
+  if (bidAddress)
+    await fetchMinaAccount({
+      publicKey: bidAddress,
+      force: (
+        [
+          "updateBidWhitelist",
+          "sell",
+          "withdrawBid",
+        ] satisfies FungibleTokenTransactionType[] as FungibleTokenTransactionType[]
+      ).includes(txType),
+    });
+
+  const isNewBidOfferAccount =
+    txType === "offer" && offerAddress
+      ? !Mina.hasAccount(offerAddress, tokenId)
+      : txType === "bid" && bidAddress
+      ? !Mina.hasAccount(bidAddress)
+      : false;
+
+  const offerContract = offerAddress
+    ? new FungibleTokenOfferContract(offerAddress, tokenId)
+    : undefined;
+
+  const bidContract = bidAddress
+    ? new FungibleTokenBidContract(bidAddress, tokenId)
+    : undefined;
+  const offerContractDeployment = offerAddress
+    ? new FungibleTokenOfferContract(offerAddress, tokenId)
+    : undefined;
+  const bidContractDeployment = bidAddress
+    ? new FungibleTokenBidContract(bidAddress, tokenId)
+    : undefined;
   const vk =
     tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
   if (
@@ -399,23 +530,26 @@ export async function buildTokenTransaction(params: {
   };
 
   const accountCreationFee =
-    (isNewAccount ? 1_000_000_000 : 0) +
+    (isNewBidOfferAccount ? 1_000_000_000 : 0) +
+    (isToNewAccount && txType === "mint" ? 1_000_000_000 : 0) +
     (isToNewAccount &&
     txType === "mint" &&
     isAdvanced &&
     advancedAdminContract.whitelist.get().isSome().toBoolean()
       ? 1_000_000_000
       : 0);
+  console.log("accountCreationFee", accountCreationFee / 1_000_000_000);
 
   const tx = await Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = AccountUpdate.createSigned(sender);
     if (accountCreationFee > 0) {
       feeAccountUpdate.balance.subInPlace(accountCreationFee);
     }
-    feeAccountUpdate.send({
-      to: provingKey,
-      amount: provingFee,
-    });
+    if (provingKey && provingFee)
+      feeAccountUpdate.send({
+        to: provingKey,
+        amount: provingFee,
+      });
     if (developerAddress && developerFee) {
       feeAccountUpdate.send({
         to: developerAddress,
@@ -425,18 +559,25 @@ export async function buildTokenTransaction(params: {
     switch (txType) {
       case "mint":
         if (amount === undefined) throw new Error("Error: Amount is required");
+        if (to === undefined) throw new Error("Error: To address is required");
         await zkToken.mint(to, amount);
         break;
 
       case "transfer":
         if (amount === undefined) throw new Error("Error: Amount is required");
-        await zkToken.transfer(from, to, amount);
+        if (to === undefined)
+          throw new Error("Error: From address is required");
+        await zkToken.transfer(sender, to, amount);
         break;
 
       case "offer":
         if (price === undefined) throw new Error("Error: Price is required");
         if (amount === undefined) throw new Error("Error: Amount is required");
-        if (isNewAccount) {
+        if (offerContract === undefined)
+          throw new Error("Error: Offer address is required");
+        if (offerContractDeployment === undefined)
+          throw new Error("Error: Offer address is required");
+        if (isNewBidOfferAccount) {
           await offerContractDeployment.deploy({
             verificationKey: offerVerificationKey,
             whitelist: whitelist ?? Whitelist.empty(),
@@ -456,12 +597,16 @@ export async function buildTokenTransaction(params: {
 
       case "buy":
         if (amount === undefined) throw new Error("Error: Amount is required");
+        if (offerContract === undefined)
+          throw new Error("Error: Offer address is required");
         await offerContract.buy(amount);
         await zkToken.approveAccountUpdate(offerContract.self);
         break;
 
       case "withdrawOffer":
         if (amount === undefined) throw new Error("Error: Amount is required");
+        if (offerContract === undefined)
+          throw new Error("Error: Offer address is required");
         await offerContract.withdraw(amount);
         await zkToken.approveAccountUpdate(offerContract.self);
         break;
@@ -469,7 +614,11 @@ export async function buildTokenTransaction(params: {
       case "bid":
         if (price === undefined) throw new Error("Error: Price is required");
         if (amount === undefined) throw new Error("Error: Amount is required");
-        if (isNewAccount) {
+        if (bidContract === undefined)
+          throw new Error("Error: Bid address is required");
+        if (bidContractDeployment === undefined)
+          throw new Error("Error: Bid address is required");
+        if (isNewBidOfferAccount) {
           await bidContractDeployment.deploy({
             verificationKey: bidVerificationKey,
             whitelist: whitelist ?? Whitelist.empty(),
@@ -488,12 +637,16 @@ export async function buildTokenTransaction(params: {
 
       case "sell":
         if (amount === undefined) throw new Error("Error: Amount is required");
+        if (bidContract === undefined)
+          throw new Error("Error: Bid address is required");
         await bidContract.sell(amount);
         await zkToken.approveAccountUpdate(bidContract.self);
         break;
 
       case "withdrawBid":
         if (amount === undefined) throw new Error("Error: Amount is required");
+        if (bidContract === undefined)
+          throw new Error("Error: Bid address is required");
         await bidContract.withdraw(amount);
         await zkToken.approveAccountUpdate(bidContract.self);
         break;
@@ -505,10 +658,14 @@ export async function buildTokenTransaction(params: {
         break;
 
       case "updateBidWhitelist":
+        if (bidContract === undefined)
+          throw new Error("Error: Bid address is required");
         await bidContract.updateWhitelist(whitelist);
         break;
 
       case "updateOfferWhitelist":
+        if (offerContract === undefined)
+          throw new Error("Error: Offer address is required");
         await offerContract.updateWhitelist(whitelist);
         break;
 
@@ -517,19 +674,31 @@ export async function buildTokenTransaction(params: {
     }
   });
   return {
+    request:
+      txType === "offer" ||
+      txType === "bid" ||
+      txType === "updateOfferWhitelist" ||
+      txType === "updateBidWhitelist" ||
+      txType === "updateAdminWhitelist"
+        ? {
+            ...args,
+            whitelist: whitelist?.toString(),
+          }
+        : args,
     tx,
     isAdvanced,
     adminContractAddress,
     adminAddress,
     symbol,
     verificationKeyHashes,
-    whitelist: whitelist?.toString(),
   };
 }
 
 export async function getTokenSymbolAndAdmin(params: {
   txType: FungibleTokenTransactionType;
   to?: PublicKey;
+  offerAddress?: PublicKey;
+  bidAddress?: PublicKey;
   tokenAddress: PublicKey;
   chain: blockchain;
 }): Promise<{
@@ -540,24 +709,14 @@ export async function getTokenSymbolAndAdmin(params: {
   isToNewAccount?: boolean;
   verificationKeyHashes: string[];
 }> {
-  const { txType, tokenAddress, chain, to } = params;
+  const { txType, tokenAddress, chain, to, offerAddress, bidAddress } = params;
   const vk =
     tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
   const verificationKeyHashes: string[] = [];
-  if (
-    txType === "updateBidWhitelist" ||
-    txType === "bid" ||
-    txType === "withdrawBid" ||
-    txType === "sell"
-  ) {
+  if (bidAddress) {
     verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
   }
-  if (
-    txType === "updateOfferWhitelist" ||
-    txType === "offer" ||
-    txType === "withdrawOffer" ||
-    txType === "buy"
-  ) {
+  if (offerAddress) {
     verificationKeyHashes.push(vk.FungibleTokenOfferContract.hash);
   }
 
@@ -631,14 +790,21 @@ export async function getTokenSymbolAndAdmin(params: {
     throw new Error("Unknown admin verification key");
   }
   let isToNewAccount: boolean | undefined = undefined;
-  if (isAdvanced && to) {
-    const adminTokenId = TokenId.derive(adminContractPublicKey);
+  if (to) {
     await fetchMinaAccount({
       publicKey: to,
-      tokenId: adminTokenId,
+      tokenId: tokenId,
       force: false,
     });
-    isToNewAccount = !Mina.hasAccount(to, adminTokenId);
+    if (isAdvanced) {
+      const adminTokenId = TokenId.derive(adminContractPublicKey);
+      await fetchMinaAccount({
+        publicKey: to,
+        tokenId: adminTokenId,
+        force: false,
+      });
+    }
+    isToNewAccount = !Mina.hasAccount(to, tokenId);
   }
   const adminAddress0 = adminContract.zkapp?.appState[0];
   const adminAddress1 = adminContract.zkapp?.appState[1];

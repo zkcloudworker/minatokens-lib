@@ -1,21 +1,23 @@
 import {
-  DeployTransaction,
   JobId,
-  TokenTransaction,
-  TokenTransactions,
   FaucetParams,
   FaucetResponse,
   TransactionStatusParams,
   TransactionStatus,
-  TokenState,
-  NFTRequestAnswer,
-  NFTRequestParams,
   BalanceResponse,
   BalanceRequestParams,
-  ProveTokenTransactions,
   JobResults,
-} from "./types.js";
-import { TransactionParams, AirdropTransactionParams } from "./transaction.js";
+} from "./transaction.js";
+import {
+  TransactionParams,
+  AirdropTransactionParams,
+  TokenTransaction,
+  TokenTransactions,
+  ProveTokenTransactions,
+  ProveTokenTransaction,
+  TokenState,
+} from "./token.js";
+import { NFTRequestAnswer, NFTRequestParams } from "./nft-v2.js";
 
 export type ApiResponse<T> =
   | {
@@ -89,10 +91,7 @@ export class MinaTokensAPI {
   }
 
   buildTransaction(params: TransactionParams) {
-    return this.apiCall<
-      TransactionParams,
-      DeployTransaction | TokenTransaction
-    >({
+    return this.apiCall<TransactionParams, TokenTransaction>({
       endpoint: params.txType,
       callParams: params,
     });
@@ -102,6 +101,13 @@ export class MinaTokensAPI {
     return this.apiCall<AirdropTransactionParams, TokenTransactions>({
       endpoint: "airdrop",
       callParams: params,
+    });
+  }
+
+  proveTransaction(params: ProveTokenTransaction) {
+    return this.apiCall<ProveTokenTransactions, JobId>({
+      endpoint: "prove",
+      callParams: { txs: [params] },
     });
   }
 

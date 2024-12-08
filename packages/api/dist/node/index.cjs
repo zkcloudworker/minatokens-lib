@@ -62,6 +62,12 @@ var MinaTokensAPI = class {
       callParams: params
     });
   }
+  proveTransaction(params) {
+    return this.apiCall({
+      endpoint: "prove",
+      callParams: { txs: [params] }
+    });
+  }
   proveTransactions(params) {
     return this.apiCall({
       endpoint: "prove",
@@ -171,7 +177,7 @@ response: ${JSON.stringify(result)}`);
   }
 };
 
-// dist/node/types.js
+// dist/node/token.js
 var tokenTransactionTypes = [
   "launch",
   "mint",
