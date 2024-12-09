@@ -322,13 +322,13 @@ export async function buildTokenTransaction(params) {
         ? new FungibleTokenOfferContract(offerAddress, tokenId)
         : undefined;
     const bidContract = bidAddress
-        ? new FungibleTokenBidContract(bidAddress, tokenId)
+        ? new FungibleTokenBidContract(bidAddress)
         : undefined;
     const offerContractDeployment = offerAddress
         ? new FungibleTokenOfferContract(offerAddress, tokenId)
         : undefined;
     const bidContractDeployment = bidAddress
-        ? new FungibleTokenBidContract(bidAddress, tokenId)
+        ? new FungibleTokenBidContract(bidAddress)
         : undefined;
     const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
     if (!vk ||
@@ -365,11 +365,28 @@ export async function buildTokenTransaction(params) {
             ? !Mina.hasAccount(bidAddress)
             : false;
     const isNewBuyAccount = txType === "buy" ? !Mina.hasAccount(sender, tokenId) : false;
+    let isNewSellAccount = false;
+    if (txType === "sell") {
+        if (!bidAddress || !bidContract)
+            throw new Error("Bid address is required");
+        await fetchMinaAccount({
+            publicKey: bidAddress,
+            force: true,
+        });
+        const buyer = bidContract.buyer.get();
+        await fetchMinaAccount({
+            publicKey: buyer,
+            tokenId,
+            force: false,
+        });
+        isNewSellAccount = !Mina.hasAccount(buyer, tokenId);
+    }
     const isNewTransferMintAccount = (txType === "transfer" || txType === "airdrop" || txType === "mint") && to
         ? !Mina.hasAccount(to, tokenId)
         : false;
     const accountCreationFee = (isNewBidOfferAccount ? 1_000_000_000 : 0) +
         (isNewBuyAccount ? 1_000_000_000 : 0) +
+        (isNewSellAccount ? 1_000_000_000 : 0) +
         (isNewTransferMintAccount ? 1_000_000_000 : 0) +
         (isToNewAccount &&
             txType === "mint" &&

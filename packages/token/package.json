@@ -1,6 +1,6 @@
 {
   "name": "@minatokens/token",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "author": "DFST",
   "description": "MinaTokens Fungible Token Library",
   "type": "module",
