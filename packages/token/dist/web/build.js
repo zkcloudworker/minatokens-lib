@@ -292,12 +292,13 @@ export async function buildTokenTransaction(params) {
             "offer",
         ].includes(txType),
     });
-    if (to)
+    if (to) {
         await fetchMinaAccount({
             publicKey: to,
             tokenId,
             force: false,
         });
+    }
     if (offerAddress)
         await fetchMinaAccount({
             publicKey: offerAddress,
@@ -364,9 +365,12 @@ export async function buildTokenTransaction(params) {
             ? !Mina.hasAccount(bidAddress)
             : false;
     const isNewBuyAccount = txType === "buy" ? !Mina.hasAccount(sender, tokenId) : false;
+    const isNewTransferMintAccount = (txType === "transfer" || txType === "airdrop" || txType === "mint") && to
+        ? !Mina.hasAccount(to, tokenId)
+        : false;
     const accountCreationFee = (isNewBidOfferAccount ? 1_000_000_000 : 0) +
         (isNewBuyAccount ? 1_000_000_000 : 0) +
-        (isToNewAccount && txType === "mint" ? 1_000_000_000 : 0) +
+        (isNewTransferMintAccount ? 1_000_000_000 : 0) +
         (isToNewAccount &&
             txType === "mint" &&
             isAdvanced &&
@@ -601,11 +605,6 @@ export async function getTokenSymbolAndAdmin(params) {
     }
     let isToNewAccount = undefined;
     if (to) {
-        await fetchMinaAccount({
-            publicKey: to,
-            tokenId: tokenId,
-            force: false,
-        });
         if (isAdvanced) {
             const adminTokenId = TokenId.derive(adminContractPublicKey);
             await fetchMinaAccount({
@@ -613,8 +612,8 @@ export async function getTokenSymbolAndAdmin(params) {
                 tokenId: adminTokenId,
                 force: false,
             });
+            isToNewAccount = !Mina.hasAccount(to, adminTokenId);
         }
-        isToNewAccount = !Mina.hasAccount(to, tokenId);
     }
     const adminAddress0 = adminContract.zkapp?.appState[0];
     const adminAddress1 = adminContract.zkapp?.appState[1];
