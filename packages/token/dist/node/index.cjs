@@ -1251,7 +1251,6 @@ async function buildTokenTransaction(params) {
         "withdrawBid"
       ].includes(txType)
     });
-  const isNewBidOfferAccount = txType === "offer" && offerAddress ? !import_o1js7.Mina.hasAccount(offerAddress, tokenId) : txType === "bid" && bidAddress ? !import_o1js7.Mina.hasAccount(bidAddress) : false;
   const offerContract = offerAddress ? new FungibleTokenOfferContract(offerAddress, tokenId) : void 0;
   const bidContract = bidAddress ? new FungibleTokenBidContract(bidAddress, tokenId) : void 0;
   const offerContractDeployment = offerAddress ? new FungibleTokenOfferContract(offerAddress, tokenId) : void 0;
@@ -1267,7 +1266,9 @@ async function buildTokenTransaction(params) {
     hash: (0, import_o1js7.Field)(vk.FungibleTokenBidContract.hash),
     data: vk.FungibleTokenBidContract.data
   };
-  const accountCreationFee = (isNewBidOfferAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
+  const isNewBidOfferAccount = txType === "offer" && offerAddress ? !import_o1js7.Mina.hasAccount(offerAddress, tokenId) : txType === "bid" && bidAddress ? !import_o1js7.Mina.hasAccount(bidAddress) : false;
+  const isNewBuyAccount = txType === "buy" ? !import_o1js7.Mina.hasAccount(sender, tokenId) : false;
+  const accountCreationFee = (isNewBidOfferAccount ? 1e9 : 0) + (isNewBuyAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
   console.log("accountCreationFee", accountCreationFee / 1e9);
   const tx = await import_o1js7.Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = import_o1js7.AccountUpdate.createSigned(sender);

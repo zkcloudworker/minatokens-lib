@@ -317,11 +317,6 @@ export async function buildTokenTransaction(params) {
                 "withdrawBid",
             ].includes(txType),
         });
-    const isNewBidOfferAccount = txType === "offer" && offerAddress
-        ? !Mina.hasAccount(offerAddress, tokenId)
-        : txType === "bid" && bidAddress
-            ? !Mina.hasAccount(bidAddress)
-            : false;
     const offerContract = offerAddress
         ? new FungibleTokenOfferContract(offerAddress, tokenId)
         : undefined;
@@ -363,7 +358,14 @@ export async function buildTokenTransaction(params) {
         hash: Field(vk.FungibleTokenBidContract.hash),
         data: vk.FungibleTokenBidContract.data,
     };
+    const isNewBidOfferAccount = txType === "offer" && offerAddress
+        ? !Mina.hasAccount(offerAddress, tokenId)
+        : txType === "bid" && bidAddress
+            ? !Mina.hasAccount(bidAddress)
+            : false;
+    const isNewBuyAccount = txType === "buy" ? !Mina.hasAccount(sender, tokenId) : false;
     const accountCreationFee = (isNewBidOfferAccount ? 1_000_000_000 : 0) +
+        (isNewBuyAccount ? 1_000_000_000 : 0) +
         (isToNewAccount && txType === "mint" ? 1_000_000_000 : 0) +
         (isToNewAccount &&
             txType === "mint" &&
