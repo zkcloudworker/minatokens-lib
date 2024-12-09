@@ -43,6 +43,7 @@ export interface JobResult {
   error?: string;
   tx?: string;
   hash?: string;
+  status?: string;
 }
 
 export type JobResults =

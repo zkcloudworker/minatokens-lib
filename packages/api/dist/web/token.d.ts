@@ -18,14 +18,13 @@ export interface TokenInfo {
 }
 export interface TokenTransactionPayloads extends TransactionPayloads {
     txType: FungibleTokenTransactionType | "launch";
-    tokenAddress: string;
     symbol: string;
     developerAddress?: string;
-    developerFee?: number;
     sendTransaction?: boolean;
 }
 export interface TokenTransactionBaseParams {
     txType: FungibleTokenTransactionType | "launch";
+    tokenAddress?: string;
     sender: string;
     nonce?: number;
     memo?: string;
@@ -59,27 +58,15 @@ export interface LaunchTokenAdvancedAdminParams extends LaunchTokenTransactionBa
     }[] | string;
     totalSupply?: number;
 }
-export interface LaunchTransaction extends TokenTransactionPayloads {
-    txType: "launch";
-    request: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
-}
 export interface MintTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "mint";
     to: string;
     amount: number;
 }
-export interface MintTransaction extends TokenTransactionPayloads {
-    txType: "mint";
-    request: MintTransactionParams;
-}
 export interface TransferTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "transfer";
     to: string;
     amount: number;
-}
-export interface TransferTransaction extends TokenTransactionPayloads {
-    txType: "transfer";
-    request: TransferTransactionParams;
 }
 export interface AirdropTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "airdrop";
@@ -88,10 +75,6 @@ export interface AirdropTransactionParams extends DeployedTokenTransactionBasePa
         amount: number;
         memo?: string;
     }[];
-}
-export interface AirdropTransaction extends TokenTransactionPayloads {
-    txType: "airdrop";
-    request: AirdropTransactionParams;
 }
 export interface OfferTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "offer";
@@ -104,10 +87,6 @@ export interface OfferTransactionParams extends DeployedTokenTransactionBasePara
         amount?: number;
     }[] | string;
 }
-export interface OfferTransaction extends TokenTransactionPayloads {
-    txType: "offer";
-    request: OfferTransactionParams;
-}
 export interface BidTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "bid";
     bidPrivateKey?: string;
@@ -119,45 +98,25 @@ export interface BidTransactionParams extends DeployedTokenTransactionBaseParams
         amount?: number;
     }[] | string;
 }
-export interface BidTransaction extends TokenTransactionPayloads {
-    txType: "bid";
-    request: BidTransactionParams;
-}
 export interface BuyTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "buy";
     offerAddress: string;
     amount: number;
-}
-export interface BuyTransaction extends TokenTransactionPayloads {
-    txType: "buy";
-    request: BuyTransactionParams;
 }
 export interface SellTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "sell";
     bidAddress: string;
     amount: number;
 }
-export interface SellTransaction extends TokenTransactionPayloads {
-    txType: "sell";
-    request: SellTransactionParams;
-}
 export interface WithdrawBidTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "withdrawBid";
     bidAddress: string;
     amount: number;
 }
-export interface WithdrawBidTransaction extends TokenTransactionPayloads {
-    txType: "withdrawBid";
-    request: WithdrawBidTransactionParams;
-}
 export interface WithdrawOfferTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "withdrawOffer";
     offerAddress: string;
     amount: number;
-}
-export interface WithdrawOfferTransaction extends TokenTransactionPayloads {
-    txType: "withdrawOffer";
-    request: WithdrawOfferTransactionParams;
 }
 export interface UpdateBidWhitelistTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "updateBidWhitelist";
@@ -167,10 +126,6 @@ export interface UpdateBidWhitelistTransactionParams extends DeployedTokenTransa
         amount?: number;
     }[] | string;
 }
-export interface UpdateBidWhitelistTransaction extends TokenTransactionPayloads {
-    txType: "updateBidWhitelist";
-    request: UpdateBidWhitelistTransactionParams;
-}
 export interface UpdateOfferWhitelistTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "updateOfferWhitelist";
     offerAddress: string;
@@ -178,10 +133,6 @@ export interface UpdateOfferWhitelistTransactionParams extends DeployedTokenTran
         address: string;
         amount?: number;
     }[] | string;
-}
-export interface UpdateOfferWhitelistTransaction extends TokenTransactionPayloads {
-    txType: "updateOfferWhitelist";
-    request: UpdateOfferWhitelistTransactionParams;
 }
 export interface UpdateAdminWhitelistTransactionParams extends DeployedTokenTransactionBaseParams {
     txType: "updateAdminWhitelist";
@@ -191,12 +142,10 @@ export interface UpdateAdminWhitelistTransactionParams extends DeployedTokenTran
         amount?: number;
     }[] | string;
 }
-export interface UpdateAdminWhitelistTransaction extends TokenTransactionPayloads {
-    txType: "updateAdminWhitelist";
-    request: UpdateAdminWhitelistTransactionParams;
-}
 export type TransactionParams = LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | MintTransactionParams | TransferTransactionParams | AirdropTransactionParams | OfferTransactionParams | BidTransactionParams | BuyTransactionParams | SellTransactionParams | WithdrawBidTransactionParams | WithdrawOfferTransactionParams | UpdateBidWhitelistTransactionParams | UpdateOfferWhitelistTransactionParams | UpdateAdminWhitelistTransactionParams;
-export type TokenTransaction = LaunchTransaction | MintTransaction | TransferTransaction | AirdropTransaction | OfferTransaction | BidTransaction | BuyTransaction | SellTransaction | WithdrawBidTransaction | WithdrawOfferTransaction | UpdateBidWhitelistTransaction | UpdateOfferWhitelistTransaction | UpdateAdminWhitelistTransaction;
+export interface TokenTransaction extends TokenTransactionPayloads {
+    request: TransactionParams;
+}
 export interface TokenTransactions {
     txs: TokenTransaction[];
 }

@@ -1226,12 +1226,13 @@ async function buildTokenTransaction(params) {
       "offer"
     ].includes(txType)
   });
-  if (to)
+  if (to) {
     await fetchMinaAccount({
       publicKey: to,
       tokenId,
       force: false
     });
+  }
   if (offerAddress)
     await fetchMinaAccount({
       publicKey: offerAddress,
@@ -1251,11 +1252,10 @@ async function buildTokenTransaction(params) {
         "withdrawBid"
       ].includes(txType)
     });
-  const isNewBidOfferAccount = txType === "offer" && offerAddress ? !import_o1js7.Mina.hasAccount(offerAddress, tokenId) : txType === "bid" && bidAddress ? !import_o1js7.Mina.hasAccount(bidAddress) : false;
   const offerContract = offerAddress ? new FungibleTokenOfferContract(offerAddress, tokenId) : void 0;
-  const bidContract = bidAddress ? new FungibleTokenBidContract(bidAddress, tokenId) : void 0;
+  const bidContract = bidAddress ? new FungibleTokenBidContract(bidAddress) : void 0;
   const offerContractDeployment = offerAddress ? new FungibleTokenOfferContract(offerAddress, tokenId) : void 0;
-  const bidContractDeployment = bidAddress ? new FungibleTokenBidContract(bidAddress, tokenId) : void 0;
+  const bidContractDeployment = bidAddress ? new FungibleTokenBidContract(bidAddress) : void 0;
   const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "testnet"].vk;
   if (!vk || !vk.FungibleTokenOfferContract || !vk.FungibleTokenOfferContract.hash || !vk.FungibleTokenOfferContract.data || !vk.FungibleTokenBidContract || !vk.FungibleTokenBidContract.hash || !vk.FungibleTokenBidContract.data || !vk.FungibleTokenAdvancedAdmin || !vk.FungibleTokenAdvancedAdmin.hash || !vk.FungibleTokenAdvancedAdmin.data || !vk.FungibleTokenAdmin || !vk.FungibleTokenAdmin.hash || !vk.FungibleTokenAdmin.data || !vk.AdvancedFungibleToken || !vk.AdvancedFungibleToken.hash || !vk.AdvancedFungibleToken.data || !vk.FungibleToken || !vk.FungibleToken.hash || !vk.FungibleToken.data)
     throw new Error("Cannot get verification key from vk");
@@ -1267,7 +1267,26 @@ async function buildTokenTransaction(params) {
     hash: (0, import_o1js7.Field)(vk.FungibleTokenBidContract.hash),
     data: vk.FungibleTokenBidContract.data
   };
-  const accountCreationFee = (isNewBidOfferAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
+  const isNewBidOfferAccount = txType === "offer" && offerAddress ? !import_o1js7.Mina.hasAccount(offerAddress, tokenId) : txType === "bid" && bidAddress ? !import_o1js7.Mina.hasAccount(bidAddress) : false;
+  const isNewBuyAccount = txType === "buy" ? !import_o1js7.Mina.hasAccount(sender, tokenId) : false;
+  let isNewSellAccount = false;
+  if (txType === "sell") {
+    if (!bidAddress || !bidContract)
+      throw new Error("Bid address is required");
+    await fetchMinaAccount({
+      publicKey: bidAddress,
+      force: true
+    });
+    const buyer = bidContract.buyer.get();
+    await fetchMinaAccount({
+      publicKey: buyer,
+      tokenId,
+      force: false
+    });
+    isNewSellAccount = !import_o1js7.Mina.hasAccount(buyer, tokenId);
+  }
+  const isNewTransferMintAccount = (txType === "transfer" || txType === "airdrop" || txType === "mint") && to ? !import_o1js7.Mina.hasAccount(to, tokenId) : false;
+  const accountCreationFee = (isNewBidOfferAccount ? 1e9 : 0) + (isNewBuyAccount ? 1e9 : 0) + (isNewSellAccount ? 1e9 : 0) + (isNewTransferMintAccount ? 1e9 : 0) + (isToNewAccount && txType === "mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
   console.log("accountCreationFee", accountCreationFee / 1e9);
   const tx = await import_o1js7.Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = import_o1js7.AccountUpdate.createSigned(sender);
@@ -1484,11 +1503,6 @@ async function getTokenSymbolAndAdmin(params) {
   }
   let isToNewAccount = void 0;
   if (to) {
-    await fetchMinaAccount({
-      publicKey: to,
-      tokenId,
-      force: false
-    });
     if (isAdvanced) {
       const adminTokenId = import_o1js7.TokenId.derive(adminContractPublicKey);
       await fetchMinaAccount({
@@ -1496,8 +1510,8 @@ async function getTokenSymbolAndAdmin(params) {
         tokenId: adminTokenId,
         force: false
       });
+      isToNewAccount = !import_o1js7.Mina.hasAccount(to, adminTokenId);
     }
-    isToNewAccount = !import_o1js7.Mina.hasAccount(to, tokenId);
   }
   const adminAddress0 = adminContract.zkapp?.appState[0];
   const adminAddress1 = adminContract.zkapp?.appState[1];
