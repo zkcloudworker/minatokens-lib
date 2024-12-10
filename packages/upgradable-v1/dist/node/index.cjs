@@ -31,7 +31,13 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var node_exports = {};
 __export(node_exports, {
   ChainId: () => ChainId,
+  FieldOption: () => FieldOption,
+  OffChainList: () => OffChainList,
+  OffchainMap: () => OffchainMap,
+  OffchainMapOption: () => OffchainMapOption,
   PublicKeyOption: () => PublicKeyOption,
+  Storage: () => Storage,
+  UInt64Option: () => UInt64Option,
   UpgradeAuthorityAnswer: () => UpgradeAuthorityAnswer,
   UpgradeAuthorityDatabase: () => UpgradeAuthorityDatabase,
   UpgradeDatabaseState: () => UpgradeDatabaseState,
@@ -47,7 +53,27 @@ __export(node_exports, {
   ValidatorsVotingProof: () => ValidatorsVotingProof,
   VerificationKeyUpgradeAuthority: () => VerificationKeyUpgradeAuthority,
   VerificationKeyUpgradeData: () => VerificationKeyUpgradeData,
-  nftVerificationKeys: () => nftVerificationKeys
+  Whitelist: () => Whitelist,
+  WhitelistedAddress: () => WhitelistedAddress,
+  bigintFromBase56: () => bigintFromBase56,
+  bigintFromBase64: () => bigintFromBase64,
+  bigintToBase56: () => bigintToBase56,
+  bigintToBase64: () => bigintToBase64,
+  createIpfsURL: () => createIpfsURL,
+  deserializeIndexedMerkleMap: () => deserializeIndexedMerkleMap,
+  fieldFromBase56: () => fieldFromBase56,
+  fieldFromBase64: () => fieldFromBase64,
+  fieldToBase56: () => fieldToBase56,
+  fieldToBase64: () => fieldToBase64,
+  fromBase: () => fromBase,
+  loadIndexedMerkleMap: () => loadIndexedMerkleMap,
+  nftVerificationKeys: () => nftVerificationKeys,
+  parseIndexedMapSerialized: () => parseIndexedMapSerialized,
+  pinJSON: () => pinJSON,
+  saveIndexedMerkleMap: () => saveIndexedMerkleMap,
+  serializeIndexedMap: () => serializeIndexedMap,
+  sleep: () => sleep,
+  toBase: () => toBase
 });
 module.exports = __toCommonJS(node_exports);
 
@@ -82,6 +108,16 @@ var import_o1js7 = require("o1js");
 
 // dist/node/storage/base64/bigint.js
 var TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function bigintToBase56(value) {
+  const digits = toBase(value, 56n);
+  const str = digits.map((x) => TABLE[Number(x)]).join("");
+  return str;
+}
+function bigintFromBase56(str) {
+  const base56Digits = str.split("").map((x2) => BigInt(TABLE.indexOf(x2)));
+  const x = fromBase(base56Digits, 56n);
+  return x;
+}
 function bigintToBase64(value) {
   const digits = toBase(value, 64n);
   const str = digits.map((x) => TABLE[Number(x)]).join("");
@@ -141,6 +177,27 @@ function toBase(x, base) {
 
 // dist/node/storage/base64/field.js
 var import_o1js = require("o1js");
+var TABLE2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function fieldToBase56(field) {
+  const digits = toBase(field.toBigInt(), 56n);
+  const str = digits.map((x) => TABLE2[Number(x)]).join("");
+  return str;
+}
+function fieldFromBase56(str) {
+  const base56Digits = str.split("").map((x2) => BigInt(TABLE2.indexOf(x2)));
+  const x = fromBase(base56Digits, 56n);
+  return (0, import_o1js.Field)(x);
+}
+function fieldToBase64(field) {
+  const digits = toBase(field.toBigInt(), 64n);
+  const str = digits.map((x) => TABLE2[Number(x)]).join("");
+  return str;
+}
+function fieldFromBase64(str) {
+  const base64Digits = str.split("").map((x2) => BigInt(TABLE2.indexOf(x2)));
+  const x = fromBase(base64Digits, 64n);
+  return (0, import_o1js.Field)(x);
+}
 
 // dist/node/storage/indexed-map/indexed-map.js
 var import_o1js2 = require("o1js");
@@ -215,6 +272,17 @@ async function loadIndexedMerkleMap(params) {
   }
   return map;
 }
+async function saveIndexedMerkleMap(params) {
+  const { map, name = "indexed-map", keyvalues, auth } = params;
+  const serialized = serializeIndexedMap(map);
+  const ipfsHash = await pinJSON({
+    data: { map: serialized },
+    name,
+    keyvalues,
+    auth
+  });
+  return ipfsHash;
+}
 function serializeIndexedMap(map) {
   return {
     height: map.height,
@@ -228,6 +296,34 @@ function serializeIndexedMap(map) {
       bigintToBase64(BigInt(v.index))
     ]))
   };
+}
+function deserializeIndexedMerkleMap(params) {
+  try {
+    const { serializedIndexedMap, type } = params;
+    return deserializeIndexedMerkleMapInternal({
+      serializedIndexedMap,
+      type: type ?? IndexedMerkleMap(serializedIndexedMap.height)
+    });
+  } catch (error) {
+    console.error("Error deserializing map:", error?.message ?? error);
+    return void 0;
+  }
+}
+function parseIndexedMapSerialized(serializedMap) {
+  const json = JSON.parse(serializedMap);
+  if (json.height === void 0 || json.root === void 0 || json.length === void 0 || json.nodes === void 0 || json.sortedLeaves === void 0)
+    throw new Error("wrong IndexedMerkleMap json format");
+  if (typeof json.height !== "number")
+    throw new Error("wrong IndexedMerkleMap height format");
+  if (typeof json.root !== "string")
+    throw new Error("wrong IndexedMerkleMap root format");
+  if (typeof json.length !== "string")
+    throw new Error("wrong IndexedMerkleMap length format");
+  if (typeof json.nodes !== "string")
+    throw new Error("wrong IndexedMerkleMap nodes format");
+  if (typeof json.sortedLeaves !== "string")
+    throw new Error("wrong IndexedMerkleMap sortedLeaves format");
+  return json;
 }
 function deserializeIndexedMerkleMapInternal(params) {
   const { serializedIndexedMap, type } = params;
@@ -473,6 +569,8 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
 
 // dist/node/storage/whitelist/whitelist.js
 var UInt64Option = class extends (0, import_o1js5.Option)(import_o1js5.UInt64) {
+};
+var WhitelistedAddress = class {
 };
 var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
   list: OffChainList
@@ -1111,7 +1209,13 @@ var VerificationKeyUpgradeAuthority = class extends import_o1js8.SmartContract {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ChainId,
+  FieldOption,
+  OffChainList,
+  OffchainMap,
+  OffchainMapOption,
   PublicKeyOption,
+  Storage,
+  UInt64Option,
   UpgradeAuthorityAnswer,
   UpgradeAuthorityDatabase,
   UpgradeDatabaseState,
@@ -1127,5 +1231,25 @@ var VerificationKeyUpgradeAuthority = class extends import_o1js8.SmartContract {
   ValidatorsVotingProof,
   VerificationKeyUpgradeAuthority,
   VerificationKeyUpgradeData,
-  nftVerificationKeys
+  Whitelist,
+  WhitelistedAddress,
+  bigintFromBase56,
+  bigintFromBase64,
+  bigintToBase56,
+  bigintToBase64,
+  createIpfsURL,
+  deserializeIndexedMerkleMap,
+  fieldFromBase56,
+  fieldFromBase64,
+  fieldToBase56,
+  fieldToBase64,
+  fromBase,
+  loadIndexedMerkleMap,
+  nftVerificationKeys,
+  parseIndexedMapSerialized,
+  pinJSON,
+  saveIndexedMerkleMap,
+  serializeIndexedMap,
+  sleep,
+  toBase
 });

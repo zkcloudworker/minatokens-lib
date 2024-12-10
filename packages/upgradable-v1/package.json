@@ -1,6 +1,6 @@
 {
   "name": "@minatokens/upgradable-v1",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "DFST",
   "description": "Upgradable interface for Mina zkApps for o1js v1",
   "type": "module",
