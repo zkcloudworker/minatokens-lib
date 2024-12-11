@@ -410,6 +410,7 @@ function CollectionContract(params) {
             const event = await this._sell(address, price);
             const adminContract = this.getAdminContract();
             const canSell = await adminContract.canSell(address, event.seller, price);
+            adminContract.self;
             canSell.assertTrue();
             this.emitEvent("approveSell", event);
         }

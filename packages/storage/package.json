@@ -55,7 +55,7 @@
   "scripts": {
     "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
     "login": "npm login",
-    "release": "npm run build && npm publish --access public --otp"
+    "release": "npm run build && npm publish --access public"
   },
   "type": "module",
   "types": "./dist/node/index.d.ts"

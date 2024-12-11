@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/nft-api",
   "description": "Mina NFT standard types",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "devDependencies": {
@@ -51,7 +51,7 @@
     "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
     "docs": "typedoc",
     "login": "npm login",
-    "release": "npm run build && npm publish --access public --otp"
+    "release": "npm run build && npm publish --access public"
   },
   "type": "module",
   "types": "./dist/node/index.d.ts"
