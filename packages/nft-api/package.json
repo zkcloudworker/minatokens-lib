@@ -1,6 +1,6 @@
 {
-  "name": "@minatokens/api",
-  "description": "MinaTokens API",
+  "name": "@minatokens/nft-api",
+  "description": "Mina NFT standard types",
   "version": "0.6.1",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
@@ -33,7 +33,6 @@
   "homepage": "https://docs.minatokens.com",
   "keywords": [
     "cloud",
-    "fungible-token",
     "mina-protocol",
     "minatokens",
     "NFT",

@@ -25,7 +25,6 @@ import {
   Mina,
   Provable,
   Struct,
-  NetworkId,
 } from "o1js";
 import { NFT } from "./nft.js";
 import {
@@ -34,7 +33,6 @@ import {
   CollectionData,
   CollectionDataPacked,
   NFTUpdateProof,
-  CollectionConfigurationUpdate,
   NFTStateStruct,
 } from "./types.js";
 import {
@@ -42,7 +40,6 @@ import {
   TransferEvent,
   SellEvent,
   BuyEvent,
-  UpdateEvent,
   UpgradeVerificationKeyEvent,
   LimitMintingEvent,
   PauseNFTEvent,
@@ -219,6 +216,11 @@ function CollectionContract(params: {
       pauseNFT: PauseNFTEvent,
       resumeNFT: PauseNFTEvent,
       ownershipChange: OwnershipChangeEvent,
+      setName: Field,
+      setBaseURL: Field,
+      setRoyaltyFee: UInt32,
+      setTransferFee: UInt64,
+      setAdmin: PublicKey,
     };
 
     /**
@@ -906,54 +908,100 @@ function CollectionContract(params: {
     }
 
     /**
-     * Updates the collection's configuration (e.g., name, base URL, fees).
+     * Sets a new name for the collection.
+     * Requires owner signature and collection to not be paused.
+     * Emits a 'setName' event with the new name.
      *
-     * @param configuration - The new configuration settings.
+     * @param name - The new name for the collection as a Field value
+     * @throws {Error} If caller lacks permission to change name
      */
     @method
-    async updateConfiguration(
-      configuration: CollectionConfigurationUpdate
-    ): Promise<void> {
+    async setName(name: Field): Promise<void> {
       await this.ensureOwnerSignature();
       const collectionData = await this.ensureNotPaused();
-      const name = this.collectionName.getAndRequireEquals();
-      const baseURL = this.baseURL.getAndRequireEquals();
-      const admin = this.admin.getAndRequireEquals();
-      name
-        .equals(configuration.name)
-        .not()
-        .and(collectionData.canChangeName.not())
-        .assertFalse(CollectionErrors.noPermissionToChangeName);
-      this.collectionName.set(configuration.name);
+      collectionData.canChangeName.assertTrue(
+        CollectionErrors.noPermissionToChangeName
+      );
+      this.collectionName.set(name);
+      this.emitEvent("setName", name);
+    }
 
-      baseURL
-        .equals(configuration.baseURL)
-        .not()
-        .and(collectionData.canChangeBaseUri.not())
-        .assertFalse(CollectionErrors.noPermissionToChangeBaseUri);
-      this.baseURL.set(configuration.baseURL);
+    /**
+     * Updates the base URL for the collection's metadata.
+     * Requires owner signature and collection to not be paused.
+     * Emits a 'setBaseURL' event with the new URL.
+     *
+     * @param baseURL - The new base URL as a Field value
+     * @throws {Error} If caller lacks permission to change base URI
+     */
+    @method
+    async setBaseURL(baseURL: Field): Promise<void> {
+      await this.ensureOwnerSignature();
+      const collectionData = await this.ensureNotPaused();
+      collectionData.canChangeBaseUri.assertTrue(
+        CollectionErrors.noPermissionToChangeBaseUri
+      );
+      this.baseURL.set(baseURL);
+      this.emitEvent("setBaseURL", baseURL);
+    }
 
-      admin
-        .equals(configuration.admin)
-        .not()
-        .and(collectionData.canSetAdmin.not())
-        .assertFalse(CollectionErrors.noPermissionToSetAdmin);
-      this.admin.set(configuration.admin);
+    /**
+     * Sets a new admin address for the collection.
+     * Requires owner signature and collection to not be paused.
+     * Emits a 'setAdmin' event with the new admin address.
+     *
+     * @param admin - The public key of the new admin
+     * @throws {Error} If caller lacks permission to set admin
+     */
+    @method
+    async setAdmin(admin: PublicKey): Promise<void> {
+      await this.ensureOwnerSignature();
+      const collectionData = await this.ensureNotPaused();
+      collectionData.canSetAdmin.assertTrue(
+        CollectionErrors.noPermissionToSetAdmin
+      );
+      this.admin.set(admin);
+      this.emitEvent("setAdmin", admin);
+    }
 
-      collectionData.royaltyFee
-        .equals(configuration.royaltyFee)
-        .not()
-        .and(collectionData.canChangeRoyalty.not())
-        .assertFalse(CollectionErrors.noPermissionToChangeRoyalty);
-      collectionData.royaltyFee = configuration.royaltyFee;
-
-      collectionData.transferFee
-        .equals(configuration.transferFee)
-        .not()
-        .and(collectionData.canChangeTransferFee.not())
-        .assertFalse(CollectionErrors.noPermissionToChangeTransferFee);
-      collectionData.transferFee = configuration.transferFee;
+    /**
+     * Updates the royalty fee for the collection.
+     * Requires owner signature and collection to not be paused.
+     * Emits a 'setRoyaltyFee' event with the new fee.
+     *
+     * @param royaltyFee - The new royalty fee as a UInt32 value
+     * @throws {Error} If caller lacks permission to change royalty fee
+     */
+    @method
+    async setRoyaltyFee(royaltyFee: UInt32): Promise<void> {
+      await this.ensureOwnerSignature();
+      const collectionData = await this.ensureNotPaused();
+      collectionData.canChangeRoyalty.assertTrue(
+        CollectionErrors.noPermissionToChangeRoyalty
+      );
+      collectionData.royaltyFee = royaltyFee;
       this.packedData.set(collectionData.pack());
+      this.emitEvent("setRoyaltyFee", royaltyFee);
+    }
+
+    /**
+     * Updates the transfer fee for the collection.
+     * Requires owner signature and collection to not be paused.
+     * Emits a 'setTransferFee' event with the new fee.
+     *
+     * @param transferFee - The new transfer fee as a UInt64 value
+     * @throws {Error} If caller lacks permission to change transfer fee
+     */
+    @method
+    async setTransferFee(transferFee: UInt64): Promise<void> {
+      await this.ensureOwnerSignature();
+      const collectionData = await this.ensureNotPaused();
+      collectionData.canChangeTransferFee.assertTrue(
+        CollectionErrors.noPermissionToChangeTransferFee
+      );
+      collectionData.transferFee = transferFee;
+      this.packedData.set(collectionData.pack());
+      this.emitEvent("setTransferFee", transferFee);
     }
 
     /**

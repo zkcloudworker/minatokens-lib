@@ -22,6 +22,7 @@ var node_exports = {};
 __export(node_exports, {
   FieldOption: () => FieldOption,
   OffChainList: () => OffChainList,
+  OffChainListBase: () => OffChainListBase,
   OffchainMap: () => OffchainMap,
   OffchainMapOption: () => OffchainMapOption,
   Storage: () => Storage,
@@ -190,7 +191,7 @@ async function pinJSON(params) {
 // dist/node/indexed-map/indexed-map.js
 var { IndexedMerkleMap } = import_o1js2.Experimental;
 async function loadIndexedMerkleMap(params) {
-  const { url, type, timeout = 6e4, attempts = 5 } = params;
+  const { url, type, name = "indexed-map", timeout = 6e4, attempts = 5 } = params;
   let attempt = 0;
   const start = Date.now();
   let response = await fetch(url);
@@ -203,7 +204,7 @@ async function loadIndexedMerkleMap(params) {
     throw new Error("Failed to fetch IndexedMerkleMap");
   }
   const json = await response.json();
-  const serializedIndexedMap = json.map;
+  const serializedIndexedMap = json[name].map;
   if (!serializedIndexedMap)
     throw new Error("wrong IndexedMerkleMap json format");
   const map = deserializeIndexedMerkleMapInternal({
@@ -216,11 +217,12 @@ async function loadIndexedMerkleMap(params) {
   return map;
 }
 async function saveIndexedMerkleMap(params) {
-  const { map, name = "indexed-map", keyvalues, auth } = params;
+  const { map, name = "indexed-map", keyvalues, auth, filename = "indexed-map" } = params;
   const serialized = serializeIndexedMap(map);
+  const json = { [name]: { map: serialized } };
   const ipfsHash = await pinJSON({
-    data: { map: serialized },
-    name,
+    data: json,
+    name: filename,
     keyvalues,
     auth
   });
@@ -380,27 +382,26 @@ var OffchainMapOption = class extends (0, import_o1js4.Option)(OffchainMap) {
 };
 var FieldOption = class extends (0, import_o1js4.Option)(import_o1js4.Field) {
 };
-var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
+var OffChainListBase = class _OffChainListBase extends (0, import_o1js4.Struct)({
   /** The root hash of the Merkle tree representing the whitelist. */
-  root: import_o1js4.Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
-  storage: Storage
+  root: import_o1js4.Field
 }) {
   isNone() {
-    return this.root.equals((0, import_o1js4.Field)(0)).or(Storage.equals(this.storage, Storage.empty()));
+    return this.root.equals((0, import_o1js4.Field)(0));
   }
   isSome() {
     return this.isNone().not();
   }
-  async load() {
+  async load(storage, name = "map") {
     const isNone = this.isNone();
     const map = await import_o1js4.Provable.witnessAsync(OffchainMapOption, async () => {
       if (isNone.toBoolean())
         return OffchainMapOption.none();
       else
         return OffchainMapOption.fromValue(await loadIndexedMerkleMap({
-          url: createIpfsURL({ hash: this.storage.toString() }),
-          type: OffchainMap
+          url: createIpfsURL({ hash: storage.toString() }),
+          type: OffchainMap,
+          name
         }));
     });
     isNone.assertEquals(map.isSome.not());
@@ -420,8 +421,8 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
    * The value is present if the list IS empty or the key IS in the map.
    * The value is present and equals to Field(0) if the list IS empty.
    */
-  async getValue(key) {
-    const map = await this.load();
+  async getValue(key, storage, name = "map") {
+    const map = await this.load(storage, name);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse((0, import_o1js4.Field)(0));
     return new FieldOption({
@@ -430,21 +431,18 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
     });
   }
   static empty() {
-    return new _OffChainList({
-      root: (0, import_o1js4.Field)(0),
-      storage: Storage.empty()
+    return new _OffChainListBase({
+      root: (0, import_o1js4.Field)(0)
     });
   }
   /**
-   * Creates a new OffchainList
-   * and pins it to IPFS.
+   * Creates a new OffchainListBase
    * @param params - The parameters for creating the list.
    * @param params.list - The list of entries to be added to the map.
    * @param params.data - The JSON data that should be added to the IPFS storage that represent the initial data
    * @returns A new `OffChainList` instance.
    */
   static async create(params) {
-    const { name = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
     function toField(value) {
       if (!value)
         return (0, import_o1js4.Field)(0);
@@ -471,13 +469,100 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
       })),
       data: params.data
     };
+    return {
+      listBase: new _OffChainListBase({
+        root: map.root
+      }),
+      json
+    };
+  }
+  toString() {
+    return JSON.stringify({ root: this.root.toJSON() }, null, 2);
+  }
+  static fromString(str) {
+    const json = JSON.parse(str);
+    return new _OffChainListBase({
+      root: import_o1js4.Field.fromJSON(json.root)
+    });
+  }
+};
+var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
+  /** The root hash of the Merkle tree representing the whitelist. */
+  root: import_o1js4.Field,
+  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
+  storage: Storage
+}) {
+  isNone() {
+    return this.root.equals((0, import_o1js4.Field)(0)).or(this.storage.isEmpty());
+  }
+  isSome() {
+    return this.isNone().not();
+  }
+  async load(name = "whitelist") {
+    const isNone = this.isNone();
+    const map = await import_o1js4.Provable.witnessAsync(OffchainMapOption, async () => {
+      if (isNone.toBoolean())
+        return OffchainMapOption.none();
+      else
+        return OffchainMapOption.fromValue(await loadIndexedMerkleMap({
+          url: createIpfsURL({ hash: this.storage.toString() }),
+          type: OffchainMap,
+          name
+        }));
+    });
+    isNone.assertEquals(map.isSome.not());
+    const root = import_o1js4.Provable.if(map.isSome, map.orElse(new OffchainMap()).root, (0, import_o1js4.Field)(0));
+    root.equals(this.root);
+    return map;
+  }
+  /**
+   * The function fetches a whitelisted amount associated with a given key using a map and returns it
+   * as a FieldOption.
+   * @param {Field} key - The `key` parameter is of type `Field`,
+   * which represents a field element in the context of a cryptographic system.
+   * @returns The `getValue` function returns a `Promise` that resolves to a `FieldOption`
+   * object. This object contains a `value` property representing the amount retrieved from a map based
+   * on the provided key. The `isSome` property indicates whether the value is present or not.
+   * The value is not present if the list is NOT empty and the key is NOT in the map.
+   * The value is present if the list IS empty or the key IS in the map.
+   * The value is present and equals to Field(0) if the list IS empty.
+   */
+  async getValue(key, name = "whitelist") {
+    const map = await this.load(name);
+    const value = map.orElse(new OffchainMap()).getOption(key);
+    const valueField = value.orElse((0, import_o1js4.Field)(0));
+    return new FieldOption({
+      value: valueField,
+      isSome: value.isSome.or(this.isNone())
+    });
+  }
+  static empty() {
+    return new _OffChainList({
+      root: (0, import_o1js4.Field)(0),
+      storage: Storage.empty()
+    });
+  }
+  /**
+   * Creates a new OffchainList
+   * and pins it to IPFS.
+   * @param params - The parameters for creating the list.
+   * @param params.list - The list of entries to be added to the map.
+   * @param params.data - The JSON data that should be added to the IPFS storage that represent the initial data
+   * @returns A new `OffChainList` instance.
+   */
+  static async create(params) {
+    const { name = "whitelist", filename = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
+    const { listBase, json } = await OffChainListBase.create({
+      list: params.list,
+      data: params.data
+    });
     let attempt = 0;
     const start = Date.now();
     if (process.env.DEBUG === "true")
       console.log("OffChainList.create:", { json, name, keyvalues });
     let hash = await pinJSON({
       data: json,
-      name,
+      name: filename,
       keyvalues,
       auth
     });
@@ -494,7 +579,7 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
     if (!hash)
       throw new Error("Failed to pin whitelist");
     return new _OffChainList({
-      root: map.root,
+      root: listBase.root,
       storage: Storage.fromString(hash)
     });
   }
@@ -605,6 +690,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
 0 && (module.exports = {
   FieldOption,
   OffChainList,
+  OffChainListBase,
   OffchainMap,
   OffchainMapOption,
   Storage,

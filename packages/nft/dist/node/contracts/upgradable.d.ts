@@ -203,6 +203,7 @@ declare const UpgradeAuthorityAnswer_base: (new (value: {
                 isSome: boolean;
                 value: any;
                 assertSome: {};
+                assertNone: {};
                 orElse: {};
             };
             toFields: {};
@@ -224,6 +225,7 @@ declare const UpgradeAuthorityAnswer_base: (new (value: {
                 isSome: boolean;
                 value: any;
                 assertSome: {};
+                assertNone: {};
                 orElse: {};
             };
             toFields: {};

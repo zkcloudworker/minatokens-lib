@@ -361,7 +361,7 @@ function NFTWhitelistedAdminContract(params: {
      * @param storage The storage reference for the whitelist data.
      */
     @method
-    async updateMerkleMapRoot(whitelist: Whitelist) {
+    async updateWhitelist(whitelist: Whitelist) {
       await this.ensureOwnerSignature();
       this.whitelist.set(whitelist);
       this.emitEvent("updateWhitelist", whitelist);

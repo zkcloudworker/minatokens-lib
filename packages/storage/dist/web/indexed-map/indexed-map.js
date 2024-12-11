@@ -4,7 +4,7 @@ import { sleep } from "../util/sleep.js";
 import { pinJSON } from "../storage/pinata.js";
 const { IndexedMerkleMap } = Experimental;
 export async function loadIndexedMerkleMap(params) {
-    const { url, type, timeout = 60000, attempts = 5 } = params;
+    const { url, type, name = "indexed-map", timeout = 60000, attempts = 5, } = params;
     let attempt = 0;
     const start = Date.now();
     let response = await fetch(url);
@@ -17,7 +17,7 @@ export async function loadIndexedMerkleMap(params) {
         throw new Error("Failed to fetch IndexedMerkleMap");
     }
     const json = await response.json();
-    const serializedIndexedMap = json.map;
+    const serializedIndexedMap = json[name].map;
     if (!serializedIndexedMap)
         throw new Error("wrong IndexedMerkleMap json format");
     const map = deserializeIndexedMerkleMapInternal({
@@ -30,11 +30,12 @@ export async function loadIndexedMerkleMap(params) {
     return map;
 }
 export async function saveIndexedMerkleMap(params) {
-    const { map, name = "indexed-map", keyvalues, auth } = params;
+    const { map, name = "indexed-map", keyvalues, auth, filename = "indexed-map", } = params;
     const serialized = serializeIndexedMap(map);
+    const json = { [name]: { map: serialized } };
     const ipfsHash = await pinJSON({
-        data: { map: serialized },
-        name,
+        data: json,
+        name: filename,
         keyvalues,
         auth,
     });

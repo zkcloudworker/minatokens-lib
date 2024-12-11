@@ -158,6 +158,8 @@ declare const AdminContract: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;
@@ -204,7 +206,7 @@ declare const WhitelistedAdminContract: {
         canTransfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         canSell(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         canBuy(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, buyer: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
-        updateMerkleMapRoot(whitelist: import("@minatokens/storage").Whitelist): Promise<void>;
+        updateWhitelist(whitelist: import("@minatokens/storage").Whitelist): Promise<void>;
         pause(): Promise<void>;
         resume(): Promise<void>;
         transferOwnership(newOwner: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
@@ -341,6 +343,8 @@ declare const WhitelistedAdminContract: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;
@@ -578,6 +582,8 @@ declare const Collection: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;
@@ -815,6 +821,8 @@ declare const WhitelistedCollection: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;
@@ -1054,6 +1062,8 @@ declare const contractList: {
                 input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
                 output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             };
+            _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+            _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
         };
         compile({ cache, forceRecompile, }?: {
             cache?: import("o1js").Cache | undefined;
@@ -1291,6 +1301,8 @@ declare const contractList: {
                 input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
                 output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             };
+            _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+            _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
         };
         compile({ cache, forceRecompile, }?: {
             cache?: import("o1js").Cache | undefined;
@@ -1471,6 +1483,8 @@ declare const contractList: {
                 input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
                 output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             };
+            _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+            _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
         };
         compile({ cache, forceRecompile, }?: {
             cache?: import("o1js").Cache | undefined;
@@ -1517,7 +1531,7 @@ declare const contractList: {
             canTransfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
             canSell(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
             canBuy(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, buyer: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
-            updateMerkleMapRoot(whitelist: import("@minatokens/storage").Whitelist): Promise<void>;
+            updateWhitelist(whitelist: import("@minatokens/storage").Whitelist): Promise<void>;
             pause(): Promise<void>;
             resume(): Promise<void>;
             transferOwnership(newOwner: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
@@ -1654,6 +1668,8 @@ declare const contractList: {
                 input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
                 output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             };
+            _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+            _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
         };
         compile({ cache, forceRecompile, }?: {
             cache?: import("o1js").Cache | undefined;

@@ -2,6 +2,8 @@ import { Experimental, Struct, Field, Option, Provable, Bool } from "o1js";
 import {
   serializeIndexedMap,
   loadIndexedMerkleMap,
+  IndexedMapSerialized,
+  IndexedMapSerializedJson,
 } from "../indexed-map/indexed-map.js";
 import { sleep } from "../util/sleep.js";
 import { Storage, IpfsHash } from "../storage/storage.js";
@@ -26,31 +28,34 @@ export interface OffChainMapEntry {
  */
 export type OffChainMapEntries = OffChainMapEntry[] | IpfsHash;
 
-export class OffChainList extends Struct({
+/**
+ * Base class for offchain lists and maps that does not have storage
+ */
+export class OffChainListBase extends Struct({
   /** The root hash of the Merkle tree representing the whitelist. */
   root: Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
-  storage: Storage,
 }) {
   isNone(): Bool {
-    return this.root
-      .equals(Field(0))
-      .or(Storage.equals(this.storage, Storage.empty()));
+    return this.root.equals(Field(0));
   }
 
   isSome(): Bool {
     return this.isNone().not();
   }
 
-  async load(): Promise<OffchainMapOption> {
+  async load(
+    storage: Storage,
+    name: string = "map"
+  ): Promise<OffchainMapOption> {
     const isNone = this.isNone();
     const map = await Provable.witnessAsync(OffchainMapOption, async () => {
       if (isNone.toBoolean()) return OffchainMapOption.none();
       else
         return OffchainMapOption.fromValue(
           await loadIndexedMerkleMap({
-            url: createIpfsURL({ hash: this.storage.toString() }),
+            url: createIpfsURL({ hash: storage.toString() }),
             type: OffchainMap,
+            name,
           })
         );
     });
@@ -76,8 +81,12 @@ export class OffChainList extends Struct({
    * The value is present if the list IS empty or the key IS in the map.
    * The value is present and equals to Field(0) if the list IS empty.
    */
-  async getValue(key: Field): Promise<FieldOption> {
-    const map = await this.load();
+  async getValue(
+    key: Field,
+    storage: Storage,
+    name: string = "map"
+  ): Promise<FieldOption> {
+    const map = await this.load(storage, name);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse(Field(0));
     return new FieldOption({
@@ -86,16 +95,14 @@ export class OffChainList extends Struct({
     });
   }
 
-  static empty(): OffChainList {
-    return new OffChainList({
+  static empty(): OffChainListBase {
+    return new OffChainListBase({
       root: Field(0),
-      storage: Storage.empty(),
     });
   }
 
   /**
-   * Creates a new OffchainList
-   * and pins it to IPFS.
+   * Creates a new OffchainListBase
    * @param params - The parameters for creating the list.
    * @param params.list - The list of entries to be added to the map.
    * @param params.data - The JSON data that should be added to the IPFS storage that represent the initial data
@@ -104,20 +111,14 @@ export class OffChainList extends Struct({
   static async create(params: {
     list: OffChainMapEntry[] | { key: string; value?: number }[];
     data?: object;
-    name?: string;
-    keyvalues?: object;
-    timeout?: number;
-    attempts?: number;
-    auth?: string;
-  }): Promise<OffChainList> {
-    const {
-      name = "offchain-list.json",
-      keyvalues,
-      timeout = 60 * 1000,
-      attempts = 5,
-      auth,
-    } = params;
-
+  }): Promise<{
+    listBase: OffChainListBase;
+    json: {
+      map: IndexedMapSerialized;
+      list: { key: string; value?: string }[];
+      data?: object;
+    };
+  }> {
     function toField(
       value: bigint | string | number | Field | undefined
     ): Field {
@@ -145,13 +146,137 @@ export class OffChainList extends Struct({
       })),
       data: params.data,
     };
+
+    return {
+      listBase: new OffChainListBase({
+        root: map.root,
+      }),
+      json,
+    };
+  }
+
+  toString(): string {
+    return JSON.stringify({ root: this.root.toJSON() }, null, 2);
+  }
+
+  static fromString(str: string): OffChainListBase {
+    const json = JSON.parse(str);
+    return new OffChainListBase({
+      root: Field.fromJSON(json.root),
+    });
+  }
+}
+
+export class OffChainList extends Struct({
+  /** The root hash of the Merkle tree representing the whitelist. */
+  root: Field,
+  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
+  storage: Storage,
+}) {
+  isNone(): Bool {
+    return this.root.equals(Field(0)).or(this.storage.isEmpty());
+  }
+
+  isSome(): Bool {
+    return this.isNone().not();
+  }
+
+  async load(
+    name: string | undefined = "whitelist"
+  ): Promise<OffchainMapOption> {
+    const isNone = this.isNone();
+    const map = await Provable.witnessAsync(OffchainMapOption, async () => {
+      if (isNone.toBoolean()) return OffchainMapOption.none();
+      else
+        return OffchainMapOption.fromValue(
+          await loadIndexedMerkleMap({
+            url: createIpfsURL({ hash: this.storage.toString() }),
+            type: OffchainMap,
+            name,
+          })
+        );
+    });
+    isNone.assertEquals(map.isSome.not());
+    const root = Provable.if(
+      map.isSome,
+      map.orElse(new OffchainMap()).root,
+      Field(0)
+    );
+    root.equals(this.root);
+    return map;
+  }
+
+  /**
+   * The function fetches a whitelisted amount associated with a given key using a map and returns it
+   * as a FieldOption.
+   * @param {Field} key - The `key` parameter is of type `Field`,
+   * which represents a field element in the context of a cryptographic system.
+   * @returns The `getValue` function returns a `Promise` that resolves to a `FieldOption`
+   * object. This object contains a `value` property representing the amount retrieved from a map based
+   * on the provided key. The `isSome` property indicates whether the value is present or not.
+   * The value is not present if the list is NOT empty and the key is NOT in the map.
+   * The value is present if the list IS empty or the key IS in the map.
+   * The value is present and equals to Field(0) if the list IS empty.
+   */
+  async getValue(
+    key: Field,
+    name: string | undefined = "whitelist"
+  ): Promise<FieldOption> {
+    const map = await this.load(name);
+    const value = map.orElse(new OffchainMap()).getOption(key);
+    const valueField = value.orElse(Field(0));
+    return new FieldOption({
+      value: valueField,
+      isSome: value.isSome.or(this.isNone()),
+    });
+  }
+
+  static empty(): OffChainList {
+    return new OffChainList({
+      root: Field(0),
+      storage: Storage.empty(),
+    });
+  }
+
+  /**
+   * Creates a new OffchainList
+   * and pins it to IPFS.
+   * @param params - The parameters for creating the list.
+   * @param params.list - The list of entries to be added to the map.
+   * @param params.data - The JSON data that should be added to the IPFS storage that represent the initial data
+   * @returns A new `OffChainList` instance.
+   */
+  static async create(params: {
+    list: OffChainMapEntry[] | { key: string; value?: number }[];
+    data?: object;
+    name?: string;
+    filename?: string;
+    keyvalues?: object;
+    timeout?: number;
+    attempts?: number;
+    auth?: string;
+  }): Promise<OffChainList> {
+    const {
+      name = "whitelist",
+      filename = "offchain-list.json",
+      keyvalues,
+      timeout = 60 * 1000,
+      attempts = 5,
+      auth,
+    } = params;
+
+    const { listBase, json } = await OffChainListBase.create({
+      list: params.list,
+      data: params.data,
+    });
+
     let attempt = 0;
     const start = Date.now();
     if (process.env.DEBUG === "true")
       console.log("OffChainList.create:", { json, name, keyvalues });
     let hash = await pinJSON({
       data: json,
-      name,
+      name: filename,
       keyvalues,
       auth,
     });
@@ -168,7 +293,7 @@ export class OffChainList extends Struct({
     if (!hash) throw new Error("Failed to pin whitelist");
 
     return new OffChainList({
-      root: map.root,
+      root: listBase.root,
       storage: Storage.fromString(hash),
     });
   }

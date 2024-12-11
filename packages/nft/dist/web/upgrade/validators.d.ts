@@ -296,6 +296,7 @@ declare const UpgradeDatabaseState_base: (new (value: {
                 isSome: boolean;
                 value: any;
                 assertSome: {};
+                assertNone: {};
                 orElse: {};
             };
             toFields: {};
@@ -322,6 +323,7 @@ declare const UpgradeDatabaseState_base: (new (value: {
                 isSome: boolean;
                 value: any;
                 assertSome: {};
+                assertNone: {};
                 orElse: {};
             };
             toFields: {};
@@ -540,6 +542,7 @@ declare const ValidatorsDecision_base: (new (value: {
                     isSome: boolean;
                     value: any;
                     assertSome: {};
+                    assertNone: {};
                     orElse: {};
                 };
                 toFields: {};
@@ -583,6 +586,7 @@ declare const ValidatorsDecision_base: (new (value: {
                     isSome: boolean;
                     value: any;
                     assertSome: {};
+                    assertNone: {};
                     orElse: {};
                 };
                 toFields: {};
@@ -795,6 +799,7 @@ declare const ValidatorsDecisionState_base: (new (value: {
                         isSome: boolean;
                         value: any;
                         assertSome: {};
+                        assertNone: {};
                         orElse: {};
                     };
                     toFields: {};
@@ -844,6 +849,7 @@ declare const ValidatorsDecisionState_base: (new (value: {
                         isSome: boolean;
                         value: any;
                         assertSome: {};
+                        assertNone: {};
                         orElse: {};
                     };
                     toFields: {};
@@ -1011,8 +1017,8 @@ declare const ValidatorsVotingNativeProof_base: {
         fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>) => import("o1js").Proof<any, any>;
         toCanonical?: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
     };
-    publicInputType: import("o1js").FlexibleProvablePure<any>;
-    publicOutputType: import("o1js").FlexibleProvablePure<any>;
+    publicInputType: import("o1js").FlexibleProvable<any>;
+    publicOutputType: import("o1js").FlexibleProvable<any>;
     tag: () => {
         name: string;
     };
@@ -1020,6 +1026,8 @@ declare const ValidatorsVotingNativeProof_base: {
         input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
     };
+    _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+    _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
 } & {
     provable: Provable<import("o1js").Proof<ValidatorsDecisionState, ValidatorsDecisionState>, import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<{
         decision: {

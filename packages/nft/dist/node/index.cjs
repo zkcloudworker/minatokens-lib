@@ -2455,7 +2455,7 @@ function NFTWhitelistedAdminContract(params) {
      * @param whitelistRoot The new whitelist root.
      * @param storage The storage reference for the whitelist data.
      */
-    async updateMerkleMapRoot(whitelist) {
+    async updateWhitelist(whitelist) {
       await this.ensureOwnerSignature();
       this.whitelist.set(whitelist);
       this.emitEvent("updateWhitelist", whitelist);
@@ -2560,7 +2560,7 @@ function NFTWhitelistedAdminContract(params) {
     (0, import_tslib4.__metadata)("design:type", Function),
     (0, import_tslib4.__metadata)("design:paramtypes", [import_storage.Whitelist]),
     (0, import_tslib4.__metadata)("design:returntype", Promise)
-  ], NFTWhitelistedAdmin.prototype, "updateMerkleMapRoot", null);
+  ], NFTWhitelistedAdmin.prototype, "updateWhitelist", null);
   (0, import_tslib4.__decorate)([
     import_o1js10.method,
     (0, import_tslib4.__metadata)("design:type", Function),
