@@ -6,7 +6,8 @@
 import { __decorate, __metadata } from "tslib";
 import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, UInt64, Provable, Field, AccountUpdate, Mina, Struct, } from "o1js";
 import { Whitelist, } from "@minatokens/storage";
-import { MintRequest, NFTState, MintParamsOption, VerificationKeyUpgradeData, PauseEvent, OwnershipChangeEvent, } from "../contracts/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, } from "../contracts/index.js";
+import { VerificationKeyUpgradeData, } from "@minatokens/upgradable";
 export { NFTWhitelistedAdminContract, PauseData, };
 /**
  * Represents pause-related data, containing flags for pause functionality.

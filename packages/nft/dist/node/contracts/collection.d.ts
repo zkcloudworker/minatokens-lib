@@ -6,13 +6,12 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, CollectionData, CollectionDataPacked, NFTUpdateProof, CollectionConfigurationUpdate } from "./types.js";
+import { MintParams, MintRequest, CollectionData, CollectionDataPacked, NFTUpdateProof } from "./types.js";
 import { MintEvent, TransferEvent, SellEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent } from "./events.js";
 import { NFTAdminBase, NFTAdminContractConstructor } from "./admin.js";
-import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "./upgradable.js";
+import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "@minatokens/upgradable";
 import { PauseEvent } from "./pausable.js";
 import { OwnershipChangeEvent } from "./ownable.js";
-import { SupportedNetworkId } from "../vk.js";
 export { CollectionDeployProps, CollectionContract, CollectionErrors, CollectionStateStruct, };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
@@ -176,7 +175,6 @@ declare class CollectionStateStruct extends CollectionStateStruct_base {
 declare function CollectionContract(params: {
     adminContract: NFTAdminContractConstructor;
     upgradeContract: UpgradeAuthorityContractConstructor;
-    networkId: SupportedNetworkId;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -227,6 +225,11 @@ declare function CollectionContract(params: {
             pauseNFT: typeof PauseNFTEvent;
             resumeNFT: typeof PauseNFTEvent;
             ownershipChange: typeof OwnershipChangeEvent;
+            setName: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
+            setBaseURL: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
+            setRoyaltyFee: typeof UInt32;
+            setTransferFee: typeof UInt64;
+            setAdmin: typeof PublicKey;
         };
         /**
          * Overrides the approveBase method to prevent transfers of tokens.
@@ -416,11 +419,50 @@ declare function CollectionContract(params: {
          */
         resumeNFT(address: PublicKey): Promise<void>;
         /**
-         * Updates the collection's configuration (e.g., name, base URL, fees).
+         * Sets a new name for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setName' event with the new name.
          *
-         * @param configuration - The new configuration settings.
+         * @param name - The new name for the collection as a Field value
+         * @throws {Error} If caller lacks permission to change name
          */
-        updateConfiguration(configuration: CollectionConfigurationUpdate): Promise<void>;
+        setName(name: Field): Promise<void>;
+        /**
+         * Updates the base URL for the collection's metadata.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setBaseURL' event with the new URL.
+         *
+         * @param baseURL - The new base URL as a Field value
+         * @throws {Error} If caller lacks permission to change base URI
+         */
+        setBaseURL(baseURL: Field): Promise<void>;
+        /**
+         * Sets a new admin address for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setAdmin' event with the new admin address.
+         *
+         * @param admin - The public key of the new admin
+         * @throws {Error} If caller lacks permission to set admin
+         */
+        setAdmin(admin: PublicKey): Promise<void>;
+        /**
+         * Updates the royalty fee for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setRoyaltyFee' event with the new fee.
+         *
+         * @param royaltyFee - The new royalty fee as a UInt32 value
+         * @throws {Error} If caller lacks permission to change royalty fee
+         */
+        setRoyaltyFee(royaltyFee: UInt32): Promise<void>;
+        /**
+         * Updates the transfer fee for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setTransferFee' event with the new fee.
+         *
+         * @param transferFee - The new transfer fee as a UInt64 value
+         * @throws {Error} If caller lacks permission to change transfer fee
+         */
+        setTransferFee(transferFee: UInt64): Promise<void>;
         /**
          * Transfers ownership of the collection to a new owner.
          *
@@ -473,8 +515,8 @@ declare function CollectionContract(params: {
             addInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "transfer" | "sell" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "approveBuy" | "approveSell" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT">(condition: Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "transfer" | "sell" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "approveBuy" | "approveSell" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "transfer" | "sell" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "approveBuy" | "approveSell" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "transfer" | "sell" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "approveBuy" | "approveSell" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: UInt32, end?: UInt32): Promise<{
             type: string;
             event: {
@@ -539,7 +581,10 @@ declare function CollectionContract(params: {
             };
         } & {
             toInput: (x: {
-                accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+                accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js" /**
+                 * The NFT Collection Contract manages a collection of NFTs.
+                 * It handles minting, transferring, buying, selling, and integrates with Admin Contracts.
+                 */).Field;
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             }) => {
                 fields?: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
@@ -556,7 +601,10 @@ declare function CollectionContract(params: {
                 accountUpdate: string;
                 calls: string;
             }) => {
-                accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+                accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js" /**
+                 * A packed data field containing additional collection parameters,
+                 * such as flags and fee configurations.
+                 */).Field;
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             };
             empty: () => {

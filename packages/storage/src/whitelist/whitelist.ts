@@ -40,8 +40,11 @@ export class Whitelist extends Struct({
    * The value is present if the whitelist is NOT empty or the address IS whitelisted.
    * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
    */
-  async getWhitelistedAmount(address: PublicKey): Promise<UInt64Option> {
-    const map = await this.list.load();
+  async getWhitelistedAmount(
+    address: PublicKey,
+    name: string = "whitelist"
+  ): Promise<UInt64Option> {
+    const map = await this.list.load(name);
     const key = Poseidon.hashPacked(PublicKey, address);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse(UInt64.MAXINT().value);
@@ -67,13 +70,15 @@ export class Whitelist extends Struct({
   static async create(params: {
     list: WhitelistedAddress[];
     name?: string;
+    filename?: string;
     keyvalues?: object;
     timeout?: number;
     attempts?: number;
     auth?: string;
   }): Promise<Whitelist> {
     const {
-      name = "whitelist.json",
+      name = "whitelist",
+      filename = "whitelist.json",
       keyvalues,
       timeout,
       attempts,
@@ -107,6 +112,7 @@ export class Whitelist extends Struct({
         amount: Number(item.amount.toBigInt()),
       })),
       name,
+      filename,
       keyvalues,
       timeout,
       attempts,

@@ -1,5 +1,5 @@
 import { Field, PublicKey, Bool, UInt32, UInt64, DynamicProof, Option, Account } from "o1js";
-export { Storage, MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, CollectionConfigurationUpdate, NFTStateStruct, };
+export { Storage, MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, NFTStateStruct, };
 declare const Storage_base: (new (value: {
     url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
 }) => {
@@ -928,109 +928,6 @@ declare class NFTData extends NFTData_base {
      * @returns A new NFTData instance.
      */
     static unpack(packed: Field): NFTData;
-}
-declare const CollectionConfigurationUpdate_base: (new (value: {
-    name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    royaltyFee: UInt32;
-    transferFee: UInt64;
-    admin: PublicKey;
-}) => {
-    name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    royaltyFee: UInt32;
-    transferFee: UInt64;
-    admin: PublicKey;
-}) & {
-    _isStruct: true;
-} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
-    name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    royaltyFee: UInt32;
-    transferFee: UInt64;
-    admin: PublicKey;
-}, {
-    name: bigint;
-    baseURL: bigint;
-    royaltyFee: bigint;
-    transferFee: bigint;
-    admin: {
-        x: bigint;
-        isOdd: boolean;
-    };
-}>, "fromFields"> & {
-    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-} & {
-    fromValue: (value: {
-        name: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: bigint | UInt32;
-        transferFee: bigint | UInt64;
-        admin: PublicKey | {
-            x: Field | bigint;
-            isOdd: Bool | boolean;
-        };
-    }) => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-    toInput: (x: {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    }) => {
-        fields?: Field[] | undefined;
-        packed?: [Field, number][] | undefined;
-    };
-    toJSON: (x: {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    }) => {
-        name: string;
-        baseURL: string;
-        royaltyFee: string;
-        transferFee: string;
-        admin: string;
-    };
-    fromJSON: (x: {
-        name: string;
-        baseURL: string;
-        royaltyFee: string;
-        transferFee: string;
-        admin: string;
-    }) => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-    empty: () => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-};
-/**
- * Represents an update to the collection's configuration, such as name, base URL, fees, and admin.
- */
-declare class CollectionConfigurationUpdate extends CollectionConfigurationUpdate_base {
 }
 declare const CollectionDataPacked_base: (new (value: {
     upgradeAuthorityX: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;

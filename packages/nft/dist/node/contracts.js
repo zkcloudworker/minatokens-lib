@@ -1,6 +1,6 @@
 import { NFT, CollectionContract } from "./contracts/index.js";
 import { NFTAdminContract, NFTWhitelistedAdminContract, } from "./admin/index.js";
-import { VerificationKeyUpgradeAuthority } from "./upgrade/index.js";
+import { VerificationKeyUpgradeAuthority } from "@minatokens/upgradable";
 export { AdminContract, WhitelistedAdminContract, Collection, WhitelistedCollection, contractList, };
 const AdminContract = NFTAdminContract({
     upgradeContract: VerificationKeyUpgradeAuthority,
@@ -11,12 +11,10 @@ const WhitelistedAdminContract = NFTWhitelistedAdminContract({
 const Collection = CollectionContract({
     adminContract: AdminContract,
     upgradeContract: VerificationKeyUpgradeAuthority,
-    networkId: "testnet",
 });
 const WhitelistedCollection = CollectionContract({
     adminContract: WhitelistedAdminContract,
     upgradeContract: VerificationKeyUpgradeAuthority,
-    networkId: "testnet",
 });
 const contractList = {
     NFT: NFT,

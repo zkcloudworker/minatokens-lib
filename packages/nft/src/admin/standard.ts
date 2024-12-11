@@ -19,15 +19,17 @@ import {
   NFTState,
   NFTAdminBase,
   MintParamsOption,
-  UpgradeAuthorityBase,
-  VerificationKeyUpgradeData,
-  UpgradableContract,
-  UpgradeAuthorityContractConstructor,
   PausableContract,
   PauseEvent,
   OwnershipChangeEvent,
   OwnableContract,
 } from "../contracts/index.js";
+import {
+  UpgradeAuthorityBase,
+  VerificationKeyUpgradeData,
+  UpgradableContract,
+  UpgradeAuthorityContractConstructor,
+} from "@minatokens/upgradable";
 export { NFTAdminContract, NFTAdminDeployProps };
 
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {

@@ -97,7 +97,7 @@ export declare class Whitelist extends Whitelist_base {
      * The value is present if the whitelist is NOT empty or the address IS whitelisted.
      * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
      */
-    getWhitelistedAmount(address: PublicKey): Promise<UInt64Option>;
+    getWhitelistedAmount(address: PublicKey, name?: string): Promise<UInt64Option>;
     static empty(): Whitelist;
     /**
      * Creates a new whitelist and pins it to IPFS.
@@ -107,6 +107,7 @@ export declare class Whitelist extends Whitelist_base {
     static create(params: {
         list: WhitelistedAddress[];
         name?: string;
+        filename?: string;
         keyvalues?: object;
         timeout?: number;
         attempts?: number;

@@ -1,14 +1,14 @@
 {
   "name": "@minatokens/nft-api",
   "description": "Mina NFT standard types",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "devDependencies": {
-    "@types/node": "^22.10.0",
+    "@types/node": "^22.10.2",
     "esbuild": "^0.24.0",
-    "typedoc": "^0.27.2",
-    "typedoc-plugin-markdown": "^4.3.0",
+    "typedoc": "^0.27.3",
+    "typedoc-plugin-markdown": "^4.3.2",
     "typescript": "^5.7.2"
   },
   "engines": {

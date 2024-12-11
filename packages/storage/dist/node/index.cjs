@@ -392,7 +392,7 @@ var OffChainListBase = class _OffChainListBase extends (0, import_o1js4.Struct)(
   isSome() {
     return this.isNone().not();
   }
-  async load(storage, name = "map") {
+  async load(storage, name = "offchain-map") {
     const isNone = this.isNone();
     const map = await import_o1js4.Provable.witnessAsync(OffchainMapOption, async () => {
       if (isNone.toBoolean())
@@ -421,7 +421,7 @@ var OffChainListBase = class _OffChainListBase extends (0, import_o1js4.Struct)(
    * The value is present if the list IS empty or the key IS in the map.
    * The value is present and equals to Field(0) if the list IS empty.
    */
-  async getValue(key, storage, name = "map") {
+  async getValue(key, storage, name = "offchain-map") {
     const map = await this.load(storage, name);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse((0, import_o1js4.Field)(0));
@@ -498,7 +498,7 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
   isSome() {
     return this.isNone().not();
   }
-  async load(name = "whitelist") {
+  async load(name = "offchain-map") {
     const isNone = this.isNone();
     const map = await import_o1js4.Provable.witnessAsync(OffchainMapOption, async () => {
       if (isNone.toBoolean())
@@ -527,7 +527,7 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
    * The value is present if the list IS empty or the key IS in the map.
    * The value is present and equals to Field(0) if the list IS empty.
    */
-  async getValue(key, name = "whitelist") {
+  async getValue(key, name = "offchain-map") {
     const map = await this.load(name);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse((0, import_o1js4.Field)(0));
@@ -551,7 +551,7 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
    * @returns A new `OffChainList` instance.
    */
   static async create(params) {
-    const { name = "whitelist", filename = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
+    const { name = "offchain-map", filename = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
     const { listBase, json } = await OffChainListBase.create({
       list: params.list,
       data: params.data
@@ -626,8 +626,8 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
    * The value is present if the whitelist is NOT empty or the address IS whitelisted.
    * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
    */
-  async getWhitelistedAmount(address) {
-    const map = await this.list.load();
+  async getWhitelistedAmount(address, name = "whitelist") {
+    const map = await this.list.load(name);
     const key = import_o1js5.Poseidon.hashPacked(import_o1js5.PublicKey, address);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse(import_o1js5.UInt64.MAXINT().value);
@@ -649,7 +649,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
    * @returns A new `Whitelist` instance.
    */
   static async create(params) {
-    const { name = "whitelist.json", keyvalues, timeout, attempts, auth } = params;
+    const { name = "whitelist", filename = "whitelist.json", keyvalues, timeout, attempts, auth } = params;
     function parseAddress(address) {
       return typeof address === "string" ? import_o1js5.PublicKey.fromBase58(address) : address;
     }
@@ -672,6 +672,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
         amount: Number(item.amount.toBigInt())
       })),
       name,
+      filename,
       keyvalues,
       timeout,
       attempts,

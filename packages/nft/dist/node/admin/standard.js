@@ -1,6 +1,7 @@
 import { __decorate, __metadata } from "tslib";
 import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, UInt64, Provable, Field, AccountUpdate, Mina, } from "o1js";
-import { MintRequest, NFTState, MintParamsOption, VerificationKeyUpgradeData, PauseEvent, OwnershipChangeEvent, } from "../contracts/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, } from "../contracts/index.js";
+import { VerificationKeyUpgradeData, } from "@minatokens/upgradable";
 export { NFTAdminContract };
 function NFTAdminContract(params = {}) {
     const { upgradeContract } = params;

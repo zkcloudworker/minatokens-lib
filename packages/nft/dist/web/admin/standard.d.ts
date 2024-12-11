@@ -1,5 +1,6 @@
 import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, UInt64, Field, AccountUpdate } from "o1js";
-import { MintRequest, NFTState, MintParamsOption, UpgradeAuthorityBase, UpgradeAuthorityContractConstructor, PauseEvent, OwnershipChangeEvent } from "../contracts/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent } from "../contracts/index.js";
+import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "@minatokens/upgradable";
 export { NFTAdminContract, NFTAdminDeployProps };
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {
     admin: PublicKey;

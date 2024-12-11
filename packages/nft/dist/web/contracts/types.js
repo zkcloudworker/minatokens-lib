@@ -1,5 +1,5 @@
 import { Field, PublicKey, Bool, Struct, UInt32, UInt64, Encoding, Provable, DynamicProof, FeatureFlags, Option, } from "o1js";
-export { Storage, MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, CollectionConfigurationUpdate, NFTStateStruct, };
+export { Storage, MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, NFTStateStruct, };
 /**
  * Represents the off-chain storage information for an NFT,
  * such as an IPFS hash.
@@ -351,22 +351,6 @@ class NFTData extends Struct({
             requireOwnerSignatureToUpgrade,
         });
     }
-}
-/**
- * Represents an update to the collection's configuration, such as name, base URL, fees, and admin.
- */
-class CollectionConfigurationUpdate extends Struct({
-    /** The name of the collection. */
-    name: Field,
-    /** The base URL for the metadata of the NFTs in the collection. */
-    baseURL: Field,
-    /** The royalty fee percentage (e.g., 1000 = 1%). */
-    royaltyFee: UInt32,
-    /** The transfer fee amount. */
-    transferFee: UInt64,
-    /** The public key of the admin contract. */
-    admin: PublicKey,
-}) {
 }
 /**
  * Represents the packed collection data, including the upgrade authority's x-coordinate and packed data fields.

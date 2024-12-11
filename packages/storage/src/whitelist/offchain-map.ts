@@ -45,7 +45,7 @@ export class OffChainListBase extends Struct({
 
   async load(
     storage: Storage,
-    name: string = "map"
+    name: string = "offchain-map"
   ): Promise<OffchainMapOption> {
     const isNone = this.isNone();
     const map = await Provable.witnessAsync(OffchainMapOption, async () => {
@@ -84,7 +84,7 @@ export class OffChainListBase extends Struct({
   async getValue(
     key: Field,
     storage: Storage,
-    name: string = "map"
+    name: string = "offchain-map"
   ): Promise<FieldOption> {
     const map = await this.load(storage, name);
     const value = map.orElse(new OffchainMap()).getOption(key);
@@ -182,7 +182,7 @@ export class OffChainList extends Struct({
   }
 
   async load(
-    name: string | undefined = "whitelist"
+    name: string | undefined = "offchain-map"
   ): Promise<OffchainMapOption> {
     const isNone = this.isNone();
     const map = await Provable.witnessAsync(OffchainMapOption, async () => {
@@ -220,7 +220,7 @@ export class OffChainList extends Struct({
    */
   async getValue(
     key: Field,
-    name: string | undefined = "whitelist"
+    name: string | undefined = "offchain-map"
   ): Promise<FieldOption> {
     const map = await this.load(name);
     const value = map.orElse(new OffchainMap()).getOption(key);
@@ -257,7 +257,7 @@ export class OffChainList extends Struct({
     auth?: string;
   }): Promise<OffChainList> {
     const {
-      name = "whitelist",
+      name = "offchain-map",
       filename = "offchain-list.json",
       keyvalues,
       timeout = 60 * 1000,

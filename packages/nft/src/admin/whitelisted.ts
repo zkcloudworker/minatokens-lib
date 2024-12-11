@@ -33,16 +33,18 @@ import {
   NFTState,
   NFTAdminBase,
   MintParamsOption,
-  UpgradeAuthorityBase,
-  VerificationKeyUpgradeData,
-  UpgradableContract,
-  UpgradeAuthorityContractConstructor,
   Storage,
   PauseEvent,
   PausableContract,
   OwnershipChangeEvent,
   OwnableContract,
 } from "../contracts/index.js";
+import {
+  UpgradeAuthorityBase,
+  VerificationKeyUpgradeData,
+  UpgradableContract,
+  UpgradeAuthorityContractConstructor,
+} from "@minatokens/upgradable";
 
 export {
   NFTWhitelistedAdminContract,

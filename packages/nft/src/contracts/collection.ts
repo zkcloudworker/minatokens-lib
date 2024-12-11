@@ -50,7 +50,7 @@ import {
   VerificationKeyUpgradeData,
   UpgradeAuthorityContractConstructor,
   UpgradableContract,
-} from "./upgradable.js";
+} from "@minatokens/upgradable";
 import { PausableContract, PauseEvent } from "./pausable.js";
 import { OwnableContract, OwnershipChangeEvent } from "./ownable.js";
 import { nftVerificationKeys, SupportedNetworkId } from "../vk.js";
@@ -120,9 +120,8 @@ class CollectionStateStruct extends Struct({
 function CollectionContract(params: {
   adminContract: NFTAdminContractConstructor;
   upgradeContract: UpgradeAuthorityContractConstructor;
-  networkId: SupportedNetworkId;
 }) {
-  const { adminContract, upgradeContract, networkId } = params;
+  const { adminContract, upgradeContract } = params;
   /**
    * The NFT Collection Contract manages a collection of NFTs.
    * It handles minting, transferring, buying, selling, and integrates with Admin Contracts.
@@ -381,29 +380,63 @@ function CollectionContract(params: {
       // Mint 1 NFT
       this.internal.mint({ address: update, amount: 1_000_000_000 });
 
-      const nftVerificationKey = new VerificationKey({
-        data: nftVerificationKeys[networkId].vk.NFT.data,
-        hash: Field(nftVerificationKeys[networkId].vk.NFT.hash),
-      });
-      // Constrain the NFT verification key to the correct one for the network
-      nftVerificationKey.hash.assertEquals(
-        Field(nftVerificationKeys[networkId].vk.NFT.hash)
+      const verificationKey: VerificationKey = Provable.witness(
+        VerificationKey,
+        () => {
+          // This code does NOT create a constraint on the verification key
+          // as this witness can be replaced during runtime
+          // We use devnet to get future compatibility https://github.com/o1-labs/o1js/pull/1938
+          // As of writing this, 'testnet' is used in the o1js codebase
+          const networkId =
+            Mina.getNetworkId() === "mainnet" ? "mainnet" : "devnet";
+          const verificationKey = new VerificationKey({
+            data: nftVerificationKeys[networkId].vk.NFT.data,
+            hash: Field(nftVerificationKeys[networkId].vk.NFT.hash),
+          });
+          const vkHash = NFT._verificationKey?.hash;
+          if (
+            !verificationKey ||
+            !verificationKey.hash ||
+            !verificationKey.data
+          )
+            throw Error("NFT verification key is incorrect");
+          if (
+            vkHash &&
+            vkHash.equals(verificationKey.hash).toBoolean() === false
+          )
+            throw Error(
+              "NFT verification key does not match the compiled verification key"
+            );
+          return verificationKey;
+        }
       );
 
-      const compiledVerificationKeyHash = Provable.witness(Field, () => {
-        // We check the verification key to prevent the case when the verification key
-        // is incorrect due to breaking changes in o1js
+      const mainnetVerificationKeyHash = Field(
+        nftVerificationKeys.mainnet.vk.NFT.hash
+      );
+      const devnetVerificationKeyHash = Field(
+        nftVerificationKeys.devnet.vk.NFT.hash
+      );
+      const isMainnet = Provable.witness(Bool, () => {
         // This check does NOT create a constraint on the verification key
         // as this witness can be replaced during runtime
-        // and is useful only for debugging
-        const vkHash = NFT._verificationKey?.hash;
-        if (!vkHash) throw Error("NFT verification key is incorrect");
-        return vkHash;
+        // and is useful only for making sure that the verification key
+        // of the NFT will match the compiled verification key of the NFT
+        // at the time of the deployment of the Collection Contract
+        return Bool(Mina.getNetworkId() === "mainnet");
       });
-      nftVerificationKey.hash.assertEquals(compiledVerificationKeyHash);
+      // We check that the verification key hash is the same as the one
+      // that was compiled at the time of the deployment
+      verificationKey.hash.assertEquals(
+        Provable.if(
+          isMainnet,
+          mainnetVerificationKeyHash,
+          devnetVerificationKeyHash
+        )
+      );
       update.body.update.verificationKey = {
         isSome: Bool(true),
-        value: nftVerificationKey,
+        value: verificationKey,
       };
       update.body.update.permissions = {
         isSome: Bool(true),
@@ -541,6 +574,7 @@ function CollectionContract(params: {
       const event = await this._sell(address, price);
       const adminContract = this.getAdminContract();
       const canSell = await adminContract.canSell(address, event.seller, price);
+      adminContract.self;
       canSell.assertTrue();
       this.emitEvent("approveSell", event);
     }
