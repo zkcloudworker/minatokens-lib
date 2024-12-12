@@ -2,6 +2,9 @@ const { execSync } = require("child_process");
 const readline = require("readline");
 
 (async () => {
+  // Run the build command
+  execSync("npm run build", { stdio: "inherit" });
+
   // Prompt the user for the OTP
   const rl = readline.createInterface({
     input: process.stdin,
@@ -14,9 +17,6 @@ const readline = require("readline");
       resolve(answer.trim());
     });
   });
-
-  // Run the build command
-  execSync("npm run build", { stdio: "inherit" });
 
   // List of your packages
   const packages = [
