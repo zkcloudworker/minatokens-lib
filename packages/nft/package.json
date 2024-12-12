@@ -1,35 +1,33 @@
 {
   "name": "@minatokens/nft",
-  "version": "0.5.0",
-  "author": "DFST",
   "description": "Mina NFT Standard draft library",
-  "type": "module",
-  "keywords": [
-    "typescript",
-    "mina-protocol",
-    "NFT",
-    "MinaNFT"
-  ],
-  "main": "dist/web/index.js",
+  "version": "0.6.5",
+  "author": "DFST",
+  "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
+  "dependencies": {
+    "mina-signer": "^3.0.7",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@minatokens/storage": "0.6.5",
+    "@minatokens/upgradable": "0.6.5",
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.24.0",
+    "o1js": "^2.2.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "exports": {
     "types": "./dist/node/index.d.ts",
-    "browser": "./dist/web/index.js",
     "node": {
       "import": "./dist/node/index.js",
       "require": "./dist/node/index.cjs"
     },
+    "browser": "./dist/web/index.js",
     "default": "./dist/web/index.js"
   },
-  "types": "./dist/node/index.d.ts",
-  "homepage": "https://docs.minanft.com",
-  "bugs": {
-    "url": "https://github.com/zkcloudworker/minatokens-lib/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zkcloudworker/minatokens-lib.git"
-  },
-  "license": "Apache-2.0",
   "files": [
     "dist",
     "src",
@@ -37,30 +35,29 @@
     "README.md",
     "LICENSE"
   ],
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "scripts": {
-    "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
-    "release": "npm run build && npm publish --access public --otp",
-    "login": "npm login"
-  },
-  "devDependencies": {
-    "@minatokens/storage": "^0.5.0",
-    "@types/node": "^22.10.0",
-    "esbuild": "^0.24.0",
-    "o1js": "^2.1.0",
-    "typescript": "^5.7.2"
-  },
+  "homepage": "https://docs.minanft.com",
+  "keywords": [
+    "mina-protocol",
+    "MinaNFT",
+    "NFT",
+    "typescript"
+  ],
+  "license": "Apache-2.0",
+  "main": "dist/web/index.js",
   "peerDependencies": {
-    "@minatokens/storage": "^0.5.0",
-    "o1js": "^2.1.0"
+    "@minatokens/storage": "0.6.5",
+    "@minatokens/upgradable": "0.6.5",
+    "o1js": "^2.2.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "mina-signer": "^3.0.7",
-    "tslib": "^2.8.1"
-  }
+  "repository": "zkcloudworker/minatokens-lib.git",
+  "scripts": {
+    "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
+    "login": "npm login",
+    "release": "npm run build && npm publish --access public"
+  },
+  "type": "module",
+  "types": "./dist/node/index.d.ts"
 }

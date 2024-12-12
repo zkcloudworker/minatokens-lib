@@ -93,7 +93,8 @@ export async function buildTokenLaunchTransaction(params) {
     const whitelist = "whitelist" in args && args.whitelist
         ? typeof args.whitelist === "string"
             ? Whitelist.fromString(args.whitelist)
-            : await Whitelist.create({ list: args.whitelist, name: symbol })
+            : (await Whitelist.create({ list: args.whitelist, name: symbol }))
+                .whitelist
         : Whitelist.empty();
     const tokenAddress = PublicKey.fromBase58(args.tokenAddress);
     const adminContractAddress = PublicKey.fromBase58(args.adminContractAddress);
@@ -275,7 +276,8 @@ export async function buildTokenTransaction(params) {
     const whitelist = "whitelist" in args && args.whitelist
         ? typeof args.whitelist === "string"
             ? Whitelist.fromString(args.whitelist)
-            : await Whitelist.create({ list: args.whitelist, name: symbol })
+            : (await Whitelist.create({ list: args.whitelist, name: symbol }))
+                .whitelist
         : Whitelist.empty();
     const zkToken = new tokenContract(tokenAddress);
     const tokenId = zkToken.deriveTokenId();

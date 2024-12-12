@@ -6,7 +6,8 @@
 import { __decorate, __metadata } from "tslib";
 import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, UInt64, Provable, Field, AccountUpdate, Mina, Struct, } from "o1js";
 import { Whitelist, } from "@minatokens/storage";
-import { MintRequest, NFTState, MintParamsOption, VerificationKeyUpgradeData, PauseEvent, OwnershipChangeEvent, } from "../contracts/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, } from "../contracts/index.js";
+import { VerificationKeyUpgradeData, } from "@minatokens/upgradable";
 export { NFTWhitelistedAdminContract, PauseData, };
 /**
  * Represents pause-related data, containing flags for pause functionality.
@@ -230,7 +231,7 @@ function NFTWhitelistedAdminContract(params) {
          * @param whitelistRoot The new whitelist root.
          * @param storage The storage reference for the whitelist data.
          */
-        async updateMerkleMapRoot(whitelist) {
+        async updateWhitelist(whitelist) {
             await this.ensureOwnerSignature();
             this.whitelist.set(whitelist);
             this.emitEvent("updateWhitelist", whitelist);
@@ -333,7 +334,7 @@ function NFTWhitelistedAdminContract(params) {
         __metadata("design:type", Function),
         __metadata("design:paramtypes", [Whitelist]),
         __metadata("design:returntype", Promise)
-    ], NFTWhitelistedAdmin.prototype, "updateMerkleMapRoot", null);
+    ], NFTWhitelistedAdmin.prototype, "updateWhitelist", null);
     __decorate([
         method,
         __metadata("design:type", Function),

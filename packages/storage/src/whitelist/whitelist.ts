@@ -3,6 +3,7 @@ import {
   OffChainList,
   OffchainMapOption,
   OffchainMap,
+  OffchainMapSerialized,
 } from "./offchain-map.js";
 
 export class UInt64Option extends Option(UInt64) {}
@@ -40,8 +41,11 @@ export class Whitelist extends Struct({
    * The value is present if the whitelist is NOT empty or the address IS whitelisted.
    * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
    */
-  async getWhitelistedAmount(address: PublicKey): Promise<UInt64Option> {
-    const map = await this.list.load();
+  async getWhitelistedAmount(
+    address: PublicKey,
+    name: string = "whitelist"
+  ): Promise<UInt64Option> {
+    const map = await this.list.load(name);
     const key = Poseidon.hashPacked(PublicKey, address);
     const value = map.orElse(new OffchainMap()).getOption(key);
     const valueField = value.orElse(UInt64.MAXINT().value);
@@ -67,17 +71,23 @@ export class Whitelist extends Struct({
   static async create(params: {
     list: WhitelistedAddress[];
     name?: string;
+    filename?: string;
     keyvalues?: object;
     timeout?: number;
     attempts?: number;
     auth?: string;
-  }): Promise<Whitelist> {
+    pin?: boolean;
+    json?: OffchainMapSerialized;
+  }): Promise<{ whitelist: Whitelist; json: OffchainMapSerialized }> {
     const {
-      name = "whitelist.json",
+      name = "whitelist",
+      filename = "whitelist.json",
       keyvalues,
       timeout,
       attempts,
       auth,
+      pin = true,
+      json: initialJson = {},
     } = params;
 
     function parseAddress(address: string | PublicKey): PublicKey {
@@ -97,7 +107,7 @@ export class Whitelist extends Struct({
       })
     );
 
-    const list = await OffChainList.create({
+    const { list, json } = await OffChainList.create({
       list: entries.map((item) => ({
         key: Poseidon.hashPacked(PublicKey, item.address),
         value: item.amount.value,
@@ -107,13 +117,16 @@ export class Whitelist extends Struct({
         amount: Number(item.amount.toBigInt()),
       })),
       name,
+      filename,
       keyvalues,
       timeout,
       attempts,
       auth,
+      pin,
+      json: initialJson,
     });
 
-    return new Whitelist({ list });
+    return { whitelist: new Whitelist({ list }), json };
   }
 
   toString(): string {

@@ -6,13 +6,12 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, CollectionData, CollectionDataPacked, NFTUpdateProof, CollectionConfigurationUpdate } from "./types.js";
-import { MintEvent, TransferEvent, SellEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent } from "./events.js";
+import { MintParams, MintRequest, CollectionData, CollectionDataPacked, NFTUpdateProof } from "./types.js";
+import { MintEvent, TransferEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent } from "./events.js";
 import { NFTAdminBase, NFTAdminContractConstructor } from "./admin.js";
-import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "./upgradable.js";
+import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "@minatokens/upgradable";
 import { PauseEvent } from "./pausable.js";
 import { OwnershipChangeEvent } from "./ownable.js";
-import { SupportedNetworkId } from "../vk.js";
 export { CollectionDeployProps, CollectionContract, CollectionErrors, CollectionStateStruct, };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
@@ -176,7 +175,6 @@ declare class CollectionStateStruct extends CollectionStateStruct_base {
 declare function CollectionContract(params: {
     adminContract: NFTAdminContractConstructor;
     upgradeContract: UpgradeAuthorityContractConstructor;
-    networkId: SupportedNetworkId;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -212,10 +210,12 @@ declare function CollectionContract(params: {
             mint: typeof MintEvent;
             update: typeof PublicKey;
             transfer: typeof TransferEvent;
-            sell: typeof SellEvent;
+            offer: typeof OfferEvent;
+            sale: typeof SaleEvent;
             buy: typeof BuyEvent;
             approveBuy: typeof BuyEvent;
-            approveSell: typeof SellEvent;
+            approveOffer: typeof OfferEvent;
+            approveSale: typeof SaleEvent;
             approveTransfer: typeof TransferEvent;
             approveMint: typeof MintEvent;
             approveUpdate: typeof PublicKey;
@@ -227,6 +227,11 @@ declare function CollectionContract(params: {
             pauseNFT: typeof PauseNFTEvent;
             resumeNFT: typeof PauseNFTEvent;
             ownershipChange: typeof OwnershipChangeEvent;
+            setName: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
+            setBaseURL: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
+            setRoyaltyFee: typeof UInt32;
+            setTransferFee: typeof UInt64;
+            setAdmin: typeof PublicKey;
         };
         /**
          * Overrides the approveBase method to prevent transfers of tokens.
@@ -316,22 +321,22 @@ declare function CollectionContract(params: {
          * @param address - The address of the NFT.
          * @param price - The price at which to list the NFT.
          */
-        sell(address: PublicKey, price: UInt64): Promise<void>;
+        offer(address: PublicKey, price: UInt64): Promise<void>;
         /**
          * Lists an NFT for sale with admin approval.
          *
          * @param address - The address of the NFT.
          * @param price - The price at which to list the NFT.
          */
-        sellWithApproval(address: PublicKey, price: UInt64): Promise<void>;
+        offerWithApproval(address: PublicKey, price: UInt64): Promise<void>;
         /**
-         * Internal method to list an NFT for sale.
+         * Internal method to offer an NFT for sale.
          *
          * @param address - The address of the NFT.
          * @param price - The price at which to list the NFT.
-         * @returns The SellEvent emitted.
+         * @returns The OfferEvent emitted.
          */
-        _sell(address: PublicKey, price: UInt64): Promise<SellEvent>;
+        _offer(address: PublicKey, price: UInt64): Promise<OfferEvent>;
         /**
          * Purchases an NFT without admin approval.
          *
@@ -355,6 +360,31 @@ declare function CollectionContract(params: {
          * @returns The BuyEvent emitted.
          */
         _buy(address: PublicKey, price: UInt64, royaltyFee: UInt32): Promise<BuyEvent>;
+        /**
+         * Sells an NFT without admin approval.
+         *
+         * @param address - The address of the NFT.
+         * @param price - The price at which to purchase the NFT.
+         * @param to - The public key of the buyer.
+         */
+        sell(address: PublicKey, price: UInt64, buyer: PublicKey): Promise<void>;
+        /**
+         * Sells an NFT with admin approval.
+         *
+         * @param address - The address of the NFT.
+         * @param price - The price at which to purchase the NFT.
+         * @param to - The public key of the buyer.
+         */
+        sellWithApproval(address: PublicKey, price: UInt64, buyer: PublicKey): Promise<void>;
+        /**
+         * Internal method to purchase an NFT.
+         *
+         * @param address - The address of the NFT.
+         * @param price - The price at which to purchase the NFT.
+         * @param royaltyFee - The royalty fee percentage.
+         * @returns The BuyEvent emitted.
+         */
+        _sell(address: PublicKey, price: UInt64, buyer: PublicKey, royaltyFee: UInt32): Promise<SaleEvent>;
         /**
          * Transfers ownership of an NFT without admin approval.
          *
@@ -416,11 +446,50 @@ declare function CollectionContract(params: {
          */
         resumeNFT(address: PublicKey): Promise<void>;
         /**
-         * Updates the collection's configuration (e.g., name, base URL, fees).
+         * Sets a new name for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setName' event with the new name.
          *
-         * @param configuration - The new configuration settings.
+         * @param name - The new name for the collection as a Field value
+         * @throws {Error} If caller lacks permission to change name
          */
-        updateConfiguration(configuration: CollectionConfigurationUpdate): Promise<void>;
+        setName(name: Field): Promise<void>;
+        /**
+         * Updates the base URL for the collection's metadata.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setBaseURL' event with the new URL.
+         *
+         * @param baseURL - The new base URL as a Field value
+         * @throws {Error} If caller lacks permission to change base URI
+         */
+        setBaseURL(baseURL: Field): Promise<void>;
+        /**
+         * Sets a new admin address for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setAdmin' event with the new admin address.
+         *
+         * @param admin - The public key of the new admin
+         * @throws {Error} If caller lacks permission to set admin
+         */
+        setAdmin(admin: PublicKey): Promise<void>;
+        /**
+         * Updates the royalty fee for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setRoyaltyFee' event with the new fee.
+         *
+         * @param royaltyFee - The new royalty fee as a UInt32 value
+         * @throws {Error} If caller lacks permission to change royalty fee
+         */
+        setRoyaltyFee(royaltyFee: UInt32): Promise<void>;
+        /**
+         * Updates the transfer fee for the collection.
+         * Requires owner signature and collection to not be paused.
+         * Emits a 'setTransferFee' event with the new fee.
+         *
+         * @param transferFee - The new transfer fee as a UInt64 value
+         * @throws {Error} If caller lacks permission to change transfer fee
+         */
+        setTransferFee(transferFee: UInt64): Promise<void>;
         /**
          * Transfers ownership of the collection to a new owner.
          *
@@ -461,7 +530,13 @@ declare function CollectionContract(params: {
             getUnconstrained(): PublicKey;
             getAndRequireSignature(): PublicKey;
         };
-        readonly account: import("node_modules/o1js/dist/node/lib/mina/precondition.js").Account;
+        readonly account: import("node_modules/o1js/dist/node/lib/mina/precondition.js" /**
+         * Internal method to mint an NFT.
+         *
+         * @param params - The mint parameters.
+         * @param collectionData - The current collection data.
+         * @returns The MintEvent emitted.
+         */).Account;
         readonly network: import("node_modules/o1js/dist/node/lib/mina/precondition.js").Network;
         readonly currentSlot: import("node_modules/o1js/dist/node/lib/mina/precondition.js").CurrentSlot;
         approve(update: AccountUpdate | import("o1js").AccountUpdateTree | AccountUpdateForest): void;
@@ -473,8 +548,8 @@ declare function CollectionContract(params: {
             addInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "transfer" | "sell" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "approveBuy" | "approveSell" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT">(condition: Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "transfer" | "sell" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "approveBuy" | "approveSell" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: UInt32, end?: UInt32): Promise<{
             type: string;
             event: {
@@ -582,6 +657,8 @@ declare function CollectionContract(params: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;
@@ -589,7 +666,11 @@ declare function CollectionContract(params: {
     }): Promise<{
         verificationKey: {
             data: string;
-            hash: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+            hash: import("node_modules/o1js/dist/node/lib/provable/field.js" /**
+             * Retrieves the Admin Contract instance.
+             *
+             * @returns The Admin Contract instance implementing NFTAdminBase.
+             */).Field;
         };
         provers: import("node_modules/o1js/dist/node/snarky.js").Pickles.Prover[];
         verify: (statement: import("node_modules/o1js/dist/node/snarky.js").Pickles.Statement<import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst>, proof: unknown) => Promise<boolean>;

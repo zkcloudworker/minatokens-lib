@@ -5,7 +5,8 @@
  */
 import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, UInt64, Field, AccountUpdate, UInt32 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
-import { MintRequest, NFTState, MintParamsOption, UpgradeAuthorityBase, UpgradeAuthorityContractConstructor, PauseEvent, OwnershipChangeEvent } from "../contracts/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent } from "../contracts/index.js";
+import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "@minatokens/upgradable";
 export { NFTWhitelistedAdminContract, PauseData, NFTWhitelistedAdminDeployProps, };
 /**
  * Deployment properties for the `NFTWhitelistedAdminContract`.
@@ -117,7 +118,7 @@ declare function NFTWhitelistedAdminContract(params: {
         deploy(props: NFTWhitelistedAdminDeployProps): Promise<void>;
         events: {
             /** Emitted when the contract's verification key is upgraded. */
-            upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js" /** Indicates whether the contract can be paused. */).FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
+            upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
             /** Emitted when the contract is paused. */
             pause: typeof PauseEvent;
             /** Emitted when the contract is resumed. */
@@ -187,7 +188,7 @@ declare function NFTWhitelistedAdminContract(params: {
          * @param whitelistRoot The new whitelist root.
          * @param storage The storage reference for the whitelist data.
          */
-        updateMerkleMapRoot(whitelist: Whitelist): Promise<void>;
+        updateWhitelist(whitelist: Whitelist): Promise<void>;
         /**
          * Pauses the contract, preventing certain administrative actions from being performed.
          */
@@ -335,6 +336,8 @@ declare function NFTWhitelistedAdminContract(params: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;

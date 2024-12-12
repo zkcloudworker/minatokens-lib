@@ -1,7 +1,8 @@
 import { __decorate, __metadata } from "tslib";
 import { Field, PublicKey, Bool, SmartContract, method, state, State, VerificationKey, UInt64, AccountUpdate, } from "o1js";
-import { Storage, NFTData, NFTState, NFTImmutableState } from "./types.js";
-import { UpdateEvent, TransferEvent, SellEvent, BuyEvent, UpgradeVerificationKeyEvent, } from "./events.js";
+import { Storage } from "@minatokens/storage";
+import { NFTData, NFTState, NFTImmutableState } from "./types.js";
+import { UpdateEvent, TransferEvent, OfferEvent, BuyEvent, UpgradeVerificationKeyEvent, } from "./events.js";
 import { PauseEvent } from "./pausable.js";
 import { OwnershipChangeEvent } from "./ownable.js";
 export { NFT };
@@ -50,7 +51,7 @@ class NFT extends SmartContract {
         this.events = {
             update: UpdateEvent,
             transfer: TransferEvent,
-            sell: SellEvent,
+            offer: OfferEvent,
             buy: BuyEvent,
             upgradeVerificationKey: UpgradeVerificationKeyEvent,
             pause: PauseEvent,
@@ -180,7 +181,7 @@ class NFT extends SmartContract {
      * @param seller - The public key of the seller (`PublicKey`).
      * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
      */
-    async sell(price, seller) {
+    async offer(price, seller) {
         this.owner.getAndRequireEquals().assertEquals(seller);
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
         data.isPaused.assertFalse(NFTErrors.nftIsPaused);
@@ -190,13 +191,13 @@ class NFT extends SmartContract {
         data.version = version;
         data.price = price;
         this.packedData.set(data.pack());
-        const event = new SellEvent({
+        const event = new OfferEvent({
             seller,
             price,
             version,
             address: this.address,
         });
-        this.emitEvent("sell", event);
+        this.emitEvent("offer", event);
         return event;
     }
     /**
@@ -343,11 +344,11 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "update", null);
 __decorate([
-    method.returns(SellEvent),
+    method.returns(OfferEvent),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [UInt64, PublicKey]),
     __metadata("design:returntype", Promise)
-], NFT.prototype, "sell", null);
+], NFT.prototype, "offer", null);
 __decorate([
     method.returns(BuyEvent),
     __metadata("design:type", Function),

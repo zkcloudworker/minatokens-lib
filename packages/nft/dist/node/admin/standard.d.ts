@@ -1,5 +1,6 @@
 import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, UInt64, Field, AccountUpdate } from "o1js";
-import { MintRequest, NFTState, MintParamsOption, UpgradeAuthorityBase, UpgradeAuthorityContractConstructor, PauseEvent, OwnershipChangeEvent } from "../contracts/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent } from "../contracts/index.js";
+import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "@minatokens/upgradable";
 export { NFTAdminContract, NFTAdminDeployProps };
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {
     admin: PublicKey;
@@ -255,6 +256,8 @@ declare function NFTAdminContract(params?: {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };
+        _proofFromBase64(proofString: string, maxProofsVerified: 0 | 2 | 1): unknown;
+        _proofToBase64(proof: unknown, maxProofsVerified: 0 | 2 | 1): string;
     };
     compile({ cache, forceRecompile, }?: {
         cache?: import("o1js").Cache | undefined;

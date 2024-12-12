@@ -14,13 +14,24 @@ export interface IndexedMapSerialized {
   sortedLeaves: string;
 }
 
+export type IndexedMapSerializedJson = {
+  [key: string]: { map: IndexedMapSerialized };
+};
+
 export async function loadIndexedMerkleMap(params: {
   url: string;
   type: ReturnType<typeof IndexedMerkleMap>;
+  name?: string;
   timeout?: number;
   attempts?: number;
 }) {
-  const { url, type, timeout = 60000, attempts = 5 } = params;
+  const {
+    url,
+    type,
+    name = "indexed-map",
+    timeout = 60000,
+    attempts = 5,
+  } = params;
   let attempt = 0;
   const start = Date.now();
   let response = await fetch(url);
@@ -34,9 +45,9 @@ export async function loadIndexedMerkleMap(params: {
   }
 
   const json = await response.json();
-  const serializedIndexedMap = (
-    json as unknown as { map: IndexedMapSerialized }
-  ).map;
+  const serializedIndexedMap = (json as unknown as IndexedMapSerializedJson)[
+    name
+  ].map;
   if (!serializedIndexedMap)
     throw new Error("wrong IndexedMerkleMap json format");
   const map = deserializeIndexedMerkleMapInternal({
@@ -52,14 +63,22 @@ export async function loadIndexedMerkleMap(params: {
 export async function saveIndexedMerkleMap(params: {
   map: IndexedMerkleMap;
   name?: string;
+  filename?: string;
   keyvalues?: { key: string; value: string }[];
   auth: string;
 }): Promise<string | undefined> {
-  const { map, name = "indexed-map", keyvalues, auth } = params;
+  const {
+    map,
+    name = "indexed-map",
+    keyvalues,
+    auth,
+    filename = "indexed-map",
+  } = params;
   const serialized = serializeIndexedMap(map);
+  const json: IndexedMapSerializedJson = { [name]: { map: serialized } };
   const ipfsHash = await pinJSON({
-    data: { map: serialized },
-    name,
+    data: json,
+    name: filename,
     keyvalues,
     auth,
   });

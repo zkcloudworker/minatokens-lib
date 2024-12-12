@@ -23,6 +23,7 @@ import {
   UInt32,
   Struct,
 } from "o1js";
+import { Storage } from "@minatokens/storage";
 import {
   loadIndexedMerkleMap,
   createIpfsURL,
@@ -33,16 +34,17 @@ import {
   NFTState,
   NFTAdminBase,
   MintParamsOption,
-  UpgradeAuthorityBase,
-  VerificationKeyUpgradeData,
-  UpgradableContract,
-  UpgradeAuthorityContractConstructor,
-  Storage,
   PauseEvent,
   PausableContract,
   OwnershipChangeEvent,
   OwnableContract,
 } from "../contracts/index.js";
+import {
+  UpgradeAuthorityBase,
+  VerificationKeyUpgradeData,
+  UpgradableContract,
+  UpgradeAuthorityContractConstructor,
+} from "@minatokens/upgradable";
 
 export {
   NFTWhitelistedAdminContract,
@@ -361,7 +363,7 @@ function NFTWhitelistedAdminContract(params: {
      * @param storage The storage reference for the whitelist data.
      */
     @method
-    async updateMerkleMapRoot(whitelist: Whitelist) {
+    async updateWhitelist(whitelist: Whitelist) {
       await this.ensureOwnerSignature();
       this.whitelist.set(whitelist);
       this.emitEvent("updateWhitelist", whitelist);

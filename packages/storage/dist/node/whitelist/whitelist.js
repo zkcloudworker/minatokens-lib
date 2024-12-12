@@ -30,8 +30,8 @@ export class Whitelist extends Struct({
      * The value is present if the whitelist is NOT empty or the address IS whitelisted.
      * The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
      */
-    async getWhitelistedAmount(address) {
-        const map = await this.list.load();
+    async getWhitelistedAmount(address, name = "whitelist") {
+        const map = await this.list.load(name);
         const key = Poseidon.hashPacked(PublicKey, address);
         const value = map.orElse(new OffchainMap()).getOption(key);
         const valueField = value.orElse(UInt64.MAXINT().value);
@@ -53,7 +53,7 @@ export class Whitelist extends Struct({
      * @returns A new `Whitelist` instance.
      */
     static async create(params) {
-        const { name = "whitelist.json", keyvalues, timeout, attempts, auth, } = params;
+        const { name = "whitelist", filename = "whitelist.json", keyvalues, timeout, attempts, auth, pin = true, json: initialJson = {}, } = params;
         function parseAddress(address) {
             return typeof address === "string"
                 ? PublicKey.fromBase58(address)
@@ -68,7 +68,7 @@ export class Whitelist extends Struct({
             address: parseAddress(item.address),
             amount: parseAmount(item.amount),
         }));
-        const list = await OffChainList.create({
+        const { list, json } = await OffChainList.create({
             list: entries.map((item) => ({
                 key: Poseidon.hashPacked(PublicKey, item.address),
                 value: item.amount.value,
@@ -78,12 +78,15 @@ export class Whitelist extends Struct({
                 amount: Number(item.amount.toBigInt()),
             })),
             name,
+            filename,
             keyvalues,
             timeout,
             attempts,
             auth,
+            pin,
+            json: initialJson,
         });
-        return new Whitelist({ list });
+        return { whitelist: new Whitelist({ list }), json };
     }
     toString() {
         return this.list.toString();

@@ -2,10 +2,10 @@
  * Type representing the supported network IDs for the Mina Protocol.
  *
  * Currently supports:
- * - `"testnet"`: The Mina local blockchain and devnet
+ * - `"devnet"`: The Mina local blockchain and devnet
  * - `"mainnet"`: The Mina mainnet
  */
-export type SupportedNetworkId = "testnet" | "mainnet";
+export type SupportedNetworkId = "devnet" | "mainnet";
 /**
  * An object containing the verification keys for the NFT Collection and NFT contracts on different networks.
  *
@@ -14,7 +14,7 @@ export type SupportedNetworkId = "testnet" | "mainnet";
  * The `NFTVerificationKeys` object maps a `SupportedNetworkId` to the corresponding verification keys for the NFT Collection and NFT contracts.
  *
  * **Structure:**
- * - `network`: The network identifier (`"testnet"` or `"mainnet"`).
+ * - `network`: The network identifier (`"devnet"` or `"mainnet"`).
  *   - `collection`:
  *     - `hash`: The hash of the verification key for the NFT Collection contract.
  *     - `data`: The verification key data for the NFT Collection contract.
@@ -25,11 +25,11 @@ export type SupportedNetworkId = "testnet" | "mainnet";
  * @example
  * Accessing the verification key hash for the NFT Collection on testnet:
  * ```typescript
- * const testnetCollectionVKHash = NFTVerificationKeys["testnet"].collection.hash;
+ * const testnetCollectionVKHash = NFTVerificationKeys["devnet"].collection.hash;
  * ```
  */
 export declare const nftVerificationKeys: {
-    [key in "mainnet" | "testnet"]: {
+    [key in "mainnet" | "devnet"]: {
         o1js: string;
         zkcloudworker: string;
         vk: {

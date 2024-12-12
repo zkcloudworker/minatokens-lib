@@ -1,78 +1,6 @@
 import { Field, PublicKey, Bool, UInt32, UInt64, DynamicProof, Option, Account } from "o1js";
-export { Storage, MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, CollectionConfigurationUpdate, NFTStateStruct, };
-declare const Storage_base: (new (value: {
-    url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-}) => {
-    url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-}) & {
-    _isStruct: true;
-} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
-    url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-}, {
-    url: bigint[];
-}>, "fromFields"> & {
-    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-    };
-} & {
-    fromValue: (value: {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | bigint[];
-    }) => {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-    };
-    toInput: (x: {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-    }) => {
-        fields?: Field[] | undefined;
-        packed?: [Field, number][] | undefined;
-    };
-    toJSON: (x: {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-    }) => {
-        url: string[];
-    };
-    fromJSON: (x: {
-        url: string[];
-    }) => {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-    };
-    empty: () => {
-        url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
-    };
-};
-/**
- * Represents the off-chain storage information for an NFT,
- * such as an IPFS hash.
- */
-declare class Storage extends Storage_base {
-    constructor(value: {
-        url: [Field, Field];
-    });
-    /**
-     * Asserts that two Storage instances are equal.
-     * @param a The first Storage instance.
-     * @param b The second Storage instance.
-     */
-    static assertEquals(a: Storage, b: Storage): void;
-    /**
-     * Checks if two Storage instances are equal.
-     * @param a The first Storage instance.
-     * @param b The second Storage instance.
-     * @returns A Bool indicating whether the two instances are equal.
-     */
-    static equals(a: Storage, b: Storage): Bool;
-    /**
-     * Creates a Storage instance from a string.
-     * @param url The string representing the storage URL.
-     * @returns A new Storage instance.
-     */
-    static fromString(url: string): Storage;
-    /**
-     * Converts the Storage instance to a string.
-     * @returns The string representation of the storage URL.
-     */
-    toString(): string;
-}
+import { Storage } from "@minatokens/storage";
+export { MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, NFTStateStruct, };
 declare const NFTStateStruct_base: (new (value: {
     name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
     metadata: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
@@ -929,109 +857,6 @@ declare class NFTData extends NFTData_base {
      */
     static unpack(packed: Field): NFTData;
 }
-declare const CollectionConfigurationUpdate_base: (new (value: {
-    name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    royaltyFee: UInt32;
-    transferFee: UInt64;
-    admin: PublicKey;
-}) => {
-    name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    royaltyFee: UInt32;
-    transferFee: UInt64;
-    admin: PublicKey;
-}) & {
-    _isStruct: true;
-} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
-    name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    royaltyFee: UInt32;
-    transferFee: UInt64;
-    admin: PublicKey;
-}, {
-    name: bigint;
-    baseURL: bigint;
-    royaltyFee: bigint;
-    transferFee: bigint;
-    admin: {
-        x: bigint;
-        isOdd: boolean;
-    };
-}>, "fromFields"> & {
-    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-} & {
-    fromValue: (value: {
-        name: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: bigint | UInt32;
-        transferFee: bigint | UInt64;
-        admin: PublicKey | {
-            x: Field | bigint;
-            isOdd: Bool | boolean;
-        };
-    }) => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-    toInput: (x: {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    }) => {
-        fields?: Field[] | undefined;
-        packed?: [Field, number][] | undefined;
-    };
-    toJSON: (x: {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    }) => {
-        name: string;
-        baseURL: string;
-        royaltyFee: string;
-        transferFee: string;
-        admin: string;
-    };
-    fromJSON: (x: {
-        name: string;
-        baseURL: string;
-        royaltyFee: string;
-        transferFee: string;
-        admin: string;
-    }) => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-    empty: () => {
-        name: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        royaltyFee: UInt32;
-        transferFee: UInt64;
-        admin: PublicKey;
-    };
-};
-/**
- * Represents an update to the collection's configuration, such as name, base URL, fees, and admin.
- */
-declare class CollectionConfigurationUpdate extends CollectionConfigurationUpdate_base {
-}
 declare const CollectionDataPacked_base: (new (value: {
     upgradeAuthorityX: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
     packedData: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
@@ -1096,6 +921,7 @@ declare const CollectionData_base: (new (value: {
     transferFee: UInt64;
     requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+    requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1115,6 +941,7 @@ declare const CollectionData_base: (new (value: {
     transferFee: UInt64;
     requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+    requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1136,6 +963,7 @@ declare const CollectionData_base: (new (value: {
     transferFee: UInt64;
     requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+    requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
     requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1158,6 +986,7 @@ declare const CollectionData_base: (new (value: {
     transferFee: bigint;
     requireTransferApproval: boolean;
     requireUpdateApproval: boolean;
+    requireOfferApproval: boolean;
     requireSaleApproval: boolean;
     requireBuyApproval: boolean;
     requireCreatorSignatureToUpgradeCollection: boolean;
@@ -1178,6 +1007,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: UInt64;
         requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1202,6 +1032,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: bigint | UInt64;
         requireTransferApproval: boolean | import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: boolean | import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: boolean | import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: boolean | import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: boolean | import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: boolean | import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1221,6 +1052,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: UInt64;
         requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1241,6 +1073,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: UInt64;
         requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1264,6 +1097,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: UInt64;
         requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1283,6 +1117,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: string;
         requireTransferApproval: boolean;
         requireUpdateApproval: boolean;
+        requireOfferApproval: boolean;
         requireSaleApproval: boolean;
         requireBuyApproval: boolean;
         requireCreatorSignatureToUpgradeCollection: boolean;
@@ -1303,6 +1138,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: string;
         requireTransferApproval: boolean;
         requireUpdateApproval: boolean;
+        requireOfferApproval: boolean;
         requireSaleApproval: boolean;
         requireBuyApproval: boolean;
         requireCreatorSignatureToUpgradeCollection: boolean;
@@ -1322,6 +1158,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: UInt64;
         requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1342,6 +1179,7 @@ declare const CollectionData_base: (new (value: {
         transferFee: UInt64;
         requireTransferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireUpdateApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
+        requireOfferApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireSaleApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireBuyApproval: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
         requireCreatorSignatureToUpgradeCollection: import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool;
@@ -1372,6 +1210,7 @@ declare class CollectionData extends CollectionData_base {
         transferFee?: number;
         requireTransferApproval?: boolean;
         requireUpdateApproval?: boolean;
+        requireOfferApproval?: boolean;
         requireSaleApproval?: boolean;
         requireBuyApproval?: boolean;
         requireCreatorSignatureToUpgradeCollection?: boolean;
