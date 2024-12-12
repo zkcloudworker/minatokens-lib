@@ -1,6 +1,7 @@
 import { Field, PublicKey, SmartContract, State, VerificationKey, UInt64, AccountUpdate } from "o1js";
-import { Storage, NFTState } from "./types.js";
-import { UpdateEvent, TransferEvent, SellEvent, BuyEvent, UpgradeVerificationKeyEvent } from "./events.js";
+import { Storage } from "@minatokens/storage";
+import { NFTState } from "./types.js";
+import { UpdateEvent, TransferEvent, OfferEvent, BuyEvent, UpgradeVerificationKeyEvent } from "./events.js";
 import { PausableContract, PauseEvent } from "./pausable.js";
 import { OwnershipChangeEvent } from "./ownable.js";
 export { NFT };
@@ -29,7 +30,7 @@ declare class NFT extends SmartContract implements PausableContract {
     events: {
         update: typeof UpdateEvent;
         transfer: typeof TransferEvent;
-        sell: typeof SellEvent;
+        offer: typeof OfferEvent;
         buy: typeof BuyEvent;
         upgradeVerificationKey: typeof UpgradeVerificationKeyEvent;
         pause: typeof PauseEvent;
@@ -58,7 +59,7 @@ declare class NFT extends SmartContract implements PausableContract {
      * @param seller - The public key of the seller (`PublicKey`).
      * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
      */
-    sell(price: UInt64, seller: PublicKey): Promise<SellEvent>;
+    offer(price: UInt64, seller: PublicKey): Promise<OfferEvent>;
     /**
      * Purchases the NFT, transferring ownership and handling payment.
      *

@@ -23,6 +23,7 @@ import {
   UInt32,
   Struct,
 } from "o1js";
+import { Storage } from "@minatokens/storage";
 import {
   loadIndexedMerkleMap,
   createIpfsURL,
@@ -33,7 +34,6 @@ import {
   NFTState,
   NFTAdminBase,
   MintParamsOption,
-  Storage,
   PauseEvent,
   PausableContract,
   OwnershipChangeEvent,

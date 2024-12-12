@@ -21,6 +21,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var node_exports = {};
 __export(node_exports, {
   AdminContract: () => AdminContract,
+  Bid: () => Bid,
   BuyEvent: () => BuyEvent,
   Collection: () => Collection,
   CollectionContract: () => CollectionContract,
@@ -50,12 +51,12 @@ __export(node_exports, {
   NFTUpdateProof: () => NFTUpdateProof,
   NFTWhitelistedAdminContract: () => NFTWhitelistedAdminContract,
   NonFungibleTokenBidContract: () => NonFungibleTokenBidContract,
+  OfferEvent: () => OfferEvent,
   OwnershipChangeEvent: () => OwnershipChangeEvent,
   PauseData: () => PauseData,
   PauseEvent: () => PauseEvent,
   PauseNFTEvent: () => PauseNFTEvent,
-  SellEvent: () => SellEvent,
-  Storage: () => Storage,
+  SaleEvent: () => SaleEvent,
   TEXT_TREE_HEIGHT: () => TEXT_TREE_HEIGHT,
   Text: () => Text,
   TransferEvent: () => TransferEvent,
@@ -81,60 +82,16 @@ var import_o1js6 = require("o1js");
 // dist/node/contracts/nft.js
 var import_tslib = require("tslib");
 var import_o1js5 = require("o1js");
+var import_storage3 = require("@minatokens/storage");
 
 // dist/node/contracts/types.js
 var import_o1js = require("o1js");
-var Storage = class _Storage extends (0, import_o1js.Struct)({
-  url: import_o1js.Provable.Array(import_o1js.Field, 2)
-}) {
-  constructor(value) {
-    super(value);
-  }
-  /**
-   * Asserts that two Storage instances are equal.
-   * @param a The first Storage instance.
-   * @param b The second Storage instance.
-   */
-  static assertEquals(a, b) {
-    a.url[0].assertEquals(b.url[0]);
-    a.url[1].assertEquals(b.url[1]);
-  }
-  /**
-   * Checks if two Storage instances are equal.
-   * @param a The first Storage instance.
-   * @param b The second Storage instance.
-   * @returns A Bool indicating whether the two instances are equal.
-   */
-  static equals(a, b) {
-    return a.url[0].equals(b.url[0]).and(a.url[1].equals(b.url[1]));
-  }
-  /**
-   * Creates a Storage instance from a string.
-   * @param url The string representing the storage URL.
-   * @returns A new Storage instance.
-   */
-  static fromString(url) {
-    const fields = import_o1js.Encoding.stringToFields(url);
-    if (fields.length !== 2)
-      throw new Error("Invalid string length");
-    return new _Storage({ url: [fields[0], fields[1]] });
-  }
-  /**
-   * Converts the Storage instance to a string.
-   * @returns The string representation of the storage URL.
-   */
-  toString() {
-    if (this.url[0].toBigInt() === 0n && this.url[1].toBigInt() === 0n) {
-      throw new Error("Invalid string");
-    }
-    return import_o1js.Encoding.stringFromFields([this.url[0], this.url[1]]);
-  }
-};
+var import_storage = require("@minatokens/storage");
 var NFTStateStruct = class _NFTStateStruct extends (0, import_o1js.Struct)({
   name: import_o1js.Field,
   metadata: import_o1js.Field,
   owner: import_o1js.PublicKey,
-  storage: Storage,
+  storage: import_storage.Storage,
   packedData: import_o1js.Field,
   metadataVerificationKeyHash: import_o1js.Field
 }) {
@@ -161,7 +118,7 @@ var NFTStateStruct = class _NFTStateStruct extends (0, import_o1js.Struct)({
     a.name.assertEquals(b.name);
     a.metadata.assertEquals(b.metadata);
     a.owner.assertEquals(b.owner);
-    Storage.assertEquals(a.storage, b.storage);
+    import_storage.Storage.assertEquals(a.storage, b.storage);
     a.packedData.assertEquals(b.packedData);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
   }
@@ -254,7 +211,7 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
   /** The metadata associated with the NFT. */
   metadata: import_o1js.Field,
   /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
+  storage: import_storage.Storage,
   /** The current owner of the NFT. */
   owner: import_o1js.PublicKey,
   /** The price of the NFT. */
@@ -275,7 +232,7 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
     NFTImmutableState.assertEqual(a.immutableState, b.immutableState);
     a.name.assertEquals(b.name);
     a.metadata.assertEquals(b.metadata);
-    Storage.assertEquals(a.storage, b.storage);
+    import_storage.Storage.assertEquals(a.storage, b.storage);
     a.owner.assertEquals(b.owner);
     a.price.assertEquals(b.price);
     a.version.assertEquals(b.version);
@@ -456,6 +413,8 @@ var CollectionData = class _CollectionData extends (0, import_o1js.Struct)({
   /** If true, updating NFTs requires approval from the admin contract. */
   requireUpdateApproval: import_o1js.Bool,
   /** If true, listing NFTs for sale requires approval from the admin contract. */
+  requireOfferApproval: import_o1js.Bool,
+  /** If true, selling NFTs requires approval from the admin contract. */
   requireSaleApproval: import_o1js.Bool,
   /** If true, purchasing NFTs requires approval from the admin contract. */
   requireBuyApproval: import_o1js.Bool,
@@ -488,13 +447,14 @@ var CollectionData = class _CollectionData extends (0, import_o1js.Struct)({
    * @returns A new CollectionData instance.
    */
   static new(params) {
-    const { upgradeAuthority, royaltyFee, transferFee, requireTransferApproval, requireUpdateApproval, requireSaleApproval, requireBuyApproval, requireCreatorSignatureToUpgradeCollection, requireCreatorSignatureToUpgradeNFT, canMint, canChangeName, canChangeCreator, canChangeBaseUri, canChangeRoyalty, canChangeTransferFee, canSetAdmin, canPause, isPaused } = params;
+    const { upgradeAuthority, royaltyFee, transferFee, requireTransferApproval, requireUpdateApproval, requireOfferApproval, requireSaleApproval, requireBuyApproval, requireCreatorSignatureToUpgradeCollection, requireCreatorSignatureToUpgradeNFT, canMint, canChangeName, canChangeCreator, canChangeBaseUri, canChangeRoyalty, canChangeTransferFee, canSetAdmin, canPause, isPaused } = params;
     return new _CollectionData({
       upgradeAuthority: upgradeAuthority ?? import_o1js.PublicKey.empty(),
       royaltyFee: import_o1js.UInt32.from(royaltyFee ?? 0),
       transferFee: import_o1js.UInt64.from(transferFee ?? 0),
       requireTransferApproval: (0, import_o1js.Bool)(requireTransferApproval ?? false),
       requireUpdateApproval: (0, import_o1js.Bool)(requireUpdateApproval ?? false),
+      requireOfferApproval: (0, import_o1js.Bool)(requireOfferApproval ?? false),
       requireSaleApproval: (0, import_o1js.Bool)(requireSaleApproval ?? false),
       requireBuyApproval: (0, import_o1js.Bool)(requireBuyApproval ?? false),
       requireCreatorSignatureToUpgradeCollection: (0, import_o1js.Bool)(requireCreatorSignatureToUpgradeCollection ?? false),
@@ -522,6 +482,7 @@ var CollectionData = class _CollectionData extends (0, import_o1js.Struct)({
         ...this.transferFee.value.toBits(64),
         this.requireTransferApproval,
         this.requireUpdateApproval,
+        this.requireOfferApproval,
         this.requireSaleApproval,
         this.requireBuyApproval,
         this.requireCreatorSignatureToUpgradeCollection,
@@ -545,10 +506,10 @@ var CollectionData = class _CollectionData extends (0, import_o1js.Struct)({
    * @returns A new CollectionData instance.
    */
   static unpack(packed) {
-    const bits = packed.packedData.toBits(32 + 64 + 16);
+    const bits = packed.packedData.toBits(32 + 64 + 17);
     const royaltyFee = import_o1js.UInt32.Unsafe.fromField(import_o1js.Field.fromBits(bits.slice(0, 32)));
     const transferFee = import_o1js.UInt64.Unsafe.fromField(import_o1js.Field.fromBits(bits.slice(32, 32 + 64)));
-    const upgradeAuthorityIsOdd = bits[32 + 64 + 15];
+    const upgradeAuthorityIsOdd = bits[32 + 64 + 16];
     const upgradeAuthority = import_o1js.PublicKey.from({
       x: packed.upgradeAuthorityX,
       isOdd: upgradeAuthorityIsOdd
@@ -559,19 +520,20 @@ var CollectionData = class _CollectionData extends (0, import_o1js.Struct)({
       upgradeAuthority,
       requireTransferApproval: bits[32 + 64],
       requireUpdateApproval: bits[32 + 64 + 1],
-      requireSaleApproval: bits[32 + 64 + 2],
-      requireBuyApproval: bits[32 + 64 + 3],
-      requireCreatorSignatureToUpgradeCollection: bits[32 + 64 + 4],
-      requireCreatorSignatureToUpgradeNFT: bits[32 + 64 + 5],
-      canMint: bits[32 + 64 + 6],
-      canChangeName: bits[32 + 64 + 7],
-      canChangeCreator: bits[32 + 64 + 8],
-      canChangeBaseUri: bits[32 + 64 + 9],
-      canChangeRoyalty: bits[32 + 64 + 10],
-      canChangeTransferFee: bits[32 + 64 + 11],
-      canSetAdmin: bits[32 + 64 + 12],
-      canPause: bits[32 + 64 + 13],
-      isPaused: bits[32 + 64 + 14]
+      requireOfferApproval: bits[32 + 64 + 2],
+      requireSaleApproval: bits[32 + 64 + 3],
+      requireBuyApproval: bits[32 + 64 + 4],
+      requireCreatorSignatureToUpgradeCollection: bits[32 + 64 + 5],
+      requireCreatorSignatureToUpgradeNFT: bits[32 + 64 + 6],
+      canMint: bits[32 + 64 + 7],
+      canChangeName: bits[32 + 64 + 8],
+      canChangeCreator: bits[32 + 64 + 9],
+      canChangeBaseUri: bits[32 + 64 + 10],
+      canChangeRoyalty: bits[32 + 64 + 11],
+      canChangeTransferFee: bits[32 + 64 + 12],
+      canSetAdmin: bits[32 + 64 + 13],
+      canPause: bits[32 + 64 + 14],
+      isPaused: bits[32 + 64 + 15]
     });
   }
 };
@@ -591,7 +553,7 @@ var MintParams = class extends (0, import_o1js.Struct)({
   /** The metadata associated with the NFT. */
   metadata: import_o1js.Field,
   /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
+  storage: import_storage.Storage,
   /** The hash of the verification key used for metadata proofs. */
   metadataVerificationKeyHash: import_o1js.Field,
   /** The expiry time for minting the NFT. */
@@ -617,6 +579,7 @@ var MintRequest = class extends (0, import_o1js.Struct)({
 
 // dist/node/contracts/events.js
 var import_o1js2 = require("o1js");
+var import_storage2 = require("@minatokens/storage");
 var MintEvent = class extends (0, import_o1js2.Struct)({
   /** The initial state of the NFT at the time of minting. */
   initialState: NFTStateStruct,
@@ -630,7 +593,7 @@ var UpdateEvent = class extends (0, import_o1js2.Struct)({
   /** The updated metadata hash of the NFT. */
   metadata: import_o1js2.Field,
   /** Off-chain storage information, e.g., IPFS hash. */
-  storage: Storage,
+  storage: import_storage2.Storage,
   /** The owner of the NFT after the update. */
   owner: import_o1js2.PublicKey,
   /** The updated price of the NFT. */
@@ -659,7 +622,7 @@ var PauseNFTEvent = class extends (0, import_o1js2.Struct)({
   isPaused: import_o1js2.Bool
 }) {
 };
-var SellEvent = class extends (0, import_o1js2.Struct)({
+var OfferEvent = class extends (0, import_o1js2.Struct)({
   /** The public key of the seller listing the NFT for sale. */
   seller: import_o1js2.PublicKey,
   /** The price at which the NFT is listed for sale. */
@@ -668,6 +631,17 @@ var SellEvent = class extends (0, import_o1js2.Struct)({
   address: import_o1js2.PublicKey,
   /** The version number of the NFT state at the time of listing. */
   version: import_o1js2.UInt32
+}) {
+};
+var SaleEvent = class extends (0, import_o1js2.Struct)({
+  /** The public key of the seller. */
+  seller: import_o1js2.PublicKey,
+  /** The public key of the bidder. */
+  buyer: import_o1js2.PublicKey,
+  /** The price at which the NFT is listed for sale. */
+  price: import_o1js2.UInt64,
+  /** The public key address of the NFT being sold. */
+  address: import_o1js2.PublicKey
 }) {
 };
 var BuyEvent = class extends (0, import_o1js2.Struct)({
@@ -747,7 +721,7 @@ var NFT = class extends import_o1js5.SmartContract {
     this.events = {
       update: UpdateEvent,
       transfer: TransferEvent,
-      sell: SellEvent,
+      offer: OfferEvent,
       buy: BuyEvent,
       upgradeVerificationKey: UpgradeVerificationKeyEvent,
       pause: PauseEvent,
@@ -817,7 +791,7 @@ var NFT = class extends import_o1js5.SmartContract {
     this.metadataVerificationKeyHash.set(output.metadataVerificationKeyHash);
     owner.equals(output.owner).not().and(data.canChangeOwnerByProof.not()).assertFalse(NFTErrors.cannotChangeOwner);
     this.owner.set(output.owner);
-    Storage.equals(storage, output.storage).not().and(data.canChangeStorage.not()).assertFalse(NFTErrors.cannotChangeStorage);
+    import_storage3.Storage.equals(storage, output.storage).not().and(data.canChangeStorage.not()).assertFalse(NFTErrors.cannotChangeStorage);
     this.storage.set(output.storage);
     data.price.equals(output.price).not().and(data.canChangePrice.not()).assertFalse(NFTErrors.cannotChangePrice);
     data.isPaused.equals(output.isPaused).not().and(data.canPause.not()).assertFalse(NFTErrors.cannotChangePauseState);
@@ -845,7 +819,7 @@ var NFT = class extends import_o1js5.SmartContract {
    * @param seller - The public key of the seller (`PublicKey`).
    * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
    */
-  async sell(price, seller) {
+  async offer(price, seller) {
     this.owner.getAndRequireEquals().assertEquals(seller);
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.isPaused.assertFalse(NFTErrors.nftIsPaused);
@@ -855,13 +829,13 @@ var NFT = class extends import_o1js5.SmartContract {
     data.version = version;
     data.price = price;
     this.packedData.set(data.pack());
-    const event = new SellEvent({
+    const event = new OfferEvent({
       seller,
       price,
       version,
       address: this.address
     });
-    this.emitEvent("sell", event);
+    this.emitEvent("offer", event);
     return event;
   }
   /**
@@ -984,7 +958,7 @@ var NFT = class extends import_o1js5.SmartContract {
   (0, import_tslib.__metadata)("design:type", Object)
 ], NFT.prototype, "owner", void 0);
 (0, import_tslib.__decorate)([
-  (0, import_o1js5.state)(Storage),
+  (0, import_o1js5.state)(import_storage3.Storage),
   (0, import_tslib.__metadata)("design:type", Object)
 ], NFT.prototype, "storage", void 0);
 (0, import_tslib.__decorate)([
@@ -1006,11 +980,11 @@ var NFT = class extends import_o1js5.SmartContract {
   (0, import_tslib.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "update", null);
 (0, import_tslib.__decorate)([
-  import_o1js5.method.returns(SellEvent),
+  import_o1js5.method.returns(OfferEvent),
   (0, import_tslib.__metadata)("design:type", Function),
   (0, import_tslib.__metadata)("design:paramtypes", [import_o1js5.UInt64, import_o1js5.PublicKey]),
   (0, import_tslib.__metadata)("design:returntype", Promise)
-], NFT.prototype, "sell", null);
+], NFT.prototype, "offer", null);
 (0, import_tslib.__decorate)([
   import_o1js5.method.returns(BuyEvent),
   (0, import_tslib.__metadata)("design:type", Function),
@@ -1055,18 +1029,18 @@ var nftVerificationKeys = {
     zkcloudworker: "0.22.1",
     vk: {
       NFT: {
-        hash: "16136917862034619356669490634307607599327948353746940831953490515774158774961",
-        data: "AAC9a8e2SGkYRQQ5OfO0PfAblqVZy1JUrdswDCrHb+70PGp0KETkNTVRI7HOZuyhA/eNxMU7TRG3GaNks7aLCzQFXyhw2G8QfBDKhY8RQvpC/EYC+EEUSaqB7pk8NCc20C1uHvyIL3FoGBZvXHh9056VdO2Sui6izUUxBEJ2rTTMKehvUTgLC2+n+/qZY/fo8L5uqt1AKUSS0uHKBhSeW8EBzUd3gFax/A9enpuBM8xQwgIIfO2lVVDVj4EpRlwikiL2cp07e0y7haHCTiDPfM0gEH8dh+mlCyT8uu6CkTA8LnPllP2RmFm4/s8VF8vQQqxpBpXob4U1Mq1QCohbRtkAK1/AIi7GXUApT3Tgi2CIzNnremE2fu9k3gmUch92/yRMcxj2uljaH9NbQE+MqPpPQ5F5++kMsAIdAMKMbslgAqEHJg7kSjz0ioYrq5R1RStpH3uHnr5I34ia802/hHw1IIlvkmoF/eVu/vy9kyxmV23XQc8xW/z/ODBZPexZIA8wojOIfE2FaAIWXL1wuVuwt1M9Eo+BRjtiTNcLvslPHoSUZyJcqI/GPo58coTvMHez3J4LcKfT8zCpnzFuHDcNAPj7oiCbmDxOPot1tGz6/orRif7Rdhuwtl4KW89eyyAcORB5aNeNmL04YZt4SvgdW/FrSXH860x3h9iqOm0O5B9LOLYDU/oS+VZo76fEE3pxuJvsG/rFsxOU/5j45IFCDsOSj1BuO5eONTy1vHKlNy44kTtSc2p6efOSyescLdMU24ei5w46Fw3jsqf2BYJWkggBBWEWVstYh0MOZCRUDTegQgalpImsddf+ZOb37toSROqcB+XRboW9QCufQ+ZLEDXRJTYSRHUgsrKTBE2uO1V/8BZKhwP6lUa880xI29AtpsggroJ0HCZ/3kI1emqoWu00xgHJT+VvLwaxzhAWARYBNAxZuBTap9p9ZnlrbINAqhlVrkp9Eas7SV9pDvSkCbGe9cEENFql2W0Dzmuv/XLrESh1kNiiAvP60L1E7NknBdNubrLqS1ae5Qlk0edoLGYeb+k6QBP99ITumncgkysiohuQMK073EcsRX3I7P/SklM/C1pGEYO15hYzXIFZI6eJlceiKFu+Nf4f3Bt4vEdnj55ciGmoxdnZj2d4Q4AKsfK+KIddUFhWIxlZjCdTLl86JvBNb3rVDyBz36PJJCfGgY5gKrNFynw9EVAzQHHFEmNQ/AnfQFVfU8Q0qPSAAunIzvG/Ru67R+E3k0jckI6mf/w3ENtL7nldYFWQZ3gnd619b8kUWhTR1zGjOFVXdULeOx2LVp3n8OGno7C5PCKbJkPzD2uMYPk0L0O7X/sTuIk4aabFeCTGtUQ2ZCdgNNZgUJ79aHybrP7AaLZUqfja40hAnEu08G9up6lR1d4Kqgf14tTrqLDR2DiE2EsrAzgHzIDhatXZ7SwWBNLQUjjiyvyfPBVio0XjamATxTRgJXRzLYx25PwFYeA4OOmvKHwYgdK1LJuWnjJb/X4pRvnmobSsXo8uzpZ8VOeMcJQbRe7zVKe8CcHPqAajwmL8vV+o/Y6yYUOnShz001HH4gDVLAjAkDSZQbrWuUWKVg5IiH4pp/HuFJqAGnZIfyWNIMTrlQXNwarOFgmlOG9wsZXFmjEpG+ZWJPO4NtzfGGEG+LkiI+LfoDsSu8SC8XXngjgUlGYyW3zLGqBZn7kzZTYAAlki1ivsqFPUPI5OU9yGs12q+8wr7zY6cydhxoFdFBWQj3bFoeCsuYBEW6OR5z5wApcFdLQpFR7svXtDk5YUrTduFyF2W5x+C92wfLQ8/NgzDKly/mYg8QpQmP39dx37bNg7r+ir5Svnc7OLrDjFUkiLRI8rUa5sEvaYAmsBHAAaRxrLsGaV6kKje3J8mLSpW0M3fjSDa574o2Jnxqc4FGsPVkRMSa7IA6N0I2lRw1rNGE/efHxYD4WdJXiME401cSxBfL2GdgISqGNoonoCC/XiS72yLjwblgkktNU6fjTu9kDY9ewdXgFb0sV2LCH4ozyBSNrixCDhjNObzc4aL+lZMCcSosvEm3yKJPhyBHYE6ioq5S9MW2BGR8iFTpA+CBSrQsETiWiKl5WYDq+so+2uen4hDRiJVnbBG1BFuxHtjblgNQ2P1E8HyqNc5PcXkB4sNSqylTDXP7/L9vOlHmidKt6D+pQsMGMC75LfX+HSRWc5w1pxPfe0FSlo1kgjYU249+Q/XomvVESJyupfnTSt7Sq/9AYsiSpBFUm5NCmOrSwSfWRFxW87+vz1y2M8TT45njvVQof6jL210OjJHwNk7ez1mjLzJbcHdCGiWRAGpTGp+MrbQow0YTcp+TQs9UlbYr3WLLOWtRbN84uKEmdPOdOEMECl2Aa2RoPUtxw=",
+        hash: "3296941327636232196547499211348930400541534848823952668163969096511994285085",
+        data: "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",
         type: "nft"
       },
       Collection: {
-        hash: "21451243100806185208042072599228883751260656603629382979226022059162387725176",
-        data: "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",
+        hash: "10404875713239581704806989262662838435567885970730757659115688291343616870946",
+        data: "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",
         type: "collection"
       },
       WhitelistedCollection: {
-        hash: "21451243100806185208042072599228883751260656603629382979226022059162387725176",
-        data: "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",
+        hash: "10404875713239581704806989262662838435567885970730757659115688291343616870946",
+        data: "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",
         type: "collection"
       },
       AdminContract: {
@@ -1083,6 +1057,11 @@ var nftVerificationKeys = {
         hash: "11985403017286473627966300663722292870964778138598849061271153789533016168559",
         data: "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",
         type: "upgrade"
+      },
+      NonFungibleTokenBidContract: {
+        hash: "6820794050782837461281750896982699336030520244320078902718956893186904397588",
+        data: "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",
+        type: "user"
       }
     }
   },
@@ -1091,18 +1070,18 @@ var nftVerificationKeys = {
     zkcloudworker: "0.22.1",
     vk: {
       NFT: {
-        hash: "27541837111392040398333039710054288447866068784194645065320329910895437448874",
-        data: "AAC9a8e2SGkYRQQ5OfO0PfAblqVZy1JUrdswDCrHb+70PGp0KETkNTVRI7HOZuyhA/eNxMU7TRG3GaNks7aLCzQFXyhw2G8QfBDKhY8RQvpC/EYC+EEUSaqB7pk8NCc20C1uHvyIL3FoGBZvXHh9056VdO2Sui6izUUxBEJ2rTTMKehvUTgLC2+n+/qZY/fo8L5uqt1AKUSS0uHKBhSeW8EBzUd3gFax/A9enpuBM8xQwgIIfO2lVVDVj4EpRlwikiL2cp07e0y7haHCTiDPfM0gEH8dh+mlCyT8uu6CkTA8LnPllP2RmFm4/s8VF8vQQqxpBpXob4U1Mq1QCohbRtkAK1/AIi7GXUApT3Tgi2CIzNnremE2fu9k3gmUch92/yRMcxj2uljaH9NbQE+MqPpPQ5F5++kMsAIdAMKMbslgAqEHJg7kSjz0ioYrq5R1RStpH3uHnr5I34ia802/hHw1IIlvkmoF/eVu/vy9kyxmV23XQc8xW/z/ODBZPexZIA8wojOIfE2FaAIWXL1wuVuwt1M9Eo+BRjtiTNcLvslPHoSUZyJcqI/GPo58coTvMHez3J4LcKfT8zCpnzFuHDcNAEozXDsGI1m7fbIQtKAGC6UJo7pmMIu0fxwfRASo0CQOTbnbczoHBv1UBfPt34nwiXOoMg2lCU09Cga3BR4lNzNLOLYDU/oS+VZo76fEE3pxuJvsG/rFsxOU/5j45IFCDsOSj1BuO5eONTy1vHKlNy44kTtSc2p6efOSyescLdMU24ei5w46Fw3jsqf2BYJWkggBBWEWVstYh0MOZCRUDTegQgalpImsddf+ZOb37toSROqcB+XRboW9QCufQ+ZLEDXRJTYSRHUgsrKTBE2uO1V/8BZKhwP6lUa880xI29AtpsggroJ0HCZ/3kI1emqoWu00xgHJT+VvLwaxzhAWARYBNAxZuBTap9p9ZnlrbINAqhlVrkp9Eas7SV9pDvSkCbGe9cEENFql2W0Dzmuv/XLrESh1kNiiAvP60L1E7NknsKK00loqMS3mnKHep201iPa8VEZ2HBsLTTKfgSZHED/6dlI4YaYoD4fIuHB7E70MKyE6XXsOVL7+nesyUElAKjrWAjCP83o3slvYgdF0VMew1xcJdZ95BgVDqP6s4OwPuXFBO0L+ZT9l70/xaNcI/zanB7E8dH34TbGwgSeenizGgY5gKrNFynw9EVAzQHHFEmNQ/AnfQFVfU8Q0qPSAAunIzvG/Ru67R+E3k0jckI6mf/w3ENtL7nldYFWQZ3gnd619b8kUWhTR1zGjOFVXdULeOx2LVp3n8OGno7C5PCKbJkPzD2uMYPk0L0O7X/sTuIk4aabFeCTGtUQ2ZCdgNNZgUJ79aHybrP7AaLZUqfja40hAnEu08G9up6lR1d4Kqgf14tTrqLDR2DiE2EsrAzgHzIDhatXZ7SwWBNLQUjjiyvyfPBVio0XjamATxTRgJXRzLYx25PwFYeA4OOmvKHwYgdK1LJuWnjJb/X4pRvnmobSsXo8uzpZ8VOeMcJQbRe7zVKe8CcHPqAajwmL8vV+o/Y6yYUOnShz001HH4gDVLAjAkDSZQbrWuUWKVg5IiH4pp/HuFJqAGnZIfyWNIMTrlQXNwarOFgmlOG9wsZXFmjEpG+ZWJPO4NtzfGGEG+LkiI+LfoDsSu8SC8XXngjgUlGYyW3zLGqBZn7kzZTYAAlki1ivsqFPUPI5OU9yGs12q+8wr7zY6cydhxoFdFBWQj3bFoeCsuYBEW6OR5z5wApcFdLQpFR7svXtDk5YUrTduFyF2W5x+C92wfLQ8/NgzDKly/mYg8QpQmP39dx37bNg7r+ir5Svnc7OLrDjFUkiLRI8rUa5sEvaYAmsBHAAaRxrLsGaV6kKje3J8mLSpW0M3fjSDa574o2Jnxqc4FGsPVkRMSa7IA6N0I2lRw1rNGE/efHxYD4WdJXiME401cSxBfL2GdgISqGNoonoCC/XiS72yLjwblgkktNU6fjTu9kDY9ewdXgFb0sV2LCH4ozyBSNrixCDhjNObzc4aL+lZMCcSosvEm3yKJPhyBHYE6ioq5S9MW2BGR8iFTpA+CBSrQsETiWiKl5WYDq+so+2uen4hDRiJVnbBG1BFuxHtjblgNQ2P1E8HyqNc5PcXkB4sNSqylTDXP7/L9vOlHmidKt6D+pQsMGMC75LfX+HSRWc5w1pxPfe0FSlo1kgjYU249+Q/XomvVESJyupfnTSt7Sq/9AYsiSpBFUm5NCmOrSwSfWRFxW87+vz1y2M8TT45njvVQof6jL210OjJHwNk7ez1mjLzJbcHdCGiWRAGpTGp+MrbQow0YTcp+TQs9UlbYr3WLLOWtRbN84uKEmdPOdOEMECl2Aa2RoPUtxw=",
+        hash: "20640340657736746294674144724028053233315348775341863616114889505206820484416",
+        data: "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",
         type: "nft"
       },
       Collection: {
-        hash: "14525689883753066176899674214202053588799104316409891005646650420218541898974",
-        data: "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",
+        hash: "6908454797241458726904194588172704274693593562696570539852034648249154656144",
+        data: "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",
         type: "collection"
       },
       WhitelistedCollection: {
-        hash: "14525689883753066176899674214202053588799104316409891005646650420218541898974",
-        data: "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",
+        hash: "6908454797241458726904194588172704274693593562696570539852034648249154656144",
+        data: "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",
         type: "collection"
       },
       AdminContract: {
@@ -1119,6 +1098,11 @@ var nftVerificationKeys = {
         hash: "24248690097061452380259183021520676826201948296409686318469332616191300421924",
         data: "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",
         type: "upgrade"
+      },
+      NonFungibleTokenBidContract: {
+        hash: "26920989489514081161262659838874682344129839122725984453281826153327629189754",
+        data: "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",
+        type: "user"
       }
     }
   }
@@ -1174,10 +1158,12 @@ function CollectionContract(params) {
         mint: MintEvent,
         update: import_o1js6.PublicKey,
         transfer: TransferEvent,
-        sell: SellEvent,
+        offer: OfferEvent,
+        sale: SaleEvent,
         buy: BuyEvent,
         approveBuy: BuyEvent,
-        approveSell: SellEvent,
+        approveOffer: OfferEvent,
+        approveSale: SaleEvent,
         approveTransfer: TransferEvent,
         approveMint: MintEvent,
         approveUpdate: import_o1js6.PublicKey,
@@ -1453,10 +1439,10 @@ function CollectionContract(params) {
      * @param address - The address of the NFT.
      * @param price - The price at which to list the NFT.
      */
-    async sell(address, price) {
+    async offer(address, price) {
       const collectionData = await this.ensureNotPaused();
-      collectionData.requireSaleApproval.assertFalse();
-      await this._sell(address, price);
+      collectionData.requireOfferApproval.assertFalse();
+      await this._offer(address, price);
     }
     /**
      * Lists an NFT for sale with admin approval.
@@ -1464,31 +1450,30 @@ function CollectionContract(params) {
      * @param address - The address of the NFT.
      * @param price - The price at which to list the NFT.
      */
-    async sellWithApproval(address, price) {
+    async offerWithApproval(address, price) {
       const collectionData = await this.ensureNotPaused();
-      collectionData.requireSaleApproval.assertTrue();
-      const event = await this._sell(address, price);
+      collectionData.requireOfferApproval.assertTrue();
+      const event = await this._offer(address, price);
       const adminContract2 = this.getAdminContract();
       const canSell = await adminContract2.canSell(address, event.seller, price);
-      adminContract2.self;
       canSell.assertTrue();
-      this.emitEvent("approveSell", event);
+      this.emitEvent("approveOffer", event);
     }
     /**
-     * Internal method to list an NFT for sale.
+     * Internal method to offer an NFT for sale.
      *
      * @param address - The address of the NFT.
      * @param price - The price at which to list the NFT.
-     * @returns The SellEvent emitted.
+     * @returns The OfferEvent emitted.
      */
-    async _sell(address, price) {
+    async _offer(address, price) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
       const seller = this.sender.getUnconstrained();
       const sellerUpdate = import_o1js6.AccountUpdate.createSigned(seller);
       sellerUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
-      const event = await nft.sell(price, seller);
-      this.emitEvent("sell", event);
+      const event = await nft.offer(price, seller);
+      this.emitEvent("offer", event);
       return event;
     }
     /**
@@ -1537,12 +1522,74 @@ function CollectionContract(params) {
       const isSellerCreator = event.seller.equals(creator);
       const commission = import_o1js6.Provable.if(isSellerCreator, import_o1js6.UInt64.zero, price.div(1e5).mul(import_o1js6.UInt64.from(royaltyFee)));
       const payment = price.sub(commission);
-      buyerUpdate.send({ to: event.seller, amount: payment });
+      const sellerUpdate = import_o1js6.AccountUpdate.create(event.seller);
+      buyerUpdate.balance.subInPlace(payment);
+      sellerUpdate.balance.addInPlace(import_o1js6.Provable.if(sellerUpdate.account.isNew.getAndRequireEquals(), payment.sub(import_o1js6.UInt64.from(1e9)), payment));
       const creatorUpdate = import_o1js6.AccountUpdate.createIf(isSellerCreator.not(), creator);
       creatorUpdate.balance.addInPlace(commission);
       buyerUpdate.balance.subInPlace(commission);
       this.emitEvent("buy", event);
       return event;
+    }
+    /**
+     * Sells an NFT without admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param price - The price at which to purchase the NFT.
+     * @param to - The public key of the buyer.
+     */
+    async sell(address, price, buyer) {
+      const collectionData = await this.ensureNotPaused();
+      collectionData.requireSaleApproval.assertFalse();
+      await this._sell(address, price, buyer, collectionData.royaltyFee);
+    }
+    /**
+     * Sells an NFT with admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param price - The price at which to purchase the NFT.
+     * @param to - The public key of the buyer.
+     */
+    async sellWithApproval(address, price, buyer) {
+      const collectionData = await this.ensureNotPaused();
+      collectionData.requireSaleApproval.assertTrue();
+      const event = await this._sell(address, price, buyer, collectionData.royaltyFee);
+      const adminContract2 = this.getAdminContract();
+      const canSell = await adminContract2.canBuy(address, event.seller, buyer, price);
+      canSell.assertTrue();
+      this.emitEvent("approveSale", event);
+    }
+    /**
+     * Internal method to purchase an NFT.
+     *
+     * @param address - The address of the NFT.
+     * @param price - The price at which to purchase the NFT.
+     * @param royaltyFee - The royalty fee percentage.
+     * @returns The BuyEvent emitted.
+     */
+    async _sell(address, price, buyer, royaltyFee) {
+      royaltyFee.assertLessThanOrEqual(import_o1js6.UInt32.from(1e5));
+      const creator = this.creator.getAndRequireEquals();
+      const seller = this.sender.getUnconstrained();
+      const sellerUpdate = import_o1js6.AccountUpdate.createSigned(seller);
+      sellerUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const oldOwner = await nft.transfer(seller, buyer);
+      oldOwner.assertEquals(seller);
+      const isSellerCreator = seller.equals(creator);
+      const commission = import_o1js6.Provable.if(isSellerCreator, import_o1js6.UInt64.zero, price.div(1e5).mul(import_o1js6.UInt64.from(royaltyFee)));
+      const creatorUpdate = import_o1js6.AccountUpdate.createIf(isSellerCreator.not(), creator);
+      creatorUpdate.balance.addInPlace(commission);
+      sellerUpdate.balance.subInPlace(commission);
+      const saleEvent = new SaleEvent({
+        seller,
+        buyer,
+        price,
+        address
+      });
+      this.emitEvent("sale", saleEvent);
+      return saleEvent;
     }
     /**
      * Transfers ownership of an NFT without admin approval.
@@ -1875,7 +1922,7 @@ function CollectionContract(params) {
     (0, import_tslib2.__metadata)("design:type", Function),
     (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js6.PublicKey, import_o1js6.UInt64]),
     (0, import_tslib2.__metadata)("design:returntype", Promise)
-  ], Collection2.prototype, "sell", null);
+  ], Collection2.prototype, "offer", null);
   (0, import_tslib2.__decorate)([
     import_o1js6.method,
     (0, import_tslib2.__metadata)("design:type", Function),
@@ -1884,7 +1931,7 @@ function CollectionContract(params) {
       import_o1js6.UInt64
     ]),
     (0, import_tslib2.__metadata)("design:returntype", Promise)
-  ], Collection2.prototype, "sellWithApproval", null);
+  ], Collection2.prototype, "offerWithApproval", null);
   (0, import_tslib2.__decorate)([
     import_o1js6.method,
     (0, import_tslib2.__metadata)("design:type", Function),
@@ -1900,6 +1947,26 @@ function CollectionContract(params) {
     ]),
     (0, import_tslib2.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "buyWithApproval", null);
+  (0, import_tslib2.__decorate)([
+    import_o1js6.method,
+    (0, import_tslib2.__metadata)("design:type", Function),
+    (0, import_tslib2.__metadata)("design:paramtypes", [
+      import_o1js6.PublicKey,
+      import_o1js6.UInt64,
+      import_o1js6.PublicKey
+    ]),
+    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "sell", null);
+  (0, import_tslib2.__decorate)([
+    import_o1js6.method,
+    (0, import_tslib2.__metadata)("design:type", Function),
+    (0, import_tslib2.__metadata)("design:paramtypes", [
+      import_o1js6.PublicKey,
+      import_o1js6.UInt64,
+      import_o1js6.PublicKey
+    ]),
+    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "sellWithApproval", null);
   (0, import_tslib2.__decorate)([
     import_o1js6.method,
     (0, import_tslib2.__metadata)("design:type", Function),
@@ -2273,7 +2340,7 @@ function NFTAdminContract(params = {}) {
 // dist/node/admin/whitelisted.js
 var import_tslib4 = require("tslib");
 var import_o1js9 = require("o1js");
-var import_storage = require("@minatokens/storage");
+var import_storage4 = require("@minatokens/storage");
 var import_upgradable3 = require("@minatokens/upgradable");
 var PauseData = class _PauseData extends (0, import_o1js9.Struct)({
   /** Indicates whether the contract can be paused. */
@@ -2325,7 +2392,7 @@ function NFTWhitelistedAdminContract(params) {
         /** Emitted when ownership of the contract changes. */
         ownershipChange: OwnershipChangeEvent,
         /** Emitted when the whitelist is updated. */
-        updateWhitelist: import_storage.Whitelist
+        updateWhitelist: import_storage4.Whitelist
       };
     }
     /**
@@ -2526,7 +2593,7 @@ function NFTWhitelistedAdminContract(params) {
     (0, import_tslib4.__metadata)("design:type", Object)
   ], NFTWhitelistedAdmin.prototype, "upgradeAuthority", void 0);
   (0, import_tslib4.__decorate)([
-    (0, import_o1js9.state)(import_storage.Whitelist),
+    (0, import_o1js9.state)(import_storage4.Whitelist),
     (0, import_tslib4.__metadata)("design:type", Object)
   ], NFTWhitelistedAdmin.prototype, "whitelist", void 0);
   (0, import_tslib4.__decorate)([
@@ -2577,7 +2644,7 @@ function NFTWhitelistedAdminContract(params) {
   (0, import_tslib4.__decorate)([
     import_o1js9.method,
     (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_storage.Whitelist]),
+    (0, import_tslib4.__metadata)("design:paramtypes", [import_storage4.Whitelist]),
     (0, import_tslib4.__metadata)("design:returntype", Promise)
   ], NFTWhitelistedAdmin.prototype, "updateWhitelist", null);
   (0, import_tslib4.__decorate)([
@@ -3202,7 +3269,7 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
 // dist/node/marketplace/bid.js
 var import_tslib5 = require("tslib");
 var import_o1js14 = require("o1js");
-var import_storage2 = require("@minatokens/storage");
+var import_storage5 = require("@minatokens/storage");
 
 // dist/node/contracts.js
 var import_upgradable4 = require("@minatokens/upgradable");
@@ -3235,7 +3302,7 @@ var NFTAddress = class extends (0, import_o1js14.Struct)({
   nft: import_o1js14.PublicKey
 }) {
 };
-var SellEvent2 = class extends (0, import_o1js14.Struct)({
+var SellEvent = class extends (0, import_o1js14.Struct)({
   collection: import_o1js14.PublicKey,
   nft: import_o1js14.PublicKey,
   price: import_o1js14.UInt64
@@ -3243,17 +3310,41 @@ var SellEvent2 = class extends (0, import_o1js14.Struct)({
 };
 var DepositEvent = class extends (0, import_o1js14.Struct)({
   buyer: import_o1js14.PublicKey,
-  amount: import_o1js14.UInt64
+  amount: import_o1js14.UInt64,
+  maxPoints: import_o1js14.UInt64
 }) {
 };
 var WithdrawEvent = class extends (0, import_o1js14.Struct)({
   buyer: import_o1js14.PublicKey,
-  amount: import_o1js14.UInt64
+  amount: import_o1js14.UInt64,
+  maxPoints: import_o1js14.UInt64
 }) {
 };
 var BidEvent = class extends (0, import_o1js14.Struct)({
-  bids: import_storage2.OffChainList
+  bids: import_o1js14.Field,
+  whitelist: import_o1js14.Field,
+  storage: import_storage5.Storage
 }) {
+};
+var Bid = class _Bid extends (0, import_o1js14.Struct)({
+  price: import_o1js14.UInt64,
+  points: import_o1js14.UInt64
+}) {
+  pack() {
+    return import_o1js14.Field.fromBits([
+      ...this.price.value.toBits(64),
+      ...this.points.value.toBits(64)
+    ]);
+  }
+  static unpack(field) {
+    const bits = field.toBits(64 + 64);
+    const price = import_o1js14.UInt64.Unsafe.fromField(import_o1js14.Field.fromBits(bits.slice(0, 64)));
+    const points = import_o1js14.UInt64.Unsafe.fromField(import_o1js14.Field.fromBits(bits.slice(64, 64 + 64)));
+    return new _Bid({
+      price,
+      points
+    });
+  }
 };
 var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
   constructor() {
@@ -3261,18 +3352,22 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     this.buyer = (0, import_o1js14.State)();
     this.whitelist = (0, import_o1js14.State)();
     this.bids = (0, import_o1js14.State)();
+    this.storage = (0, import_o1js14.State)();
+    this.maxPoints = (0, import_o1js14.State)();
+    this.consumedPoints = (0, import_o1js14.State)();
     this.events = {
       deposit: DepositEvent,
       withdraw: WithdrawEvent,
-      sell: SellEvent2,
-      updateWhitelist: import_storage2.Whitelist,
-      bid: import_storage2.OffChainList
+      sell: SellEvent,
+      updateWhitelist: import_storage5.Whitelist,
+      bid: BidEvent
     };
   }
   async deploy(args) {
     await super.deploy(args);
     this.whitelist.set(args.whitelist);
     this.bids.set(args.bids);
+    this.storage.set(args.storage);
     this.account.permissions.set({
       ...import_o1js14.Permissions.default(),
       send: import_o1js14.Permissions.proof(),
@@ -3280,7 +3375,7 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
       setPermissions: import_o1js14.Permissions.impossible()
     });
   }
-  async initialize(amount) {
+  async initialize(amount, maxPoints) {
     this.account.provedState.requireEquals((0, import_o1js14.Bool)(false));
     const buyer = this.sender.getUnconstrained();
     const buyerUpdate = import_o1js14.AccountUpdate.createSigned(buyer);
@@ -3288,12 +3383,14 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     this.self.balance.addInPlace(amount);
     buyerUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
     this.buyer.set(buyer);
-    this.emitEvent("deposit", {
+    this.maxPoints.set(maxPoints);
+    this.emitEvent("deposit", new DepositEvent({
       buyer,
-      amount
-    });
+      amount,
+      maxPoints
+    }));
   }
-  async deposit(amount) {
+  async deposit(amount, maxPoints) {
     amount.equals(import_o1js14.UInt64.from(0)).assertFalse();
     const sender = this.sender.getUnconstrained();
     const buyer = this.buyer.getAndRequireEquals();
@@ -3301,12 +3398,14 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     const buyerUpdate = import_o1js14.AccountUpdate.createSigned(buyer);
     buyerUpdate.send({ to: this.address, amount });
     buyerUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
-    this.emitEvent("deposit", {
+    this.maxPoints.set(maxPoints);
+    this.emitEvent("deposit", new DepositEvent({
       buyer,
-      amount
-    });
+      amount,
+      maxPoints
+    }));
   }
-  async withdraw(amount) {
+  async withdraw(amount, maxPoints) {
     amount.equals(import_o1js14.UInt64.from(0)).assertFalse();
     this.account.balance.requireBetween(amount, import_o1js14.UInt64.MAXINT());
     const buyer = this.buyer.getAndRequireEquals();
@@ -3316,64 +3415,73 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     sender.assertEquals(buyer);
     let bidUpdate = this.send({ to: senderUpdate, amount });
     bidUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
-    this.emitEvent("withdraw", {
+    this.maxPoints.set(maxPoints);
+    this.emitEvent("withdraw", new WithdrawEvent({
       buyer,
-      amount
-    });
+      amount,
+      maxPoints
+    }));
   }
   async sell(nftAddress, price) {
     await this._sell(nftAddress, price);
     const buyer = this.buyer.getAndRequireEquals();
     const collection = new Collection(nftAddress.collection);
-    await collection.transfer(nftAddress.nft, buyer);
+    await collection.sell(nftAddress.nft, price, buyer);
   }
   async sellWithApproval(nftAddress, price) {
     await this._sell(nftAddress, price);
     const buyer = this.buyer.getAndRequireEquals();
     const collection = new Collection(nftAddress.collection);
-    await collection.transferWithApproval(nftAddress.nft, buyer);
+    await collection.sellWithApproval(nftAddress.nft, price, buyer);
   }
   async _sell(nftAddress, price) {
     price.equals(import_o1js14.UInt64.from(0)).assertFalse();
     const key = import_o1js14.Poseidon.hashPacked(NFTAddress, nftAddress);
-    const bids = this.bids.getAndRequireEquals();
-    const bid = await bids.getValue(key);
-    const bidField = bid.assertSome("bid not found");
-    price.value.assertLessThanOrEqual(bidField, "price is too high");
+    const storage = this.storage.getAndRequireEquals();
+    const bids = new import_storage5.OffChainList({
+      root: this.bids.getAndRequireEquals(),
+      storage
+    });
+    const bid = Bid.unpack((await bids.getValue(key, "bids")).assertSome("bid not found"));
+    price.assertLessThanOrEqual(bid.price, "price is too high");
     this.account.balance.requireBetween(price, import_o1js14.UInt64.MAXINT());
+    const consumedPoints = this.consumedPoints.getAndRequireEquals();
+    const maxPoints = this.maxPoints.getAndRequireEquals();
+    const newConsumedPoints = consumedPoints.add(bid.points);
+    newConsumedPoints.assertLessThanOrEqual(maxPoints, "consumed points exceed max points");
+    this.consumedPoints.set(newConsumedPoints);
     const seller = this.sender.getUnconstrained();
-    const sellerUpdate = this.send({ to: seller, amount: price });
+    const sellerUpdate = import_o1js14.AccountUpdate.createSigned(seller);
+    sellerUpdate.balance.addInPlace(price);
+    this.self.balance.subInPlace(price);
     sellerUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
-    sellerUpdate.requireSignature();
-    const whitelist = this.whitelist.getAndRequireEquals();
-    const whitelistedAmount = await whitelist.getWhitelistedAmount(seller);
+    const whitelist = new import_storage5.Whitelist({
+      list: new import_storage5.OffChainList({
+        root: this.whitelist.getAndRequireEquals(),
+        storage
+      })
+    });
+    const whitelistedAmount = await whitelist.getWhitelistedAmount(seller, "whitelist");
     const whitelistDisabled = whitelist.isNone();
     whitelistedAmount.isSome.or(whitelistDisabled).assertTrue("Cannot buy from non-whitelisted address");
     const maxPrice = import_o1js14.Provable.if(whitelistDisabled, import_o1js14.UInt64.MAXINT(), whitelistedAmount.value);
     price.assertLessThanOrEqual(maxPrice, "price is higher than whitelisted price");
-    this.emitEvent("sell", {
+    this.emitEvent("sell", new SellEvent({
       collection: nftAddress.collection,
       nft: nftAddress.nft,
       price
-    });
+    }));
   }
-  async updateWhitelist(whitelist) {
-    const buyer = this.buyer.getAndRequireEquals();
-    const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js14.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
-    sender.assertEquals(buyer);
-    this.whitelist.set(whitelist);
-    this.emitEvent("updateWhitelist", whitelist);
-  }
-  async bid(bids) {
+  async bid(bids, whitelist, storage) {
     const buyer = this.buyer.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
     const senderUpdate = import_o1js14.AccountUpdate.createSigned(sender);
     senderUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
     sender.assertEquals(buyer);
     this.bids.set(bids);
-    this.emitEvent("bid", bids);
+    this.whitelist.set(whitelist);
+    this.storage.set(storage);
+    this.emitEvent("bid", new BidEvent({ bids, whitelist, storage }));
   }
 };
 (0, import_tslib5.__decorate)([
@@ -3381,29 +3489,41 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
   (0, import_tslib5.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "buyer", void 0);
 (0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_storage2.Whitelist),
+  (0, import_o1js14.state)(import_o1js14.Field),
   (0, import_tslib5.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "whitelist", void 0);
 (0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_storage2.OffChainList),
+  (0, import_o1js14.state)(import_o1js14.Field),
   (0, import_tslib5.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "bids", void 0);
 (0, import_tslib5.__decorate)([
+  (0, import_o1js14.state)(import_storage5.Storage),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], NonFungibleTokenBidContract.prototype, "storage", void 0);
+(0, import_tslib5.__decorate)([
+  (0, import_o1js14.state)(import_o1js14.UInt64),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], NonFungibleTokenBidContract.prototype, "maxPoints", void 0);
+(0, import_tslib5.__decorate)([
+  (0, import_o1js14.state)(import_o1js14.UInt64),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], NonFungibleTokenBidContract.prototype, "consumedPoints", void 0);
+(0, import_tslib5.__decorate)([
   import_o1js14.method,
   (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64]),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64, import_o1js14.UInt64]),
   (0, import_tslib5.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "initialize", null);
 (0, import_tslib5.__decorate)([
   import_o1js14.method,
   (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64]),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64, import_o1js14.UInt64]),
   (0, import_tslib5.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "deposit", null);
 (0, import_tslib5.__decorate)([
   import_o1js14.method,
   (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64]),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64, import_o1js14.UInt64]),
   (0, import_tslib5.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "withdraw", null);
 (0, import_tslib5.__decorate)([
@@ -3421,18 +3541,13 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
 (0, import_tslib5.__decorate)([
   import_o1js14.method,
   (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_storage2.Whitelist]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
-], NonFungibleTokenBidContract.prototype, "updateWhitelist", null);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_storage2.OffChainList]),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.Field, import_o1js14.Field, import_storage5.Storage]),
   (0, import_tslib5.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "bid", null);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AdminContract,
+  Bid,
   BuyEvent,
   Collection,
   CollectionContract,
@@ -3462,12 +3577,12 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
   NFTUpdateProof,
   NFTWhitelistedAdminContract,
   NonFungibleTokenBidContract,
+  OfferEvent,
   OwnershipChangeEvent,
   PauseData,
   PauseEvent,
   PauseNFTEvent,
-  SellEvent,
-  Storage,
+  SaleEvent,
   TEXT_TREE_HEIGHT,
   Text,
   TransferEvent,

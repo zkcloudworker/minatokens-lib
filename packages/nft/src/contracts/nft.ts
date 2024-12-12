@@ -10,11 +10,12 @@ import {
   UInt64,
   AccountUpdate,
 } from "o1js";
-import { Storage, NFTData, NFTState, NFTImmutableState } from "./types.js";
+import { Storage } from "@minatokens/storage";
+import { NFTData, NFTState, NFTImmutableState } from "./types.js";
 import {
   UpdateEvent,
   TransferEvent,
-  SellEvent,
+  OfferEvent,
   BuyEvent,
   UpgradeVerificationKeyEvent,
 } from "./events.js";
@@ -73,7 +74,7 @@ class NFT extends SmartContract implements PausableContract {
   events = {
     update: UpdateEvent,
     transfer: TransferEvent,
-    sell: SellEvent,
+    offer: OfferEvent,
     buy: BuyEvent,
     upgradeVerificationKey: UpgradeVerificationKeyEvent,
     pause: PauseEvent,
@@ -231,8 +232,8 @@ class NFT extends SmartContract implements PausableContract {
    * @param seller - The public key of the seller (`PublicKey`).
    * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
    */
-  @method.returns(SellEvent)
-  async sell(price: UInt64, seller: PublicKey): Promise<SellEvent> {
+  @method.returns(OfferEvent)
+  async offer(price: UInt64, seller: PublicKey): Promise<OfferEvent> {
     this.owner.getAndRequireEquals().assertEquals(seller);
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.isPaused.assertFalse(NFTErrors.nftIsPaused);
@@ -242,13 +243,13 @@ class NFT extends SmartContract implements PausableContract {
     data.version = version;
     data.price = price;
     this.packedData.set(data.pack());
-    const event = new SellEvent({
+    const event = new OfferEvent({
       seller,
       price,
       version,
       address: this.address,
     });
-    this.emitEvent("sell", event);
+    this.emitEvent("offer", event);
     return event;
   }
 

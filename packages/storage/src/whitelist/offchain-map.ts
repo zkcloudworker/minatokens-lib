@@ -14,6 +14,14 @@ const { IndexedMerkleMap } = Experimental;
 type IndexedMerkleMap = Experimental.IndexedMerkleMap;
 const OFFCHAIN_MAP_HEIGHT = 20;
 
+export interface OffchainMapSerialized extends IndexedMapSerializedJson {
+  [key: string]: {
+    map: IndexedMapSerialized;
+    list: { key: string; value?: string }[];
+    data?: object;
+  };
+}
+
 /** Represents the Offchain Map using an Indexed Merkle Map. */
 export class OffchainMap extends IndexedMerkleMap(OFFCHAIN_MAP_HEIGHT) {}
 export class OffchainMapOption extends Option(OffchainMap) {}
@@ -110,14 +118,11 @@ export class OffChainListBase extends Struct({
    */
   static async create(params: {
     list: OffChainMapEntry[] | { key: string; value?: number }[];
+    name?: string;
     data?: object;
   }): Promise<{
     listBase: OffChainListBase;
-    json: {
-      map: IndexedMapSerialized;
-      list: { key: string; value?: string }[];
-      data?: object;
-    };
+    json: OffchainMapSerialized;
   }> {
     function toField(
       value: bigint | string | number | Field | undefined
@@ -138,13 +143,15 @@ export class OffChainListBase extends Struct({
       map.insert(item.key, item.value);
     }
     const serializedMap = serializeIndexedMap(map);
-    const json = {
-      map: serializedMap,
-      list: list.map((item) => ({
-        key: item.key.toJSON(),
-        value: item.value?.toJSON(),
-      })),
-      data: params.data,
+    const json: OffchainMapSerialized = {
+      [params.name ?? "offchain-map"]: {
+        map: serializedMap,
+        list: list.map((item) => ({
+          key: item.key.toJSON(),
+          value: item.value?.toJSON(),
+        })),
+        data: params.data,
+      },
     };
 
     return {
@@ -255,7 +262,9 @@ export class OffChainList extends Struct({
     timeout?: number;
     attempts?: number;
     auth?: string;
-  }): Promise<OffChainList> {
+    pin?: boolean;
+    json?: OffchainMapSerialized;
+  }): Promise<{ list: OffChainList; json: OffchainMapSerialized }> {
     const {
       name = "offchain-map",
       filename = "offchain-list.json",
@@ -263,39 +272,55 @@ export class OffChainList extends Struct({
       timeout = 60 * 1000,
       attempts = 5,
       auth,
+      pin = true,
+      json: initialJson = {},
     } = params;
 
-    const { listBase, json } = await OffChainListBase.create({
+    const { listBase, json: newJson } = await OffChainListBase.create({
       list: params.list,
       data: params.data,
+      name,
     });
+    const json = { ...initialJson, ...newJson };
 
-    let attempt = 0;
-    const start = Date.now();
     if (process.env.DEBUG === "true")
       console.log("OffChainList.create:", { json, name, keyvalues });
-    let hash = await pinJSON({
-      data: json,
-      name: filename,
-      keyvalues,
-      auth,
-    });
-    while (!hash && attempt < attempts && Date.now() - start < timeout) {
-      attempt++;
-      await sleep(5000 * attempt); // handle rate-limits
-      hash = await pinJSON({
+    if (pin) {
+      let attempt = 0;
+      const start = Date.now();
+      let hash = await pinJSON({
         data: json,
-        name,
+        name: filename,
         keyvalues,
         auth,
       });
+      while (!hash && attempt < attempts && Date.now() - start < timeout) {
+        attempt++;
+        await sleep(5000 * attempt); // handle rate-limits
+        hash = await pinJSON({
+          data: json,
+          name,
+          keyvalues,
+          auth,
+        });
+      }
+      if (!hash) throw new Error("Failed to pin OffchainMap");
+      return {
+        list: new OffChainList({
+          root: listBase.root,
+          storage: Storage.fromString(hash),
+        }),
+        json,
+      };
     }
-    if (!hash) throw new Error("Failed to pin whitelist");
 
-    return new OffChainList({
-      root: listBase.root,
-      storage: Storage.fromString(hash),
-    });
+    return {
+      list: new OffChainList({
+        root: listBase.root,
+        storage: Storage.empty(),
+      }),
+      json,
+    };
   }
 
   toString(): string {

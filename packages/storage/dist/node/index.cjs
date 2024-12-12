@@ -462,12 +462,14 @@ var OffChainListBase = class _OffChainListBase extends (0, import_o1js4.Struct)(
     }
     const serializedMap = serializeIndexedMap(map);
     const json = {
-      map: serializedMap,
-      list: list.map((item) => ({
-        key: item.key.toJSON(),
-        value: item.value?.toJSON()
-      })),
-      data: params.data
+      [params.name ?? "offchain-map"]: {
+        map: serializedMap,
+        list: list.map((item) => ({
+          key: item.key.toJSON(),
+          value: item.value?.toJSON()
+        })),
+        data: params.data
+      }
     };
     return {
       listBase: new _OffChainListBase({
@@ -551,37 +553,51 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
    * @returns A new `OffChainList` instance.
    */
   static async create(params) {
-    const { name = "offchain-map", filename = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth } = params;
-    const { listBase, json } = await OffChainListBase.create({
+    const { name = "offchain-map", filename = "offchain-list.json", keyvalues, timeout = 60 * 1e3, attempts = 5, auth, pin = true, json: initialJson = {} } = params;
+    const { listBase, json: newJson } = await OffChainListBase.create({
       list: params.list,
-      data: params.data
+      data: params.data,
+      name
     });
-    let attempt = 0;
-    const start = Date.now();
+    const json = { ...initialJson, ...newJson };
     if (process.env.DEBUG === "true")
       console.log("OffChainList.create:", { json, name, keyvalues });
-    let hash = await pinJSON({
-      data: json,
-      name: filename,
-      keyvalues,
-      auth
-    });
-    while (!hash && attempt < attempts && Date.now() - start < timeout) {
-      attempt++;
-      await sleep(5e3 * attempt);
-      hash = await pinJSON({
+    if (pin) {
+      let attempt = 0;
+      const start = Date.now();
+      let hash = await pinJSON({
         data: json,
-        name,
+        name: filename,
         keyvalues,
         auth
       });
+      while (!hash && attempt < attempts && Date.now() - start < timeout) {
+        attempt++;
+        await sleep(5e3 * attempt);
+        hash = await pinJSON({
+          data: json,
+          name,
+          keyvalues,
+          auth
+        });
+      }
+      if (!hash)
+        throw new Error("Failed to pin OffchainMap");
+      return {
+        list: new _OffChainList({
+          root: listBase.root,
+          storage: Storage.fromString(hash)
+        }),
+        json
+      };
     }
-    if (!hash)
-      throw new Error("Failed to pin whitelist");
-    return new _OffChainList({
-      root: listBase.root,
-      storage: Storage.fromString(hash)
-    });
+    return {
+      list: new _OffChainList({
+        root: listBase.root,
+        storage: Storage.empty()
+      }),
+      json
+    };
   }
   toString() {
     return JSON.stringify({ root: this.root.toJSON(), storage: this.storage.toString() }, null, 2);
@@ -649,7 +665,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
    * @returns A new `Whitelist` instance.
    */
   static async create(params) {
-    const { name = "whitelist", filename = "whitelist.json", keyvalues, timeout, attempts, auth } = params;
+    const { name = "whitelist", filename = "whitelist.json", keyvalues, timeout, attempts, auth, pin = true, json: initialJson = {} } = params;
     function parseAddress(address) {
       return typeof address === "string" ? import_o1js5.PublicKey.fromBase58(address) : address;
     }
@@ -662,7 +678,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
       address: parseAddress(item.address),
       amount: parseAmount(item.amount)
     }));
-    const list = await OffChainList.create({
+    const { list, json } = await OffChainList.create({
       list: entries.map((item) => ({
         key: import_o1js5.Poseidon.hashPacked(import_o1js5.PublicKey, item.address),
         value: item.amount.value
@@ -676,9 +692,11 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
       keyvalues,
       timeout,
       attempts,
-      auth
+      auth,
+      pin,
+      json: initialJson
     });
-    return new _Whitelist({ list });
+    return { whitelist: new _Whitelist({ list }), json };
   }
   toString() {
     return this.list.toString();

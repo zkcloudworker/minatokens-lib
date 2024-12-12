@@ -50,6 +50,7 @@ export interface CollectionLaunchParams {
   transferFee?: number;
   requireTransferApproval?: boolean;
   requireUpdateApproval?: boolean;
+  requireOfferApproval?: boolean;
   requireSaleApproval?: boolean;
   requireBuyApproval?: boolean;
   requireCreatorSignatureToUpgradeCollection?: boolean;

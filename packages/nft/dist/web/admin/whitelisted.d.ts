@@ -118,7 +118,7 @@ declare function NFTWhitelistedAdminContract(params: {
         deploy(props: NFTWhitelistedAdminDeployProps): Promise<void>;
         events: {
             /** Emitted when the contract's verification key is upgraded. */
-            upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js" /** Indicates whether the contract can be paused. */).FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
+            upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
             /** Emitted when the contract is paused. */
             pause: typeof PauseEvent;
             /** Emitted when the contract is resumed. */
@@ -289,16 +289,14 @@ declare function NFTWhitelistedAdminContract(params: {
         }>, "fromFields"> & {
             fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-                calls: import("node_modules/o1js/dist/node/lib/provable/field.js" /** The public key of the Upgrade Authority Contract. */).Field;
+                calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             };
         } & {
             toInput: (x: {
-                accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js" /** The root hash of the Merkle tree representing the whitelist. */).Field;
+                accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             }) => {
-                fields?: import(
-                /** Packed field containing pause-related flags. */
-                "node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
+                fields?: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
                 packed?: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;
             };
             toJSON: (x: {
@@ -332,12 +330,9 @@ declare function NFTWhitelistedAdminContract(params: {
             check: (value: import("o1js").Proof<any, any>) => void;
             toValue: (x: import("o1js").Proof<any, any>) => import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>;
             fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>) => import("o1js").Proof<any, any>;
-            toCanonical? /** Gets the upgrade contract constructor. */: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
+            toCanonical?: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
         };
-        publicFields(value: import("o1js" /**
-         * Retrieves the `UpgradeAuthorityBase` contract instance.
-         * @returns An instance of the upgrade authority contract.
-         */).ProofBase<any, any>): {
+        publicFields(value: import("o1js").ProofBase<any, any>): {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
             output: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];
         };

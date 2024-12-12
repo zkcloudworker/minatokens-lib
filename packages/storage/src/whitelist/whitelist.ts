@@ -3,6 +3,7 @@ import {
   OffChainList,
   OffchainMapOption,
   OffchainMap,
+  OffchainMapSerialized,
 } from "./offchain-map.js";
 
 export class UInt64Option extends Option(UInt64) {}
@@ -75,7 +76,9 @@ export class Whitelist extends Struct({
     timeout?: number;
     attempts?: number;
     auth?: string;
-  }): Promise<Whitelist> {
+    pin?: boolean;
+    json?: OffchainMapSerialized;
+  }): Promise<{ whitelist: Whitelist; json: OffchainMapSerialized }> {
     const {
       name = "whitelist",
       filename = "whitelist.json",
@@ -83,6 +86,8 @@ export class Whitelist extends Struct({
       timeout,
       attempts,
       auth,
+      pin = true,
+      json: initialJson = {},
     } = params;
 
     function parseAddress(address: string | PublicKey): PublicKey {
@@ -102,7 +107,7 @@ export class Whitelist extends Struct({
       })
     );
 
-    const list = await OffChainList.create({
+    const { list, json } = await OffChainList.create({
       list: entries.map((item) => ({
         key: Poseidon.hashPacked(PublicKey, item.address),
         value: item.amount.value,
@@ -117,9 +122,11 @@ export class Whitelist extends Struct({
       timeout,
       attempts,
       auth,
+      pin,
+      json: initialJson,
     });
 
-    return new Whitelist({ list });
+    return { whitelist: new Whitelist({ list }), json };
   }
 
   toString(): string {

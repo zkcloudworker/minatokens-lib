@@ -1,5 +1,5 @@
 import { Field, Option, PublicKey, UInt64, Bool } from "o1js";
-import { OffChainList, OffchainMapOption } from "./offchain-map.js";
+import { OffChainList, OffchainMapOption, OffchainMapSerialized } from "./offchain-map.js";
 declare const UInt64Option_base: Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<Option<UInt64, bigint>, bigint | undefined>, "fromFields"> & {
     fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => Option<UInt64, bigint>;
 } & (new (option: {
@@ -112,7 +112,12 @@ export declare class Whitelist extends Whitelist_base {
         timeout?: number;
         attempts?: number;
         auth?: string;
-    }): Promise<Whitelist>;
+        pin?: boolean;
+        json?: OffchainMapSerialized;
+    }): Promise<{
+        whitelist: Whitelist;
+        json: OffchainMapSerialized;
+    }>;
     toString(): string;
     static fromString(str: string): Whitelist;
 }

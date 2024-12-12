@@ -1,55 +1,55 @@
-import { Field, PublicKey, Bool, Struct, UInt32, UInt64, Encoding, Provable, DynamicProof, FeatureFlags, Option, } from "o1js";
-export { Storage, MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, NFTStateStruct, };
-/**
- * Represents the off-chain storage information for an NFT,
- * such as an IPFS hash.
- */
-class Storage extends Struct({
-    url: Provable.Array(Field, 2),
-}) {
-    constructor(value) {
-        super(value);
-    }
-    /**
-     * Asserts that two Storage instances are equal.
-     * @param a The first Storage instance.
-     * @param b The second Storage instance.
-     */
-    static assertEquals(a, b) {
-        a.url[0].assertEquals(b.url[0]);
-        a.url[1].assertEquals(b.url[1]);
-    }
-    /**
-     * Checks if two Storage instances are equal.
-     * @param a The first Storage instance.
-     * @param b The second Storage instance.
-     * @returns A Bool indicating whether the two instances are equal.
-     */
-    static equals(a, b) {
-        return a.url[0].equals(b.url[0]).and(a.url[1].equals(b.url[1]));
-    }
-    /**
-     * Creates a Storage instance from a string.
-     * @param url The string representing the storage URL.
-     * @returns A new Storage instance.
-     */
-    static fromString(url) {
-        const fields = Encoding.stringToFields(url);
-        if (fields.length !== 2)
-            throw new Error("Invalid string length");
-        return new Storage({ url: [fields[0], fields[1]] });
-    }
-    /**
-     * Converts the Storage instance to a string.
-     * @returns The string representation of the storage URL.
-     */
-    toString() {
-        if (this.url[0].toBigInt() === 0n && this.url[1].toBigInt() === 0n) {
-            throw new Error("Invalid string");
-        }
-        return Encoding.stringFromFields([this.url[0], this.url[1]]);
-    }
-}
+import { Field, PublicKey, Bool, Struct, UInt32, UInt64, DynamicProof, FeatureFlags, Option, } from "o1js";
+import { Storage } from "@minatokens/storage";
+export { MintParams, MintParamsOption, MintRequest, NFTData, CollectionData, NFTState, NFTImmutableState, NFTUpdateProof, CollectionDataPacked, NFTStateStruct, };
+// /**
+//  * Represents the off-chain storage information for an NFT,
+//  * such as an IPFS hash.
+//  */
+// class Storage extends Struct({
+//   url: Provable.Array(Field, 2),
+// }) {
+//   constructor(value: { url: [Field, Field] }) {
+//     super(value);
+//   }
+//   /**
+//    * Asserts that two Storage instances are equal.
+//    * @param a The first Storage instance.
+//    * @param b The second Storage instance.
+//    */
+//   static assertEquals(a: Storage, b: Storage) {
+//     a.url[0].assertEquals(b.url[0]);
+//     a.url[1].assertEquals(b.url[1]);
+//   }
+//   /**
+//    * Checks if two Storage instances are equal.
+//    * @param a The first Storage instance.
+//    * @param b The second Storage instance.
+//    * @returns A Bool indicating whether the two instances are equal.
+//    */
+//   static equals(a: Storage, b: Storage): Bool {
+//     return a.url[0].equals(b.url[0]).and(a.url[1].equals(b.url[1]));
+//   }
+//   /**
+//    * Creates a Storage instance from a string.
+//    * @param url The string representing the storage URL.
+//    * @returns A new Storage instance.
+//    */
+//   static fromString(url: string): Storage {
+//     const fields = Encoding.stringToFields(url);
+//     if (fields.length !== 2) throw new Error("Invalid string length");
+//     return new Storage({ url: [fields[0], fields[1]] });
+//   }
+//   /**
+//    * Converts the Storage instance to a string.
+//    * @returns The string representation of the storage URL.
+//    */
+//   toString(): string {
+//     if (this.url[0].toBigInt() === 0n && this.url[1].toBigInt() === 0n) {
+//       throw new Error("Invalid string");
+//     }
+//     return Encoding.stringFromFields([this.url[0], this.url[1]]);
+//   }
+// }
 /**
  * Represents the on-chain state structure of an NFT.
  * The order of the fields is important and should match the NFT SmartContract.
@@ -377,6 +377,8 @@ class CollectionData extends Struct({
     /** If true, updating NFTs requires approval from the admin contract. */
     requireUpdateApproval: Bool,
     /** If true, listing NFTs for sale requires approval from the admin contract. */
+    requireOfferApproval: Bool,
+    /** If true, selling NFTs requires approval from the admin contract. */
     requireSaleApproval: Bool,
     /** If true, purchasing NFTs requires approval from the admin contract. */
     requireBuyApproval: Bool,
@@ -409,13 +411,14 @@ class CollectionData extends Struct({
      * @returns A new CollectionData instance.
      */
     static new(params) {
-        const { upgradeAuthority, royaltyFee, transferFee, requireTransferApproval, requireUpdateApproval, requireSaleApproval, requireBuyApproval, requireCreatorSignatureToUpgradeCollection, requireCreatorSignatureToUpgradeNFT, canMint, canChangeName, canChangeCreator, canChangeBaseUri, canChangeRoyalty, canChangeTransferFee, canSetAdmin, canPause, isPaused, } = params;
+        const { upgradeAuthority, royaltyFee, transferFee, requireTransferApproval, requireUpdateApproval, requireOfferApproval, requireSaleApproval, requireBuyApproval, requireCreatorSignatureToUpgradeCollection, requireCreatorSignatureToUpgradeNFT, canMint, canChangeName, canChangeCreator, canChangeBaseUri, canChangeRoyalty, canChangeTransferFee, canSetAdmin, canPause, isPaused, } = params;
         return new CollectionData({
             upgradeAuthority: upgradeAuthority ?? PublicKey.empty(),
             royaltyFee: UInt32.from(royaltyFee ?? 0),
             transferFee: UInt64.from(transferFee ?? 0),
             requireTransferApproval: Bool(requireTransferApproval ?? false),
             requireUpdateApproval: Bool(requireUpdateApproval ?? false),
+            requireOfferApproval: Bool(requireOfferApproval ?? false),
             requireSaleApproval: Bool(requireSaleApproval ?? false),
             requireBuyApproval: Bool(requireBuyApproval ?? false),
             requireCreatorSignatureToUpgradeCollection: Bool(requireCreatorSignatureToUpgradeCollection ?? false),
@@ -443,6 +446,7 @@ class CollectionData extends Struct({
                 ...this.transferFee.value.toBits(64),
                 this.requireTransferApproval,
                 this.requireUpdateApproval,
+                this.requireOfferApproval,
                 this.requireSaleApproval,
                 this.requireBuyApproval,
                 this.requireCreatorSignatureToUpgradeCollection,
@@ -466,10 +470,10 @@ class CollectionData extends Struct({
      * @returns A new CollectionData instance.
      */
     static unpack(packed) {
-        const bits = packed.packedData.toBits(32 + 64 + 16);
+        const bits = packed.packedData.toBits(32 + 64 + 17);
         const royaltyFee = UInt32.Unsafe.fromField(Field.fromBits(bits.slice(0, 32)));
         const transferFee = UInt64.Unsafe.fromField(Field.fromBits(bits.slice(32, 32 + 64)));
-        const upgradeAuthorityIsOdd = bits[32 + 64 + 15];
+        const upgradeAuthorityIsOdd = bits[32 + 64 + 16];
         const upgradeAuthority = PublicKey.from({
             x: packed.upgradeAuthorityX,
             isOdd: upgradeAuthorityIsOdd,
@@ -480,19 +484,20 @@ class CollectionData extends Struct({
             upgradeAuthority,
             requireTransferApproval: bits[32 + 64],
             requireUpdateApproval: bits[32 + 64 + 1],
-            requireSaleApproval: bits[32 + 64 + 2],
-            requireBuyApproval: bits[32 + 64 + 3],
-            requireCreatorSignatureToUpgradeCollection: bits[32 + 64 + 4],
-            requireCreatorSignatureToUpgradeNFT: bits[32 + 64 + 5],
-            canMint: bits[32 + 64 + 6],
-            canChangeName: bits[32 + 64 + 7],
-            canChangeCreator: bits[32 + 64 + 8],
-            canChangeBaseUri: bits[32 + 64 + 9],
-            canChangeRoyalty: bits[32 + 64 + 10],
-            canChangeTransferFee: bits[32 + 64 + 11],
-            canSetAdmin: bits[32 + 64 + 12],
-            canPause: bits[32 + 64 + 13],
-            isPaused: bits[32 + 64 + 14],
+            requireOfferApproval: bits[32 + 64 + 2],
+            requireSaleApproval: bits[32 + 64 + 3],
+            requireBuyApproval: bits[32 + 64 + 4],
+            requireCreatorSignatureToUpgradeCollection: bits[32 + 64 + 5],
+            requireCreatorSignatureToUpgradeNFT: bits[32 + 64 + 6],
+            canMint: bits[32 + 64 + 7],
+            canChangeName: bits[32 + 64 + 8],
+            canChangeCreator: bits[32 + 64 + 9],
+            canChangeBaseUri: bits[32 + 64 + 10],
+            canChangeRoyalty: bits[32 + 64 + 11],
+            canChangeTransferFee: bits[32 + 64 + 12],
+            canSetAdmin: bits[32 + 64 + 13],
+            canPause: bits[32 + 64 + 14],
+            isPaused: bits[32 + 64 + 15],
         });
     }
 }

@@ -1,6 +1,16 @@
 import { Field, Option, Bool } from "o1js";
-import { IndexedMapSerialized } from "../indexed-map/indexed-map.js";
+import { IndexedMapSerialized, IndexedMapSerializedJson } from "../indexed-map/indexed-map.js";
 import { Storage, IpfsHash } from "../storage/storage.js";
+export interface OffchainMapSerialized extends IndexedMapSerializedJson {
+    [key: string]: {
+        map: IndexedMapSerialized;
+        list: {
+            key: string;
+            value?: string;
+        }[];
+        data?: object;
+    };
+}
 declare const OffchainMap_base: typeof import("node_modules/o1js/dist/node/lib/provable/merkle-tree-indexed.js").IndexedMerkleMapBase;
 /** Represents the Offchain Map using an Indexed Merkle Map. */
 export declare class OffchainMap extends OffchainMap_base {
@@ -222,17 +232,11 @@ export declare class OffChainListBase extends OffChainListBase_base {
             key: string;
             value?: number;
         }[];
+        name?: string;
         data?: object;
     }): Promise<{
         listBase: OffChainListBase;
-        json: {
-            map: IndexedMapSerialized;
-            list: {
-                key: string;
-                value?: string;
-            }[];
-            data?: object;
-        };
+        json: OffchainMapSerialized;
     }>;
     toString(): string;
     static fromString(str: string): OffChainListBase;
@@ -336,7 +340,12 @@ export declare class OffChainList extends OffChainList_base {
         timeout?: number;
         attempts?: number;
         auth?: string;
-    }): Promise<OffChainList>;
+        pin?: boolean;
+        json?: OffchainMapSerialized;
+    }): Promise<{
+        list: OffChainList;
+        json: OffchainMapSerialized;
+    }>;
     toString(): string;
     static fromString(str: string): OffChainList;
 }

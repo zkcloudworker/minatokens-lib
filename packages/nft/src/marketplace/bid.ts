@@ -14,7 +14,7 @@ import {
   Poseidon,
   Provable,
 } from "o1js";
-import { Whitelist, OffChainList } from "@minatokens/storage";
+import { Whitelist, OffChainList, Storage } from "@minatokens/storage";
 import { Collection } from "../contracts.js";
 
 export class NFTAddress extends Struct({
@@ -31,33 +31,69 @@ class SellEvent extends Struct({
 class DepositEvent extends Struct({
   buyer: PublicKey,
   amount: UInt64,
+  maxPoints: UInt64,
 }) {}
 
 class WithdrawEvent extends Struct({
   buyer: PublicKey,
   amount: UInt64,
+  maxPoints: UInt64,
 }) {}
 
 class BidEvent extends Struct({
-  bids: OffChainList,
+  bids: Field,
+  whitelist: Field,
+  storage: Storage,
 }) {}
+
+export class Bid extends Struct({
+  price: UInt64,
+  points: UInt64,
+}) {
+  pack() {
+    return Field.fromBits([
+      ...this.price.value.toBits(64),
+      ...this.points.value.toBits(64),
+    ]);
+  }
+  static unpack(field: Field): Bid {
+    const bits = field.toBits(64 + 64);
+    const price = UInt64.Unsafe.fromField(Field.fromBits(bits.slice(0, 64)));
+    const points = UInt64.Unsafe.fromField(
+      Field.fromBits(bits.slice(64, 64 + 64))
+    );
+    return new Bid({
+      price,
+      points,
+    });
+  }
+}
 
 export interface NonFungibleTokenBidContractDeployProps
   extends Exclude<DeployArgs, undefined> {
   /** The whitelist. */
-  whitelist: Whitelist;
+  whitelist: Field;
   /** The offers. */
-  bids: OffChainList;
+  bids: Field;
+  /** The storage. */
+  storage: Storage;
 }
 export class NonFungibleTokenBidContract extends SmartContract {
   @state(PublicKey) buyer = State<PublicKey>();
-  @state(Whitelist) whitelist = State<Whitelist>();
-  @state(OffChainList) bids = State<OffChainList>();
+  @state(Field) whitelist = State<Field>();
+  @state(Field) bids = State<Field>();
+  @state(Storage) storage = State<Storage>();
+  @state(UInt64) maxPoints = State<UInt64>();
+  // We do not have concurrency here, but given that it is a single-user contract,
+  // we can use state to track the points that have been consumed
+  // In case of concurrency, we can use the tokens to track the points
+  @state(UInt64) consumedPoints = State<UInt64>();
 
   async deploy(args: NonFungibleTokenBidContractDeployProps) {
     await super.deploy(args);
     this.whitelist.set(args.whitelist);
     this.bids.set(args.bids);
+    this.storage.set(args.storage);
     this.account.permissions.set({
       ...Permissions.default(),
       send: Permissions.proof(),
@@ -72,10 +108,10 @@ export class NonFungibleTokenBidContract extends SmartContract {
     withdraw: WithdrawEvent,
     sell: SellEvent,
     updateWhitelist: Whitelist,
-    bid: OffChainList,
+    bid: BidEvent,
   };
 
-  @method async initialize(amount: UInt64) {
+  @method async initialize(amount: UInt64, maxPoints: UInt64) {
     this.account.provedState.requireEquals(Bool(false));
 
     const buyer = this.sender.getUnconstrained();
@@ -86,13 +122,18 @@ export class NonFungibleTokenBidContract extends SmartContract {
     buyerUpdate.body.useFullCommitment = Bool(true);
 
     this.buyer.set(buyer);
-    this.emitEvent("deposit", {
-      buyer,
-      amount,
-    });
+    this.maxPoints.set(maxPoints);
+    this.emitEvent(
+      "deposit",
+      new DepositEvent({
+        buyer,
+        amount,
+        maxPoints,
+      })
+    );
   }
 
-  @method async deposit(amount: UInt64) {
+  @method async deposit(amount: UInt64, maxPoints: UInt64) {
     amount.equals(UInt64.from(0)).assertFalse();
 
     const sender = this.sender.getUnconstrained();
@@ -102,13 +143,19 @@ export class NonFungibleTokenBidContract extends SmartContract {
     buyerUpdate.send({ to: this.address, amount });
     buyerUpdate.body.useFullCommitment = Bool(true);
 
-    this.emitEvent("deposit", {
-      buyer,
-      amount,
-    });
+    this.maxPoints.set(maxPoints);
+
+    this.emitEvent(
+      "deposit",
+      new DepositEvent({
+        buyer,
+        amount,
+        maxPoints,
+      })
+    );
   }
 
-  @method async withdraw(amount: UInt64) {
+  @method async withdraw(amount: UInt64, maxPoints: UInt64) {
     amount.equals(UInt64.from(0)).assertFalse();
     this.account.balance.requireBetween(amount, UInt64.MAXINT());
 
@@ -120,46 +167,75 @@ export class NonFungibleTokenBidContract extends SmartContract {
 
     let bidUpdate = this.send({ to: senderUpdate, amount });
     bidUpdate.body.useFullCommitment = Bool(true);
-    this.emitEvent("withdraw", {
-      buyer,
-      amount,
-    });
+    this.maxPoints.set(maxPoints);
+    this.emitEvent(
+      "withdraw",
+      new WithdrawEvent({
+        buyer,
+        amount,
+        maxPoints,
+      })
+    );
   }
 
   @method async sell(nftAddress: NFTAddress, price: UInt64) {
     await this._sell(nftAddress, price);
     const buyer = this.buyer.getAndRequireEquals();
     const collection = new Collection(nftAddress.collection);
-    await collection.transfer(nftAddress.nft, buyer);
+    await collection.sell(nftAddress.nft, price, buyer);
   }
 
   @method async sellWithApproval(nftAddress: NFTAddress, price: UInt64) {
     await this._sell(nftAddress, price);
     const buyer = this.buyer.getAndRequireEquals();
     const collection = new Collection(nftAddress.collection);
-    await collection.transferWithApproval(nftAddress.nft, buyer);
+    await collection.sellWithApproval(nftAddress.nft, price, buyer);
   }
 
   async _sell(nftAddress: NFTAddress, price: UInt64) {
     price.equals(UInt64.from(0)).assertFalse();
     const key = Poseidon.hashPacked(NFTAddress, nftAddress);
-    const bids = this.bids.getAndRequireEquals();
-    const bid = await bids.getValue(key);
-    const bidField = bid.assertSome("bid not found");
+    const storage = this.storage.getAndRequireEquals();
+    const bids = new OffChainList({
+      root: this.bids.getAndRequireEquals(),
+      storage,
+    });
+    const bid = Bid.unpack(
+      (await bids.getValue(key, "bids")).assertSome("bid not found")
+    );
+
     // We do not require the price to be equal to the bid price,
     // because the price can be lower than the bid price
     // and the seller can still willing to sell the NFT
     // as the deposit remaining is less than bid price
-    price.value.assertLessThanOrEqual(bidField, "price is too high");
+    price.assertLessThanOrEqual(bid.price, "price is too high");
     this.account.balance.requireBetween(price, UInt64.MAXINT());
 
-    const seller = this.sender.getUnconstrained();
-    const sellerUpdate = this.send({ to: seller, amount: price });
-    sellerUpdate.body.useFullCommitment = Bool(true);
-    sellerUpdate.requireSignature();
+    const consumedPoints = this.consumedPoints.getAndRequireEquals();
+    const maxPoints = this.maxPoints.getAndRequireEquals();
+    const newConsumedPoints = consumedPoints.add(bid.points);
+    newConsumedPoints.assertLessThanOrEqual(
+      maxPoints,
+      "consumed points exceed max points"
+    );
+    this.consumedPoints.set(newConsumedPoints);
 
-    const whitelist = this.whitelist.getAndRequireEquals();
-    const whitelistedAmount = await whitelist.getWhitelistedAmount(seller);
+    const seller = this.sender.getUnconstrained();
+    const sellerUpdate = AccountUpdate.createSigned(seller);
+    sellerUpdate.balance.addInPlace(price);
+    this.self.balance.subInPlace(price);
+    sellerUpdate.body.useFullCommitment = Bool(true);
+
+    const whitelist = new Whitelist({
+      list: new OffChainList({
+        root: this.whitelist.getAndRequireEquals(),
+        storage,
+      }),
+    });
+    const whitelistedAmount = await whitelist.getWhitelistedAmount(
+      seller,
+      "whitelist"
+    );
     const whitelistDisabled = whitelist.isNone();
     whitelistedAmount.isSome
       .or(whitelistDisabled)
@@ -174,25 +250,17 @@ export class NonFungibleTokenBidContract extends SmartContract {
       "price is higher than whitelisted price"
     );
 
-    this.emitEvent("sell", {
-      collection: nftAddress.collection,
-      nft: nftAddress.nft,
-      price,
-    });
+    this.emitEvent(
+      "sell",
+      new SellEvent({
+        collection: nftAddress.collection,
+        nft: nftAddress.nft,
+        price,
+      })
+    );
   }
 
-  @method async updateWhitelist(whitelist: Whitelist) {
-    const buyer = this.buyer.getAndRequireEquals();
-    const sender = this.sender.getUnconstrained();
-    const senderUpdate = AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = Bool(true);
-    sender.assertEquals(buyer);
-
-    this.whitelist.set(whitelist);
-    this.emitEvent("updateWhitelist", whitelist);
-  }
-
-  @method async bid(bids: OffChainList) {
+  @method async bid(bids: Field, whitelist: Field, storage: Storage) {
     const buyer = this.buyer.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
     const senderUpdate = AccountUpdate.createSigned(sender);
@@ -200,6 +268,8 @@ export class NonFungibleTokenBidContract extends SmartContract {
     sender.assertEquals(buyer);
 
     this.bids.set(bids);
-    this.emitEvent("bid", bids);
+    this.whitelist.set(whitelist);
+    this.storage.set(storage);
+    this.emitEvent("bid", new BidEvent({ bids, whitelist, storage }));
   }
 }

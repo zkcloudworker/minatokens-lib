@@ -1097,7 +1097,7 @@ async function buildTokenLaunchTransaction(params) {
   if (!import_o1js7.Mina.hasAccount(sender)) {
     throw new Error("Sender does not have account");
   }
-  const whitelist = "whitelist" in args && args.whitelist ? typeof args.whitelist === "string" ? import_storage4.Whitelist.fromString(args.whitelist) : await import_storage4.Whitelist.create({ list: args.whitelist, name: symbol }) : import_storage4.Whitelist.empty();
+  const whitelist = "whitelist" in args && args.whitelist ? typeof args.whitelist === "string" ? import_storage4.Whitelist.fromString(args.whitelist) : (await import_storage4.Whitelist.create({ list: args.whitelist, name: symbol })).whitelist : import_storage4.Whitelist.empty();
   const tokenAddress = import_o1js7.PublicKey.fromBase58(args.tokenAddress);
   const adminContractAddress = import_o1js7.PublicKey.fromBase58(args.adminContractAddress);
   const zkToken = new tokenContract(tokenAddress);
@@ -1212,7 +1212,7 @@ async function buildTokenTransaction(params) {
   if ((txType === "updateAdminWhitelist" || txType === "updateBidWhitelist" || txType === "updateOfferWhitelist") && !args.whitelist) {
     throw new Error("Whitelist is required");
   }
-  const whitelist = "whitelist" in args && args.whitelist ? typeof args.whitelist === "string" ? import_storage4.Whitelist.fromString(args.whitelist) : await import_storage4.Whitelist.create({ list: args.whitelist, name: symbol }) : import_storage4.Whitelist.empty();
+  const whitelist = "whitelist" in args && args.whitelist ? typeof args.whitelist === "string" ? import_storage4.Whitelist.fromString(args.whitelist) : (await import_storage4.Whitelist.create({ list: args.whitelist, name: symbol })).whitelist : import_storage4.Whitelist.empty();
   const zkToken = new tokenContract(tokenAddress);
   const tokenId = zkToken.deriveTokenId();
   if (txType === "mint" && isAdvanced === false && adminAddress.toBase58() !== sender.toBase58())

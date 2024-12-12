@@ -96,12 +96,14 @@ export class OffChainListBase extends Struct({
         }
         const serializedMap = serializeIndexedMap(map);
         const json = {
-            map: serializedMap,
-            list: list.map((item) => ({
-                key: item.key.toJSON(),
-                value: item.value?.toJSON(),
-            })),
-            data: params.data,
+            [params.name ?? "offchain-map"]: {
+                map: serializedMap,
+                list: list.map((item) => ({
+                    key: item.key.toJSON(),
+                    value: item.value?.toJSON(),
+                })),
+                data: params.data,
+            },
         };
         return {
             listBase: new OffChainListBase({
@@ -185,37 +187,51 @@ export class OffChainList extends Struct({
      * @returns A new `OffChainList` instance.
      */
     static async create(params) {
-        const { name = "offchain-map", filename = "offchain-list.json", keyvalues, timeout = 60 * 1000, attempts = 5, auth, } = params;
-        const { listBase, json } = await OffChainListBase.create({
+        const { name = "offchain-map", filename = "offchain-list.json", keyvalues, timeout = 60 * 1000, attempts = 5, auth, pin = true, json: initialJson = {}, } = params;
+        const { listBase, json: newJson } = await OffChainListBase.create({
             list: params.list,
             data: params.data,
+            name,
         });
-        let attempt = 0;
-        const start = Date.now();
+        const json = { ...initialJson, ...newJson };
         if (process.env.DEBUG === "true")
             console.log("OffChainList.create:", { json, name, keyvalues });
-        let hash = await pinJSON({
-            data: json,
-            name: filename,
-            keyvalues,
-            auth,
-        });
-        while (!hash && attempt < attempts && Date.now() - start < timeout) {
-            attempt++;
-            await sleep(5000 * attempt); // handle rate-limits
-            hash = await pinJSON({
+        if (pin) {
+            let attempt = 0;
+            const start = Date.now();
+            let hash = await pinJSON({
                 data: json,
-                name,
+                name: filename,
                 keyvalues,
                 auth,
             });
+            while (!hash && attempt < attempts && Date.now() - start < timeout) {
+                attempt++;
+                await sleep(5000 * attempt); // handle rate-limits
+                hash = await pinJSON({
+                    data: json,
+                    name,
+                    keyvalues,
+                    auth,
+                });
+            }
+            if (!hash)
+                throw new Error("Failed to pin OffchainMap");
+            return {
+                list: new OffChainList({
+                    root: listBase.root,
+                    storage: Storage.fromString(hash),
+                }),
+                json,
+            };
         }
-        if (!hash)
-            throw new Error("Failed to pin whitelist");
-        return new OffChainList({
-            root: listBase.root,
-            storage: Storage.fromString(hash),
-        });
+        return {
+            list: new OffChainList({
+                root: listBase.root,
+                storage: Storage.empty(),
+            }),
+            json,
+        };
     }
     toString() {
         return JSON.stringify({ root: this.root.toJSON(), storage: this.storage.toString() }, null, 2);

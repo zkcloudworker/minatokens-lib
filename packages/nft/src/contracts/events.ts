@@ -1,11 +1,13 @@
 import { PublicKey, Struct, UInt64, UInt32, Field, Bool } from "o1js";
-import { Storage, NFTStateStruct } from "./types.js";
+import { Storage } from "@minatokens/storage";
+import { NFTStateStruct } from "./types.js";
 
 export {
   MintEvent,
   UpdateEvent,
   TransferEvent,
-  SellEvent,
+  OfferEvent,
+  SaleEvent,
   BuyEvent,
   UpgradeVerificationKeyEvent,
   LimitMintingEvent,
@@ -69,7 +71,7 @@ class PauseNFTEvent extends Struct({
 /**
  * Emitted when an NFT is listed for sale.
  */
-class SellEvent extends Struct({
+class OfferEvent extends Struct({
   /** The public key of the seller listing the NFT for sale. */
   seller: PublicKey,
   /** The price at which the NFT is listed for sale. */
@@ -78,6 +80,20 @@ class SellEvent extends Struct({
   address: PublicKey,
   /** The version number of the NFT state at the time of listing. */
   version: UInt32,
+}) {}
+
+/**
+ * Emitted when an NFT is sold to a buyer
+ */
+class SaleEvent extends Struct({
+  /** The public key of the seller. */
+  seller: PublicKey,
+  /** The public key of the bidder. */
+  buyer: PublicKey,
+  /** The price at which the NFT is listed for sale. */
+  price: UInt64,
+  /** The public key address of the NFT being sold. */
+  address: PublicKey,
 }) {}
 
 /**

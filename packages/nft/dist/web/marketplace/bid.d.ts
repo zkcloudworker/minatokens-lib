@@ -1,5 +1,5 @@
 import { DeployArgs, PublicKey, State, UInt64, SmartContract, Bool, Field } from "o1js";
-import { Whitelist, OffChainList } from "@minatokens/storage";
+import { Whitelist, Storage } from "@minatokens/storage";
 declare const NFTAddress_base: (new (value: {
     collection: PublicKey;
     nft: PublicKey;
@@ -150,24 +150,29 @@ declare class SellEvent extends SellEvent_base {
 declare const DepositEvent_base: (new (value: {
     buyer: PublicKey;
     amount: UInt64;
+    maxPoints: UInt64;
 }) => {
     buyer: PublicKey;
     amount: UInt64;
+    maxPoints: UInt64;
 }) & {
     _isStruct: true;
 } & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
     buyer: PublicKey;
     amount: UInt64;
+    maxPoints: UInt64;
 }, {
     buyer: {
         x: bigint;
         isOdd: boolean;
     };
     amount: bigint;
+    maxPoints: bigint;
 }>, "fromFields"> & {
     fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
 } & {
     fromValue: (value: {
@@ -176,13 +181,16 @@ declare const DepositEvent_base: (new (value: {
             isOdd: Bool | boolean;
         };
         amount: bigint | UInt64;
+        maxPoints: bigint | UInt64;
     }) => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
     toInput: (x: {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     }) => {
         fields?: Field[] | undefined;
         packed?: [Field, number][] | undefined;
@@ -190,20 +198,25 @@ declare const DepositEvent_base: (new (value: {
     toJSON: (x: {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     }) => {
         buyer: string;
         amount: string;
+        maxPoints: string;
     };
     fromJSON: (x: {
         buyer: string;
         amount: string;
+        maxPoints: string;
     }) => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
     empty: () => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
 };
 declare class DepositEvent extends DepositEvent_base {
@@ -211,24 +224,29 @@ declare class DepositEvent extends DepositEvent_base {
 declare const WithdrawEvent_base: (new (value: {
     buyer: PublicKey;
     amount: UInt64;
+    maxPoints: UInt64;
 }) => {
     buyer: PublicKey;
     amount: UInt64;
+    maxPoints: UInt64;
 }) & {
     _isStruct: true;
 } & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
     buyer: PublicKey;
     amount: UInt64;
+    maxPoints: UInt64;
 }, {
     buyer: {
         x: bigint;
         isOdd: boolean;
     };
     amount: bigint;
+    maxPoints: bigint;
 }>, "fromFields"> & {
     fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
 } & {
     fromValue: (value: {
@@ -237,13 +255,16 @@ declare const WithdrawEvent_base: (new (value: {
             isOdd: Bool | boolean;
         };
         amount: bigint | UInt64;
+        maxPoints: bigint | UInt64;
     }) => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
     toInput: (x: {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     }) => {
         fields?: Field[] | undefined;
         packed?: [Field, number][] | undefined;
@@ -251,49 +272,191 @@ declare const WithdrawEvent_base: (new (value: {
     toJSON: (x: {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     }) => {
         buyer: string;
         amount: string;
+        maxPoints: string;
     };
     fromJSON: (x: {
         buyer: string;
         amount: string;
+        maxPoints: string;
     }) => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
     empty: () => {
         buyer: PublicKey;
         amount: UInt64;
+        maxPoints: UInt64;
     };
 };
 declare class WithdrawEvent extends WithdrawEvent_base {
 }
+declare const BidEvent_base: (new (value: {
+    bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    storage: Storage;
+}) => {
+    bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    storage: Storage;
+}) & {
+    _isStruct: true;
+} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
+    bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    storage: Storage;
+}, {
+    bids: bigint;
+    whitelist: bigint;
+    storage: {
+        url: bigint[];
+    };
+}>, "fromFields"> & {
+    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
+        bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage;
+    };
+} & {
+    fromValue: (value: {
+        bids: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage | {
+            url: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | bigint[];
+        };
+    }) => {
+        bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage;
+    };
+    toInput: (x: {
+        bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage;
+    }) => {
+        fields?: Field[] | undefined;
+        packed?: [Field, number][] | undefined;
+    };
+    toJSON: (x: {
+        bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage;
+    }) => {
+        bids: string;
+        whitelist: string;
+        storage: {
+            url: string[];
+        };
+    };
+    fromJSON: (x: {
+        bids: string;
+        whitelist: string;
+        storage: {
+            url: string[];
+        };
+    }) => {
+        bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage;
+    };
+    empty: () => {
+        bids: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        whitelist: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+        storage: Storage;
+    };
+};
+declare class BidEvent extends BidEvent_base {
+}
+declare const Bid_base: (new (value: {
+    price: UInt64;
+    points: UInt64;
+}) => {
+    price: UInt64;
+    points: UInt64;
+}) & {
+    _isStruct: true;
+} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
+    price: UInt64;
+    points: UInt64;
+}, {
+    price: bigint;
+    points: bigint;
+}>, "fromFields"> & {
+    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
+        price: UInt64;
+        points: UInt64;
+    };
+} & {
+    fromValue: (value: {
+        price: bigint | UInt64;
+        points: bigint | UInt64;
+    }) => {
+        price: UInt64;
+        points: UInt64;
+    };
+    toInput: (x: {
+        price: UInt64;
+        points: UInt64;
+    }) => {
+        fields?: Field[] | undefined;
+        packed?: [Field, number][] | undefined;
+    };
+    toJSON: (x: {
+        price: UInt64;
+        points: UInt64;
+    }) => {
+        price: string;
+        points: string;
+    };
+    fromJSON: (x: {
+        price: string;
+        points: string;
+    }) => {
+        price: UInt64;
+        points: UInt64;
+    };
+    empty: () => {
+        price: UInt64;
+        points: UInt64;
+    };
+};
+export declare class Bid extends Bid_base {
+    pack(): import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+    static unpack(field: Field): Bid;
+}
 export interface NonFungibleTokenBidContractDeployProps extends Exclude<DeployArgs, undefined> {
     /** The whitelist. */
-    whitelist: Whitelist;
+    whitelist: Field;
     /** The offers. */
-    bids: OffChainList;
+    bids: Field;
+    /** The storage. */
+    storage: Storage;
 }
 export declare class NonFungibleTokenBidContract extends SmartContract {
     buyer: State<PublicKey>;
-    whitelist: State<Whitelist>;
-    bids: State<OffChainList>;
+    whitelist: State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
+    bids: State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
+    storage: State<Storage>;
+    maxPoints: State<UInt64>;
+    consumedPoints: State<UInt64>;
     deploy(args: NonFungibleTokenBidContractDeployProps): Promise<void>;
     events: {
         deposit: typeof DepositEvent;
         withdraw: typeof WithdrawEvent;
         sell: typeof SellEvent;
         updateWhitelist: typeof Whitelist;
-        bid: typeof OffChainList;
+        bid: typeof BidEvent;
     };
-    initialize(amount: UInt64): Promise<void>;
-    deposit(amount: UInt64): Promise<void>;
-    withdraw(amount: UInt64): Promise<void>;
+    initialize(amount: UInt64, maxPoints: UInt64): Promise<void>;
+    deposit(amount: UInt64, maxPoints: UInt64): Promise<void>;
+    withdraw(amount: UInt64, maxPoints: UInt64): Promise<void>;
     sell(nftAddress: NFTAddress, price: UInt64): Promise<void>;
     sellWithApproval(nftAddress: NFTAddress, price: UInt64): Promise<void>;
     _sell(nftAddress: NFTAddress, price: UInt64): Promise<void>;
-    updateWhitelist(whitelist: Whitelist): Promise<void>;
-    bid(bids: OffChainList): Promise<void>;
+    bid(bids: Field, whitelist: Field, storage: Storage): Promise<void>;
 }
 export {};

@@ -38,7 +38,8 @@ import {
 import {
   MintEvent,
   TransferEvent,
-  SellEvent,
+  OfferEvent,
+  SaleEvent,
   BuyEvent,
   UpgradeVerificationKeyEvent,
   LimitMintingEvent,
@@ -200,10 +201,12 @@ function CollectionContract(params: {
       mint: MintEvent,
       update: PublicKey,
       transfer: TransferEvent,
-      sell: SellEvent,
+      offer: OfferEvent,
+      sale: SaleEvent,
       buy: BuyEvent,
       approveBuy: BuyEvent,
-      approveSell: SellEvent,
+      approveOffer: OfferEvent,
+      approveSale: SaleEvent,
       approveTransfer: TransferEvent,
       approveMint: MintEvent,
       approveUpdate: PublicKey,
@@ -552,10 +555,10 @@ function CollectionContract(params: {
      * @param address - The address of the NFT.
      * @param price - The price at which to list the NFT.
      */
-    @method async sell(address: PublicKey, price: UInt64): Promise<void> {
+    @method async offer(address: PublicKey, price: UInt64): Promise<void> {
       const collectionData = await this.ensureNotPaused();
-      collectionData.requireSaleApproval.assertFalse();
-      await this._sell(address, price);
+      collectionData.requireOfferApproval.assertFalse();
+      await this._offer(address, price);
     }
 
     /**
@@ -564,36 +567,35 @@ function CollectionContract(params: {
      * @param address - The address of the NFT.
      * @param price - The price at which to list the NFT.
      */
-    @method async sellWithApproval(
+    @method async offerWithApproval(
       address: PublicKey,
       price: UInt64
     ): Promise<void> {
       const collectionData = await this.ensureNotPaused();
-      collectionData.requireSaleApproval.assertTrue();
+      collectionData.requireOfferApproval.assertTrue();
 
-      const event = await this._sell(address, price);
+      const event = await this._offer(address, price);
       const adminContract = this.getAdminContract();
       const canSell = await adminContract.canSell(address, event.seller, price);
-      adminContract.self;
       canSell.assertTrue();
-      this.emitEvent("approveSell", event);
+      this.emitEvent("approveOffer", event);
     }
 
     /**
-     * Internal method to list an NFT for sale.
+     * Internal method to offer an NFT for sale.
      *
      * @param address - The address of the NFT.
      * @param price - The price at which to list the NFT.
-     * @returns The SellEvent emitted.
+     * @returns The OfferEvent emitted.
      */
-    async _sell(address: PublicKey, price: UInt64): Promise<SellEvent> {
+    async _offer(address: PublicKey, price: UInt64): Promise<OfferEvent> {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
       const seller = this.sender.getUnconstrained();
       const sellerUpdate = AccountUpdate.createSigned(seller);
       sellerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-      const event = await nft.sell(price, seller);
-      this.emitEvent("sell", event);
+      const event = await nft.offer(price, seller);
+      this.emitEvent("offer", event);
       return event;
     }
 
@@ -664,8 +666,15 @@ function CollectionContract(params: {
         price.div(100_000).mul(UInt64.from(royaltyFee))
       );
       const payment = price.sub(commission);
-
-      buyerUpdate.send({ to: event.seller, amount: payment });
+      const sellerUpdate = AccountUpdate.create(event.seller);
+      buyerUpdate.balance.subInPlace(payment);
+      sellerUpdate.balance.addInPlace(
+        Provable.if(
+          sellerUpdate.account.isNew.getAndRequireEquals(),
+          payment.sub(UInt64.from(1_000_000_000)),
+          payment
+        )
+      );
 
       // If the seller is not the creator, then send the commission to the creator
       const creatorUpdate = AccountUpdate.createIf(
@@ -676,6 +685,107 @@ function CollectionContract(params: {
       buyerUpdate.balance.subInPlace(commission);
       this.emitEvent("buy", event);
       return event;
+    }
+
+    /**
+     * Sells an NFT without admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param price - The price at which to purchase the NFT.
+     * @param to - The public key of the buyer.
+     */
+    @method async sell(
+      address: PublicKey,
+      price: UInt64,
+      buyer: PublicKey
+    ): Promise<void> {
+      const collectionData = await this.ensureNotPaused();
+      collectionData.requireSaleApproval.assertFalse();
+      await this._sell(address, price, buyer, collectionData.royaltyFee);
+    }
+
+    /**
+     * Sells an NFT with admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param price - The price at which to purchase the NFT.
+     * @param to - The public key of the buyer.
+     */
+    @method async sellWithApproval(
+      address: PublicKey,
+      price: UInt64,
+      buyer: PublicKey
+    ): Promise<void> {
+      const collectionData = await this.ensureNotPaused();
+      collectionData.requireSaleApproval.assertTrue();
+
+      const event = await this._sell(
+        address,
+        price,
+        buyer,
+        collectionData.royaltyFee
+      );
+      const adminContract = this.getAdminContract();
+      // The admin contract checks the same info in case of buy and sale methods
+      // so we can use the same method canBuy()
+      const canSell = await adminContract.canBuy(
+        address,
+        event.seller,
+        buyer,
+        price
+      );
+      canSell.assertTrue();
+      this.emitEvent("approveSale", event);
+    }
+
+    /**
+     * Internal method to purchase an NFT.
+     *
+     * @param address - The address of the NFT.
+     * @param price - The price at which to purchase the NFT.
+     * @param royaltyFee - The royalty fee percentage.
+     * @returns The BuyEvent emitted.
+     */
+    async _sell(
+      address: PublicKey,
+      price: UInt64,
+      buyer: PublicKey,
+      royaltyFee: UInt32
+    ): Promise<SaleEvent> {
+      royaltyFee.assertLessThanOrEqual(UInt32.from(100_000)); // Max 100%
+      const creator = this.creator.getAndRequireEquals();
+      const seller = this.sender.getUnconstrained();
+      const sellerUpdate = AccountUpdate.createSigned(seller);
+      sellerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
+
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const oldOwner = await nft.transfer(seller, buyer);
+      oldOwner.assertEquals(seller);
+
+      // If the seller is the creator, then the commission is 0
+      const isSellerCreator = seller.equals(creator);
+      const commission = Provable.if(
+        isSellerCreator,
+        UInt64.zero,
+        price.div(100_000).mul(UInt64.from(royaltyFee))
+      );
+
+      // If the seller is not the creator, then send the commission to the creator
+      const creatorUpdate = AccountUpdate.createIf(
+        isSellerCreator.not(),
+        creator
+      );
+      creatorUpdate.balance.addInPlace(commission);
+      sellerUpdate.balance.subInPlace(commission);
+      const saleEvent = new SaleEvent({
+        seller,
+        buyer,
+        price,
+        address,
+      });
+      this.emitEvent("sale", saleEvent);
+      return saleEvent;
     }
 
     /**

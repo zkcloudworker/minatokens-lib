@@ -1,6 +1,7 @@
 import { PublicKey, UInt64, UInt32, Field, Bool } from "o1js";
-import { Storage, NFTStateStruct } from "./types.js";
-export { MintEvent, UpdateEvent, TransferEvent, SellEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, };
+import { Storage } from "@minatokens/storage";
+import { NFTStateStruct } from "./types.js";
+export { MintEvent, UpdateEvent, TransferEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, };
 declare const MintEvent_base: (new (value: {
     initialState: NFTStateStruct;
     address: PublicKey;
@@ -410,7 +411,7 @@ declare const PauseNFTEvent_base: (new (value: {
  */
 declare class PauseNFTEvent extends PauseNFTEvent_base {
 }
-declare const SellEvent_base: (new (value: {
+declare const OfferEvent_base: (new (value: {
     seller: PublicKey;
     price: UInt64;
     address: PublicKey;
@@ -504,7 +505,109 @@ declare const SellEvent_base: (new (value: {
 /**
  * Emitted when an NFT is listed for sale.
  */
-declare class SellEvent extends SellEvent_base {
+declare class OfferEvent extends OfferEvent_base {
+}
+declare const SaleEvent_base: (new (value: {
+    seller: PublicKey;
+    buyer: PublicKey;
+    price: UInt64;
+    address: PublicKey;
+}) => {
+    seller: PublicKey;
+    buyer: PublicKey;
+    price: UInt64;
+    address: PublicKey;
+}) & {
+    _isStruct: true;
+} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
+    seller: PublicKey;
+    buyer: PublicKey;
+    price: UInt64;
+    address: PublicKey;
+}, {
+    seller: {
+        x: bigint;
+        isOdd: boolean;
+    };
+    buyer: {
+        x: bigint;
+        isOdd: boolean;
+    };
+    price: bigint;
+    address: {
+        x: bigint;
+        isOdd: boolean;
+    };
+}>, "fromFields"> & {
+    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
+        seller: PublicKey;
+        buyer: PublicKey;
+        price: UInt64;
+        address: PublicKey;
+    };
+} & {
+    fromValue: (value: {
+        seller: PublicKey | {
+            x: Field | bigint;
+            isOdd: Bool | boolean;
+        };
+        buyer: PublicKey | {
+            x: Field | bigint;
+            isOdd: Bool | boolean;
+        };
+        price: bigint | UInt64;
+        address: PublicKey | {
+            x: Field | bigint;
+            isOdd: Bool | boolean;
+        };
+    }) => {
+        seller: PublicKey;
+        buyer: PublicKey;
+        price: UInt64;
+        address: PublicKey;
+    };
+    toInput: (x: {
+        seller: PublicKey;
+        buyer: PublicKey;
+        price: UInt64;
+        address: PublicKey;
+    }) => {
+        fields?: Field[] | undefined;
+        packed?: [Field, number][] | undefined;
+    };
+    toJSON: (x: {
+        seller: PublicKey;
+        buyer: PublicKey;
+        price: UInt64;
+        address: PublicKey;
+    }) => {
+        seller: string;
+        buyer: string;
+        price: string;
+        address: string;
+    };
+    fromJSON: (x: {
+        seller: string;
+        buyer: string;
+        price: string;
+        address: string;
+    }) => {
+        seller: PublicKey;
+        buyer: PublicKey;
+        price: UInt64;
+        address: PublicKey;
+    };
+    empty: () => {
+        seller: PublicKey;
+        buyer: PublicKey;
+        price: UInt64;
+        address: PublicKey;
+    };
+};
+/**
+ * Emitted when an NFT is sold to a buyer
+ */
+declare class SaleEvent extends SaleEvent_base {
 }
 declare const BuyEvent_base: (new (value: {
     seller: PublicKey;

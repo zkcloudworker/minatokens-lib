@@ -53,7 +53,7 @@ export class Whitelist extends Struct({
      * @returns A new `Whitelist` instance.
      */
     static async create(params) {
-        const { name = "whitelist", filename = "whitelist.json", keyvalues, timeout, attempts, auth, } = params;
+        const { name = "whitelist", filename = "whitelist.json", keyvalues, timeout, attempts, auth, pin = true, json: initialJson = {}, } = params;
         function parseAddress(address) {
             return typeof address === "string"
                 ? PublicKey.fromBase58(address)
@@ -68,7 +68,7 @@ export class Whitelist extends Struct({
             address: parseAddress(item.address),
             amount: parseAmount(item.amount),
         }));
-        const list = await OffChainList.create({
+        const { list, json } = await OffChainList.create({
             list: entries.map((item) => ({
                 key: Poseidon.hashPacked(PublicKey, item.address),
                 value: item.amount.value,
@@ -83,8 +83,10 @@ export class Whitelist extends Struct({
             timeout,
             attempts,
             auth,
+            pin,
+            json: initialJson,
         });
-        return new Whitelist({ list });
+        return { whitelist: new Whitelist({ list }), json };
     }
     toString() {
         return this.list.toString();
