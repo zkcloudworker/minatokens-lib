@@ -97,7 +97,9 @@ export class Whitelist extends Struct({
     }
     function parseAmount(amount?: number | UInt64): UInt64 {
       if (amount === undefined) return UInt64.zero;
-      return typeof amount === "number" ? UInt64.from(amount) : amount;
+      return typeof amount === "number"
+        ? UInt64.from(Math.round(amount))
+        : amount;
     }
 
     const entries: { address: PublicKey; amount: UInt64 }[] = params.list.map(
