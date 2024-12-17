@@ -127,41 +127,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/NFTRequestAnswer"
         "400":
-          description: Bad request - invalid input parameters.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequest"
         "401":
-          description: Unauthorized - user not authenticated.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          description: Forbidden - user doesn't have permission.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/Forbidden"
         "429":
-          description: Too many requests.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/TooManyRequests"
         "500":
-          description: Internal server error - something went wrong during deployment.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/InternalServerError"
         "503":
-          description: Service unavailable - blockchain or other external service is down.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServiceUnavailable"
   /faucet:
     post:
       tags:
@@ -237,7 +213,7 @@ paths:
                 tokenAddress:
                   type: string
                   description: The address of the token contract.
-                  example: B62qpFzLKkGKMZcmY6wrbyn8Sf9sWUT1HG4omSbvFKH2nXSNjCoQ6Xs
+                  example: B62qphSRYqif9bPjw4Kg2G3CA7V7NzHqtpRzeXkY164n3C9jXqGAfkA
             examples:
               getTokenInfoRequest:
                 summary: Example of an info request
@@ -339,6 +315,7 @@ paths:
                   summary: Example of a successful balance response
                   value:
                     tokenAddress: B62qouKMtMcUxabk72vwZS7tY3XYEca1CPKgXPfznCHUiVjP9E6xxQz
+                    tokenId: xJweNxCErRwi5DfHCw7pAmTNioKxDGqHxDmRifXE6bLqPzHtHm
                     address: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
                     balance: null
         "400":
@@ -1392,21 +1369,29 @@ components:
     BalanceRequestParams:
       type: object
       required:
-        - tokenAddress
         - address
       properties:
         tokenAddress:
           type: string
-          description: The address of the token contract.
+          description: The address of the token contract (optional).
+        tokenId:
+          type: string
+          description: The token ID (optional).
         address:
           type: string
-          description: The Mina address (public key) for which to retrieve the balance.
+          description: The Mina address for which to retrieve the balance.
     BalanceResponse:
       type: object
+      required:
+        - address
+        - balance
       properties:
         tokenAddress:
           type: string
-          description: The address of the token contract.
+          description: The address of the token contract (optional).
+        tokenId:
+          type: string
+          description: The token ID (optional).
         address:
           type: string
           description: The Mina address for which the balance was requested.
@@ -2574,5 +2559,42 @@ components:
           items:
             $ref: "#/components/schemas/TokenTransaction"
           description: List of token transactions created for the airdrop.
+  responses:
+    BadRequest:
+      description: Bad request - invalid input parameters.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Unauthorized - user not authenticated.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Forbidden - user doesn't have permission.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    TooManyRequests:
+      description: Too many requests.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: Internal server error - something went wrong during the request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServiceUnavailable:
+      description: Service unavailable - blockchain or other external service is down.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
 security:
   - ApiKeyAuth: []

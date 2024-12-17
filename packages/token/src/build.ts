@@ -164,17 +164,17 @@ export async function buildTokenLaunchTransaction(params: {
     ? PublicKey.fromBase58(params.provingKey)
     : sender;
   const provingFee = params.provingFee
-    ? UInt64.from(params.provingFee)
+    ? UInt64.from(Math.round(params.provingFee))
     : undefined;
   const developerFee = args.developerFee
-    ? UInt64.from(args.developerFee)
+    ? UInt64.from(Math.round(args.developerFee))
     : undefined;
   const developerAddress = params.developerAddress
     ? PublicKey.fromBase58(params.developerAddress)
     : undefined;
   const totalSupply =
     "totalSupply" in args && args.totalSupply
-      ? UInt64.from(args.totalSupply)
+      ? UInt64.from(Math.round(args.totalSupply))
       : UInt64.MAXINT();
   const requireAdminSignatureForMint =
     "requireAdminSignatureForMint" in args && args.requireAdminSignatureForMint
@@ -184,7 +184,7 @@ export async function buildTokenLaunchTransaction(params: {
     "canMint" in args && args.canMint
       ? Bool(args.canMint === "anyone")
       : Bool(false);
-  const decimals = UInt8.from(args.decimals ?? 9);
+  const decimals = UInt8.from(args.decimals ? Math.round(args.decimals) : 9);
 
   const tx = await Mina.transaction(
     { sender, fee, memo: memo ?? `launch ${symbol}`, nonce },
@@ -356,8 +356,10 @@ export async function buildTokenTransaction(params: {
   )
     throw new Error("To address is required");
 
-  const amount = "amount" in args ? UInt64.from(args.amount) : undefined;
-  const price = "price" in args ? UInt64.from(args.price) : undefined;
+  const amount =
+    "amount" in args ? UInt64.from(Math.round(args.amount)) : undefined;
+  const price =
+    "price" in args ? UInt64.from(Math.round(args.price)) : undefined;
 
   await fetchMinaAccount({
     publicKey: sender,
@@ -389,10 +391,10 @@ export async function buildTokenTransaction(params: {
     ? PublicKey.fromBase58(params.provingKey)
     : sender;
   const provingFee = params.provingFee
-    ? UInt64.from(params.provingFee)
+    ? UInt64.from(Math.round(params.provingFee))
     : undefined;
   const developerFee = args.developerFee
-    ? UInt64.from(args.developerFee)
+    ? UInt64.from(Math.round(args.developerFee))
     : undefined;
   const developerAddress = params.developerAddress
     ? PublicKey.fromBase58(params.developerAddress)
