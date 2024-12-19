@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/storage",
   "description": "MinaTokens Storage Library",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "dependencies": {

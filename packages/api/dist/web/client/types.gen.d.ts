@@ -519,6 +519,10 @@ export type TokenState = {
     adminVersion: number;
 };
 export type TokenTransaction = TransactionPayloads & {
+    /**
+     * The symbol of the token.
+     */
+    symbol: string;
     request: (TokenTransactionParams & {
         /**
          * The type of the transaction.
