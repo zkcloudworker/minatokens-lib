@@ -672,7 +672,7 @@ var Whitelist = class _Whitelist extends (0, import_o1js5.Struct)({
     function parseAmount(amount) {
       if (amount === void 0)
         return import_o1js5.UInt64.zero;
-      return typeof amount === "number" ? import_o1js5.UInt64.from(amount) : amount;
+      return typeof amount === "number" ? import_o1js5.UInt64.from(Math.round(amount)) : amount;
     }
     const entries = params.list.map((item) => ({
       address: parseAddress(item.address),

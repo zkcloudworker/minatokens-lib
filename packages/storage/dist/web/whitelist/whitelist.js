@@ -62,7 +62,9 @@ export class Whitelist extends Struct({
         function parseAmount(amount) {
             if (amount === undefined)
                 return UInt64.zero;
-            return typeof amount === "number" ? UInt64.from(amount) : amount;
+            return typeof amount === "number"
+                ? UInt64.from(Math.round(amount))
+                : amount;
         }
         const entries = params.list.map((item) => ({
             address: parseAddress(item.address),

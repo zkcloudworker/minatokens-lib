@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.6.0"
+  version: "0.9.0"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -1102,8 +1102,8 @@ components:
         - "token:transfer"
         - "token:bid:create"
         - "token:offer:create"
-        - "token:bid:buy"
-        - "token:offer:sell"
+        - "token:offer:buy"
+        - "token:bid:sell"
         - "token:airdrop"
         - "token:bid:withdraw"
         - "token:offer:withdraw"
@@ -1336,8 +1336,8 @@ components:
             txType:
               type: string
               enum:
-                - "token:bid:buy"
-              description: Must be "token:bid:buy"
+                - "token:offer:buy"
+              description: Must be "token:offer:buy"
             offerAddress:
               type: string
               description: The address of the offer to buy from.
@@ -1356,8 +1356,8 @@ components:
             txType:
               type: string
               enum:
-                - "token:offer:sell"
-              description: Must be "token:offer:sell"
+                - "token:bid:sell"
+              description: Must be "token:bid:sell"
             bidAddress:
               type: string
               description: The address of the bid to sell to.

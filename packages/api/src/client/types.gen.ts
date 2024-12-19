@@ -352,9 +352,9 @@ export type txType3 = 'token:bid:create';
 
 export type TokenBuyTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
-     * Must be "token:bid:buy"
+     * Must be "token:offer:buy"
      */
-    txType?: 'token:bid:buy';
+    txType?: 'token:offer:buy';
     /**
      * The address of the offer to buy from.
      */
@@ -366,9 +366,9 @@ export type TokenBuyTransactionParams = DeployedTokenTransactionBaseParams & {
 };
 
 /**
- * Must be "token:bid:buy"
+ * Must be "token:offer:buy"
  */
-export type txType4 = 'token:bid:buy';
+export type txType4 = 'token:offer:buy';
 
 export type TokenInfo = {
     /**
@@ -476,9 +476,9 @@ export type txType6 = 'token:offer:create';
 
 export type TokenSellTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
-     * Must be "token:offer:sell"
+     * Must be "token:bid:sell"
      */
-    txType?: 'token:offer:sell';
+    txType?: 'token:bid:sell';
     /**
      * The address of the bid to sell to.
      */
@@ -490,9 +490,9 @@ export type TokenSellTransactionParams = DeployedTokenTransactionBaseParams & {
 };
 
 /**
- * Must be "token:offer:sell"
+ * Must be "token:bid:sell"
  */
-export type txType7 = 'token:offer:sell';
+export type txType7 = 'token:bid:sell';
 
 export type TokenState = {
     /**
@@ -681,7 +681,7 @@ export type TokenTransactions = {
     txs: Array<TokenTransaction>;
 };
 
-export type TokenTransactionType = 'token:launch' | 'token:mint' | 'token:transfer' | 'token:bid:create' | 'token:offer:create' | 'token:bid:buy' | 'token:offer:sell' | 'token:airdrop' | 'token:bid:withdraw' | 'token:offer:withdraw' | 'token:bid:whitelist' | 'token:offer:whitelist' | 'token:admin:whitelist';
+export type TokenTransactionType = 'token:launch' | 'token:mint' | 'token:transfer' | 'token:bid:create' | 'token:offer:create' | 'token:offer:buy' | 'token:bid:sell' | 'token:airdrop' | 'token:bid:withdraw' | 'token:offer:withdraw' | 'token:bid:whitelist' | 'token:offer:whitelist' | 'token:admin:whitelist';
 
 export type TokenTransferTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
