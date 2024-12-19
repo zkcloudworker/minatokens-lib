@@ -159,6 +159,10 @@ export class FungibleTokenAdvancedAdmin extends TokenContract {
         this.whitelist.set(whitelist);
         this.emitEvent("updateWhitelist", whitelist);
     }
+    async canChangeVerificationKey(_vk) {
+        await this.ensureAdminSignature();
+        return Bool(true);
+    }
 }
 __decorate([
     state(PublicKey),
@@ -212,4 +216,10 @@ __decorate([
     __metadata("design:paramtypes", [Whitelist]),
     __metadata("design:returntype", Promise)
 ], FungibleTokenAdvancedAdmin.prototype, "updateWhitelist", null);
+__decorate([
+    method.returns(Bool),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [VerificationKey]),
+    __metadata("design:returntype", Promise)
+], FungibleTokenAdvancedAdmin.prototype, "canChangeVerificationKey", null);
 //# sourceMappingURL=FungibleTokenAdvancedAdmin.js.map

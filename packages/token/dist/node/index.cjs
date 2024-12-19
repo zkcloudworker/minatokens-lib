@@ -87,15 +87,18 @@ function FungibleTokenContract(adminContract) {
       this.account.tokenSymbol.set(props.symbol);
       this.account.permissions.set({
         ...import_o1js.Permissions.default(),
-        setVerificationKey: import_o1js.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+        setVerificationKey: props.allowUpdates ? import_o1js.Permissions.VerificationKey.proofDuringCurrentVersion() : import_o1js.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
         setPermissions: import_o1js.Permissions.impossible(),
         access: import_o1js.Permissions.proof()
       });
     }
     /** Update the verification key.
-     * Note that because we have set the permissions for setting the verification key to `impossibleDuringCurrentVersion()`, this will only be possible in case of a protocol update that requires an update.
+     * This will only work when `allowUpdates` has been set to `true` during deployment.
      */
     async updateVerificationKey(vk) {
+      const adminContract2 = await this.getAdminContract();
+      const canChangeVerificationKey = await adminContract2.canChangeVerificationKey(vk);
+      canChangeVerificationKey.assertTrue(FungibleTokenErrors.noPermissionToChangeAdmin);
       this.account.verificationKey.set(vk);
     }
     /** Initializes the account for tracking total circulation.
@@ -369,6 +372,10 @@ var FungibleTokenAdmin = class extends import_o1js2.SmartContract {
     await this.ensureAdminSignature();
     return (0, import_o1js2.Bool)(true);
   }
+  async canChangeVerificationKey(_vk) {
+    await this.ensureAdminSignature();
+    return (0, import_o1js2.Bool)(true);
+  }
 };
 (0, import_tslib2.__decorate)([
   (0, import_o1js2.state)(import_o1js2.PublicKey),
@@ -404,6 +411,12 @@ var FungibleTokenAdmin = class extends import_o1js2.SmartContract {
   (0, import_tslib2.__metadata)("design:paramtypes", []),
   (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], FungibleTokenAdmin.prototype, "canResume", null);
+(0, import_tslib2.__decorate)([
+  import_o1js2.method.returns(import_o1js2.Bool),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js2.VerificationKey]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
+], FungibleTokenAdmin.prototype, "canChangeVerificationKey", null);
 
 // dist/node/FungibleTokenAdvancedAdmin.js
 var import_tslib3 = require("tslib");
@@ -550,6 +563,10 @@ var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
     this.whitelist.set(whitelist);
     this.emitEvent("updateWhitelist", whitelist);
   }
+  async canChangeVerificationKey(_vk) {
+    await this.ensureAdminSignature();
+    return (0, import_o1js3.Bool)(true);
+  }
 };
 (0, import_tslib3.__decorate)([
   (0, import_o1js3.state)(import_o1js3.PublicKey),
@@ -603,6 +620,12 @@ var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
   (0, import_tslib3.__metadata)("design:paramtypes", [import_storage.Whitelist]),
   (0, import_tslib3.__metadata)("design:returntype", Promise)
 ], FungibleTokenAdvancedAdmin.prototype, "updateWhitelist", null);
+(0, import_tslib3.__decorate)([
+  import_o1js3.method.returns(import_o1js3.Bool),
+  (0, import_tslib3.__metadata)("design:type", Function),
+  (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js3.VerificationKey]),
+  (0, import_tslib3.__metadata)("design:returntype", Promise)
+], FungibleTokenAdvancedAdmin.prototype, "canChangeVerificationKey", null);
 
 // dist/node/FungibleToken.js
 var FungibleToken = FungibleTokenContract(FungibleTokenAdmin);
@@ -1141,7 +1164,8 @@ async function buildTokenLaunchTransaction(params) {
     await zkToken.deploy({
       symbol,
       src: uri,
-      verificationKey: tokenVerificationKey
+      verificationKey: tokenVerificationKey,
+      allowUpdates: true
     });
     await zkToken.initialize(
       adminContractAddress,

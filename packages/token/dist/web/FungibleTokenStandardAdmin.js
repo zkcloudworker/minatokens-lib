@@ -53,6 +53,10 @@ export class FungibleTokenAdmin extends SmartContract {
         await this.ensureAdminSignature();
         return Bool(true);
     }
+    async canChangeVerificationKey(_vk) {
+        await this.ensureAdminSignature();
+        return Bool(true);
+    }
 }
 __decorate([
     state(PublicKey),
@@ -88,4 +92,10 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], FungibleTokenAdmin.prototype, "canResume", null);
+__decorate([
+    method.returns(Bool),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [VerificationKey]),
+    __metadata("design:returntype", Promise)
+], FungibleTokenAdmin.prototype, "canChangeVerificationKey", null);
 //# sourceMappingURL=FungibleTokenStandardAdmin.js.map

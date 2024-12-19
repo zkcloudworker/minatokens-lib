@@ -225,6 +225,7 @@ export async function buildTokenLaunchTransaction(params: {
         symbol,
         src: uri,
         verificationKey: tokenVerificationKey,
+        allowUpdates: true,
       });
       await zkToken.initialize(
         adminContractAddress,

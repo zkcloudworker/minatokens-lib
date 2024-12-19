@@ -23,4 +23,5 @@ export declare class FungibleTokenAdmin extends SmartContract implements Fungibl
     canChangeAdmin(_admin: PublicKey): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
     canPause(): Promise<Bool>;
     canResume(): Promise<Bool>;
+    canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>;
 }

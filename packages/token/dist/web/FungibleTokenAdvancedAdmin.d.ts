@@ -119,5 +119,6 @@ export declare class FungibleTokenAdvancedAdmin extends TokenContract implements
     canPause(): Promise<Bool>;
     canResume(): Promise<Bool>;
     updateWhitelist(whitelist: Whitelist): Promise<void>;
+    canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>;
 }
 export {};

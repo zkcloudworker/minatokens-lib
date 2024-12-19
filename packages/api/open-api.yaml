@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.9.0"
+  version: "0.9.3"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -1548,7 +1548,7 @@ components:
           items:
             type: string
           description: Optional. Code for the admin contracts.
-    TokenTransactionPayloads:
+    TransactionPayloads:
       type: object
       required:
         - sender
@@ -1633,6 +1633,9 @@ components:
         transaction:
           type: string
           description: The raw transaction data.
+        sendTransaction:
+          type: boolean
+          description: Optional. Whether to broadcast the transaction after proving.
     TokenTransactionParams:
       oneOf:
         - $ref: "#/components/schemas/LaunchTokenStandardAdminParams"
@@ -1652,7 +1655,7 @@ components:
     TokenTransaction:
       type: object
       allOf:
-        - $ref: "#/components/schemas/TokenTransactionPayloads"
+        - $ref: "#/components/schemas/TransactionPayloads"
         - type: object
           properties:
             request:

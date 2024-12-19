@@ -154,6 +154,7 @@ export async function buildTokenLaunchTransaction(params) {
             symbol,
             src: uri,
             verificationKey: tokenVerificationKey,
+            allowUpdates: true,
         });
         await zkToken.initialize(adminContractAddress, decimals, 
         // We can set `startPaused` to `Bool(false)` here, because we are doing an atomic deployment
