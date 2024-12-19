@@ -1,10 +1,11 @@
 {
   "name": "@minatokens/api",
   "description": "MinaTokens API",
-  "version": "0.7.0",
+  "version": "0.8.4",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "devDependencies": {
+    "@hey-api/openapi-ts": "^0.60.0",
     "@types/node": "^22.10.2",
     "esbuild": "^0.24.0",
     "typedoc": "^0.27.3",
@@ -52,8 +53,13 @@
     "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
     "docs": "typedoc",
     "login": "npm login",
-    "release": "npm run build && npm publish --access public"
+    "release": "npm run build && npm publish --access public",
+    "validate": "swagger-cli validate open-api.yaml",
+    "generate": "npm run validate && openapi-ts && rm src/client/index.ts && node replace-import.cjs && npm run build"
   },
   "type": "module",
-  "types": "./dist/node/index.d.ts"
+  "types": "./dist/node/index.d.ts",
+  "dependencies": {
+    "@hey-api/client-fetch": "^0.5.6"
+  }
 }

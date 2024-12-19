@@ -20,181 +20,243 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // dist/node/index.js
 var node_exports = {};
 __export(node_exports, {
-  MinaTokensAPI: () => MinaTokensAPI,
-  tokenTransactionTypes: () => tokenTransactionTypes
+  airdropTokens: () => airdropTokens,
+  buyTokens: () => buyTokens,
+  client: () => client,
+  config: () => config,
+  faucet: () => faucet,
+  getNftV2Info: () => getNftV2Info,
+  getProof: () => getProof,
+  getTokenBalance: () => getTokenBalance,
+  getTokenInfo: () => getTokenInfo,
+  launchToken: () => launchToken,
+  mintTokens: () => mintTokens,
+  prove: () => prove,
+  sellTokens: () => sellTokens,
+  tokenBid: () => tokenBid,
+  tokenOffer: () => tokenOffer,
+  transferTokens: () => transferTokens,
+  txStatus: () => txStatus,
+  updateTokenAdminWhitelist: () => updateTokenAdminWhitelist,
+  updateTokenBidWhitelist: () => updateTokenBidWhitelist,
+  updateTokenOfferWhitelist: () => updateTokenOfferWhitelist,
+  waitForProofs: () => waitForProofs,
+  waitForTransaction: () => waitForTransaction,
+  withdrawTokenBid: () => withdrawTokenBid,
+  withdrawTokenOffer: () => withdrawTokenOffer
 });
 module.exports = __toCommonJS(node_exports);
 
-// dist/node/api.js
-var MinaTokensAPI = class {
-  constructor(params) {
-    const { chain, apiKey } = params;
-    this.chain = chain ?? "devnet";
-    this.apiKey = apiKey;
-  }
-  getTokenInfo(tokenAddress) {
-    return this.apiCall({
-      endpoint: "info",
-      callParams: { tokenAddress }
-    });
-  }
-  getBalance(params) {
-    return this.apiCall({
-      endpoint: "balance",
-      callParams: params
-    });
-  }
-  getNFTInfo(params) {
-    return this.apiCall({
-      endpoint: "nft",
-      callParams: params
-    });
-  }
-  buildTransaction(params) {
-    return this.apiCall({
-      endpoint: params.txType,
-      callParams: params
-    });
-  }
-  buildAirdrop(params) {
-    return this.apiCall({
-      endpoint: "airdrop",
-      callParams: params
-    });
-  }
-  proveTransaction(params) {
-    return this.apiCall({
-      endpoint: "prove",
-      callParams: { txs: [params] }
-    });
-  }
-  proveTransactions(params) {
-    return this.apiCall({
-      endpoint: "prove",
-      callParams: params
-    });
-  }
-  getProof(params) {
-    return this.apiCall({
-      endpoint: "proof",
-      callParams: params
-    });
-  }
-  faucet(params) {
-    return this.apiCall({
-      endpoint: "faucet",
-      callParams: params
-    });
-  }
-  txStatus(params) {
-    return this.apiCall({
-      endpoint: "tx-status",
-      callParams: params
-    });
-  }
-  async waitForProofs(jobId) {
-    console.log("Job ID:", jobId);
-    let errorCount = 0;
-    const startTime = Date.now();
-    console.log("Waiting for job result...");
-    while (errorCount < 100 && Date.now() - startTime < 1e3 * 60 * 10) {
-      try {
-        const jobResults = await this.getProof({ jobId });
-        const jobStatus = jobResults.jobStatus;
-        if (jobResults.success && (jobStatus === "finished" || jobStatus === "used")) {
-          return jobResults.results?.map((result) => result.hash ?? "") ?? [];
-        }
-        if (jobStatus === "failed") {
-          console.error(`Job ${jobId} failed`);
-          return void 0;
-        }
-      } catch (error) {
-        errorCount++;
-        console.error(error);
-      }
-      await this.sleep(1e4);
-    }
-    return void 0;
-  }
-  async waitForTransaction(hash, timeout = 1e3 * 60 * 60 * 5) {
-    console.log(`Waiting for transaction ${hash} to be included in a block...`);
-    const startTime = Date.now();
-    let status = "pending";
-    let errorCount = 0;
-    while (status !== "applied" && errorCount < 100 && Date.now() - startTime < timeout) {
-      try {
-        const result = await this.txStatus({ hash });
-        status = result.status;
-        if (status === "failed") {
-          throw new Error(`Transaction ${hash} failed: ${JSON.stringify({ result })}`);
-        } else if (status === "applied") {
-          console.log(`Transaction ${hash} included in a block`, result);
-          return;
-        }
-      } catch (error) {
-        errorCount++;
-        console.error(error);
-      }
-      await this.sleep(3e4);
-    }
-    throw new Error(`Transaction ${hash} not included in a block, timeout or too many errors`);
-  }
-  async apiCall(params) {
-    const { endpoint, callParams } = params;
-    if (this.chain === "mainnet") {
-      throw new Error("Mainnet is not supported yet");
-    }
-    const endpointUrl = this.chain === "devnet" ? "https://minatokens.com/api/v1" : this.chain === "zeko" ? "https://zekotokens.com/api/v1" : "http://localhost:3000/api/v1";
-    try {
-      const response = await fetch(`${endpointUrl}/${endpoint.toLowerCase()}`, {
-        method: "POST",
-        headers: {
-          "x-api-key": this.apiKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(callParams)
-      });
-      if (!response.ok) {
-        const result2 = await response.json();
-        throw new Error(`API call failed: ${response.status} ${response.statusText} ${result2?.error ?? "unknown error"}`);
-      }
-      const result = await response.json();
-      if (process.env.DEBUG === "true") {
-        console.log(`API call:
-endpoint: ${endpoint}
-body: ${JSON.stringify(callParams)}
-status: ${response.status}
-statusText: ${response.statusText}
-response: ${JSON.stringify(result)}`);
-      }
-      return result;
-    } catch (error) {
-      throw new Error(error?.message ?? (error ? String(error) : "Token API call failed"));
-    }
-  }
-  async sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+// dist/node/client/sdk.gen.js
+var import_client_fetch = require("@hey-api/client-fetch");
+var client = (0, import_client_fetch.createClient)((0, import_client_fetch.createConfig)());
+var launchToken = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/launch"
+  });
+};
+var getNftV2Info = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/info/nft-v2"
+  });
+};
+var faucet = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/faucet"
+  });
+};
+var getTokenInfo = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/info/token"
+  });
+};
+var getTokenBalance = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/info/balance"
+  });
+};
+var prove = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/transaction/prove"
+  });
+};
+var getProof = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/transaction/proof"
+  });
+};
+var txStatus = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/transaction/status"
+  });
+};
+var mintTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/mint"
+  });
+};
+var transferTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/transfer"
+  });
+};
+var airdropTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/airdrop"
+  });
+};
+var tokenBid = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/bid/create"
+  });
+};
+var tokenOffer = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/offer/create"
+  });
+};
+var buyTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/offer/buy"
+  });
+};
+var sellTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/bid/sell"
+  });
+};
+var withdrawTokenBid = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/bid/withdraw"
+  });
+};
+var withdrawTokenOffer = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/offer/withdraw"
+  });
+};
+var updateTokenBidWhitelist = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/bid/whitelist"
+  });
+};
+var updateTokenOfferWhitelist = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/offer/whitelist"
+  });
+};
+var updateTokenAdminWhitelist = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/admin/whitelist"
+  });
 };
 
-// dist/node/token.js
-var tokenTransactionTypes = [
-  "launch",
-  "mint",
-  "transfer",
-  "bid",
-  "offer",
-  "buy",
-  "sell",
-  "airdrop",
-  "withdrawBid",
-  "withdrawOffer",
-  "updateBidWhitelist",
-  "updateOfferWhitelist",
-  "updateAdminWhitelist"
-];
+// dist/node/config.js
+function config({ apiKey, chain, throwOnError }) {
+  client.setConfig({
+    headers: {
+      "x-api-key": apiKey
+    },
+    baseUrl: chain === "zeko" ? "https://zekotokens.com/api/v1/" : "https://minatokens.com/api/v1/",
+    throwOnError: throwOnError ?? true
+  });
+}
+
+// dist/node/wait.js
+async function waitForProofs(jobId) {
+  console.log("Job ID:", jobId);
+  let errorCount = 0;
+  const startTime = Date.now();
+  console.log("Waiting for job result...");
+  while (errorCount < 100 && Date.now() - startTime < 1e3 * 60 * 10) {
+    try {
+      const jobResults = (await getProof({ body: { jobId } })).data;
+      const jobStatus = jobResults?.jobStatus;
+      if (jobResults?.success === true && (jobStatus === "finished" || jobStatus === "used")) {
+        return jobResults.results?.map((result) => result.hash ?? "") ?? [];
+      }
+      if (jobStatus === "failed") {
+        console.error(`Job ${jobId} failed`);
+        return void 0;
+      }
+    } catch (error) {
+      errorCount++;
+      console.error(error);
+    }
+    await sleep(1e4);
+  }
+  return void 0;
+}
+async function waitForTransaction(hash, timeout = 1e3 * 60 * 60 * 5) {
+  console.log(`Waiting for transaction ${hash} to be included in a block...`);
+  const startTime = Date.now();
+  let status = "pending";
+  let errorCount = 0;
+  while (status !== "applied" && errorCount < 100 && Date.now() - startTime < timeout) {
+    try {
+      const result = (await txStatus({ body: { hash } })).data;
+      status = result?.status ?? "pending";
+      if (status === "failed") {
+        throw new Error(`Transaction ${hash} failed: ${JSON.stringify({ result })}`);
+      } else if (status === "applied") {
+        console.log(`Transaction ${hash} included in a block`, result);
+        return;
+      }
+    } catch (error) {
+      errorCount++;
+      console.error(error);
+    }
+    await sleep(3e4);
+  }
+  throw new Error(`Transaction ${hash} not included in a block, timeout or too many errors`);
+}
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  MinaTokensAPI,
-  tokenTransactionTypes
+  airdropTokens,
+  buyTokens,
+  client,
+  config,
+  faucet,
+  getNftV2Info,
+  getProof,
+  getTokenBalance,
+  getTokenInfo,
+  launchToken,
+  mintTokens,
+  prove,
+  sellTokens,
+  tokenBid,
+  tokenOffer,
+  transferTokens,
+  txStatus,
+  updateTokenAdminWhitelist,
+  updateTokenBidWhitelist,
+  updateTokenOfferWhitelist,
+  waitForProofs,
+  waitForTransaction,
+  withdrawTokenBid,
+  withdrawTokenOffer
 });
