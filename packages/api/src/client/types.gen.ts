@@ -88,7 +88,7 @@ export type JobResult = {
     /**
      * Indicates whether the proof generation for this transaction was successful.
      */
-    success?: boolean;
+    success: boolean;
     /**
      * Error message if proof generation failed for this transaction.
      */
@@ -97,6 +97,10 @@ export type JobResult = {
      * The transaction data.
      */
     tx?: string;
+    /**
+     * The status of the transaction.
+     */
+    status?: string;
     /**
      * The transaction hash if broadcasted.
      */

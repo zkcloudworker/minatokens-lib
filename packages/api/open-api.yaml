@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.9.5"
+  version: "0.9.6"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -960,6 +960,8 @@ components:
           description: Results for each transaction in the job.
     JobResult:
       type: object
+      required:
+        - success
       properties:
         success:
           type: boolean
@@ -970,6 +972,9 @@ components:
         tx:
           type: string
           description: The transaction data.
+        status:
+          type: string
+          description: The status of the transaction.
         hash:
           type: string
           description: The transaction hash if broadcasted.

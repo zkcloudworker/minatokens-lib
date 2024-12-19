@@ -11,7 +11,8 @@
     "format": "syncpack format",
     "lint": "syncpack lint",
     "login": "npm login",
-    "sync": "syncpack list-mismatches"
+    "sync": "syncpack list-mismatches",
+    "rebuild": "npm run clean && npm i && npm run build"
   },
   "workspaces": [
     "packages/*"
