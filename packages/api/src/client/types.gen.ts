@@ -559,7 +559,12 @@ export type TokenState = {
 };
 
 export type TokenTransaction = TransactionPayloads & {
-    request?: TokenTransactionParams;
+    request: (TokenTransactionParams & {
+    /**
+     * The type of the transaction.
+     */
+    txType: TokenTransactionType;
+});
 };
 
 export type TokenTransactionBaseParams = {

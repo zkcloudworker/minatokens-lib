@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.9.3"
+  version: "0.9.4"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -1657,9 +1657,19 @@ components:
       allOf:
         - $ref: "#/components/schemas/TransactionPayloads"
         - type: object
+          required:
+            - request
           properties:
             request:
-              $ref: "#/components/schemas/TokenTransactionParams"
+              allOf:
+                - $ref: "#/components/schemas/TokenTransactionParams"
+                - type: object
+                  required:
+                    - txType
+                  properties:
+                    txType:
+                      $ref: "#/components/schemas/TokenTransactionType"
+                      description: The type of the transaction.
     TokenTransactions:
       type: object
       required:
