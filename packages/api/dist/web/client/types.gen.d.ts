@@ -518,7 +518,7 @@ export type TokenState = {
     adminVerificationKeyHash: string;
     adminVersion: number;
 };
-export type TokenTransaction = TokenTransactionPayloads & {
+export type TokenTransaction = TransactionPayloads & {
     request?: TokenTransactionParams;
 };
 export type TokenTransactionBaseParams = {
@@ -552,84 +552,6 @@ export type TokenTransactionBaseParams = {
     developerFee?: number;
 };
 export type TokenTransactionParams = LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | TokenMintTransactionParams | TokenTransferTransactionParams | TokenAirdropTransactionParams | TokenOfferTransactionParams | TokenBidTransactionParams | TokenBuyTransactionParams | TokenSellTransactionParams | TokenWithdrawBidTransactionParams | TokenWithdrawOfferTransactionParams | TokenUpdateBidWhitelistTransactionParams | TokenUpdateOfferWhitelistTransactionParams | TokenUpdateAdminWhitelistTransactionParams;
-export type TokenTransactionPayloads = {
-    /**
-     * The address initiating the transaction.
-     */
-    sender: string;
-    /**
-     * The nonce for the transaction.
-     */
-    nonce: number;
-    /**
-     * A memo for the transaction.
-     */
-    memo: string;
-    /**
-     * The fee for the transaction.
-     */
-    fee: number;
-    walletPayload: {
-        /**
-         * The nonce for the transaction.
-         */
-        nonce?: number;
-        /**
-         * The transaction data.
-         */
-        transaction?: string;
-        /**
-         * Indicates if only signature is needed.
-         */
-        onlySign?: boolean;
-        feePayer?: {
-            /**
-             * The fee for the transaction.
-             */
-            fee?: number;
-            /**
-             * A memo for the transaction.
-             */
-            memo?: string;
-        };
-    };
-    minaSignerPayload: {
-        /**
-         * The zkApp command data.
-         */
-        zkappCommand: unknown;
-        feePayer: {
-            /**
-             * The fee payer's address.
-             */
-            feePayer?: string;
-            /**
-             * The fee for the transaction.
-             */
-            fee?: number;
-            /**
-             * The nonce for the transaction.
-             */
-            nonce?: number;
-            /**
-             * A memo for the transaction.
-             */
-            memo?: string;
-        };
-    };
-    /**
-     * The payload for the prover.
-     */
-    proverPayload: string;
-    /**
-     * The signed data for the transaction.
-     */
-    signedData: string;
-    /**
-     * The raw transaction data.
-     */
-    transaction: string;
-};
 export type TokenTransactions = {
     /**
      * Array of token transactions.
@@ -745,6 +667,88 @@ export type TokenWithdrawOfferTransactionParams = DeployedTokenTransactionBasePa
  * Must be "token:offer:withdraw"
  */
 export type txType13 = 'token:offer:withdraw';
+export type TransactionPayloads = {
+    /**
+     * The address initiating the transaction.
+     */
+    sender: string;
+    /**
+     * The nonce for the transaction.
+     */
+    nonce: number;
+    /**
+     * A memo for the transaction.
+     */
+    memo: string;
+    /**
+     * The fee for the transaction.
+     */
+    fee: number;
+    walletPayload: {
+        /**
+         * The nonce for the transaction.
+         */
+        nonce?: number;
+        /**
+         * The transaction data.
+         */
+        transaction?: string;
+        /**
+         * Indicates if only signature is needed.
+         */
+        onlySign?: boolean;
+        feePayer?: {
+            /**
+             * The fee for the transaction.
+             */
+            fee?: number;
+            /**
+             * A memo for the transaction.
+             */
+            memo?: string;
+        };
+    };
+    minaSignerPayload: {
+        /**
+         * The zkApp command data.
+         */
+        zkappCommand: unknown;
+        feePayer: {
+            /**
+             * The fee payer's address.
+             */
+            feePayer?: string;
+            /**
+             * The fee for the transaction.
+             */
+            fee?: number;
+            /**
+             * The nonce for the transaction.
+             */
+            nonce?: number;
+            /**
+             * A memo for the transaction.
+             */
+            memo?: string;
+        };
+    };
+    /**
+     * The payload for the prover.
+     */
+    proverPayload: string;
+    /**
+     * The signed data for the transaction.
+     */
+    signedData: string;
+    /**
+     * The raw transaction data.
+     */
+    transaction: string;
+    /**
+     * Optional. Whether to broadcast the transaction after proving.
+     */
+    sendTransaction?: boolean;
+};
 export type TransactionStatus = {
     /**
      * The transaction hash.
