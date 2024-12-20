@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/upgradable-v1",
   "description": "Upgradable interface for Mina zkApps for o1js v1",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "dependencies": {
