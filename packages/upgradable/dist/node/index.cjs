@@ -28,8 +28,8 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // dist/node/index.js
-var node_exports = {};
-__export(node_exports, {
+var index_exports = {};
+__export(index_exports, {
   ChainId: () => ChainId,
   PublicKeyOption: () => PublicKeyOption,
   UpgradeAuthorityAnswer: () => UpgradeAuthorityAnswer,
@@ -49,7 +49,7 @@ __export(node_exports, {
   VerificationKeyUpgradeData: () => VerificationKeyUpgradeData,
   nftVerificationKeys: () => nftVerificationKeys
 });
-module.exports = __toCommonJS(node_exports);
+module.exports = __toCommonJS(index_exports);
 
 // dist/node/vk.js
 var nftVerificationKeys = {

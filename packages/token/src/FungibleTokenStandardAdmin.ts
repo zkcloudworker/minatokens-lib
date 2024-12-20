@@ -86,4 +86,10 @@ export class FungibleTokenAdmin
     await this.ensureAdminSignature();
     return Bool(true);
   }
+
+  @method.returns(Bool)
+  public async canChangeVerificationKey(_vk: VerificationKey): Promise<Bool> {
+    await this.ensureAdminSignature();
+    return Bool(true);
+  }
 }

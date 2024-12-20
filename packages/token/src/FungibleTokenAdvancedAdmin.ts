@@ -250,4 +250,10 @@ export class FungibleTokenAdvancedAdmin
     this.whitelist.set(whitelist);
     this.emitEvent("updateWhitelist", whitelist);
   }
+
+  @method.returns(Bool)
+  public async canChangeVerificationKey(_vk: VerificationKey): Promise<Bool> {
+    await this.ensureAdminSignature();
+    return Bool(true);
+  }
 }

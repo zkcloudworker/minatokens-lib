@@ -1,4 +1,4 @@
-import { FungibleTokenTransactionType, TransactionParams, LaunchTokenAdvancedAdminParams, LaunchTokenStandardAdminParams } from "@minatokens/api";
+import { TokenTransactionType, TokenTransactionParams, LaunchTokenAdvancedAdminParams, LaunchTokenStandardAdminParams } from "@minatokens/api";
 import { blockchain } from "./types.js";
 import { PublicKey, Transaction } from "o1js";
 export declare function buildTokenLaunchTransaction(params: {
@@ -15,12 +15,12 @@ export declare function buildTokenLaunchTransaction(params: {
 }>;
 export declare function buildTokenTransaction(params: {
     chain: blockchain;
-    args: Exclude<TransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
+    args: Exclude<TokenTransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
     developerAddress?: string;
     provingKey?: string;
     provingFee?: number;
 }): Promise<{
-    request: Exclude<TransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
+    request: Exclude<TokenTransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
     tx: Transaction<false, false>;
     isAdvanced: boolean;
     adminContractAddress: PublicKey;
@@ -29,7 +29,7 @@ export declare function buildTokenTransaction(params: {
     verificationKeyHashes: string[];
 }>;
 export declare function getTokenSymbolAndAdmin(params: {
-    txType: FungibleTokenTransactionType;
+    txType: TokenTransactionType;
     to?: PublicKey;
     offerAddress?: PublicKey;
     bidAddress?: PublicKey;

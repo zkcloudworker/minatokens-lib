@@ -107,6 +107,9 @@ export class FungibleTokenBidContract extends SmartContract {
         sellerUpdate.requireSignature();
         const tokenContract = new FungibleToken(token);
         await tokenContract.transfer(seller, buyer, amount);
+        const whitelist = this.whitelist.getAndRequireEquals();
+        const whitelistedAmount = await whitelist.getWhitelistedAmount(seller);
+        amount.assertLessThanOrEqual(whitelistedAmount.assertSome("Cannot sell more than whitelisted amount"));
         this.emitEvent("sell", amount);
     }
     async updateWhitelist(whitelist) {

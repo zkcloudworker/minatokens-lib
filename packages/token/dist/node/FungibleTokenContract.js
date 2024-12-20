@@ -34,15 +34,20 @@ export function FungibleTokenContract(adminContract) {
             this.account.tokenSymbol.set(props.symbol);
             this.account.permissions.set({
                 ...Permissions.default(),
-                setVerificationKey: Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+                setVerificationKey: props.allowUpdates
+                    ? Permissions.VerificationKey.proofDuringCurrentVersion()
+                    : Permissions.VerificationKey.impossibleDuringCurrentVersion(),
                 setPermissions: Permissions.impossible(),
                 access: Permissions.proof(),
             });
         }
         /** Update the verification key.
-         * Note that because we have set the permissions for setting the verification key to `impossibleDuringCurrentVersion()`, this will only be possible in case of a protocol update that requires an update.
+         * This will only work when `allowUpdates` has been set to `true` during deployment.
          */
         async updateVerificationKey(vk) {
+            const adminContract = await this.getAdminContract();
+            const canChangeVerificationKey = await adminContract.canChangeVerificationKey(vk);
+            canChangeVerificationKey.assertTrue(FungibleTokenErrors.noPermissionToChangeAdmin);
             this.account.verificationKey.set(vk);
         }
         /** Initializes the account for tracking total circulation.

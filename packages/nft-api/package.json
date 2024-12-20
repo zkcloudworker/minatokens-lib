@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/nft-api",
   "description": "Mina NFT standard types",
-  "version": "0.7.0",
+  "version": "0.9.7",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "devDependencies": {
