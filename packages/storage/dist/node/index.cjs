@@ -18,8 +18,8 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // dist/node/index.js
-var node_exports = {};
-__export(node_exports, {
+var index_exports = {};
+__export(index_exports, {
   FieldOption: () => FieldOption,
   OffChainList: () => OffChainList,
   OffChainListBase: () => OffChainListBase,
@@ -48,7 +48,7 @@ __export(node_exports, {
   sleep: () => sleep,
   toBase: () => toBase
 });
-module.exports = __toCommonJS(node_exports);
+module.exports = __toCommonJS(index_exports);
 
 // dist/node/base64/bigint.js
 var TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";

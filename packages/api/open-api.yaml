@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.9.6"
+  version: "0.9.7"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -134,20 +134,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - tokenAddress
-              properties:
-                tokenAddress:
-                  type: string
-                  description: The address of the token contract.
-                  example: B62qphSRYqif9bPjw4Kg2G3CA7V7NzHqtpRzeXkY164n3C9jXqGAfkA
-            examples:
-              getTokenInfoRequest:
-                summary: Example of an info request
-                value:
-                  tokenAddress: B62qphSRYqif9bPjw4Kg2G3CA7V7NzHqtpRzeXkY164n3C9jXqGAfkA
-
+              $ref: "#/components/schemas/TokenInfoRequestParams"
       responses:
         "200":
           description: Successful retrieval of token information.
@@ -887,6 +874,35 @@ components:
       name: x-api-key
       description: "API key for authorization. Get your API key at https://minatokens.com/api"
   schemas:
+    TokenInfoRequestParams:
+      type: object
+      required:
+        - tokenAddress
+      properties:
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+          example: B62qphSRYqif9bPjw4Kg2G3CA7V7NzHqtpRzeXkY164n3C9jXqGAfkA
+    TokenSymbolAndAdmin:
+      type: object
+      required:
+        - tokenAddress
+        - adminContractAddress
+        - adminAddress
+        - tokenSymbol
+      properties:
+        tokenAddress:
+          type: string
+          description: The address of the token contract.
+        adminContractAddress:
+          type: string
+          description: The address of the admin contract.
+        adminAddress:
+          type: string
+          description: The address of the administrator.
+        tokenSymbol:
+          type: string
+          description: The symbol of the token.
     BalanceRequestParams:
       type: object
       required:
@@ -994,7 +1010,39 @@ components:
           description: The transaction hash.
         status:
           type: string
-          description: The status of the transaction (e.g., applied, failed, pending).
+          enum:
+            - pending
+            - applied
+            - failed
+            - unknown
+          description: The status of the transaction.
+        error:
+          type: string
+          description: The transaction hash.
+        details:
+          type: object
+          properties:
+            blockHeight:
+              type: integer
+              format: int64
+              description: The height of the block containing the transaction.
+            stateHash:
+              type: string
+              description: The state hash of the block.
+            blockStatus:
+              type: string
+              description: The status of the block.
+            timestamp:
+              type: integer
+              format: int64
+              description: The timestamp of the block.
+            txHash:
+              type: string
+              description: The transaction hash.
+            txStatus:
+              type: string
+              description: The status of the transaction in the block.
+          description: The details of the transaction.
     TxStatus:
       type: object
       properties:

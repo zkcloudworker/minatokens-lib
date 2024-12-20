@@ -13,6 +13,7 @@ import {
   assert,
   Mina,
   Struct,
+  Provable,
 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
@@ -158,6 +159,12 @@ export class FungibleTokenBidContract extends SmartContract {
 
     const tokenContract = new FungibleToken(token);
     await tokenContract.transfer(seller, buyer, amount);
+
+    const whitelist = this.whitelist.getAndRequireEquals();
+    const whitelistedAmount = await whitelist.getWhitelistedAmount(seller);
+    amount.assertLessThanOrEqual(
+      whitelistedAmount.assertSome("Cannot sell more than whitelisted amount")
+    );
     this.emitEvent("sell", amount);
   }
 

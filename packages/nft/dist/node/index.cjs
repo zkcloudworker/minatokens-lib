@@ -18,8 +18,8 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // dist/node/index.js
-var node_exports = {};
-__export(node_exports, {
+var index_exports = {};
+__export(index_exports, {
   AdminContract: () => AdminContract,
   Bid: () => Bid,
   BuyEvent: () => BuyEvent,
@@ -69,7 +69,7 @@ __export(node_exports, {
   fieldToString: () => fieldToString,
   nftVerificationKeys: () => nftVerificationKeys
 });
-module.exports = __toCommonJS(node_exports);
+module.exports = __toCommonJS(index_exports);
 
 // dist/node/admin/standard.js
 var import_tslib3 = require("tslib");

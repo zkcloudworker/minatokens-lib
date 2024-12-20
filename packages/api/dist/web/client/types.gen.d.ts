@@ -396,6 +396,12 @@ export type TokenInfo = {
      */
     adminContractsCode?: Array<(string)>;
 };
+export type TokenInfoRequestParams = {
+    /**
+     * The address of the token contract.
+     */
+    tokenAddress: string;
+};
 export type TokenMintTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:mint"
@@ -521,6 +527,24 @@ export type TokenState = {
      */
     adminVerificationKeyHash: string;
     adminVersion: number;
+};
+export type TokenSymbolAndAdmin = {
+    /**
+     * The address of the token contract.
+     */
+    tokenAddress: string;
+    /**
+     * The address of the admin contract.
+     */
+    adminContractAddress: string;
+    /**
+     * The address of the administrator.
+     */
+    adminAddress: string;
+    /**
+     * The symbol of the token.
+     */
+    tokenSymbol: string;
 };
 export type TokenTransaction = TransactionPayloads & {
     /**
@@ -768,10 +792,47 @@ export type TransactionStatus = {
      */
     hash?: string;
     /**
-     * The status of the transaction (e.g., applied, failed, pending).
+     * The status of the transaction.
      */
-    status?: string;
+    status?: 'pending' | 'applied' | 'failed' | 'unknown';
+    /**
+     * The transaction hash.
+     */
+    error?: string;
+    /**
+     * The details of the transaction.
+     */
+    details?: {
+        /**
+         * The height of the block containing the transaction.
+         */
+        blockHeight?: number;
+        /**
+         * The state hash of the block.
+         */
+        stateHash?: string;
+        /**
+         * The status of the block.
+         */
+        blockStatus?: string;
+        /**
+         * The timestamp of the block.
+         */
+        timestamp?: number;
+        /**
+         * The transaction hash.
+         */
+        txHash?: string;
+        /**
+         * The status of the transaction in the block.
+         */
+        txStatus?: string;
+    };
 };
+/**
+ * The status of the transaction.
+ */
+export type status = 'pending' | 'applied' | 'failed' | 'unknown';
 export type TransactionStatusParams = {
     /**
      * The transaction hash to check the status of.
@@ -833,12 +894,7 @@ export type FaucetData = {
 export type FaucetResponse2 = (FaucetResponse);
 export type FaucetError = (ErrorResponse);
 export type GetTokenInfoData = {
-    body: {
-        /**
-         * The address of the token contract.
-         */
-        tokenAddress: string;
-    };
+    body: TokenInfoRequestParams;
 };
 export type GetTokenInfoResponse = (TokenState);
 export type GetTokenInfoError = (ErrorResponse);

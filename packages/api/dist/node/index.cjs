@@ -18,8 +18,8 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // dist/node/index.js
-var node_exports = {};
-__export(node_exports, {
+var index_exports = {};
+__export(index_exports, {
   airdropTokens: () => airdropTokens,
   buyTokens: () => buyTokens,
   client: () => client,
@@ -45,7 +45,7 @@ __export(node_exports, {
   withdrawTokenBid: () => withdrawTokenBid,
   withdrawTokenOffer: () => withdrawTokenOffer
 });
-module.exports = __toCommonJS(node_exports);
+module.exports = __toCommonJS(index_exports);
 
 // dist/node/client/sdk.gen.js
 var import_client_fetch = require("@hey-api/client-fetch");

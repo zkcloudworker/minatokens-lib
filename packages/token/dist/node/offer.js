@@ -111,7 +111,7 @@ export class FungibleTokenOfferContract extends SmartContract {
         offerUpdate.body.useFullCommitment = Bool(true);
         const whitelist = this.whitelist.getAndRequireEquals();
         const whitelistedAmount = await whitelist.getWhitelistedAmount(buyer);
-        amount.assertLessThanOrEqual(whitelistedAmount.assertSome());
+        amount.assertLessThanOrEqual(whitelistedAmount.assertSome("Cannot buy more than whitelisted amount"));
         this.emitEvent("buy", amount);
     }
     async updateWhitelist(whitelist) {
