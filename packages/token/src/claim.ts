@@ -15,24 +15,22 @@ import {
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
 
-export interface FungibleTokenOfferContractDeployProps
-  extends Exclude<DeployArgs, undefined> {
-  /** The whitelist. */
-  whitelist: Whitelist;
-}
-
-export class OfferEvent extends Struct({
+class ClaimEvent extends Struct({
   amount: UInt64,
   address: PublicKey,
 }) {}
 
-export class FungibleTokenOfferContract extends SmartContract {
-  @state(UInt64) price = State<UInt64>();
-  @state(PublicKey) seller = State<PublicKey>();
+export interface FungibleTokenClaimContractDeployProps
+  extends Exclude<DeployArgs, undefined> {
+  /** The whitelist. */
+  whitelist: Whitelist;
+}
+export class FungibleTokenClaimContract extends SmartContract {
+  @state(PublicKey) owner = State<PublicKey>();
   @state(PublicKey) token = State<PublicKey>();
   @state(Whitelist) whitelist = State<Whitelist>();
 
-  async deploy(args: FungibleTokenOfferContractDeployProps) {
+  async deploy(args: FungibleTokenClaimContractDeployProps) {
     await super.deploy(args);
     this.whitelist.set(args.whitelist);
     this.account.permissions.set({
@@ -45,60 +43,51 @@ export class FungibleTokenOfferContract extends SmartContract {
   }
 
   events = {
-    offer: OfferEvent,
-    withdraw: OfferEvent,
-    buy: OfferEvent,
+    offer: ClaimEvent,
+    withdraw: ClaimEvent,
+    claim: ClaimEvent,
     updateWhitelist: Whitelist,
   };
 
   @method async initialize(
-    seller: PublicKey, // we are short of AccountUpdates here, so we use this parameter instead of this.sender.getUnconstrained()
+    owner: PublicKey, // we are short of AccountUpdates here, so we use this parameter instead of this.sender.getUnconstrained()
     token: PublicKey,
-    amount: UInt64,
-    price: UInt64
+    amount: UInt64
   ) {
     this.account.provedState.requireEquals(Bool(false));
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
-    await tokenContract.transfer(seller, this.address, amount);
+    await tokenContract.transfer(owner, this.address, amount);
 
-    this.seller.set(seller);
-    this.price.set(price);
+    this.owner.set(owner);
     this.token.set(token);
-    this.emitEvent("offer", { amount, address: seller } as OfferEvent);
+    this.emitEvent("offer", { amount, address: owner } as ClaimEvent);
   }
 
-  @method async offer(amount: UInt64, price: UInt64) {
-    const seller = this.seller.getAndRequireEquals();
+  @method async offer(amount: UInt64) {
+    const owner = this.owner.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
 
     const balance = this.account.balance.getAndRequireEquals();
-    const oldPrice = this.price.getAndRequireEquals();
-    // Price can be changed only when the balance is 0
-    price
-      .equals(oldPrice)
-      .or(balance.equals(UInt64.from(0)))
-      .assertTrue();
-    this.price.set(price);
 
     const sender = this.sender.getUnconstrained();
     const senderUpdate = AccountUpdate.createSigned(sender);
     senderUpdate.body.useFullCommitment = Bool(true);
-    sender.assertEquals(seller);
+    sender.assertEquals(owner);
 
     await tokenContract.transfer(sender, this.address, amount);
-    this.emitEvent("offer", { amount, address: sender } as OfferEvent);
+    this.emitEvent("offer", { amount, address: sender } as ClaimEvent);
   }
 
   @method async withdraw(amount: UInt64) {
     amount.equals(UInt64.from(0)).assertFalse();
     this.account.balance.requireBetween(amount, UInt64.MAXINT());
 
-    const seller = this.seller.getAndRequireEquals();
+    const owner = this.owner.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
@@ -107,56 +96,44 @@ export class FungibleTokenOfferContract extends SmartContract {
     const sender = this.sender.getUnconstrained();
     const senderUpdate = AccountUpdate.createSigned(sender, tokenId);
     senderUpdate.body.useFullCommitment = Bool(true);
-    sender.assertEquals(seller);
+    sender.assertEquals(owner);
 
     let offerUpdate = this.send({ to: senderUpdate, amount });
     offerUpdate.body.mayUseToken = AccountUpdate.MayUseToken.InheritFromParent;
     offerUpdate.body.useFullCommitment = Bool(true);
-    this.emitEvent("withdraw", { amount, address: sender } as OfferEvent);
+    this.emitEvent("withdraw", { amount, address: sender } as ClaimEvent);
   }
 
-  @method async buy(amount: UInt64) {
-    amount.equals(UInt64.from(0)).assertFalse();
-    this.account.balance.requireBetween(amount, UInt64.MAXINT());
-    const seller = this.seller.getAndRequireEquals();
+  @method async claim() {
+    const owner = this.owner.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
-    const price = this.price.getAndRequireEquals();
-    const totalPriceField = price.value
-      .mul(amount.value)
-      .div(Field(1_000_000_000));
-    totalPriceField.assertLessThan(
-      UInt64.MAXINT().value,
-      "totalPrice overflow"
+
+    const sender = this.sender.getUnconstrained();
+    const senderUpdate = AccountUpdate.createSigned(sender, tokenId);
+    senderUpdate.body.useFullCommitment = Bool(true);
+
+    const whitelist = this.whitelist.getAndRequireEquals();
+    const amount = (await whitelist.getWhitelistedAmount(sender)).assertSome(
+      "No tokens to claim"
     );
-    const totalPrice = UInt64.Unsafe.fromField(totalPriceField);
+    this.account.balance.requireBetween(amount, UInt64.MAXINT());
 
-    const buyer = this.sender.getUnconstrained();
-    const buyerUpdate = AccountUpdate.createSigned(buyer);
-    buyerUpdate.send({ to: seller, amount: totalPrice });
-    buyerUpdate.body.useFullCommitment = Bool(true);
-
-    let offerUpdate = this.send({ to: buyer, amount });
+    let offerUpdate = this.send({ to: senderUpdate, amount });
     offerUpdate.body.mayUseToken = AccountUpdate.MayUseToken.InheritFromParent;
     offerUpdate.body.useFullCommitment = Bool(true);
 
-    const whitelist = this.whitelist.getAndRequireEquals();
-    const whitelistedAmount = await whitelist.getWhitelistedAmount(buyer);
-    amount.assertLessThanOrEqual(
-      whitelistedAmount.assertSome("Cannot buy more than whitelisted amount")
-    );
-
-    this.emitEvent("buy", { amount, address: buyer } as OfferEvent);
+    this.emitEvent("claim", { amount, address: sender } as ClaimEvent);
   }
 
   @method async updateWhitelist(whitelist: Whitelist) {
-    const seller = this.seller.getAndRequireEquals();
+    const owner = this.owner.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
     const senderUpdate = AccountUpdate.createSigned(sender);
     senderUpdate.body.useFullCommitment = Bool(true);
-    sender.assertEquals(seller);
+    sender.assertEquals(owner);
 
     this.whitelist.set(whitelist);
     this.emitEvent("updateWhitelist", whitelist);

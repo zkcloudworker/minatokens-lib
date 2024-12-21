@@ -8,6 +8,7 @@ import {
   FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract,
   FungibleTokenOfferContract,
+  FungibleTokenClaimContract,
 } from "@minatokens/token";
 import {
   tokenVerificationKeys,
@@ -65,6 +66,11 @@ const contracts: {
   {
     name: "FungibleTokenOfferContract",
     contract: FungibleTokenOfferContract,
+    type: "user",
+  },
+  {
+    name: "FungibleTokenClaimContract",
+    contract: FungibleTokenClaimContract,
     type: "user",
   },
   {

@@ -23,15 +23,18 @@ __export(index_exports, {
   AdvancedAdminData: () => AdvancedAdminData,
   AdvancedFungibleToken: () => AdvancedFungibleToken,
   BalanceChangeEvent: () => BalanceChangeEvent,
+  BidEvent: () => BidEvent,
   BurnEvent: () => BurnEvent,
   FungibleToken: () => FungibleToken,
   FungibleTokenAdmin: () => FungibleTokenAdmin,
   FungibleTokenAdvancedAdmin: () => FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract: () => FungibleTokenBidContract,
+  FungibleTokenClaimContract: () => FungibleTokenClaimContract,
   FungibleTokenContract: () => FungibleTokenContract,
   FungibleTokenErrors: () => FungibleTokenErrors,
   FungibleTokenOfferContract: () => FungibleTokenOfferContract,
   MintEvent: () => MintEvent,
+  OfferEvent: () => OfferEvent,
   PauseEvent: () => PauseEvent,
   SetAdminEvent: () => SetAdminEvent
 });
@@ -624,6 +627,11 @@ var FungibleToken = FungibleTokenContract(FungibleTokenAdmin);
 var AdvancedFungibleToken = FungibleTokenContract(FungibleTokenAdvancedAdmin);
 
 // dist/node/bid.js
+var BidEvent = class extends (0, import_o1js4.Struct)({
+  amount: import_o1js4.UInt64,
+  address: import_o1js4.PublicKey
+}) {
+};
 var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
   constructor() {
     super(...arguments);
@@ -632,9 +640,9 @@ var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
     this.token = (0, import_o1js4.State)();
     this.whitelist = (0, import_o1js4.State)();
     this.events = {
-      bid: import_o1js4.UInt64,
-      withdraw: import_o1js4.UInt64,
-      sell: import_o1js4.UInt64,
+      bid: BidEvent,
+      withdraw: BidEvent,
+      sell: BidEvent,
       updateWhitelist: import_storage2.Whitelist
     };
   }
@@ -661,7 +669,7 @@ var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
     this.buyer.set(buyer);
     this.price.set(price);
     this.token.set(token);
-    this.emitEvent("bid", amount);
+    this.emitEvent("bid", { amount, address: buyer });
   }
   async bid(amount, price) {
     amount.equals(import_o1js4.UInt64.from(0)).assertFalse();
@@ -679,7 +687,7 @@ var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
     buyerUpdate.send({ to: this.address, amount: totalPrice });
     buyerUpdate.body.useFullCommitment = (0, import_o1js4.Bool)(true);
     this.price.set(price);
-    this.emitEvent("bid", amount);
+    this.emitEvent("bid", { amount, address: buyer });
   }
   async withdraw(amountInMina) {
     amountInMina.equals(import_o1js4.UInt64.from(0)).assertFalse();
@@ -691,7 +699,10 @@ var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
     sender.assertEquals(buyer);
     let bidUpdate = this.send({ to: senderUpdate, amount: amountInMina });
     bidUpdate.body.useFullCommitment = (0, import_o1js4.Bool)(true);
-    this.emitEvent("withdraw", amountInMina);
+    this.emitEvent("withdraw", {
+      amount: amountInMina,
+      address: buyer
+    });
   }
   async sell(amount) {
     amount.equals(import_o1js4.UInt64.from(0)).assertFalse();
@@ -711,7 +722,7 @@ var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
     const whitelist = this.whitelist.getAndRequireEquals();
     const whitelistedAmount = await whitelist.getWhitelistedAmount(seller);
     amount.assertLessThanOrEqual(whitelistedAmount.assertSome("Cannot sell more than whitelisted amount"));
-    this.emitEvent("sell", amount);
+    this.emitEvent("sell", { amount, address: seller });
   }
   async updateWhitelist(whitelist) {
     const buyer = this.buyer.getAndRequireEquals();
@@ -770,21 +781,25 @@ var FungibleTokenBidContract = class extends import_o1js4.SmartContract {
   (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], FungibleTokenBidContract.prototype, "updateWhitelist", null);
 
-// dist/node/offer.js
+// dist/node/claim.js
 var import_tslib5 = require("tslib");
 var import_o1js5 = require("o1js");
 var import_storage3 = require("@minatokens/storage");
-var FungibleTokenOfferContract = class extends import_o1js5.SmartContract {
+var ClaimEvent = class extends (0, import_o1js5.Struct)({
+  amount: import_o1js5.UInt64,
+  address: import_o1js5.PublicKey
+}) {
+};
+var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
   constructor() {
     super(...arguments);
-    this.price = (0, import_o1js5.State)();
-    this.seller = (0, import_o1js5.State)();
+    this.owner = (0, import_o1js5.State)();
     this.token = (0, import_o1js5.State)();
     this.whitelist = (0, import_o1js5.State)();
     this.events = {
-      offer: import_o1js5.UInt64,
-      withdraw: import_o1js5.UInt64,
-      buy: import_o1js5.UInt64,
+      offer: ClaimEvent,
+      withdraw: ClaimEvent,
+      claim: ClaimEvent,
       updateWhitelist: import_storage3.Whitelist
     };
   }
@@ -798,8 +813,156 @@ var FungibleTokenOfferContract = class extends import_o1js5.SmartContract {
       setPermissions: import_o1js5.Permissions.impossible()
     });
   }
-  async initialize(seller, token, amount, price) {
+  async initialize(owner, token, amount) {
     this.account.provedState.requireEquals((0, import_o1js5.Bool)(false));
+    const tokenContract = new FungibleToken(token);
+    const tokenId = tokenContract.deriveTokenId();
+    tokenId.assertEquals(this.tokenId);
+    await tokenContract.transfer(owner, this.address, amount);
+    this.owner.set(owner);
+    this.token.set(token);
+    this.emitEvent("offer", { amount, address: owner });
+  }
+  async offer(amount) {
+    const owner = this.owner.getAndRequireEquals();
+    const token = this.token.getAndRequireEquals();
+    const tokenContract = new FungibleToken(token);
+    const tokenId = tokenContract.deriveTokenId();
+    tokenId.assertEquals(this.tokenId);
+    const balance = this.account.balance.getAndRequireEquals();
+    const sender = this.sender.getUnconstrained();
+    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    sender.assertEquals(owner);
+    await tokenContract.transfer(sender, this.address, amount);
+    this.emitEvent("offer", { amount, address: sender });
+  }
+  async withdraw(amount) {
+    amount.equals(import_o1js5.UInt64.from(0)).assertFalse();
+    this.account.balance.requireBetween(amount, import_o1js5.UInt64.MAXINT());
+    const owner = this.owner.getAndRequireEquals();
+    const token = this.token.getAndRequireEquals();
+    const tokenContract = new FungibleToken(token);
+    const tokenId = tokenContract.deriveTokenId();
+    tokenId.assertEquals(this.tokenId);
+    const sender = this.sender.getUnconstrained();
+    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender, tokenId);
+    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    sender.assertEquals(owner);
+    let offerUpdate = this.send({ to: senderUpdate, amount });
+    offerUpdate.body.mayUseToken = import_o1js5.AccountUpdate.MayUseToken.InheritFromParent;
+    offerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    this.emitEvent("withdraw", { amount, address: sender });
+  }
+  async claim() {
+    const owner = this.owner.getAndRequireEquals();
+    const token = this.token.getAndRequireEquals();
+    const tokenContract = new FungibleToken(token);
+    const tokenId = tokenContract.deriveTokenId();
+    tokenId.assertEquals(this.tokenId);
+    const sender = this.sender.getUnconstrained();
+    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender, tokenId);
+    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    const whitelist = this.whitelist.getAndRequireEquals();
+    const amount = (await whitelist.getWhitelistedAmount(sender)).assertSome("No tokens to claim");
+    this.account.balance.requireBetween(amount, import_o1js5.UInt64.MAXINT());
+    let offerUpdate = this.send({ to: senderUpdate, amount });
+    offerUpdate.body.mayUseToken = import_o1js5.AccountUpdate.MayUseToken.InheritFromParent;
+    offerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    this.emitEvent("claim", { amount, address: sender });
+  }
+  async updateWhitelist(whitelist) {
+    const owner = this.owner.getAndRequireEquals();
+    const sender = this.sender.getUnconstrained();
+    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    sender.assertEquals(owner);
+    this.whitelist.set(whitelist);
+    this.emitEvent("updateWhitelist", whitelist);
+  }
+};
+(0, import_tslib5.__decorate)([
+  (0, import_o1js5.state)(import_o1js5.PublicKey),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], FungibleTokenClaimContract.prototype, "owner", void 0);
+(0, import_tslib5.__decorate)([
+  (0, import_o1js5.state)(import_o1js5.PublicKey),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], FungibleTokenClaimContract.prototype, "token", void 0);
+(0, import_tslib5.__decorate)([
+  (0, import_o1js5.state)(import_storage3.Whitelist),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], FungibleTokenClaimContract.prototype, "whitelist", void 0);
+(0, import_tslib5.__decorate)([
+  import_o1js5.method,
+  (0, import_tslib5.__metadata)("design:type", Function),
+  (0, import_tslib5.__metadata)("design:paramtypes", [
+    import_o1js5.PublicKey,
+    import_o1js5.PublicKey,
+    import_o1js5.UInt64
+  ]),
+  (0, import_tslib5.__metadata)("design:returntype", Promise)
+], FungibleTokenClaimContract.prototype, "initialize", null);
+(0, import_tslib5.__decorate)([
+  import_o1js5.method,
+  (0, import_tslib5.__metadata)("design:type", Function),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js5.UInt64]),
+  (0, import_tslib5.__metadata)("design:returntype", Promise)
+], FungibleTokenClaimContract.prototype, "offer", null);
+(0, import_tslib5.__decorate)([
+  import_o1js5.method,
+  (0, import_tslib5.__metadata)("design:type", Function),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js5.UInt64]),
+  (0, import_tslib5.__metadata)("design:returntype", Promise)
+], FungibleTokenClaimContract.prototype, "withdraw", null);
+(0, import_tslib5.__decorate)([
+  import_o1js5.method,
+  (0, import_tslib5.__metadata)("design:type", Function),
+  (0, import_tslib5.__metadata)("design:paramtypes", []),
+  (0, import_tslib5.__metadata)("design:returntype", Promise)
+], FungibleTokenClaimContract.prototype, "claim", null);
+(0, import_tslib5.__decorate)([
+  import_o1js5.method,
+  (0, import_tslib5.__metadata)("design:type", Function),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_storage3.Whitelist]),
+  (0, import_tslib5.__metadata)("design:returntype", Promise)
+], FungibleTokenClaimContract.prototype, "updateWhitelist", null);
+
+// dist/node/offer.js
+var import_tslib6 = require("tslib");
+var import_o1js6 = require("o1js");
+var import_storage4 = require("@minatokens/storage");
+var OfferEvent = class extends (0, import_o1js6.Struct)({
+  amount: import_o1js6.UInt64,
+  address: import_o1js6.PublicKey
+}) {
+};
+var FungibleTokenOfferContract = class extends import_o1js6.SmartContract {
+  constructor() {
+    super(...arguments);
+    this.price = (0, import_o1js6.State)();
+    this.seller = (0, import_o1js6.State)();
+    this.token = (0, import_o1js6.State)();
+    this.whitelist = (0, import_o1js6.State)();
+    this.events = {
+      offer: OfferEvent,
+      withdraw: OfferEvent,
+      buy: OfferEvent,
+      updateWhitelist: import_storage4.Whitelist
+    };
+  }
+  async deploy(args) {
+    await super.deploy(args);
+    this.whitelist.set(args.whitelist);
+    this.account.permissions.set({
+      ...import_o1js6.Permissions.default(),
+      send: import_o1js6.Permissions.proof(),
+      setVerificationKey: import_o1js6.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+      setPermissions: import_o1js6.Permissions.impossible()
+    });
+  }
+  async initialize(seller, token, amount, price) {
+    this.account.provedState.requireEquals((0, import_o1js6.Bool)(false));
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
@@ -807,7 +970,7 @@ var FungibleTokenOfferContract = class extends import_o1js5.SmartContract {
     this.seller.set(seller);
     this.price.set(price);
     this.token.set(token);
-    this.emitEvent("offer", amount);
+    this.emitEvent("offer", { amount, address: seller });
   }
   async offer(amount, price) {
     const seller = this.seller.getAndRequireEquals();
@@ -817,131 +980,134 @@ var FungibleTokenOfferContract = class extends import_o1js5.SmartContract {
     tokenId.assertEquals(this.tokenId);
     const balance = this.account.balance.getAndRequireEquals();
     const oldPrice = this.price.getAndRequireEquals();
-    price.equals(oldPrice).or(balance.equals(import_o1js5.UInt64.from(0))).assertTrue();
+    price.equals(oldPrice).or(balance.equals(import_o1js6.UInt64.from(0))).assertTrue();
     this.price.set(price);
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    const senderUpdate = import_o1js6.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
     sender.assertEquals(seller);
     await tokenContract.transfer(sender, this.address, amount);
-    this.emitEvent("offer", amount);
+    this.emitEvent("offer", { amount, address: sender });
   }
   async withdraw(amount) {
-    amount.equals(import_o1js5.UInt64.from(0)).assertFalse();
-    this.account.balance.requireBetween(amount, import_o1js5.UInt64.MAXINT());
+    amount.equals(import_o1js6.UInt64.from(0)).assertFalse();
+    this.account.balance.requireBetween(amount, import_o1js6.UInt64.MAXINT());
     const seller = this.seller.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender, tokenId);
-    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    const senderUpdate = import_o1js6.AccountUpdate.createSigned(sender, tokenId);
+    senderUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
     sender.assertEquals(seller);
     let offerUpdate = this.send({ to: senderUpdate, amount });
-    offerUpdate.body.mayUseToken = import_o1js5.AccountUpdate.MayUseToken.InheritFromParent;
-    offerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
-    this.emitEvent("withdraw", amount);
+    offerUpdate.body.mayUseToken = import_o1js6.AccountUpdate.MayUseToken.InheritFromParent;
+    offerUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
+    this.emitEvent("withdraw", { amount, address: sender });
   }
   async buy(amount) {
-    amount.equals(import_o1js5.UInt64.from(0)).assertFalse();
-    this.account.balance.requireBetween(amount, import_o1js5.UInt64.MAXINT());
+    amount.equals(import_o1js6.UInt64.from(0)).assertFalse();
+    this.account.balance.requireBetween(amount, import_o1js6.UInt64.MAXINT());
     const seller = this.seller.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
     const price = this.price.getAndRequireEquals();
-    const totalPriceField = price.value.mul(amount.value).div((0, import_o1js5.Field)(1e9));
-    totalPriceField.assertLessThan(import_o1js5.UInt64.MAXINT().value, "totalPrice overflow");
-    const totalPrice = import_o1js5.UInt64.Unsafe.fromField(totalPriceField);
+    const totalPriceField = price.value.mul(amount.value).div((0, import_o1js6.Field)(1e9));
+    totalPriceField.assertLessThan(import_o1js6.UInt64.MAXINT().value, "totalPrice overflow");
+    const totalPrice = import_o1js6.UInt64.Unsafe.fromField(totalPriceField);
     const buyer = this.sender.getUnconstrained();
-    const buyerUpdate = import_o1js5.AccountUpdate.createSigned(buyer);
+    const buyerUpdate = import_o1js6.AccountUpdate.createSigned(buyer);
     buyerUpdate.send({ to: seller, amount: totalPrice });
-    buyerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    buyerUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
     let offerUpdate = this.send({ to: buyer, amount });
-    offerUpdate.body.mayUseToken = import_o1js5.AccountUpdate.MayUseToken.InheritFromParent;
-    offerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    offerUpdate.body.mayUseToken = import_o1js6.AccountUpdate.MayUseToken.InheritFromParent;
+    offerUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
     const whitelist = this.whitelist.getAndRequireEquals();
     const whitelistedAmount = await whitelist.getWhitelistedAmount(buyer);
     amount.assertLessThanOrEqual(whitelistedAmount.assertSome("Cannot buy more than whitelisted amount"));
-    this.emitEvent("buy", amount);
+    this.emitEvent("buy", { amount, address: buyer });
   }
   async updateWhitelist(whitelist) {
     const seller = this.seller.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
+    const senderUpdate = import_o1js6.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
     sender.assertEquals(seller);
     this.whitelist.set(whitelist);
     this.emitEvent("updateWhitelist", whitelist);
   }
 };
-(0, import_tslib5.__decorate)([
-  (0, import_o1js5.state)(import_o1js5.UInt64),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js6.state)(import_o1js6.UInt64),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], FungibleTokenOfferContract.prototype, "price", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js5.state)(import_o1js5.PublicKey),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js6.state)(import_o1js6.PublicKey),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], FungibleTokenOfferContract.prototype, "seller", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js5.state)(import_o1js5.PublicKey),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js6.state)(import_o1js6.PublicKey),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], FungibleTokenOfferContract.prototype, "token", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js5.state)(import_storage3.Whitelist),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js6.state)(import_storage4.Whitelist),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], FungibleTokenOfferContract.prototype, "whitelist", void 0);
-(0, import_tslib5.__decorate)([
-  import_o1js5.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [
-    import_o1js5.PublicKey,
-    import_o1js5.PublicKey,
-    import_o1js5.UInt64,
-    import_o1js5.UInt64
+(0, import_tslib6.__decorate)([
+  import_o1js6.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [
+    import_o1js6.PublicKey,
+    import_o1js6.PublicKey,
+    import_o1js6.UInt64,
+    import_o1js6.UInt64
   ]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], FungibleTokenOfferContract.prototype, "initialize", null);
-(0, import_tslib5.__decorate)([
-  import_o1js5.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js5.UInt64, import_o1js5.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js6.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js6.UInt64, import_o1js6.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], FungibleTokenOfferContract.prototype, "offer", null);
-(0, import_tslib5.__decorate)([
-  import_o1js5.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js5.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js6.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js6.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], FungibleTokenOfferContract.prototype, "withdraw", null);
-(0, import_tslib5.__decorate)([
-  import_o1js5.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js5.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js6.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js6.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], FungibleTokenOfferContract.prototype, "buy", null);
-(0, import_tslib5.__decorate)([
-  import_o1js5.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_storage3.Whitelist]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js6.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_storage4.Whitelist]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], FungibleTokenOfferContract.prototype, "updateWhitelist", null);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AdvancedAdminData,
   AdvancedFungibleToken,
   BalanceChangeEvent,
+  BidEvent,
   BurnEvent,
   FungibleToken,
   FungibleTokenAdmin,
   FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract,
+  FungibleTokenClaimContract,
   FungibleTokenContract,
   FungibleTokenErrors,
   FungibleTokenOfferContract,
   MintEvent,
+  OfferEvent,
   PauseEvent,
   SetAdminEvent
 });

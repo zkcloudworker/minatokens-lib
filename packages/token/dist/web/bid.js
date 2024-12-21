@@ -1,7 +1,12 @@
 import { __decorate, __metadata } from "tslib";
-import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, } from "o1js";
+import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, Struct, } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
+export class BidEvent extends Struct({
+    amount: UInt64,
+    address: PublicKey,
+}) {
+}
 export class FungibleTokenBidContract extends SmartContract {
     constructor() {
         super(...arguments);
@@ -10,9 +15,9 @@ export class FungibleTokenBidContract extends SmartContract {
         this.token = State();
         this.whitelist = State();
         this.events = {
-            bid: UInt64,
-            withdraw: UInt64,
-            sell: UInt64,
+            bid: BidEvent,
+            withdraw: BidEvent,
+            sell: BidEvent,
             updateWhitelist: Whitelist,
         };
     }
@@ -41,7 +46,7 @@ export class FungibleTokenBidContract extends SmartContract {
         this.buyer.set(buyer);
         this.price.set(price);
         this.token.set(token);
-        this.emitEvent("bid", amount);
+        this.emitEvent("bid", { amount, address: buyer });
     }
     async bid(amount, price) {
         amount.equals(UInt64.from(0)).assertFalse();
@@ -65,7 +70,7 @@ export class FungibleTokenBidContract extends SmartContract {
         buyerUpdate.send({ to: this.address, amount: totalPrice });
         buyerUpdate.body.useFullCommitment = Bool(true);
         this.price.set(price);
-        this.emitEvent("bid", amount);
+        this.emitEvent("bid", { amount, address: buyer });
     }
     async withdraw(amountInMina) {
         amountInMina.equals(UInt64.from(0)).assertFalse();
@@ -77,7 +82,10 @@ export class FungibleTokenBidContract extends SmartContract {
         sender.assertEquals(buyer);
         let bidUpdate = this.send({ to: senderUpdate, amount: amountInMina });
         bidUpdate.body.useFullCommitment = Bool(true);
-        this.emitEvent("withdraw", amountInMina);
+        this.emitEvent("withdraw", {
+            amount: amountInMina,
+            address: buyer,
+        });
     }
     async sell(amount) {
         amount.equals(UInt64.from(0)).assertFalse();
@@ -99,7 +107,7 @@ export class FungibleTokenBidContract extends SmartContract {
         const whitelist = this.whitelist.getAndRequireEquals();
         const whitelistedAmount = await whitelist.getWhitelistedAmount(seller);
         amount.assertLessThanOrEqual(whitelistedAmount.assertSome("Cannot sell more than whitelisted amount"));
-        this.emitEvent("sell", amount);
+        this.emitEvent("sell", { amount, address: seller });
     }
     async updateWhitelist(whitelist) {
         const buyer = this.buyer.getAndRequireEquals();

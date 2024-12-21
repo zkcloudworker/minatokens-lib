@@ -10,10 +10,7 @@ import {
   SmartContract,
   Bool,
   Field,
-  assert,
-  Mina,
   Struct,
-  Provable,
 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
@@ -23,6 +20,12 @@ export interface FungibleTokenBidContractDeployProps
   /** The whitelist. */
   whitelist: Whitelist;
 }
+
+export class BidEvent extends Struct({
+  amount: UInt64,
+  address: PublicKey,
+}) {}
+
 export class FungibleTokenBidContract extends SmartContract {
   @state(UInt64) price = State<UInt64>();
   @state(PublicKey) buyer = State<PublicKey>();
@@ -42,9 +45,9 @@ export class FungibleTokenBidContract extends SmartContract {
   }
 
   events = {
-    bid: UInt64,
-    withdraw: UInt64,
-    sell: UInt64,
+    bid: BidEvent,
+    withdraw: BidEvent,
+    sell: BidEvent,
     updateWhitelist: Whitelist,
   };
 
@@ -69,7 +72,7 @@ export class FungibleTokenBidContract extends SmartContract {
     this.buyer.set(buyer);
     this.price.set(price);
     this.token.set(token);
-    this.emitEvent("bid", amount);
+    this.emitEvent("bid", { amount, address: buyer } as BidEvent);
   }
 
   @method async bid(amount: UInt64, price: UInt64) {
@@ -101,7 +104,7 @@ export class FungibleTokenBidContract extends SmartContract {
     buyerUpdate.body.useFullCommitment = Bool(true);
 
     this.price.set(price);
-    this.emitEvent("bid", amount);
+    this.emitEvent("bid", { amount, address: buyer } as BidEvent);
   }
 
   @method async withdraw(amountInMina: UInt64) {
@@ -116,7 +119,10 @@ export class FungibleTokenBidContract extends SmartContract {
 
     let bidUpdate = this.send({ to: senderUpdate, amount: amountInMina });
     bidUpdate.body.useFullCommitment = Bool(true);
-    this.emitEvent("withdraw", amountInMina);
+    this.emitEvent("withdraw", {
+      amount: amountInMina,
+      address: buyer,
+    } as BidEvent);
   }
 
   @method async sell(amount: UInt64) {
@@ -148,7 +154,7 @@ export class FungibleTokenBidContract extends SmartContract {
     amount.assertLessThanOrEqual(
       whitelistedAmount.assertSome("Cannot sell more than whitelisted amount")
     );
-    this.emitEvent("sell", amount);
+    this.emitEvent("sell", { amount, address: seller } as BidEvent);
   }
 
   @method async updateWhitelist(whitelist: Whitelist) {

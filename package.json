@@ -26,7 +26,7 @@
     "packages/token",
     "packages/upgradable"
   ],
-  "version": "0.11.0",
+  "version": "0.12.0",
   "dependencies": {},
   "devDependencies": {
     "o1js": "^2.2.0",

@@ -1,7 +1,12 @@
 import { __decorate, __metadata } from "tslib";
-import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, } from "o1js";
+import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, Struct, } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
+export class OfferEvent extends Struct({
+    amount: UInt64,
+    address: PublicKey,
+}) {
+}
 export class FungibleTokenOfferContract extends SmartContract {
     constructor() {
         super(...arguments);
@@ -10,9 +15,9 @@ export class FungibleTokenOfferContract extends SmartContract {
         this.token = State();
         this.whitelist = State();
         this.events = {
-            offer: UInt64,
-            withdraw: UInt64,
-            buy: UInt64,
+            offer: OfferEvent,
+            withdraw: OfferEvent,
+            buy: OfferEvent,
             updateWhitelist: Whitelist,
         };
     }
@@ -36,7 +41,7 @@ export class FungibleTokenOfferContract extends SmartContract {
         this.seller.set(seller);
         this.price.set(price);
         this.token.set(token);
-        this.emitEvent("offer", amount);
+        this.emitEvent("offer", { amount, address: seller });
     }
     async offer(amount, price) {
         const seller = this.seller.getAndRequireEquals();
@@ -57,7 +62,7 @@ export class FungibleTokenOfferContract extends SmartContract {
         senderUpdate.body.useFullCommitment = Bool(true);
         sender.assertEquals(seller);
         await tokenContract.transfer(sender, this.address, amount);
-        this.emitEvent("offer", amount);
+        this.emitEvent("offer", { amount, address: sender });
     }
     async withdraw(amount) {
         amount.equals(UInt64.from(0)).assertFalse();
@@ -74,7 +79,7 @@ export class FungibleTokenOfferContract extends SmartContract {
         let offerUpdate = this.send({ to: senderUpdate, amount });
         offerUpdate.body.mayUseToken = AccountUpdate.MayUseToken.InheritFromParent;
         offerUpdate.body.useFullCommitment = Bool(true);
-        this.emitEvent("withdraw", amount);
+        this.emitEvent("withdraw", { amount, address: sender });
     }
     async buy(amount) {
         amount.equals(UInt64.from(0)).assertFalse();
@@ -100,7 +105,7 @@ export class FungibleTokenOfferContract extends SmartContract {
         const whitelist = this.whitelist.getAndRequireEquals();
         const whitelistedAmount = await whitelist.getWhitelistedAmount(buyer);
         amount.assertLessThanOrEqual(whitelistedAmount.assertSome("Cannot buy more than whitelisted amount"));
-        this.emitEvent("buy", amount);
+        this.emitEvent("buy", { amount, address: buyer });
     }
     async updateWhitelist(whitelist) {
         const seller = this.seller.getAndRequireEquals();
