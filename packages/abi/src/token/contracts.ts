@@ -6,6 +6,7 @@ import {
   FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract,
   FungibleTokenOfferContract,
+  FungibleTokenClaimContract,
 } from "@minatokens/token";
 
 export type Compilable = {
@@ -24,6 +25,7 @@ export const tokenContracts: Record<string, Compilable> = {
   FungibleTokenAdvancedAdmin: FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract: FungibleTokenBidContract,
   FungibleTokenOfferContract: FungibleTokenOfferContract,
+  FungibleTokenClaimContract: FungibleTokenClaimContract,
 };
 
 export type CompileDependencies = Record<

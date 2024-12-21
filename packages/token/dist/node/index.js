@@ -1,4 +1,5 @@
 export * from "./bid.js";
+export * from "./claim.js";
 export * from "./offer.js";
 export * from "./FungibleToken.js";
 export * from "./FungibleTokenStandardAdmin.js";
