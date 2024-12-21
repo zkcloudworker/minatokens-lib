@@ -1,1 +1,1 @@
-{"root":["../src/fungibletoken.ts","../src/fungibletokenadvancedadmin.ts","../src/fungibletokencontract.ts","../src/fungibletokenstandardadmin.ts","../src/bid.ts","../src/build.ts","../src/fee.ts","../src/fetch.ts","../src/index.ts","../src/offer.ts","../src/token.ts","../src/types.ts","../src/vk.ts"],"version":"5.7.2"}
+{"root":["../src/fungibletoken.ts","../src/fungibletokenadvancedadmin.ts","../src/fungibletokencontract.ts","../src/fungibletokenstandardadmin.ts","../src/bid.ts","../src/index.ts","../src/offer.ts"],"version":"5.7.2"}

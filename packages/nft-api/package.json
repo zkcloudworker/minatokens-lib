@@ -48,7 +48,7 @@
   },
   "repository": "zkcloudworker/minatokens-lib.git",
   "scripts": {
-    "build": "rm -rf dist/lib && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
+    "build": "rm -rf dist && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
     "docs": "typedoc",
     "login": "npm login",
     "release": "npm run build && npm publish --access public"

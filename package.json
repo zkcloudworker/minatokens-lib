@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/upgradable-v1",
+    "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/upgradable-v1 && npm run build -w @minatokens/abi",
     "release": "node release.js",
     "build:docs": "rm -rf packages/api/docs/api && rdme docs:prune packages/api/docs --confirm && npm run docs -w packages/api && node scripts/build-docs.js && rdme docs packages/api/docs && rdme docs packages/token/docs",
     "clean": "rm -rf node_modules && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",

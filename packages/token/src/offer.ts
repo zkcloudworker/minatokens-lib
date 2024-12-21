@@ -15,7 +15,6 @@ import {
 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
-import { tokenVerificationKeys } from "./vk.js";
 
 export interface FungibleTokenOfferContractDeployProps
   extends Exclude<DeployArgs, undefined> {
@@ -30,23 +29,6 @@ export class FungibleTokenOfferContract extends SmartContract {
 
   async deploy(args: FungibleTokenOfferContractDeployProps) {
     await super.deploy(args);
-    const verificationKey =
-      args?.verificationKey ?? FungibleTokenOfferContract._verificationKey;
-    assert(verificationKey !== undefined);
-    const hash =
-      typeof verificationKey.hash === "string"
-        ? verificationKey.hash
-        : verificationKey.hash.toJSON();
-    const networkId = Mina.getNetworkId();
-    assert(networkId === "mainnet" || networkId === "testnet");
-    assert(
-      hash ===
-        tokenVerificationKeys[networkId].vk.FungibleTokenOfferContract.hash
-    );
-    assert(
-      verificationKey.data ===
-        tokenVerificationKeys[networkId].vk.FungibleTokenOfferContract.data
-    );
     this.whitelist.set(args.whitelist);
     this.account.permissions.set({
       ...Permissions.default(),

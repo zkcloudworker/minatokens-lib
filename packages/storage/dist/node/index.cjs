@@ -503,7 +503,11 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
   async load(name = "offchain-map") {
     const isNone = this.isNone();
     const map = await import_o1js4.Provable.witnessAsync(OffchainMapOption, async () => {
-      if (isNone.toBoolean())
+      let isNoneBoolean = false;
+      import_o1js4.Provable.asProver(() => {
+        isNoneBoolean = isNone.toBoolean();
+      });
+      if (isNoneBoolean)
         return OffchainMapOption.none();
       else
         return OffchainMapOption.fromValue(await loadIndexedMerkleMap({
@@ -514,7 +518,7 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
     });
     isNone.assertEquals(map.isSome.not());
     const root = import_o1js4.Provable.if(map.isSome, map.orElse(new OffchainMap()).root, (0, import_o1js4.Field)(0));
-    root.equals(this.root);
+    root.assertEquals(this.root);
     return map;
   }
   /**

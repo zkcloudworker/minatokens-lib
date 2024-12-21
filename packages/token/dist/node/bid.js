@@ -1,8 +1,7 @@
 import { __decorate, __metadata } from "tslib";
-import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, assert, Mina, } from "o1js";
+import { AccountUpdate, method, Permissions, PublicKey, State, state, UInt64, SmartContract, Bool, Field, } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
-import { tokenVerificationKeys } from "./vk.js";
 export class FungibleTokenBidContract extends SmartContract {
     constructor() {
         super(...arguments);
@@ -19,16 +18,6 @@ export class FungibleTokenBidContract extends SmartContract {
     }
     async deploy(args) {
         await super.deploy(args);
-        const verificationKey = args?.verificationKey ?? FungibleTokenBidContract._verificationKey;
-        assert(verificationKey !== undefined);
-        const hash = typeof verificationKey.hash === "string"
-            ? verificationKey.hash
-            : verificationKey.hash.toJSON();
-        const networkId = Mina.getNetworkId();
-        assert(networkId === "mainnet" || networkId === "testnet");
-        assert(hash === tokenVerificationKeys[networkId].vk.FungibleTokenBidContract.hash);
-        assert(verificationKey.data ===
-            tokenVerificationKeys[networkId].vk.FungibleTokenBidContract.data);
         this.whitelist.set(args.whitelist);
         this.account.permissions.set({
             ...Permissions.default(),
