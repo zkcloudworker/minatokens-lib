@@ -7,6 +7,7 @@
   "scripts": {
     "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/abi",
     "release": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/release.ts",
+    "version": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/version.ts",
     "build:docs": "rm -rf packages/api/docs/api && rdme docs:prune packages/api/docs --confirm && npm run docs -w packages/api && node scripts/build-docs.js && rdme docs packages/api/docs && rdme docs packages/token/docs",
     "clean": "rm -rf cache && rm -rf node_modules && rm -rf dist && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",
     "format": "syncpack format",
