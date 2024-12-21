@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/abi",
   "description": "MinaTokens ABI Experimental Library",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "dependencies": {
@@ -9,9 +9,9 @@
   },
   "devDependencies": {
     "o1js": "^2.2.0",
-    "@minatokens/token": "0.10.0",
-    "@minatokens/storage": "0.10.0",
-    "@minatokens/api": "0.10.0",
+    "@minatokens/token": "0.11.0",
+    "@minatokens/storage": "0.11.0",
+    "@minatokens/api": "0.11.0",
     "@types/node": "^22.10.2",
     "esbuild": "^0.24.0",
     "typedoc": "^0.27.3",
@@ -53,9 +53,9 @@
   "main": "dist/web/index.js",
   "peerDependencies": {
     "o1js": "^2.2.0",
-    "@minatokens/token": "0.10.0",
-    "@minatokens/storage": "0.10.0",
-    "@minatokens/api": "0.10.0"
+    "@minatokens/token": "0.11.0",
+    "@minatokens/storage": "0.11.0",
+    "@minatokens/api": "0.11.0"
   },
   "publishConfig": {
     "access": "public"
