@@ -40,7 +40,7 @@ export class OffChainListBase extends Struct({
         });
         isNone.assertEquals(map.isSome.not());
         const root = Provable.if(map.isSome, map.orElse(new OffchainMap()).root, Field(0));
-        root.equals(this.root);
+        root.assertEquals(this.root);
         return map;
     }
     /**
@@ -148,7 +148,7 @@ export class OffChainList extends Struct({
         });
         isNone.assertEquals(map.isSome.not());
         const root = Provable.if(map.isSome, map.orElse(new OffchainMap()).root, Field(0));
-        root.equals(this.root);
+        root.assertEquals(this.root);
         return map;
     }
     /**

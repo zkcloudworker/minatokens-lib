@@ -21,7 +21,8 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "preserveSymlinks": true
   },
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],

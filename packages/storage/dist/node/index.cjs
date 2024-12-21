@@ -406,7 +406,7 @@ var OffChainListBase = class _OffChainListBase extends (0, import_o1js4.Struct)(
     });
     isNone.assertEquals(map.isSome.not());
     const root = import_o1js4.Provable.if(map.isSome, map.orElse(new OffchainMap()).root, (0, import_o1js4.Field)(0));
-    root.equals(this.root);
+    root.assertEquals(this.root);
     return map;
   }
   /**
@@ -514,7 +514,7 @@ var OffChainList = class _OffChainList extends (0, import_o1js4.Struct)({
     });
     isNone.assertEquals(map.isSome.not());
     const root = import_o1js4.Provable.if(map.isSome, map.orElse(new OffchainMap()).root, (0, import_o1js4.Field)(0));
-    root.equals(this.root);
+    root.assertEquals(this.root);
     return map;
   }
   /**

@@ -1,0 +1,73 @@
+{
+  "name": "@minatokens/abi",
+  "description": "MinaTokens ABI Experimental Library",
+  "version": "0.11.0",
+  "author": "DFST",
+  "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "o1js": "^2.2.0",
+    "@minatokens/token": "0.11.0",
+    "@minatokens/storage": "0.11.0",
+    "@minatokens/api": "0.11.0",
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.24.0",
+    "typedoc": "^0.27.3",
+    "typedoc-plugin-markdown": "^4.3.2",
+    "typescript": "^5.7.2",
+    "ts-node": "^10.9.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "exports": {
+    "types": "./dist/node/index.d.ts",
+    "node": {
+      "import": "./dist/node/index.js",
+      "require": "./dist/node/index.cjs"
+    },
+    "browser": "./dist/web/index.js",
+    "default": "./dist/web/index.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "homepage": "https://docs.minatokens.com",
+  "keywords": [
+    "cloud",
+    "fungible-token",
+    "mina-protocol",
+    "minatokens",
+    "proving",
+    "tokens",
+    "typescript",
+    "zkcloudworker"
+  ],
+  "license": "Apache-2.0",
+  "main": "dist/web/index.js",
+  "peerDependencies": {
+    "o1js": "^2.2.0",
+    "@minatokens/token": "0.11.0",
+    "@minatokens/storage": "0.11.0",
+    "@minatokens/api": "0.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "zkcloudworker/minatokens-lib.git",
+  "scripts": {
+    "build": "rm -rf dist && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
+    "build:scripts": "rm -rf dist-scripts && tsc --build tsconfig.scripts.json",
+    "docs": "typedoc",
+    "login": "npm login",
+    "release": "npm run build && npm publish --access public"
+  },
+  "type": "module",
+  "types": "./dist/node/index.d.ts"
+}

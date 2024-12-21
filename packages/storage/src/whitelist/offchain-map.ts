@@ -73,7 +73,7 @@ export class OffChainListBase extends Struct({
       map.orElse(new OffchainMap()).root,
       Field(0)
     );
-    root.equals(this.root);
+    root.assertEquals(this.root);
     return map;
   }
 
@@ -209,7 +209,7 @@ export class OffChainList extends Struct({
       map.orElse(new OffchainMap()).root,
       Field(0)
     );
-    root.equals(this.root);
+    root.assertEquals(this.root);
     return map;
   }
 
