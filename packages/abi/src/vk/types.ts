@@ -1,6 +1,5 @@
 export type ChainVerificationKeysList = {
   o1js: string;
-  zkcloudworker: string;
   vk: Record<
     string, // contract name
     {

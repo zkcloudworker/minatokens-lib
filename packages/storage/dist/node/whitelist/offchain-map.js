@@ -40,7 +40,7 @@ export class OffChainListBase extends Struct({
         });
         isNone.assertEquals(map.isSome.not());
         const root = Provable.if(map.isSome, map.orElse(new OffchainMap()).root, Field(0));
-        root.equals(this.root);
+        root.assertEquals(this.root);
         return map;
     }
     /**
@@ -137,11 +137,7 @@ export class OffChainList extends Struct({
     async load(name = "offchain-map") {
         const isNone = this.isNone();
         const map = await Provable.witnessAsync(OffchainMapOption, async () => {
-            let isNoneBoolean = false;
-            Provable.asProver(() => {
-                isNoneBoolean = isNone.toBoolean();
-            });
-            if (isNoneBoolean)
+            if (isNone.toBoolean())
                 return OffchainMapOption.none();
             else
                 return OffchainMapOption.fromValue(await loadIndexedMerkleMap({

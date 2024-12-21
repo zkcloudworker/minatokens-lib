@@ -3,19 +3,35 @@
   "author": "DFST",
   "license": "Apache-2.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/upgradable-v1 && npm run build -w @minatokens/abi",
+    "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/abi",
     "release": "node release.js",
     "build:docs": "rm -rf packages/api/docs/api && rdme docs:prune packages/api/docs --confirm && npm run docs -w packages/api && node scripts/build-docs.js && rdme docs packages/api/docs && rdme docs packages/token/docs",
-    "clean": "rm -rf node_modules && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",
+    "clean": "rm -rf cache && rm -rf node_modules && rm -rf dist && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",
     "format": "syncpack format",
     "lint": "syncpack lint",
     "login": "npm login",
     "sync": "syncpack list-mismatches",
-    "rebuild": "npm run clean && npm i && npm run build"
+    "rebuild": "npm run clean && npm i && npm run build",
+    "compile:devnet": "CHAIN=devnet node --trace-uncaught --loader=ts-node/esm --enable-source-maps --test scripts/compile.ts && npm run build -w @minatokens/abi",
+    "compile:mainnet": "CHAIN=mainnet node --trace-uncaught --loader=ts-node/esm --enable-source-maps --test scripts/compile.ts && npm run build -w @minatokens/abi",
+    "compile": "npm run compile:devnet && npm run compile:mainnet"
   },
   "workspaces": [
-    "packages/*"
+    "packages/api",
+    "packages/abi",
+    "packages/nft",
+    "packages/storage",
+    "packages/token",
+    "packages/upgradable"
   ],
-  "version": "0.10.0"
+  "version": "0.10.0",
+  "dependencies": {},
+  "devDependencies": {
+    "o1js": "^2.2.0",
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
 }
