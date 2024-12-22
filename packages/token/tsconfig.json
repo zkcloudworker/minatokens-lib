@@ -6,25 +6,6 @@
     "composite": true
   },
   "references": [{ "path": "../api" }, { "path": "../storage" }],
-  "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
-    "out": "docs/token",
-    "plugin": ["typedoc-plugin-markdown"],
-    "excludeExternals": true,
-    "sourceLinkTemplate": "https://github.com/zkcloudworker/minatokens-lib/blob/main/{path}#L{line}",
-    "outputFileStrategy": "modules",
-    "useCodeBlocks": true,
-    "flattenOutputFiles": true,
-    "hideGroupHeadings": true,
-    "expandObjects": true,
-    "expandParameters": true,
-    "mergeReadme": false
-  },
   "include": ["src/**/*"],
-  "exclude": ["dist/**", "node_modules"],
-  "ts-node": {
-    "experimentalSpecifierResolution": "node",
-    "transpileOnly": true,
-    "esm": true
-  }
+  "exclude": ["dist/**", "node_modules"]
 }

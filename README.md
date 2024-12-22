@@ -1,4 +1,4 @@
-# MinaTokens
+# MinaTokens API
 
 ## MinaTokens API Documentation
 

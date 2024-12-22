@@ -266,12 +266,13 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
     });
   }
 };
-var NFTUpdateProof = class extends import_o1js.DynamicProof {
+var _NFTUpdateProof = class _NFTUpdateProof extends import_o1js.DynamicProof {
 };
-NFTUpdateProof.publicInputType = NFTState;
-NFTUpdateProof.publicOutputType = NFTState;
-NFTUpdateProof.maxProofsVerified = 2;
-NFTUpdateProof.featureFlags = import_o1js.FeatureFlags.allMaybe;
+_NFTUpdateProof.publicInputType = NFTState;
+_NFTUpdateProof.publicOutputType = NFTState;
+_NFTUpdateProof.maxProofsVerified = 2;
+_NFTUpdateProof.featureFlags = import_o1js.FeatureFlags.allMaybe;
+var NFTUpdateProof = _NFTUpdateProof;
 var NFTData = class _NFTData extends (0, import_o1js.Struct)({
   /** The price of the NFT. */
   price: import_o1js.UInt64,
@@ -3197,7 +3198,6 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
     /**
      * Inserts a metadata key-value pair into the NFT's metadata map.
      *
-     * @method insertMetadata
      * @param {NFTState} initialState - The initial state of the NFT.
      * @param {MetadataMap} metadata - The metadata map to insert the new entry into.
      * @param {Field} key - The key of the metadata entry to insert.
@@ -3239,7 +3239,6 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
     /**
      * Merges two self-proofs to produce a new NFT state.
      *
-     * @method merge
      * @param {NFTState} initialState - The initial state of the NFT.
      * @param {SelfProof<NFTState, NFTState>} proof1 - The first self-proof to merge.
      * @param {SelfProof<NFTState, NFTState>} proof2 - The second self-proof to merge.

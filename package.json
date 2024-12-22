@@ -1,5 +1,6 @@
 {
-  "description": "MinaTokens Library",
+  "name": "minatokens-lib",
+  "description": "MinaTokens API Library",
   "author": "DFST",
   "license": "Apache-2.0",
   "private": true,
@@ -7,7 +8,8 @@
   "scripts": {
     "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/abi",
     "release": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/release.ts",
-    "build:docs": "rm -rf packages/api/docs/api && rdme docs:prune packages/api/docs --confirm && npm run docs -w packages/api && node scripts/build-docs.js && rdme docs packages/api/docs && rdme docs packages/token/docs",
+    "version": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/version.ts",
+    "docs": "rm -rf docs && typedoc && node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/build-docs_v2.ts && rdme docs:prune docs --confirm && rdme docs docs",
     "clean": "rm -rf cache && rm -rf node_modules && rm -rf dist && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",
     "format": "syncpack format",
     "lint": "syncpack lint",
@@ -26,12 +28,14 @@
     "packages/token",
     "packages/upgradable"
   ],
-  "version": "0.12.0",
+  "version": "0.12.1",
   "dependencies": {},
   "devDependencies": {
     "o1js": "^2.2.0",
     "@types/node": "^22.10.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typedoc": "^0.27.3",
+    "typedoc-plugin-markdown": "^4.3.2"
   }
 }
