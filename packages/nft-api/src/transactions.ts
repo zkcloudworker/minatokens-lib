@@ -22,6 +22,7 @@ export type NonFungibleTokenTransactionType =
   | "nft:buy-approval"
   | "nft:transfer"
   | "nft:transfer-approval"
+  | "nft:airdrop"
   | "nft:auction"
   | "nft:cancel-auction"
   | "nft:settle-auction"
@@ -42,6 +43,14 @@ export type NonFungibleTokenTransactionType =
   | "bid:bid"
   | "bid:sell"
   | "bid:sell-approval"
+  | "bid:whitelist"
+  | "offer:create"
+  | "offer:deposit"
+  | "offer:withdraw"
+  | "offer:bid"
+  | "offer:sell"
+  | "offer:sell-approval"
+  | "offer:whitelist"
   | "pin:image"
   | "pin:metadata";
 
@@ -52,7 +61,11 @@ export const tokenTransactionTypes: NonFungibleTokenTransactionType[] = [
   "collection:resume",
   "collection:transfer",
   "collection:upgrade",
-  "collection:configuration",
+  "collection:set-name",
+  "collection:set-base-url",
+  "collection:set-admin",
+  "collection:set-royalty-fee",
+  "collection:set-transfer-fee",
   "nft:mint",
   "nft:mint-creator",
   "nft:update",
@@ -136,21 +149,21 @@ export interface LaunchNftAdvancedAdminParams
 
 export interface MintTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "mint";
+  txType: "nft:mint";
   to: string;
   amount: number;
 }
 
 export interface TransferTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "transfer";
+  txType: "nft:transfer";
   to: string;
   amount: number;
 }
 
 export interface AirdropTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "airdrop";
+  txType: "nft:airdrop";
   recipients: { address: string; amount: number; memo?: string }[];
 }
 
@@ -161,7 +174,7 @@ export interface AirdropTransactionParams
 
 export interface OfferTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "offer";
+  txType: "nft:offer";
   offerPrivateKey?: string;
   offerAddress?: string;
   amount: number;
@@ -175,7 +188,7 @@ export interface OfferTransactionParams
 // }
 
 export interface BidTransactionParams extends DeployedNftTransactionBaseParams {
-  txType: "bid";
+  txType: "bid:create";
   bidPrivateKey?: string;
   bidAddress?: string;
   amount: number;
@@ -189,7 +202,7 @@ export interface BidTransactionParams extends DeployedNftTransactionBaseParams {
 // }
 
 export interface BuyTransactionParams extends DeployedNftTransactionBaseParams {
-  txType: "buy";
+  txType: "nft:buy";
   offerAddress: string;
   amount: number;
 }
@@ -201,7 +214,7 @@ export interface BuyTransactionParams extends DeployedNftTransactionBaseParams {
 
 export interface SellTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "sell";
+  txType: "nft:sell";
   bidAddress: string;
   amount: number;
 }
@@ -213,7 +226,7 @@ export interface SellTransactionParams
 
 export interface WithdrawBidTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "withdrawBid";
+  txType: "bid:withdraw";
   bidAddress: string;
   amount: number;
 }
@@ -225,7 +238,7 @@ export interface WithdrawBidTransactionParams
 
 export interface WithdrawOfferTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "withdrawOffer";
+  txType: "offer:withdraw";
   offerAddress: string;
   amount: number;
 }
@@ -237,7 +250,7 @@ export interface WithdrawOfferTransactionParams
 
 export interface UpdateBidWhitelistTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "updateBidWhitelist";
+  txType: "bid:whitelist";
   bidAddress: string;
   whitelist: { address: string; amount?: number }[] | string;
 }
@@ -250,7 +263,7 @@ export interface UpdateBidWhitelistTransactionParams
 
 export interface UpdateOfferWhitelistTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "updateOfferWhitelist";
+  txType: "offer:whitelist";
   offerAddress: string;
   whitelist: { address: string; amount?: number }[] | string;
 }
@@ -263,7 +276,7 @@ export interface UpdateOfferWhitelistTransactionParams
 
 export interface UpdateAdminWhitelistTransactionParams
   extends DeployedNftTransactionBaseParams {
-  txType: "updateAdminWhitelist";
+  txType: "admin:whitelist";
   adminAddress: string;
   whitelist: { address: string; amount?: number }[] | string;
 }
@@ -290,7 +303,90 @@ export type TransactionParams =
   | UpdateOfferWhitelistTransactionParams
   | UpdateAdminWhitelistTransactionParams;
 
-export interface NftTransaction extends NftTransactionPayloads {
+export type TransactionPayloads = {
+  /**
+   * The address initiating the transaction.
+   */
+  sender: string;
+  /**
+   * The nonce for the transaction.
+   */
+  nonce: number;
+  /**
+   * A memo for the transaction.
+   */
+  memo: string;
+  /**
+   * The fee for the transaction.
+   */
+  fee: number;
+  walletPayload: {
+    /**
+     * The nonce for the transaction.
+     */
+    nonce?: number;
+    /**
+     * The transaction data.
+     */
+    transaction?: string;
+    /**
+     * Indicates if only signature is needed.
+     */
+    onlySign?: boolean;
+    feePayer?: {
+      /**
+       * The fee for the transaction.
+       */
+      fee?: number;
+      /**
+       * A memo for the transaction.
+       */
+      memo?: string;
+    };
+  };
+  minaSignerPayload: {
+    /**
+     * The zkApp command data.
+     */
+    zkappCommand: unknown;
+    feePayer: {
+      /**
+       * The fee payer's address.
+       */
+      feePayer?: string;
+      /**
+       * The fee for the transaction.
+       */
+      fee?: number;
+      /**
+       * The nonce for the transaction.
+       */
+      nonce?: number;
+      /**
+       * A memo for the transaction.
+       */
+      memo?: string;
+    };
+  };
+  /**
+   * The payload for the prover.
+   */
+  proverPayload: string;
+  /**
+   * The signed data for the transaction.
+   */
+  signedData: string;
+  /**
+   * The raw transaction data.
+   */
+  transaction: string;
+  /**
+   * Optional. Whether to broadcast the transaction after proving.
+   */
+  sendTransaction?: boolean;
+};
+
+export interface NftTransaction extends TransactionPayloads {
   request: TransactionParams;
 }
 

@@ -232,11 +232,11 @@ class NFTState extends Struct({
  * Represents a dynamic proof used for updating the state of an NFT.
  */
 class NFTUpdateProof extends DynamicProof {
+    static { this.publicInputType = NFTState; }
+    static { this.publicOutputType = NFTState; }
+    static { this.maxProofsVerified = 2; }
+    static { this.featureFlags = FeatureFlags.allMaybe; }
 }
-NFTUpdateProof.publicInputType = NFTState;
-NFTUpdateProof.publicOutputType = NFTState;
-NFTUpdateProof.maxProofsVerified = 2;
-NFTUpdateProof.featureFlags = FeatureFlags.allMaybe;
 /**
  * Represents the data associated with an NFT, including state and permission flags.
  */

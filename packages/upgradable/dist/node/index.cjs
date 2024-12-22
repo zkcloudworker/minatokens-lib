@@ -430,12 +430,13 @@ var ValidatorsVoting = (0, import_o1js2.ZkProgram)({
 });
 var ValidatorsVotingNativeProof = class extends import_o1js2.ZkProgram.Proof(ValidatorsVoting) {
 };
-var ValidatorsVotingProof = class extends import_o1js2.DynamicProof {
+var _ValidatorsVotingProof = class _ValidatorsVotingProof extends import_o1js2.DynamicProof {
 };
-ValidatorsVotingProof.publicInputType = ValidatorsDecisionState;
-ValidatorsVotingProof.publicOutputType = ValidatorsDecisionState;
-ValidatorsVotingProof.maxProofsVerified = 2;
-ValidatorsVotingProof.featureFlags = import_o1js2.FeatureFlags.allMaybe;
+_ValidatorsVotingProof.publicInputType = ValidatorsDecisionState;
+_ValidatorsVotingProof.publicOutputType = ValidatorsDecisionState;
+_ValidatorsVotingProof.maxProofsVerified = 2;
+_ValidatorsVotingProof.featureFlags = import_o1js2.FeatureFlags.allMaybe;
+var ValidatorsVotingProof = _ValidatorsVotingProof;
 function fieldFromString(storage) {
   const fields = import_o1js2.Encoding.stringToFields(storage);
   if (fields.length !== 1)

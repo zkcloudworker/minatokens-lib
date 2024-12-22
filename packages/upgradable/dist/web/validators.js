@@ -351,11 +351,11 @@ const ValidatorsVoting = ZkProgram({
 class ValidatorsVotingNativeProof extends ZkProgram.Proof(ValidatorsVoting) {
 }
 class ValidatorsVotingProof extends DynamicProof {
+    static { this.publicInputType = ValidatorsDecisionState; }
+    static { this.publicOutputType = ValidatorsDecisionState; }
+    static { this.maxProofsVerified = 2; }
+    static { this.featureFlags = FeatureFlags.allMaybe; }
 }
-ValidatorsVotingProof.publicInputType = ValidatorsDecisionState;
-ValidatorsVotingProof.publicOutputType = ValidatorsDecisionState;
-ValidatorsVotingProof.maxProofsVerified = 2;
-ValidatorsVotingProof.featureFlags = FeatureFlags.allMaybe;
 /**
  * Converts a `Field` element to a string representation.
  * This is used for serializing `Field` values into strings suitable for storage or transmission.

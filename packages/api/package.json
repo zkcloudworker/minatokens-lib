@@ -1,15 +1,13 @@
 {
   "name": "@minatokens/api",
   "description": "MinaTokens API",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.60.0",
     "@types/node": "^22.10.2",
     "esbuild": "^0.24.0",
-    "typedoc": "^0.27.3",
-    "typedoc-plugin-markdown": "^4.3.2",
     "typescript": "^5.7.2"
   },
   "engines": {
@@ -51,8 +49,6 @@
   "repository": "zkcloudworker/minatokens-lib.git",
   "scripts": {
     "build": "rm -rf dist && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
-    "docs": "typedoc",
-    "login": "npm login",
     "release": "npm run build && npm publish --access public",
     "validate": "swagger-cli validate open-api.yaml",
     "generate": "npm run validate && openapi-ts && rm src/client/index.ts && node replace-import.cjs && npm run build"
