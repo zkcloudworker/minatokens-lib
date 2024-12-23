@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.9.7"
+  version: "0.12.2"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -45,6 +45,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenTransaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /info/contract:
+    post:
+      tags:
+        - Information
+      summary: Retrieve contract info
+      description: Retrieves detailed information about a contract.
+      operationId: getContractInfo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContractInfoRequest"
+      responses:
+        "200":
+          description: Successful retrieval of contract info.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractInfo"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1872,6 +1904,115 @@ components:
                 description: Optional. The amount allowed to bid.
         - type: string
       description: Optional. List of whitelisted addresses with optional amounts, or a string.
+    ContractInfoRequest:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          description: The contract address.
+        tokenId:
+          type: string
+          description: Optional. The tokenId.
+    ContractPropertyType:
+      type: string
+      enum:
+        - name
+        - address
+        - tokenId
+        - verificationKey
+        - verificationKeyHash
+        - zkappVersion
+        - bigint
+        - number
+        - field
+        - boolean
+        - ipfs
+        - string
+        - uri
+        - symbol
+    ContractProperty:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          $ref: "#/components/schemas/ContractPropertyType"
+        value:
+          type: string
+        presentation:
+          type: string
+    ContractInfo:
+      type: object
+      required:
+        - name
+        - address
+        - tokenId
+        - derivedTokenId
+        - symbol
+        - uri
+        - verificationKey
+        - verificationKeyHash
+        - zkappVersion
+      properties:
+        name:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["name"]
+        address:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["address"]
+        tokenId:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["tokenId"]
+        derivedTokenId:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["tokenId"]
+        symbol:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["symbol"]
+        uri:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["uri"]
+        verificationKey:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["verificationKey"]
+        verificationKeyHash:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["verificationKeyHash"]
+        zkappVersion:
+          allOf:
+            - $ref: "#/components/schemas/ContractProperty"
+            - properties:
+                type:
+                  enum: ["zkappVersion"]
+      additionalProperties:
+        $ref: "#/components/schemas/ContractProperty"
   responses:
     BadRequest:
       description: Bad request - invalid input parameters.

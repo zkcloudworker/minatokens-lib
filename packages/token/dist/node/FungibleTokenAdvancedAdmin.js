@@ -71,7 +71,7 @@ export class FungibleTokenAdvancedAdmin extends TokenContract {
         this.whitelist.set(props.whitelist);
         this.account.permissions.set({
             ...Permissions.default(),
-            setVerificationKey: Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+            setVerificationKey: Permissions.VerificationKey.proofDuringCurrentVersion(),
             setPermissions: Permissions.impossible(),
         });
     }
@@ -81,6 +81,7 @@ export class FungibleTokenAdvancedAdmin extends TokenContract {
      * this will only be possible in case of a protocol update that requires an update.
      */
     async updateVerificationKey(vk) {
+        await this.ensureAdminSignature();
         this.account.verificationKey.set(vk);
     }
     async ensureAdminSignature() {

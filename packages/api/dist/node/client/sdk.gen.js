@@ -15,6 +15,16 @@ export const launchToken = (options) => {
     });
 };
 /**
+ * Retrieve contract info
+ * Retrieves detailed information about a contract.
+ */
+export const getContractInfo = (options) => {
+    return (options?.client ?? client).post({
+        ...options,
+        url: '/info/contract'
+    });
+};
+/**
  * Retrieve NFT Info
  * Retrieves detailed information about a Mina NFT V2.
  */

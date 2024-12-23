@@ -479,7 +479,7 @@ var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
     this.whitelist.set(props.whitelist);
     this.account.permissions.set({
       ...import_o1js3.Permissions.default(),
-      setVerificationKey: import_o1js3.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+      setVerificationKey: import_o1js3.Permissions.VerificationKey.proofDuringCurrentVersion(),
       setPermissions: import_o1js3.Permissions.impossible()
     });
   }
@@ -489,6 +489,7 @@ var FungibleTokenAdvancedAdmin = class extends import_o1js3.TokenContract {
    * this will only be possible in case of a protocol update that requires an update.
    */
   async updateVerificationKey(vk) {
+    await this.ensureAdminSignature();
     this.account.verificationKey.set(vk);
   }
   async ensureAdminSignature() {
@@ -796,6 +797,7 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
     this.owner = (0, import_o1js5.State)();
     this.token = (0, import_o1js5.State)();
     this.whitelist = (0, import_o1js5.State)();
+    this.maxAmount = (0, import_o1js5.State)();
     this.events = {
       offer: ClaimEvent,
       withdraw: ClaimEvent,
@@ -806,6 +808,7 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
   async deploy(args) {
     await super.deploy(args);
     this.whitelist.set(args.whitelist);
+    this.maxAmount.set(args.maxAmount ?? import_o1js5.UInt64.MAXINT());
     this.account.permissions.set({
       ...import_o1js5.Permissions.default(),
       send: import_o1js5.Permissions.proof(),
@@ -829,7 +832,6 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
-    const balance = this.account.balance.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
     const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender);
     senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
@@ -854,8 +856,8 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
     offerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
     this.emitEvent("withdraw", { amount, address: sender });
   }
-  async claim() {
-    const owner = this.owner.getAndRequireEquals();
+  async claim(amount) {
+    const maxAmount = this.maxAmount.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
@@ -864,12 +866,17 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
     const senderUpdate = import_o1js5.AccountUpdate.createSigned(sender, tokenId);
     senderUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
     const whitelist = this.whitelist.getAndRequireEquals();
-    const amount = (await whitelist.getWhitelistedAmount(sender)).assertSome("No tokens to claim");
+    const whiteListedAmount = await whitelist.getWhitelistedAmount(sender);
+    const maxClaimAmount = import_o1js5.Provable.if(whitelist.isSome(), whiteListedAmount.assertSome("No tokens to claim"), maxAmount);
+    amount.assertLessThanOrEqual(maxClaimAmount);
     this.account.balance.requireBetween(amount, import_o1js5.UInt64.MAXINT());
     let offerUpdate = this.send({ to: senderUpdate, amount });
     offerUpdate.body.mayUseToken = import_o1js5.AccountUpdate.MayUseToken.InheritFromParent;
     offerUpdate.body.useFullCommitment = (0, import_o1js5.Bool)(true);
-    this.emitEvent("claim", { amount, address: sender });
+    this.emitEvent("claim", {
+      amount,
+      address: sender
+    });
   }
   async updateWhitelist(whitelist) {
     const owner = this.owner.getAndRequireEquals();
@@ -893,6 +900,10 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
   (0, import_o1js5.state)(import_storage3.Whitelist),
   (0, import_tslib5.__metadata)("design:type", Object)
 ], FungibleTokenClaimContract.prototype, "whitelist", void 0);
+(0, import_tslib5.__decorate)([
+  (0, import_o1js5.state)(import_o1js5.UInt64),
+  (0, import_tslib5.__metadata)("design:type", Object)
+], FungibleTokenClaimContract.prototype, "maxAmount", void 0);
 (0, import_tslib5.__decorate)([
   import_o1js5.method,
   (0, import_tslib5.__metadata)("design:type", Function),
@@ -918,7 +929,7 @@ var FungibleTokenClaimContract = class extends import_o1js5.SmartContract {
 (0, import_tslib5.__decorate)([
   import_o1js5.method,
   (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", []),
+  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js5.UInt64]),
   (0, import_tslib5.__metadata)("design:returntype", Promise)
 ], FungibleTokenClaimContract.prototype, "claim", null);
 (0, import_tslib5.__decorate)([

@@ -9,7 +9,10 @@
     "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/abi",
     "release": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/release.ts",
     "version": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/version.ts",
-    "docs": "rm -rf docs && typedoc && node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/build-docs_v2.ts && rdme docs:prune docs --confirm && rdme docs docs",
+    "openapi": "rdme openapi packages/api/open-api.yaml --update",
+    "generate": "npm run generate -w @minatokens/api",
+    "guides": "rdme docs guides",
+    "docs": "rm -rf docs && typedoc && node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/build-docs_v2.ts && rdme docs:prune guides --confirm && rdme docs docs",
     "clean": "rm -rf cache && rm -rf node_modules && rm -rf dist && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",
     "format": "syncpack format",
     "lint": "syncpack lint",
@@ -28,7 +31,7 @@
     "packages/token",
     "packages/upgradable"
   ],
-  "version": "0.12.1",
+  "version": "0.12.2",
   "dependencies": {},
   "devDependencies": {
     "o1js": "^2.2.0",
