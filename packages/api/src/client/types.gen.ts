@@ -41,6 +41,29 @@ export type BalanceResponse = {
     balance: (number) | null;
 };
 
+export type ContractInfo = {
+    [key: string]: ContractProperty;
+};
+
+export type ContractInfoRequest = {
+    /**
+     * The contract address.
+     */
+    address: string;
+    /**
+     * Optional. The tokenId.
+     */
+    tokenId?: string;
+};
+
+export type ContractProperty = {
+    type: ContractPropertyType;
+    value: string;
+    presentation?: string;
+};
+
+export type ContractPropertyType = 'name' | 'address' | 'tokenId' | 'verificationKey' | 'verificationKeyHash' | 'zkappVersion' | 'bigint' | 'number' | 'field' | 'boolean' | 'ipfs' | 'string' | 'uri' | 'symbol';
+
 export type DeployedTokenTransactionBaseParams = TokenTransactionBaseParams & {
     /**
      * The address of the token contract.
@@ -950,6 +973,14 @@ export type LaunchTokenData = {
 export type LaunchTokenResponse = (TokenTransaction);
 
 export type LaunchTokenError = (ErrorResponse);
+
+export type GetContractInfoData = {
+    body: ContractInfoRequest;
+};
+
+export type GetContractInfoResponse = (ContractInfo);
+
+export type GetContractInfoError = (ErrorResponse);
 
 export type GetNftV2InfoData = {
     body: NFTRequestParams;

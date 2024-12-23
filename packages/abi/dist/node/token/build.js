@@ -360,6 +360,43 @@ export async function buildTokenTransaction(params) {
             ? 1_000_000_000
             : 0);
     console.log("accountCreationFee", accountCreationFee / 1_000_000_000);
+    switch (txType) {
+        case "token:mint":
+        case "token:transfer":
+        case "token:airdrop":
+        case "token:offer:create":
+        case "token:bid:create":
+        case "token:offer:buy":
+        case "token:offer:withdraw":
+        case "token:bid:sell":
+            if (Mina.getAccount(zkToken.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleToken.hash)
+                throw new Error("Invalid token verification key, token contract has to be upgraded");
+            break;
+    }
+    switch (txType) {
+        case "token:offer:create":
+        case "token:offer:buy":
+        case "token:offer:withdraw":
+        case "token:offer:whitelist":
+            if (offerContract === undefined)
+                throw new Error("Offer contract is required");
+            if (Mina.getAccount(offerContract.address).zkapp?.verificationKey?.hash.toJSON() !==
+                vk.FungibleTokenOfferContract.hash)
+                throw new Error("Invalid offer verification key, offer contract has to be upgraded");
+            break;
+    }
+    switch (txType) {
+        case "token:bid:create":
+        case "token:bid:sell":
+        case "token:bid:withdraw":
+        case "token:bid:whitelist":
+            if (bidContract === undefined)
+                throw new Error("Bid contract is required");
+            if (Mina.getAccount(bidContract.address).zkapp?.verificationKey?.hash.toJSON() !==
+                vk.FungibleTokenBidContract.hash)
+                throw new Error("Invalid bid verification key, bid contract has to be upgraded");
+            break;
+    }
     const tx = await Mina.transaction({ sender, fee, memo, nonce }, async () => {
         const feeAccountUpdate = AccountUpdate.createSigned(sender);
         if (accountCreationFee > 0) {
@@ -473,7 +510,7 @@ export async function buildTokenTransaction(params) {
                 if (bidContract === undefined)
                     throw new Error("Error: Bid address is required");
                 await bidContract.withdraw(amount);
-                await zkToken.approveAccountUpdate(bidContract.self);
+                //await zkToken.approveAccountUpdate(bidContract.self);
                 break;
             case "token:admin:whitelist":
                 if (!isAdvanced)

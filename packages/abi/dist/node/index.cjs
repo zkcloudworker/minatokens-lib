@@ -24,10 +24,13 @@ __export(index_exports, {
   TRANSACTION_FEE: () => TRANSACTION_FEE,
   buildTokenLaunchTransaction: () => buildTokenLaunchTransaction,
   buildTokenTransaction: () => buildTokenTransaction,
+  checkAddress: () => checkAddress,
   devnet: () => devnet,
   fetchMinaAccount: () => fetchMinaAccount,
+  getContractInfo: () => getContractInfo,
   getTokenSymbolAndAdmin: () => getTokenSymbolAndAdmin,
   mainnet: () => mainnet,
+  tokenBalance: () => tokenBalance,
   tokenContracts: () => tokenContracts,
   tokenVerificationKeys: () => tokenVerificationKeys
 });
@@ -114,8 +117,8 @@ var devnet = {
       "type": "token"
     },
     "FungibleTokenAdvancedAdmin": {
-      "hash": "2216208600797439874266055410973350860652150434972707149274471431561792999109",
-      "data": "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",
+      "hash": "8783499160580712605701253373775518561598736722248443106986637209009167661283",
+      "data": "AAAkvNsQ4ByPeQBk24M2qP7T7IYk1d1ebVHk90+tLqJ6Pa4t1Kv2jtBC3jb9xUWJHnFOCWreeegAkRnPjZcbMJs1Ot5ht3KRtavJXL4AYA2coW/de4vjybuua15iQMacuxoNG9qiBc0WPheQv0wvZndMc+zDeBRjsK3m5+g//qowJsVWFsi1mLQl3Uy2MkBE+yU58pqYLl8w0lkzI7DMAs8lF8qz1U5czwWcxqAa3URt28KWwm0KwRFcCn6PeyUUNTL9mL8jh3kn0hRV1cZ+cZfkr+MJoTIfRqebnqCr2lytI1wja2SIR3LVSJ1uLoCjjmIBtRAu1hPQgJvTTZSES6IIFes3PGgtpubUb3aRpkRMZn/J0jXm2gn2IbXCUOUBnypJl0tbcI9V1iBmB3KNcN2iiGfU83RCbRXH8sXYnXTNFqYb7enc4/GAKsmYfC+XD/1LkPvmotdYXeav+hCWFbMpnWX7z56jCdn67oSSBbPc0/XWBND1W6fXPtM/9u+t4ybFvZ5U2KYsh5i88WkSmF3Odi3kEAPVydMnRIVvulRiPjD2Rsz3z1BWkbCRdsTyjOBMgNMiHSN53cPdr+H2MDEIAN3jGECk/4FDiIGmV28nQ69i80Wv4hqpjRvQRBFZZfEPYdxU6t+kKIdnJ5xmff9vco5tsh2fXcBJlWKXxPYLJSOUTwJRFwvofOE6lq9lOBMHSBnGv1OF71nqZI0sQHR4C6C0WhekSIkIDSfOsa4QcyHnRgVXP4+mJnK3pEsav8cAToHYDbuqmnZ6Hegr19Zc4xtjkW3SajJyozZikK18QAimfcoD/Tepj0qxvF+1kzm+LDHKAfPvsRfqQI+DjOCFP19at/bytJxin7Gff7RyteLF17HASRmDi2pCgt1GdvYGv1DpAX2M7xb5b3DjU4FVxdRRNj3ioNs8le7mDJ9aryPlMrItU8UK9LVd4g8QW3/HeHtoaL4RXjLUM9pkytoYMj/6/kQn1HfwtZVc+OGiNxgGNY/wy1oxkC1nDiy0T0MO2/8AybVIltmz7u3TcYbz35Ct/YLsuBXe89sSyh82CTl5ySIrjre8YXLsL+bz7FCLPSmUtgdby88JKoQbcLthCOjEo3Vo87Mpke7DcqsCzk8ghoKxhCIkpKy3daDWhaAJjuxfBM/No/cDNxFkxR2KytZoLsct6ArjnTZuDl0CVza4u6yMHMkqTjw1GUhyE03EyaLIBu8I18z1LjH93qNlDJsFCkxQ2rxTjTHt0T0bprn4fjyXB1s2F4wE5unRK98IjEEAB/f6+5W1yvcLbTP6N1Ts2dmtIvQmMu+yMt9YijVB81YaN6FmeFquFVoC/SrxOr5ulaPb8qrI2ubvKIfABK+DA2Xo+pecNVSGGu/dtLfcCcI4ndW2EIqEBbpZApIvnxtWE2axZqTgKZqj2o6X1Q00Jn47klPNi8biqfn/AjCdYxin/RfCNzyhIYNrAB6yg8wnuvOeqVq/rh+/KNntNMUBaj6xpFiXHVIVS4y/YF0+csmljzTs6mdvTVMULt446TwczA6fXYYWfL7ZEUc4ICRRFtD2ls7Kb02c6xLOzwzi16WW/fMBkhrixflaWEmTZIsH3H07DJSaOLLWE1ZiI2sgZQBAFHSiAWKbut6pFz0FB+9YZZdIsCZcHVG7Iq4n9ZSdBTorv9trETC31SS1SOVcijIMmco+UIyct4wRGR8BuuNasoVkpD9c5ECyFcjknUFIcl7SM6ecQW1xxjAQGYsMmhqeNqff8tCuPg/w/putE0+xRiwYs1SuOWA8Jegh8rheXlt2w6C1yihvq4u7CZIWvg32rSOJIYPxSAk6jz4YuoPIlFeXT/JPrkLy0emV7UkhBFheVt8u2Zc5So/9DQA+RinquzPajIuyXCFaX2SoOel1J/l1CT4pn7VTlWzDOySusydtS4ccaNLpi4RBCRULKB6zvUlD09QA44z7Zm4QC2SJqa7mXzzMg8broWlU7Ahd9zXmh3NZMZlFtC4H7APFJZ/dFntnC7NLDacv4jnKQBSeLTVJRH9gB8YN5peXMk3hOfoSClLvkZyou9Oahphe7BWBumyejNLp0M4tx8kep80SjdI+6q0JqXBtzODi3dkw9JQzecKzLd7AxnLqbgSXSVIZyfFu9rmlP8u9TcWsvJ6BNLBluEyQ7TObccP7CYDsYKqDIFjRJFQU4iDXoJgle6/mnfPrkQ7huHB6YNMaK84LpZlE9DRmwSzjfrfx48BiE5sbiwMkpTXnXdgD3g+ww33QRRfqj4oZMfmQNN29NB9G6GjW1G1pnKPRNCe0AnzeNAmmvotkJ15/pItqrZFxmrsSK5durnczHQzhIxkD79rHiw+7u86QcU/k0Z+8AiqU0mDoWnXmHGlb1YmfqCo=",
       "type": "admin"
     },
     "FungibleTokenBidContract": {
@@ -129,8 +132,8 @@ var devnet = {
       "type": "user"
     },
     "FungibleTokenClaimContract": {
-      "hash": "17216572750854237165679327415027196624692915796549907707867214884111876863812",
-      "data": "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",
+      "hash": "26073072509794773512815124952537939952626223979091748527795661822286836926053",
+      "data": "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",
       "type": "user"
     }
   }
@@ -156,8 +159,8 @@ var mainnet = {
       "type": "token"
     },
     "FungibleTokenAdvancedAdmin": {
-      "hash": "11170062681382378077636149711478873034874061992105194989232921452447289675406",
-      "data": "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",
+      "hash": "3001786142689045145900918039681503601049056601794437758761839074934580215736",
+      "data": "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",
       "type": "admin"
     },
     "FungibleTokenBidContract": {
@@ -171,8 +174,8 @@ var mainnet = {
       "type": "user"
     },
     "FungibleTokenClaimContract": {
-      "hash": "14497964298991701244385639142528237188102359308205886959596662332595190835401",
-      "data": "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",
+      "hash": "14412353279864305144700641376290760101576596550573387075087682086668733960560",
+      "data": "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",
       "type": "user"
     }
   }
@@ -422,6 +425,41 @@ async function buildTokenTransaction(params) {
   const isNewTransferMintAccount = (txType === "token:transfer" || txType === "token:airdrop" || txType === "token:mint") && to ? !import_o1js2.Mina.hasAccount(to, tokenId) : false;
   const accountCreationFee = (isNewBidOfferAccount ? 1e9 : 0) + (isNewBuyAccount ? 1e9 : 0) + (isNewSellAccount ? 1e9 : 0) + (isNewTransferMintAccount ? 1e9 : 0) + (isToNewAccount && txType === "token:mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
   console.log("accountCreationFee", accountCreationFee / 1e9);
+  switch (txType) {
+    case "token:mint":
+    case "token:transfer":
+    case "token:airdrop":
+    case "token:offer:create":
+    case "token:bid:create":
+    case "token:offer:buy":
+    case "token:offer:withdraw":
+    case "token:bid:sell":
+      if (import_o1js2.Mina.getAccount(zkToken.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleToken.hash)
+        throw new Error("Invalid token verification key, token contract has to be upgraded");
+      break;
+  }
+  switch (txType) {
+    case "token:offer:create":
+    case "token:offer:buy":
+    case "token:offer:withdraw":
+    case "token:offer:whitelist":
+      if (offerContract === void 0)
+        throw new Error("Offer contract is required");
+      if (import_o1js2.Mina.getAccount(offerContract.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleTokenOfferContract.hash)
+        throw new Error("Invalid offer verification key, offer contract has to be upgraded");
+      break;
+  }
+  switch (txType) {
+    case "token:bid:create":
+    case "token:bid:sell":
+    case "token:bid:withdraw":
+    case "token:bid:whitelist":
+      if (bidContract === void 0)
+        throw new Error("Bid contract is required");
+      if (import_o1js2.Mina.getAccount(bidContract.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleTokenBidContract.hash)
+        throw new Error("Invalid bid verification key, bid contract has to be upgraded");
+      break;
+  }
   const tx = await import_o1js2.Mina.transaction({ sender, fee, memo, nonce }, async () => {
     const feeAccountUpdate = import_o1js2.AccountUpdate.createSigned(sender);
     if (accountCreationFee > 0) {
@@ -533,7 +571,6 @@ async function buildTokenTransaction(params) {
         if (bidContract === void 0)
           throw new Error("Error: Bid address is required");
         await bidContract.withdraw(amount);
-        await zkToken.approveAccountUpdate(bidContract.self);
         break;
       case "token:admin:whitelist":
         if (!isAdvanced)
@@ -693,16 +730,207 @@ var tokenContracts = {
   FungibleTokenOfferContract: import_token2.FungibleTokenOfferContract,
   FungibleTokenClaimContract: import_token2.FungibleTokenClaimContract
 };
+
+// dist/node/token/info.js
+var import_o1js4 = require("o1js");
+
+// dist/node/info/address.js
+var import_o1js3 = require("o1js");
+async function checkAddress(address) {
+  if (!address || typeof address !== "string") {
+    console.error("checkAddress params are invalid:", address);
+    return false;
+  }
+  try {
+    const publicKey = import_o1js3.PublicKey.fromBase58(address);
+    if (address !== publicKey.toBase58()) {
+      console.error("checkAddress: address is not valid", address, publicKey.toBase58());
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("checkAddress catch", { address, error });
+    return false;
+  }
+}
+
+// dist/node/token/info.js
+var import_token3 = require("@minatokens/token");
+async function getContractInfo(params) {
+  const { address, chain, parentTokenId, decimals } = params;
+  const vk = tokenVerificationKeys[chain].vk;
+  const info = [];
+  if (typeof address === "string" && !checkAddress(address)) {
+    throw new Error("Invalid address");
+  }
+  const publicKey = typeof address === "string" ? import_o1js4.PublicKey.fromBase58(address) : address;
+  const tokenId = params.tokenId ? typeof params.tokenId === "string" ? import_o1js4.TokenId.fromBase58(params.tokenId) : params.tokenId : void 0;
+  await fetchMinaAccount({ publicKey, tokenId, force: false });
+  if (!import_o1js4.Mina.hasAccount(publicKey, tokenId)) {
+    throw new Error("Account does not exist");
+  }
+  const account = import_o1js4.Mina.getAccount(publicKey, tokenId);
+  if (account.zkapp?.appState === void 0) {
+    throw new Error("The account is not a zkApp");
+  }
+  const tokenSymbol = account.tokenSymbol;
+  const uri = account.zkapp?.zkappUri;
+  const verificationKey = account.zkapp?.verificationKey?.data;
+  const verificationKeyHash = account.zkapp?.verificationKey?.hash.toJSON();
+  const versionData = account.zkapp?.zkappVersion;
+  const version = Number(versionData.toBigint());
+  const name = Object.keys(vk).find((key) => vk[key].hash === verificationKeyHash);
+  const derivedTokenId = import_o1js4.TokenId.derive(publicKey, tokenId);
+  const info0 = {
+    name: { type: "name", value: name ?? "unknown" },
+    address: { type: "address", value: publicKey.toBase58() },
+    tokenId: {
+      type: "tokenId",
+      value: import_o1js4.TokenId.toBase58(tokenId ?? import_o1js4.Field.from(1))
+    },
+    derivedTokenId: {
+      type: "tokenId",
+      value: import_o1js4.TokenId.toBase58(derivedTokenId)
+    },
+    symbol: { type: "symbol", value: tokenSymbol },
+    uri: { type: "uri", value: uri },
+    verificationKey: { type: "verificationKey", value: verificationKey ?? "" },
+    verificationKeyHash: {
+      type: "verificationKeyHash",
+      value: verificationKeyHash ?? ""
+    },
+    zkappVersion: { type: "zkappVersion", value: version.toString() }
+  };
+  switch (name) {
+    case "FungibleToken":
+    case "AdvancedFungibleToken":
+      {
+        const zkApp = new import_token3.FungibleToken(publicKey, tokenId);
+        const admin = zkApp.admin.get();
+        const decimals2 = zkApp.decimals.get();
+        const paused = zkApp.paused.get();
+        const zkAppTokenId = zkApp.deriveTokenId();
+        if (import_o1js4.TokenId.toBase58(zkAppTokenId) !== info0.derivedTokenId.value) {
+          throw new Error("Derived tokenId does not match");
+        }
+        await fetchMinaAccount({
+          publicKey,
+          tokenId: zkAppTokenId,
+          force: false
+        });
+        const totalSupply = import_o1js4.Mina.getBalance(publicKey, zkAppTokenId).toBigInt();
+        info0.admin = { type: "address", value: admin.toBase58() };
+        info0.decimals = {
+          type: "number",
+          value: decimals2.toNumber().toString()
+        };
+        info0.paused = {
+          type: "boolean",
+          value: paused.toBoolean().toString()
+        };
+        info0.totalSupply = {
+          type: "bigint",
+          value: totalSupply.toString(),
+          presentation: formatBalanceInternal(Number(totalSupply / BigInt(1 << decimals2.toNumber())))
+        };
+        const info1 = await getContractInfo({
+          address: admin,
+          parentTokenId: zkAppTokenId,
+          decimals: decimals2.toNumber(),
+          chain
+        });
+        info.push(...info1);
+      }
+      break;
+    case "FungibleTokenAdmin":
+      {
+        const adminAddress0 = account.zkapp?.appState[0];
+        const adminAddress1 = account.zkapp?.appState[1];
+        if (adminAddress0 === void 0 || adminAddress1 === void 0) {
+          throw new Error("Cannot fetch admin address from admin contract");
+        }
+        const adminAddress = import_o1js4.PublicKey.fromFields([
+          adminAddress0,
+          adminAddress1
+        ]);
+        let adminTokenBalance = 0n;
+        if (parentTokenId) {
+          try {
+            await fetchMinaAccount({
+              publicKey: adminAddress,
+              tokenId: parentTokenId,
+              force: false
+            });
+            adminTokenBalance = import_o1js4.Mina.getBalance(adminAddress, parentTokenId).toBigInt();
+          } catch (error) {
+          }
+        }
+        info0.admin = { type: "address", value: adminAddress.toBase58() };
+        info0.adminTokenBalance = {
+          type: "bigint",
+          value: adminTokenBalance.toString(),
+          presentation: formatBalanceInternal(Number(adminTokenBalance / BigInt(1 << (decimals ?? 9))))
+        };
+      }
+      break;
+  }
+  info.push(info0);
+  return info;
+}
+function formatBalanceInternal(num) {
+  const fixed = num.toFixed(2);
+  return fixed.endsWith(".00") ? fixed.slice(0, -3) : fixed;
+}
+async function tokenBalance(params) {
+  const { tokenAddress, address } = params;
+  if (!address || !checkAddress(address)) {
+    throw new Error("Invalid address");
+  }
+  if (tokenAddress && !checkAddress(tokenAddress)) {
+    throw new Error("Invalid token address");
+  }
+  const tokenContractPublicKey = tokenAddress ? import_o1js4.PublicKey.fromBase58(tokenAddress) : void 0;
+  const publicKey = import_o1js4.PublicKey.fromBase58(address);
+  const tokenIdDerived = tokenContractPublicKey ? import_o1js4.TokenId.derive(tokenContractPublicKey) : void 0;
+  if (tokenIdDerived && params.tokenId && import_o1js4.TokenId.toBase58(tokenIdDerived) !== params.tokenId) {
+    throw new Error("TokenId does not match tokenAddress");
+  }
+  const tokenId = tokenIdDerived ?? (params.tokenId ? import_o1js4.TokenId.fromBase58(params.tokenId) : void 0);
+  try {
+    await fetchMinaAccount({
+      publicKey,
+      tokenId,
+      force: false
+    });
+    return {
+      tokenAddress,
+      address,
+      tokenId: tokenId ? import_o1js4.TokenId.toBase58(tokenId) : void 0,
+      balance: import_o1js4.Mina.hasAccount(publicKey, tokenId) ? Number(import_o1js4.Mina.getAccount(publicKey, tokenId).balance.toBigInt()) : null
+    };
+  } catch (error) {
+    console.error("Cannot fetch account balance", params, error);
+    return {
+      tokenAddress,
+      address,
+      tokenId: tokenId ? import_o1js4.TokenId.toBase58(tokenId) : void 0,
+      balance: null
+    };
+  }
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   LAUNCH_FEE,
   TRANSACTION_FEE,
   buildTokenLaunchTransaction,
   buildTokenTransaction,
+  checkAddress,
   devnet,
   fetchMinaAccount,
+  getContractInfo,
   getTokenSymbolAndAdmin,
   mainnet,
+  tokenBalance,
   tokenContracts,
   tokenVerificationKeys
 });

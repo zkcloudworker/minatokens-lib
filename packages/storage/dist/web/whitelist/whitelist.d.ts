@@ -86,10 +86,8 @@ export declare class Whitelist extends Whitelist_base {
     /**
      * The function fetches a whitelisted amount associated with a given address using a map and returns it
      * as a UInt64Option.
-     * @param {PublicKey} address - The `address` parameter is of type `PublicKey`, which represents a
-     * public key used in cryptography for various purposes such as encryption, digital signatures, and
-     * authentication. In the context of the `fetchWhitelistedAmount` function, the `address` parameter is
-     * used to retrieve a whitelisted amount
+     * @param {PublicKey} address - The `address` parameter is of type `PublicKey`,
+     * used to retrieve a whitelisted amount for the given address.
      * @returns The `fetchWhitelistedAmount` function returns a `Promise` that resolves to a `UInt64Option`
      * object. This object contains a `value` property representing the amount retrieved from a map based
      * on the provided address. The `isSome` property indicates whether the value is present or not.

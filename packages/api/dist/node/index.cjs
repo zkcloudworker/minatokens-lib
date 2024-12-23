@@ -25,6 +25,7 @@ __export(index_exports, {
   client: () => client,
   config: () => config,
   faucet: () => faucet,
+  getContractInfo: () => getContractInfo,
   getNftV2Info: () => getNftV2Info,
   getProof: () => getProof,
   getTokenBalance: () => getTokenBalance,
@@ -54,6 +55,12 @@ var launchToken = (options) => {
   return (options?.client ?? client).post({
     ...options,
     url: "/token/launch"
+  });
+};
+var getContractInfo = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/info/contract"
   });
 };
 var getNftV2Info = (options) => {
@@ -240,6 +247,7 @@ async function sleep(ms) {
   client,
   config,
   faucet,
+  getContractInfo,
   getNftV2Info,
   getProof,
   getTokenBalance,

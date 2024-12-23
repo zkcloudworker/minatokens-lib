@@ -114,7 +114,7 @@ export class FungibleTokenAdvancedAdmin
     this.account.permissions.set({
       ...Permissions.default(),
       setVerificationKey:
-        Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+        Permissions.VerificationKey.proofDuringCurrentVersion(),
       setPermissions: Permissions.impossible(),
     });
   }
@@ -128,6 +128,7 @@ export class FungibleTokenAdvancedAdmin
    */
   @method
   async updateVerificationKey(vk: VerificationKey) {
+    await this.ensureAdminSignature();
     this.account.verificationKey.set(vk);
   }
 

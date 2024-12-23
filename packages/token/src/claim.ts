@@ -11,6 +11,7 @@ import {
   Bool,
   Field,
   Struct,
+  Provable,
 } from "o1js";
 import { Whitelist } from "@minatokens/storage";
 import { FungibleToken } from "./FungibleToken.js";
@@ -24,15 +25,19 @@ export interface FungibleTokenClaimContractDeployProps
   extends Exclude<DeployArgs, undefined> {
   /** The whitelist. */
   whitelist: Whitelist;
+  /** The maximum amount of tokens to claim in case the whitelist is empty. */
+  maxAmount?: UInt64;
 }
 export class FungibleTokenClaimContract extends SmartContract {
   @state(PublicKey) owner = State<PublicKey>();
   @state(PublicKey) token = State<PublicKey>();
   @state(Whitelist) whitelist = State<Whitelist>();
+  @state(UInt64) maxAmount = State<UInt64>();
 
   async deploy(args: FungibleTokenClaimContractDeployProps) {
     await super.deploy(args);
     this.whitelist.set(args.whitelist);
+    this.maxAmount.set(args.maxAmount ?? UInt64.MAXINT());
     this.account.permissions.set({
       ...Permissions.default(),
       send: Permissions.proof(),
@@ -72,8 +77,6 @@ export class FungibleTokenClaimContract extends SmartContract {
     const tokenId = tokenContract.deriveTokenId();
     tokenId.assertEquals(this.tokenId);
 
-    const balance = this.account.balance.getAndRequireEquals();
-
     const sender = this.sender.getUnconstrained();
     const senderUpdate = AccountUpdate.createSigned(sender);
     senderUpdate.body.useFullCommitment = Bool(true);
@@ -104,8 +107,8 @@ export class FungibleTokenClaimContract extends SmartContract {
     this.emitEvent("withdraw", { amount, address: sender } as ClaimEvent);
   }
 
-  @method async claim() {
-    const owner = this.owner.getAndRequireEquals();
+  @method async claim(amount: UInt64) {
+    const maxAmount = this.maxAmount.getAndRequireEquals();
     const token = this.token.getAndRequireEquals();
     const tokenContract = new FungibleToken(token);
     const tokenId = tokenContract.deriveTokenId();
@@ -116,16 +119,23 @@ export class FungibleTokenClaimContract extends SmartContract {
     senderUpdate.body.useFullCommitment = Bool(true);
 
     const whitelist = this.whitelist.getAndRequireEquals();
-    const amount = (await whitelist.getWhitelistedAmount(sender)).assertSome(
-      "No tokens to claim"
+    const whiteListedAmount = await whitelist.getWhitelistedAmount(sender);
+    const maxClaimAmount = Provable.if(
+      whitelist.isSome(),
+      whiteListedAmount.assertSome("No tokens to claim"),
+      maxAmount
     );
+    amount.assertLessThanOrEqual(maxClaimAmount);
     this.account.balance.requireBetween(amount, UInt64.MAXINT());
 
     let offerUpdate = this.send({ to: senderUpdate, amount });
     offerUpdate.body.mayUseToken = AccountUpdate.MayUseToken.InheritFromParent;
     offerUpdate.body.useFullCommitment = Bool(true);
 
-    this.emitEvent("claim", { amount, address: sender } as ClaimEvent);
+    this.emitEvent("claim", {
+      amount,
+      address: sender,
+    } as ClaimEvent);
   }
 
   @method async updateWhitelist(whitelist: Whitelist) {
