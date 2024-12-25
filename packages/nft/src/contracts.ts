@@ -10,7 +10,7 @@ export {
   WhitelistedAdminContract,
   Collection,
   WhitelistedCollection,
-  contractList,
+  nftContractList,
 };
 
 const AdminContract = NFTAdminContract({
@@ -30,7 +30,7 @@ const WhitelistedCollection = CollectionContract({
   upgradeContract: VerificationKeyUpgradeAuthority,
 });
 
-const contractList = {
+const nftContractList = {
   NFT: NFT,
   Collection: Collection,
   WhitelistedCollection: WhitelistedCollection,

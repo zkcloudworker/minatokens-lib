@@ -11,7 +11,7 @@ order: 3
 
 1. Open [minatokens.com](https://minatokens.com/)
 2. Connect your wallet
-3. Click on 'Explore' and then click on TESTME token to open its page, or open directly the [token TESTME page](https://minatokens.com/token/B62qnw9rRAuE8vnHWk28TXxNVf3jPEdjRK3kk1H6utYk8pQTC9ycdyU). For Zeko, use this [link](https://zekotokens.com/token/B62qjqdRCu4bjNnPfYTLX6NYCWGcMNPTasYfVuekMoYEz6jDHxebvJe)
+3. Click on 'Explore' and then click on TESTME token to open its page, or open directly the [token TESTME page](https://minatokens.com/token/B62qrhyVjXDBscG7i7KYJoMq6s4Gho3KQByu9KSmgVGHUKNnfsaH8q7). For Zeko, use this [link](https://zekotokens.com/token/B62qjqdRCu4bjNnPfYTLX6NYCWGcMNPTasYfVuekMoYEz6jDHxebvJe)
 4. Click on 'Trade' button or scroll down to 'Orderbook' section
 5. Select the offer you want to buy and enter the amount you want to buy
 6. Click on Buy TESTME, sign the transaction, and wait for transaction to be included in a block

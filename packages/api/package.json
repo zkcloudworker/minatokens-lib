@@ -1,9 +1,12 @@
 {
   "name": "@minatokens/api",
   "description": "MinaTokens API",
-  "version": "0.12.2",
+  "version": "0.12.5",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
+  "dependencies": {
+    "@hey-api/client-fetch": "^0.5.6"
+  },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.60.0",
     "@types/node": "^22.10.2",
@@ -43,20 +46,17 @@
   ],
   "license": "Apache-2.0",
   "main": "dist/web/index.js",
+  "peerDependencies": {},
   "publishConfig": {
     "access": "public"
   },
   "repository": "zkcloudworker/minatokens-lib.git",
   "scripts": {
     "build": "rm -rf dist && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
+    "generate": "npm run validate && openapi-ts && rm src/client/index.ts && node replace-import.cjs && npm run build",
     "release": "npm run build && npm publish --access public",
-    "validate": "swagger-cli validate open-api.yaml",
-    "generate": "npm run validate && openapi-ts && rm src/client/index.ts && node replace-import.cjs && npm run build"
+    "validate": "swagger-cli validate open-api.yaml"
   },
   "type": "module",
-  "types": "./dist/node/index.d.ts",
-  "dependencies": {
-    "@hey-api/client-fetch": "^0.5.6"
-  },
-  "peerDependencies": {}
+  "types": "./dist/node/index.d.ts"
 }

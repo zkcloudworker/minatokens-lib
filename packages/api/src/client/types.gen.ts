@@ -62,7 +62,7 @@ export type ContractProperty = {
     presentation?: string;
 };
 
-export type ContractPropertyType = 'name' | 'address' | 'tokenId' | 'verificationKey' | 'verificationKeyHash' | 'zkappVersion' | 'bigint' | 'number' | 'field' | 'boolean' | 'ipfs' | 'string' | 'uri' | 'symbol';
+export type ContractPropertyType = 'name' | 'role' | 'address' | 'tokenId' | 'verificationKey' | 'verificationKeyHash' | 'zkappVersion' | 'bigint' | 'number' | 'field' | 'boolean' | 'ipfs' | 'string' | 'uri' | 'symbol';
 
 export type DeployedTokenTransactionBaseParams = TokenTransactionBaseParams & {
     /**
@@ -978,7 +978,7 @@ export type GetContractInfoData = {
     body: ContractInfoRequest;
 };
 
-export type GetContractInfoResponse = (ContractInfo);
+export type GetContractInfoResponse = (Array<ContractInfo>);
 
 export type GetContractInfoError = (ErrorResponse);
 

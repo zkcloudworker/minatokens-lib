@@ -426,6 +426,26 @@ async function buildTokenTransaction(params) {
   const accountCreationFee = (isNewBidOfferAccount ? 1e9 : 0) + (isNewBuyAccount ? 1e9 : 0) + (isNewSellAccount ? 1e9 : 0) + (isNewTransferMintAccount ? 1e9 : 0) + (isToNewAccount && txType === "token:mint" && isAdvanced && advancedAdminContract.whitelist.get().isSome().toBoolean() ? 1e9 : 0);
   console.log("accountCreationFee", accountCreationFee / 1e9);
   switch (txType) {
+    case "token:offer:buy":
+    case "token:offer:withdraw":
+    case "token:offer:whitelist":
+      if (offerContract === void 0)
+        throw new Error("Offer contract is required");
+      if (import_o1js2.Mina.getAccount(offerContract.address, tokenId).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleTokenOfferContract.hash)
+        throw new Error("Invalid offer verification key, offer contract has to be upgraded");
+      break;
+  }
+  switch (txType) {
+    case "token:bid:sell":
+    case "token:bid:withdraw":
+    case "token:bid:whitelist":
+      if (bidContract === void 0)
+        throw new Error("Bid contract is required");
+      if (import_o1js2.Mina.getAccount(bidContract.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleTokenBidContract.hash)
+        throw new Error("Invalid bid verification key, bid contract has to be upgraded");
+      break;
+  }
+  switch (txType) {
     case "token:mint":
     case "token:transfer":
     case "token:airdrop":
@@ -436,28 +456,6 @@ async function buildTokenTransaction(params) {
     case "token:bid:sell":
       if (import_o1js2.Mina.getAccount(zkToken.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleToken.hash)
         throw new Error("Invalid token verification key, token contract has to be upgraded");
-      break;
-  }
-  switch (txType) {
-    case "token:offer:create":
-    case "token:offer:buy":
-    case "token:offer:withdraw":
-    case "token:offer:whitelist":
-      if (offerContract === void 0)
-        throw new Error("Offer contract is required");
-      if (import_o1js2.Mina.getAccount(offerContract.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleTokenOfferContract.hash)
-        throw new Error("Invalid offer verification key, offer contract has to be upgraded");
-      break;
-  }
-  switch (txType) {
-    case "token:bid:create":
-    case "token:bid:sell":
-    case "token:bid:withdraw":
-    case "token:bid:whitelist":
-      if (bidContract === void 0)
-        throw new Error("Bid contract is required");
-      if (import_o1js2.Mina.getAccount(bidContract.address).zkapp?.verificationKey?.hash.toJSON() !== vk.FungibleTokenBidContract.hash)
-        throw new Error("Invalid bid verification key, bid contract has to be upgraded");
       break;
   }
   const tx = await import_o1js2.Mina.transaction({ sender, fee, memo, nonce }, async () => {
@@ -831,7 +829,7 @@ async function getContractInfo(params) {
         info0.totalSupply = {
           type: "bigint",
           value: totalSupply.toString(),
-          presentation: formatBalanceInternal(Number(totalSupply / BigInt(1 << decimals2.toNumber())))
+          presentation: formatBalanceInternal(Number(totalSupply / BigInt(10 ** decimals2.toNumber())))
         };
         const info1 = await getContractInfo({
           address: admin,

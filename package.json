@@ -1,28 +1,38 @@
 {
   "name": "minatokens-lib",
   "description": "MinaTokens API Library",
+  "version": "0.12.5",
   "author": "DFST",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "o1js": "^2.2.0",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.27.3",
+    "typedoc-plugin-markdown": "^4.3.2",
+    "typescript": "^5.7.2"
+  },
   "license": "Apache-2.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "npm run build -w @minatokens/api && npm run build -w @minatokens/storage && npm run build -w @minatokens/token && npm run build -w @minatokens/upgradable && npm run build -w @minatokens/nft  && npm run build -w @minatokens/abi",
-    "release": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/release.ts",
-    "version": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/version.ts",
-    "openapi": "rdme openapi packages/api/open-api.yaml --update",
-    "generate": "npm run generate -w @minatokens/api",
-    "guides": "rdme docs guides",
-    "docs": "rm -rf docs && typedoc && node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/build-docs_v2.ts && rdme docs:prune guides --confirm && rdme docs docs",
     "clean": "rm -rf cache && rm -rf node_modules && rm -rf dist && rm -rf packages/*/node_modules && rm -rf packages/*/dist && rm package-lock.json",
-    "format": "syncpack format",
-    "lint": "syncpack lint",
-    "login": "npm login",
-    "sync": "syncpack list-mismatches",
-    "rebuild": "npm run clean && npm i && npm run build",
+    "compile": "npm run compile:devnet && npm run compile:mainnet",
     "compile:devnet": "CHAIN=devnet node --trace-uncaught --loader=ts-node/esm --enable-source-maps --test scripts/compile.ts && npm run build -w @minatokens/abi",
     "compile:mainnet": "CHAIN=mainnet node --trace-uncaught --loader=ts-node/esm --enable-source-maps --test scripts/compile.ts && npm run build -w @minatokens/abi",
-    "compile": "npm run compile:devnet && npm run compile:mainnet"
+    "docs": "rm -rf docs && typedoc && node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/build-docs_v2.ts && rdme docs:prune guides --confirm && rdme docs docs",
+    "format": "syncpack format",
+    "generate": "npm run generate -w @minatokens/api",
+    "guides": "rdme docs guides",
+    "lint": "syncpack lint",
+    "login": "npm login",
+    "openapi": "rdme openapi packages/api/open-api.yaml --update",
+    "rebuild": "npm run clean && npm i && npm run build",
+    "release": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/release.ts",
+    "sync": "syncpack list-mismatches",
+    "version": "node --trace-uncaught --loader=ts-node/esm --enable-source-maps scripts/version.ts"
   },
+  "type": "module",
   "workspaces": [
     "packages/api",
     "packages/abi",
@@ -30,15 +40,5 @@
     "packages/storage",
     "packages/token",
     "packages/upgradable"
-  ],
-  "version": "0.12.2",
-  "dependencies": {},
-  "devDependencies": {
-    "o1js": "^2.2.0",
-    "@types/node": "^22.10.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.2",
-    "typedoc": "^0.27.3",
-    "typedoc-plugin-markdown": "^4.3.2"
-  }
+  ]
 }
