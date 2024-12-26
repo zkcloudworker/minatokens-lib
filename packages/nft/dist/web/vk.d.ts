@@ -31,12 +31,11 @@ export type SupportedNetworkId = "devnet" | "mainnet";
 export declare const nftVerificationKeys: {
     [key in "mainnet" | "devnet"]: {
         o1js: string;
-        zkcloudworker: string;
         vk: {
             [key: string]: {
                 hash: string;
                 data: string;
-                type: "nft" | "collection" | "admin" | "upgrade" | "user";
+                type: "nft";
             };
         };
     };

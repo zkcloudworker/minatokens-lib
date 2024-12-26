@@ -1,9 +1,6 @@
 import { Field, PublicKey, SmartContract, State, VerificationKey, UInt64, AccountUpdate } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTState } from "./types.js";
-import { UpdateEvent, TransferEvent, OfferEvent, BuyEvent, UpgradeVerificationKeyEvent } from "./events.js";
-import { PausableContract, PauseEvent } from "./pausable.js";
-import { OwnershipChangeEvent } from "./ownable.js";
+import { NFTState, UpdateEvent, TransferEvent, OfferEvent, BuyEvent, UpgradeVerificationKeyEvent, PausableContract, PauseEvent, OwnershipChangeEvent } from "../interfaces/index.js";
 export { NFT };
 /**
  * The NFT Contract represents an individual NFT within a collection.

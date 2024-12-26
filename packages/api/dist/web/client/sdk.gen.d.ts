@@ -1,5 +1,5 @@
 import { type OptionsLegacyParser } from '@hey-api/client-fetch';
-import type { LaunchTokenData, GetContractInfoData, GetNftV2InfoData, FaucetData, GetTokenInfoData, GetTokenBalanceData, ProveData, GetProofData, TxStatusData, MintTokensData, TransferTokensData, AirdropTokensData, TokenBidData, TokenOfferData, BuyTokensData, SellTokensData, WithdrawTokenBidData, WithdrawTokenOfferData, UpdateTokenBidWhitelistData, UpdateTokenOfferWhitelistData, UpdateTokenAdminWhitelistData } from './types.gen.js';
+import type { LaunchTokenData, GetContractInfoData, GetContractInfoResponse, GetNftV2InfoData, FaucetData, GetTokenInfoData, GetTokenBalanceData, ProveData, GetProofData, TxStatusData, MintTokensData, TransferTokensData, AirdropTokensData, TokenBidData, TokenOfferData, BuyTokensData, SellTokensData, WithdrawTokenBidData, WithdrawTokenOfferData, UpdateTokenBidWhitelistData, UpdateTokenOfferWhitelistData, UpdateTokenAdminWhitelistData } from './types.gen.js';
 export declare const client: import("@hey-api/client-fetch").Client<Request, Response, unknown, import("@hey-api/client-fetch").RequestOptions<boolean, string>>;
 /**
  * Deploy a new fungible token contract.
@@ -13,7 +13,7 @@ export declare const launchToken: <ThrowOnError extends boolean = false>(options
  * Retrieve contract info
  * Retrieves detailed information about a contract.
  */
-export declare const getContractInfo: <ThrowOnError extends boolean = false>(options: OptionsLegacyParser<GetContractInfoData, ThrowOnError>) => import("@hey-api/client-fetch").RequestResult<import("./types.gen.js").ContractInfo, import("./types.gen.js").ErrorResponse, ThrowOnError>;
+export declare const getContractInfo: <ThrowOnError extends boolean = false>(options: OptionsLegacyParser<GetContractInfoData, ThrowOnError>) => import("@hey-api/client-fetch").RequestResult<GetContractInfoResponse, import("./types.gen.js").ErrorResponse, ThrowOnError>;
 /**
  * Retrieve NFT Info
  * Retrieves detailed information about a Mina NFT V2.

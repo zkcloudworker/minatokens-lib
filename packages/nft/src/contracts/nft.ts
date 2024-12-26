@@ -11,16 +11,20 @@ import {
   AccountUpdate,
 } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTData, NFTState, NFTImmutableState } from "./types.js";
 import {
+  NFTData,
+  NFTState,
+  NFTImmutableState,
   UpdateEvent,
   TransferEvent,
   OfferEvent,
   BuyEvent,
   UpgradeVerificationKeyEvent,
-} from "./events.js";
-import { PausableContract, PauseEvent } from "./pausable.js";
-import { OwnershipChangeEvent } from "./ownable.js";
+  PausableContract,
+  PauseEvent,
+  OwnershipChangeEvent,
+} from "../interfaces/index.js";
+
 export { NFT };
 
 const NFTErrors = {
@@ -88,9 +92,7 @@ class NFT extends SmartContract implements PausableContract {
    * @returns A signed account update for the owner.
    */
   async ensureOwnerSignature(): Promise<AccountUpdate> {
-    const sender = this.sender.getUnconstrained();
     const owner = this.owner.getAndRequireEquals();
-    owner.assertEquals(sender);
     const ownerUpdate = AccountUpdate.createSigned(owner);
     ownerUpdate.body.useFullCommitment = Bool(true); // prevent memo and fee change
     return ownerUpdate;
@@ -126,12 +128,16 @@ class NFT extends SmartContract implements PausableContract {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.isPaused.assertFalse(NFTErrors.nftIsPaused);
 
+    this.network.globalSlotSinceGenesis.requireBetween(
+      input.lowerSlot,
+      input.upperSlot
+    );
+
     // Assert that the public input matches the NFT state
     NFTState.assertEqual(
       input,
       new NFTState({
         immutableState: new NFTImmutableState({
-          creator,
           canChangeOwnerByProof: data.canChangeOwnerByProof,
           canChangeOwnerBySignature: data.canChangeOwnerBySignature,
           canChangeMetadata: data.canChangeMetadata,
@@ -153,8 +159,16 @@ class NFT extends SmartContract implements PausableContract {
         version: data.version,
         isPaused: data.isPaused,
         metadataVerificationKeyHash,
+        creator,
+        lowerSlot: input.lowerSlot,
+        upperSlot: input.upperSlot,
       })
     );
+
+    // assert that the read-only fields are not changed
+    input.creator.assertEquals(output.creator);
+    input.lowerSlot.assertEquals(output.lowerSlot);
+    input.upperSlot.assertEquals(output.upperSlot);
 
     // Check permissions and set new state
     name
@@ -344,7 +358,7 @@ class NFT extends SmartContract implements PausableContract {
     const event = new UpgradeVerificationKeyEvent({
       verificationKeyHash: vk.hash,
       address: this.address,
-      version,
+      tokenId: this.tokenId,
     });
     this.account.verificationKey.set(vk);
     this.packedData.set(data.pack());

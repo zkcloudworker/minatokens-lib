@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.12.2"
+  version: "0.12.5"
 servers:
   - url: https://minatokens.com/api/v1/
     description: Mina Devnet
@@ -72,11 +72,13 @@ paths:
               $ref: "#/components/schemas/ContractInfoRequest"
       responses:
         "200":
-          description: Successful retrieval of contract info.
+          description: Successful retrieval of contract info for the given contract and his admin contract and other contracts that are related to it.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ContractInfo"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContractInfo"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1919,6 +1921,7 @@ components:
       type: string
       enum:
         - name
+        - role
         - address
         - tokenId
         - verificationKey

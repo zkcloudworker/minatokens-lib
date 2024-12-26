@@ -5,3 +5,4 @@ export * from "./zkprogram/index.js";
 export * from "./marketplace/index.js";
 export * from "./vk.js";
 export * from "./contracts.js";
+export * from "./interfaces/index.js";

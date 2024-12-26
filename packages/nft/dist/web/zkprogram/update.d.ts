@@ -5,7 +5,7 @@
  * @module NFTProgram
  */
 import { Field, Cache, SelfProof, Signature } from "o1js";
-import { NFTState } from "../contracts/types.js";
+import { NFTState } from "../interfaces/types.js";
 import { MetadataMap } from "../metadata/metadata.js";
 export { NFTProgram };
 /**

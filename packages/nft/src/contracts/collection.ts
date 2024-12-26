@@ -31,11 +31,8 @@ import {
   MintParams,
   MintRequest,
   CollectionData,
-  CollectionDataPacked,
   NFTUpdateProof,
   NFTStateStruct,
-} from "./types.js";
-import {
   MintEvent,
   TransferEvent,
   OfferEvent,
@@ -44,23 +41,15 @@ import {
   UpgradeVerificationKeyEvent,
   LimitMintingEvent,
   PauseNFTEvent,
-} from "./events.js";
-import { NFTAdminBase, NFTAdminContractConstructor } from "./admin.js";
-import {
-  UpgradeAuthorityBase,
-  VerificationKeyUpgradeData,
-  UpgradeAuthorityContractConstructor,
-  UpgradableContract,
-} from "@minatokens/upgradable";
-import { PausableContract, PauseEvent } from "./pausable.js";
-import { OwnableContract, OwnershipChangeEvent } from "./ownable.js";
-import { nftVerificationKeys, SupportedNetworkId } from "../vk.js";
-export {
-  CollectionDeployProps,
-  CollectionContract,
-  CollectionErrors,
-  CollectionStateStruct,
-};
+  NFTAdminBase,
+  NFTAdminContractConstructor,
+  PausableContract,
+  PauseEvent,
+  OwnableContract,
+  OwnershipChangeEvent,
+} from "../interfaces/index.js";
+import { nftVerificationKeys } from "../vk.js";
+export { CollectionDeployProps, CollectionContract, CollectionErrors };
 
 const CollectionErrors = {
   wrongMasterNFTaddress:
@@ -103,15 +92,6 @@ interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
   url: string;
 }
 
-// The order of the fields is important; should be the same as in the Collection
-class CollectionStateStruct extends Struct({
-  collectionName: Field,
-  creator: PublicKey,
-  admin: PublicKey,
-  baseURL: Field,
-  packedData: CollectionDataPacked,
-}) {}
-
 /**
  * Creates a new NFT Collection Contract class.
  *
@@ -120,16 +100,15 @@ class CollectionStateStruct extends Struct({
  */
 function CollectionContract(params: {
   adminContract: NFTAdminContractConstructor;
-  upgradeContract: UpgradeAuthorityContractConstructor;
 }) {
-  const { adminContract, upgradeContract } = params;
+  const { adminContract } = params;
   /**
    * The NFT Collection Contract manages a collection of NFTs.
    * It handles minting, transferring, buying, selling, and integrates with Admin Contracts.
    */
   class Collection
     extends TokenContract
-    implements UpgradableContract, OwnableContract, PausableContract
+    implements OwnableContract, PausableContract
   {
     /** The name of the NFT collection. */
     @state(Field) collectionName = State<Field>();
@@ -143,7 +122,7 @@ function CollectionContract(params: {
      * A packed data field containing additional collection parameters,
      * such as flags and fee configurations.
      */
-    @state(CollectionDataPacked) packedData = State<CollectionDataPacked>();
+    @state(Field) packedData = State<Field>();
 
     /**
      * Deploys the NFT Collection Contract with the initial settings.
@@ -238,10 +217,6 @@ function CollectionContract(params: {
       return adminContract;
     }
 
-    get getUpgradeContractConstructor() {
-      return upgradeContract;
-    }
-
     /**
      * Retrieves the Admin Contract instance.
      *
@@ -256,31 +231,12 @@ function CollectionContract(params: {
     }
 
     /**
-     * Retrieves the Upgrade Authority Contract instance.
-     *
-     * @returns The Upgrade Authority Contract instance implementing UpgradeAuthorityBase.
-     */
-    async getUpgradeContract(): Promise<UpgradeAuthorityBase> {
-      const collectionData = CollectionData.unpack(
-        this.packedData.getAndRequireEquals()
-      );
-      collectionData.upgradeAuthority
-        .equals(PublicKey.empty())
-        .assertFalse(CollectionErrors.upgradeContractAddressNotSet);
-      return new this.getUpgradeContractConstructor(
-        collectionData.upgradeAuthority
-      );
-    }
-
-    /**
      * Ensures that the transaction is authorized by the contract owner.
      *
      * @returns The AccountUpdate of the creator.
      */
     async ensureOwnerSignature(): Promise<AccountUpdate> {
-      const sender = this.sender.getUnconstrained();
       const creator = this.creator.getAndRequireEquals();
-      creator.assertEquals(sender);
       const creatorUpdate = AccountUpdate.createSigned(creator);
       creatorUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
       return creatorUpdate;
@@ -885,32 +841,17 @@ function CollectionContract(params: {
         .equals(sender)
         .or(collectionData.requireCreatorSignatureToUpgradeNFT.not())
         .assertTrue(CollectionErrors.creatorSignatureRequiredToUpgradeNFT);
-      const upgradeContract = await this.getUpgradeContract();
+
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      // fetchAccount() should be called before calling this method
-      // this code should be changed after verification key precondition
-      // will be added to the Mina protocol
-      const previousVerificationKeyHash = Provable.witness(Field, () => {
-        const account = Mina.getAccount(address, tokenId);
-        const vkHash = account.zkapp?.verificationKey?.hash;
-        if (!vkHash) {
-          throw Error("Verification key hash not found");
-        }
-        return vkHash;
-      });
-      const data = new VerificationKeyUpgradeData({
-        address: address,
-        tokenId: tokenId,
-        previousVerificationKeyHash,
-        newVerificationKeyHash: vk.hash,
-      });
-      const upgradeAuthorityAnswer = await upgradeContract.verifyUpgradeData(
-        data
+      const adminContract = this.getAdminContract();
+      const canUpgrade = await adminContract.canChangeVerificationKey(
+        vk,
+        address,
+        tokenId
       );
-      upgradeAuthorityAnswer.isVerified.assertTrue(
-        CollectionErrors.cannotUpgradeVerificationKey
-      );
+      canUpgrade.assertTrue(CollectionErrors.cannotUpgradeVerificationKey);
+
       const event = await nft.upgradeVerificationKey(vk, sender);
       this.emitEvent("upgradeNFTVerificationKey", event);
     }
@@ -934,38 +875,15 @@ function CollectionContract(params: {
           CollectionErrors.creatorSignatureRequiredToUpgradeCollection
         );
 
-      const upgradeContract = await this.getUpgradeContract();
-      // fetchAccount() should be called before calling this method
-      // this code should be changed after verification key precondition
-      // will be added to the Mina protocol as this code does NOT
-      // create a constraint on the verification key
-      const previousVerificationKeyHash = Provable.witness(Field, () => {
-        const account = Mina.getAccount(this.address);
-        const vkHash = account.zkapp?.verificationKey?.hash;
-        if (!vkHash) {
-          throw Error("Verification key hash not found");
-        }
-        return vkHash;
-      });
-      const data = new VerificationKeyUpgradeData({
-        address: this.address,
-        tokenId: this.tokenId,
-        previousVerificationKeyHash,
-        newVerificationKeyHash: vk.hash,
-      });
-      const upgradeAuthorityAnswer = await upgradeContract.verifyUpgradeData(
-        data
+      const adminContract = this.getAdminContract();
+      const canUpgrade = await adminContract.canChangeVerificationKey(
+        vk,
+        this.address,
+        this.tokenId
       );
-      upgradeAuthorityAnswer.isVerified.assertTrue(
-        CollectionErrors.cannotUpgradeVerificationKey
-      );
-      collectionData.upgradeAuthority =
-        upgradeAuthorityAnswer.nextUpgradeAuthority.orElse(
-          collectionData.upgradeAuthority
-        );
+      canUpgrade.assertTrue(CollectionErrors.cannotUpgradeVerificationKey);
       this.account.verificationKey.set(vk);
 
-      this.packedData.set(collectionData.pack());
       this.emitEvent("upgradeVerificationKey", vk.hash);
     }
 

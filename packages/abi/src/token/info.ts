@@ -111,7 +111,7 @@ export async function getContractInfo(params: {
           type: "bigint",
           value: totalSupply.toString(),
           presentation: formatBalanceInternal(
-            Number(totalSupply / BigInt(1 << decimals.toNumber()))
+            Number(totalSupply / BigInt(10 ** decimals.toNumber()))
           ),
         };
         const info1: ContractInfo[] = await getContractInfo({

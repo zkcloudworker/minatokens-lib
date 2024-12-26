@@ -4,7 +4,7 @@ export type ChainVerificationKeysList = {
     {
         hash: string;
         data: string;
-        type: "token" | "admin" | "upgrade" | "user";
+        type: "token" | "admin" | "upgrade" | "user" | "nft" | "collection";
     }>;
 };
 export type VerificationKeysList = Record<"mainnet" | "devnet", ChainVerificationKeysList>;

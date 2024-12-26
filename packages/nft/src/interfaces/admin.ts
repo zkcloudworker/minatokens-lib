@@ -1,4 +1,11 @@
-import { Bool, PublicKey, SmartContract, UInt64 } from "o1js";
+import {
+  Bool,
+  PublicKey,
+  SmartContract,
+  UInt64,
+  VerificationKey,
+  Field,
+} from "o1js";
 import { MintParamsOption, MintRequest, NFTState } from "./types.js";
 export { NFTAdminBase, NFTAdminContractConstructor };
 
@@ -62,6 +69,12 @@ type NFTAdminBase = SmartContract & {
     seller: PublicKey,
     buyer: PublicKey,
     price: UInt64
+  ): Promise<Bool>;
+
+  canChangeVerificationKey(
+    vk: VerificationKey,
+    address: PublicKey,
+    tokenId: Field
   ): Promise<Bool>;
 };
 

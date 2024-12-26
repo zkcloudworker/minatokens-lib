@@ -5,16 +5,8 @@
  * @module NFTProgram
  */
 
-import {
-  PublicKey,
-  ZkProgram,
-  Field,
-  Cache,
-  SelfProof,
-  Experimental,
-  Signature,
-} from "o1js";
-import { NFTState } from "../contracts/types.js";
+import { ZkProgram, Field, Cache, SelfProof, Signature } from "o1js";
+import { NFTState } from "../interfaces/types.js";
 import { MetadataMap } from "../metadata/metadata.js";
 export { NFTProgram };
 
@@ -72,6 +64,9 @@ const NFTProgram = ZkProgram({
             version: initialState.version.add(1),
             metadataVerificationKeyHash:
               initialState.metadataVerificationKeyHash,
+            creator: initialState.creator,
+            lowerSlot: initialState.lowerSlot,
+            upperSlot: initialState.upperSlot,
           }),
           auxiliaryOutput: metadata,
         };

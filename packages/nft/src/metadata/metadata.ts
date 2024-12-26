@@ -1,5 +1,5 @@
-import { Experimental, Field, Poseidon, Struct, UInt64 } from "o1js";
-import { fieldFromString } from "../contracts/index.js";
+import { Field, Poseidon, Struct, Experimental } from "o1js";
+import { fieldFromString } from "../interfaces/index.js";
 import { Text } from "./text.js";
 import { MetadataTree } from "./tree.js";
 export {
