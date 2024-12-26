@@ -6,13 +6,8 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, CollectionData, CollectionDataPacked, NFTUpdateProof } from "./types.js";
-import { MintEvent, TransferEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent } from "./events.js";
-import { NFTAdminBase, NFTAdminContractConstructor } from "./admin.js";
-import { UpgradeAuthorityBase, UpgradeAuthorityContractConstructor } from "@minatokens/upgradable";
-import { PauseEvent } from "./pausable.js";
-import { OwnershipChangeEvent } from "./ownable.js";
-export { CollectionDeployProps, CollectionContract, CollectionErrors, CollectionStateStruct, };
+import { MintParams, MintRequest, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent } from "../interfaces/index.js";
+export { CollectionDeployProps, CollectionContract, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
     transferNotAllowed: string;
@@ -48,124 +43,6 @@ interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
     symbol: string;
     url: string;
 }
-declare const CollectionStateStruct_base: (new (value: {
-    collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    creator: PublicKey;
-    admin: PublicKey;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    packedData: CollectionDataPacked;
-}) => {
-    collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    creator: PublicKey;
-    admin: PublicKey;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    packedData: CollectionDataPacked;
-}) & {
-    _isStruct: true;
-} & Omit<import("node_modules/o1js/dist/node/lib/provable/types/provable-intf.js").Provable<{
-    collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    creator: PublicKey;
-    admin: PublicKey;
-    baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-    packedData: CollectionDataPacked;
-}, {
-    collectionName: bigint;
-    creator: {
-        x: bigint;
-        isOdd: boolean;
-    };
-    admin: {
-        x: bigint;
-        isOdd: boolean;
-    };
-    baseURL: bigint;
-    packedData: {
-        upgradeAuthorityX: bigint;
-        packedData: bigint;
-    };
-}>, "fromFields"> & {
-    fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
-        collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey;
-        admin: PublicKey;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked;
-    };
-} & {
-    fromValue: (value: {
-        collectionName: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey | {
-            x: Field | bigint;
-            isOdd: Bool | boolean;
-        };
-        admin: PublicKey | {
-            x: Field | bigint;
-            isOdd: Bool | boolean;
-        };
-        baseURL: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked | {
-            upgradeAuthorityX: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-            packedData: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        };
-    }) => {
-        collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey;
-        admin: PublicKey;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked;
-    };
-    toInput: (x: {
-        collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey;
-        admin: PublicKey;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked;
-    }) => {
-        fields?: Field[] | undefined;
-        packed?: [Field, number][] | undefined;
-    };
-    toJSON: (x: {
-        collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey;
-        admin: PublicKey;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked;
-    }) => {
-        collectionName: string;
-        creator: string;
-        admin: string;
-        baseURL: string;
-        packedData: {
-            upgradeAuthorityX: string;
-            packedData: string;
-        };
-    };
-    fromJSON: (x: {
-        collectionName: string;
-        creator: string;
-        admin: string;
-        baseURL: string;
-        packedData: {
-            upgradeAuthorityX: string;
-            packedData: string;
-        };
-    }) => {
-        collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey;
-        admin: PublicKey;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked;
-    };
-    empty: () => {
-        collectionName: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        creator: PublicKey;
-        admin: PublicKey;
-        baseURL: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-        packedData: CollectionDataPacked;
-    };
-};
-declare class CollectionStateStruct extends CollectionStateStruct_base {
-}
 /**
  * Creates a new NFT Collection Contract class.
  *
@@ -174,7 +51,6 @@ declare class CollectionStateStruct extends CollectionStateStruct_base {
  */
 declare function CollectionContract(params: {
     adminContract: NFTAdminContractConstructor;
-    upgradeContract: UpgradeAuthorityContractConstructor;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -189,7 +65,7 @@ declare function CollectionContract(params: {
          * A packed data field containing additional collection parameters,
          * such as flags and fee configurations.
          */
-        packedData: State<CollectionDataPacked>;
+        packedData: State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
         /**
          * Deploys the NFT Collection Contract with the initial settings.
          *
@@ -240,19 +116,12 @@ declare function CollectionContract(params: {
          */
         approveBase(forest: AccountUpdateForest): Promise<void>;
         readonly getAdminContractConstructor: NFTAdminContractConstructor;
-        readonly getUpgradeContractConstructor: UpgradeAuthorityContractConstructor;
         /**
          * Retrieves the Admin Contract instance.
          *
          * @returns The Admin Contract instance implementing NFTAdminBase.
          */
         getAdminContract(): NFTAdminBase;
-        /**
-         * Retrieves the Upgrade Authority Contract instance.
-         *
-         * @returns The Upgrade Authority Contract instance implementing UpgradeAuthorityBase.
-         */
-        getUpgradeContract(): Promise<UpgradeAuthorityBase>;
         /**
          * Ensures that the transaction is authorized by the contract owner.
          *
@@ -530,13 +399,7 @@ declare function CollectionContract(params: {
             getUnconstrained(): PublicKey;
             getAndRequireSignature(): PublicKey;
         };
-        readonly account: import("node_modules/o1js/dist/node/lib/mina/precondition.js" /**
-         * Internal method to mint an NFT.
-         *
-         * @param params - The mint parameters.
-         * @param collectionData - The current collection data.
-         * @returns The MintEvent emitted.
-         */).Account;
+        readonly account: import("node_modules/o1js/dist/node/lib/mina/precondition.js").Account;
         readonly network: import("node_modules/o1js/dist/node/lib/mina/precondition.js").Network;
         readonly currentSlot: import("node_modules/o1js/dist/node/lib/mina/precondition.js").CurrentSlot;
         approve(update: AccountUpdate | import("o1js").AccountUpdateTree | AccountUpdateForest): void;
@@ -666,11 +529,7 @@ declare function CollectionContract(params: {
     }): Promise<{
         verificationKey: {
             data: string;
-            hash: import("node_modules/o1js/dist/node/lib/provable/field.js" /**
-             * Retrieves the Admin Contract instance.
-             *
-             * @returns The Admin Contract instance implementing NFTAdminBase.
-             */).Field;
+            hash: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
         };
         provers: import("node_modules/o1js/dist/node/snarky.js").Pickles.Prover[];
         verify: (statement: import("node_modules/o1js/dist/node/snarky.js").Pickles.Statement<import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst>, proof: unknown) => Promise<boolean>;

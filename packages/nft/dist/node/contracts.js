@@ -1,27 +1,14 @@
-import { NFT, CollectionContract } from "./contracts/index.js";
-import { NFTAdminContract, NFTWhitelistedAdminContract, } from "./admin/index.js";
+import { CollectionContract } from "./contracts/index.js";
+import { NFTAdmin, NFTAdvancedAdminContract } from "./admin/index.js";
 import { VerificationKeyUpgradeAuthority } from "@minatokens/upgradable";
-export { AdminContract, WhitelistedAdminContract, Collection, WhitelistedCollection, contractList, };
-const AdminContract = NFTAdminContract({
-    upgradeContract: VerificationKeyUpgradeAuthority,
-});
-const WhitelistedAdminContract = NFTWhitelistedAdminContract({
+export { NFTAdvancedAdmin, Collection, AdvancedCollection };
+const NFTAdvancedAdmin = NFTAdvancedAdminContract({
     upgradeContract: VerificationKeyUpgradeAuthority,
 });
 const Collection = CollectionContract({
-    adminContract: AdminContract,
-    upgradeContract: VerificationKeyUpgradeAuthority,
+    adminContract: NFTAdmin,
 });
-const WhitelistedCollection = CollectionContract({
-    adminContract: WhitelistedAdminContract,
-    upgradeContract: VerificationKeyUpgradeAuthority,
+const AdvancedCollection = CollectionContract({
+    adminContract: NFTAdvancedAdmin,
 });
-const contractList = {
-    NFT: NFT,
-    Collection: Collection,
-    WhitelistedCollection: WhitelistedCollection,
-    AdminContract: AdminContract,
-    WhitelistedAdminContract: WhitelistedAdminContract,
-    VerificationKeyUpgradeAuthority: VerificationKeyUpgradeAuthority,
-};
 //# sourceMappingURL=contracts.js.map

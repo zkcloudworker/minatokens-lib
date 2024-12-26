@@ -1,1 +1,0 @@
-{"version":3,"file":"ownable.js","sourceRoot":"","sources":["../../../src/contracts/ownable.ts"],"names":[],"mappings":"AAAA,OAAO,EACL,SAAS,EAGT,MAAM,GAGP,MAAM,MAAM,CAAC;AA+Bd;;;;GAIG;AACH,MAAM,OAAO,oBAAqB,SAAQ,MAAM,CAAC;IAC/C,QAAQ,EAAE,SAAS;IACnB,QAAQ,EAAE,SAAS;CACpB,CAAC;CAAG"}

@@ -840,9 +840,11 @@ export async function getTokenSymbolAndAdmin(params: {
     }
     const typeOrder = {
       upgrade: 0,
-      admin: 1,
-      token: 2,
-      user: 3,
+      nft: 1,
+      admin: 2,
+      collection: 3,
+      token: 4,
+      user: 5,
     };
 
     return typeOrder[typeA] - typeOrder[typeB];

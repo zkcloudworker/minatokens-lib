@@ -11,11 +11,9 @@ import {
 import {
   NFT,
   Collection,
-  WhitelistedCollection,
-  NFTAdminContract,
-  NFTWhitelistedAdminContract,
-  AdminContract,
-  WhitelistedAdminContract,
+  AdvancedCollection,
+  NFTAdmin,
+  NFTAdvancedAdmin,
 } from "@minatokens/nft";
 import { VerificationKeyUpgradeAuthority } from "@minatokens/upgradable";
 
@@ -45,8 +43,8 @@ export const contractList: Record<string, Compilable> = {
   FungibleTokenClaimContract: FungibleTokenClaimContract,
   NFT: NFT,
   Collection: Collection,
-  WhitelistedCollection: WhitelistedCollection,
-  AdminContract: AdminContract,
-  WhitelistedAdminContract: WhitelistedAdminContract,
+  AdvancedCollection: AdvancedCollection,
+  NFTAdmin: NFTAdmin,
+  NFTAdvancedAdmin: NFTAdvancedAdmin,
   VerificationKeyUpgradeAuthority: VerificationKeyUpgradeAuthority,
 };

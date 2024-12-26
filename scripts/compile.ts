@@ -1,3 +1,4 @@
+// This script will run out of memory first time, just run it three times
 import { it } from "node:test";
 import assert from "node:assert";
 import { Mina, VerificationKey, Field, Cache } from "o1js";
@@ -11,16 +12,23 @@ import {
   FungibleTokenClaimContract,
 } from "@minatokens/token";
 import {
+  NFT,
+  Collection,
+  AdvancedCollection,
+  NFTAdmin,
+  NFTAdvancedAdmin,
+} from "@minatokens/nft";
+import {
   tokenVerificationKeys,
   ChainVerificationKeysList,
 } from "@minatokens/abi";
+import { VerificationKeyUpgradeAuthority } from "@minatokens/upgradable";
 import fs from "fs/promises";
 
 import { FungibleTokenAdmin as FungibleTokenAdminMF } from "./FungibleTokenAdmin.js";
 import { FungibleToken as FungibleTokenMF } from "./FungibleToken.js";
 
 let o1jsVersion: string;
-let zkcloudworkerVersion: string;
 let isDifferent = false;
 
 type CompilableInternal = {
@@ -44,8 +52,23 @@ type CompilableInternal = {
 const contracts: {
   name: string;
   contract: CompilableInternal;
-  type: "token" | "admin" | "upgrade" | "user" | "check";
+  type: "token" | "admin" | "upgrade" | "user" | "check" | "nft" | "collection";
 }[] = [
+  { name: "NFT", contract: NFT, type: "nft" },
+  { name: "NFTAdmin", contract: NFTAdmin, type: "admin" },
+  {
+    name: "VerificationKeyUpgradeAuthority",
+    contract: VerificationKeyUpgradeAuthority,
+    type: "upgrade",
+  },
+  { name: "NFTAdvancedAdmin", contract: NFTAdvancedAdmin, type: "admin" },
+  { name: "Collection", contract: Collection, type: "collection" },
+  {
+    name: "AdvancedCollection",
+    contract: AdvancedCollection,
+    type: "collection",
+  },
+
   { name: "FungibleToken", contract: FungibleToken, type: "token" },
   { name: "FungibleTokenAdmin", contract: FungibleTokenAdmin, type: "admin" },
   {
@@ -279,7 +302,12 @@ async function main() {
     );
     process.exit(1);
   } else {
-    await compileContracts(chain);
+    try {
+      await compileContracts(chain);
+    } catch (error) {
+      console.error("Error compiling contracts:", error);
+      process.exit(1);
+    }
   }
 }
 

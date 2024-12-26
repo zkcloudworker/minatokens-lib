@@ -22,63 +22,8 @@ export {
   NFTState,
   NFTImmutableState,
   NFTUpdateProof,
-  CollectionDataPacked,
   NFTStateStruct,
 };
-
-// /**
-//  * Represents the off-chain storage information for an NFT,
-//  * such as an IPFS hash.
-//  */
-// class Storage extends Struct({
-//   url: Provable.Array(Field, 2),
-// }) {
-//   constructor(value: { url: [Field, Field] }) {
-//     super(value);
-//   }
-
-//   /**
-//    * Asserts that two Storage instances are equal.
-//    * @param a The first Storage instance.
-//    * @param b The second Storage instance.
-//    */
-//   static assertEquals(a: Storage, b: Storage) {
-//     a.url[0].assertEquals(b.url[0]);
-//     a.url[1].assertEquals(b.url[1]);
-//   }
-
-//   /**
-//    * Checks if two Storage instances are equal.
-//    * @param a The first Storage instance.
-//    * @param b The second Storage instance.
-//    * @returns A Bool indicating whether the two instances are equal.
-//    */
-//   static equals(a: Storage, b: Storage): Bool {
-//     return a.url[0].equals(b.url[0]).and(a.url[1].equals(b.url[1]));
-//   }
-
-//   /**
-//    * Creates a Storage instance from a string.
-//    * @param url The string representing the storage URL.
-//    * @returns A new Storage instance.
-//    */
-//   static fromString(url: string): Storage {
-//     const fields = Encoding.stringToFields(url);
-//     if (fields.length !== 2) throw new Error("Invalid string length");
-//     return new Storage({ url: [fields[0], fields[1]] });
-//   }
-
-//   /**
-//    * Converts the Storage instance to a string.
-//    * @returns The string representation of the storage URL.
-//    */
-//   toString(): string {
-//     if (this.url[0].toBigInt() === 0n && this.url[1].toBigInt() === 0n) {
-//       throw new Error("Invalid string");
-//     }
-//     return Encoding.stringFromFields([this.url[0], this.url[1]]);
-//   }
-// }
 
 /**
  * Represents the on-chain state structure of an NFT.
@@ -127,8 +72,6 @@ class NFTStateStruct extends Struct({
  * and flags that determine the NFT's behavior and permissions.
  */
 class NFTImmutableState extends Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
   /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
   canChangeOwnerByProof: Bool, // readonly
   /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
@@ -158,7 +101,6 @@ class NFTImmutableState extends Struct({
    * @param b The second NFTImmutableState instance.
    */
   static assertEqual(a: NFTImmutableState, b: NFTImmutableState) {
-    a.creator.assertEquals(b.creator);
     a.canChangeOwnerByProof.assertEquals(b.canChangeOwnerByProof);
     a.canChangeOwnerBySignature.assertEquals(b.canChangeOwnerBySignature);
     a.canChangeMetadata.assertEquals(b.canChangeMetadata);
@@ -181,13 +123,11 @@ class NFTImmutableState extends Struct({
    */
   static fromNFTData(params: {
     nftData: NFTData;
-    creator: PublicKey;
     address: PublicKey;
     tokenId: Field;
   }) {
-    const { nftData, creator, address, tokenId } = params;
+    const { nftData, address, tokenId } = params;
     return new NFTImmutableState({
-      creator,
       address,
       tokenId,
       id: nftData.id,
@@ -226,6 +166,13 @@ class NFTState extends Struct({
   isPaused: Bool,
   /** The hash of the verification key used for metadata proofs. */
   metadataVerificationKeyHash: Field,
+
+  /** The public key of the creator of the NFT (readonly). */
+  creator: PublicKey, // readonly
+  /** The lower slot of the validity of the NFT update proof. */
+  lowerSlot: UInt32,
+  /** The upper slot of the validity of the NFT update proof. */
+  upperSlot: UInt32,
 }) {
   /**
    * Asserts that two NFTState instances are equal.
@@ -242,6 +189,9 @@ class NFTState extends Struct({
     a.version.assertEquals(b.version);
     a.isPaused.assertEquals(b.isPaused);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
+    a.creator.assertEquals(b.creator);
+    a.lowerSlot.assertEquals(b.lowerSlot);
+    a.upperSlot.assertEquals(b.upperSlot);
   }
 
   /**
@@ -254,12 +204,14 @@ class NFTState extends Struct({
     creator: PublicKey;
     address: PublicKey;
     tokenId: Field;
+    lowerSlot?: UInt32;
+    upperSlot?: UInt32;
   }) {
-    const { nftState, creator, address, tokenId } = params;
+    const { nftState, creator, address, tokenId, lowerSlot, upperSlot } =
+      params;
     const nftData = NFTData.unpack(nftState.packedData);
     const immutableState = NFTImmutableState.fromNFTData({
       nftData,
-      creator,
       address,
       tokenId,
     });
@@ -273,6 +225,9 @@ class NFTState extends Struct({
       version: nftData.version,
       isPaused: nftData.isPaused,
       metadataVerificationKeyHash: nftState.metadataVerificationKeyHash,
+      creator,
+      lowerSlot: lowerSlot ?? UInt32.zero,
+      upperSlot: upperSlot ?? UInt32.MAXINT(),
     });
   }
 }
@@ -444,21 +399,9 @@ class NFTData extends Struct({
 }
 
 /**
- * Represents the packed collection data, including the upgrade authority's x-coordinate and packed data fields.
- */
-class CollectionDataPacked extends Struct({
-  /** The x-coordinate of the upgrade authority's public key. */
-  upgradeAuthorityX: Field,
-  /** The packed data field containing collection parameters and flags. */
-  packedData: Field,
-}) {}
-
-/**
  * Represents the data associated with an NFT collection, including configuration parameters and permission flags.
  */
 class CollectionData extends Struct({
-  /** The public key of the upgrade authority contract. */
-  upgradeAuthority: PublicKey,
   /** The royalty fee percentage (e.g., 1000 = 1%, 100 = 0.1%). */
   royaltyFee: UInt32, // 1000 = 1%, 100 = 0.1%, 10000 = 10%
   /** The transfer fee amount. */
@@ -502,7 +445,6 @@ class CollectionData extends Struct({
    * @returns A new CollectionData instance.
    */
   static new(params: {
-    upgradeAuthority?: PublicKey;
     royaltyFee?: number;
     transferFee?: number;
     requireTransferApproval?: boolean;
@@ -523,7 +465,6 @@ class CollectionData extends Struct({
     isPaused?: boolean;
   }): CollectionData {
     const {
-      upgradeAuthority,
       royaltyFee,
       transferFee,
       requireTransferApproval,
@@ -544,7 +485,6 @@ class CollectionData extends Struct({
       isPaused,
     } = params;
     return new CollectionData({
-      upgradeAuthority: upgradeAuthority ?? PublicKey.empty(),
       royaltyFee: UInt32.from(royaltyFee ?? 0),
       transferFee: UInt64.from(transferFee ?? 0),
       requireTransferApproval: Bool(requireTransferApproval ?? false),
@@ -574,31 +514,27 @@ class CollectionData extends Struct({
    * Packs the CollectionData into a CollectionDataPacked representation for efficient storage.
    * @returns The packed CollectionDataPacked instance.
    */
-  pack(): CollectionDataPacked {
-    return new CollectionDataPacked({
-      upgradeAuthorityX: this.upgradeAuthority.x,
-      packedData: Field.fromBits([
-        ...this.royaltyFee.value.toBits(32),
-        ...this.transferFee.value.toBits(64),
-        this.requireTransferApproval,
-        this.requireUpdateApproval,
-        this.requireOfferApproval,
-        this.requireSaleApproval,
-        this.requireBuyApproval,
-        this.requireCreatorSignatureToUpgradeCollection,
-        this.requireCreatorSignatureToUpgradeNFT,
-        this.canMint,
-        this.canChangeName,
-        this.canChangeCreator,
-        this.canChangeBaseUri,
-        this.canChangeRoyalty,
-        this.canChangeTransferFee,
-        this.canSetAdmin,
-        this.canPause,
-        this.isPaused,
-        this.upgradeAuthority.isOdd,
-      ]),
-    });
+  pack(): Field {
+    return Field.fromBits([
+      ...this.royaltyFee.value.toBits(32),
+      ...this.transferFee.value.toBits(64),
+      this.requireTransferApproval,
+      this.requireUpdateApproval,
+      this.requireOfferApproval,
+      this.requireSaleApproval,
+      this.requireBuyApproval,
+      this.requireCreatorSignatureToUpgradeCollection,
+      this.requireCreatorSignatureToUpgradeNFT,
+      this.canMint,
+      this.canChangeName,
+      this.canChangeCreator,
+      this.canChangeBaseUri,
+      this.canChangeRoyalty,
+      this.canChangeTransferFee,
+      this.canSetAdmin,
+      this.canPause,
+      this.isPaused,
+    ]);
   }
 
   /**
@@ -606,8 +542,8 @@ class CollectionData extends Struct({
    * @param packed The packed CollectionDataPacked instance.
    * @returns A new CollectionData instance.
    */
-  static unpack(packed: CollectionDataPacked) {
-    const bits = packed.packedData.toBits(32 + 64 + 17);
+  static unpack(packed: Field) {
+    const bits = packed.toBits(32 + 64 + 16);
     const royaltyFee = UInt32.Unsafe.fromField(
       Field.fromBits(bits.slice(0, 32))
     );
@@ -615,16 +551,9 @@ class CollectionData extends Struct({
       Field.fromBits(bits.slice(32, 32 + 64))
     );
 
-    const upgradeAuthorityIsOdd = bits[32 + 64 + 16];
-    const upgradeAuthority = PublicKey.from({
-      x: packed.upgradeAuthorityX,
-      isOdd: upgradeAuthorityIsOdd,
-    });
-
     return new CollectionData({
       royaltyFee,
       transferFee,
-      upgradeAuthority,
       requireTransferApproval: bits[32 + 64],
       requireUpdateApproval: bits[32 + 64 + 1],
       requireOfferApproval: bits[32 + 64 + 2],

@@ -1,5 +1,5 @@
 /**
- * The `NFTWhitelistedAdminContract` is an implementation of an admin contract that uses a whitelist to control access to certain actions within the NFT ecosystem.
+ * The `NFTAdvancedAdminContract` is an implementation of an admin contract that uses a whitelist to control access to certain actions within the NFT ecosystem.
  * This contract ensures that only whitelisted addresses can perform specific actions such as minting, updating, transferring, buying, or selling NFTs.
  * It also introduces functionality for pausing and resuming the contract, upgrading the contract's verification key, and transferring ownership.
  */
@@ -19,16 +19,10 @@ import {
   Field,
   AccountUpdate,
   Mina,
-  Poseidon,
   UInt32,
   Struct,
 } from "o1js";
-import { Storage } from "@minatokens/storage";
-import {
-  loadIndexedMerkleMap,
-  createIpfsURL,
-  Whitelist,
-} from "@minatokens/storage";
+import { Whitelist } from "@minatokens/storage";
 import {
   MintRequest,
   NFTState,
@@ -38,7 +32,7 @@ import {
   PausableContract,
   OwnershipChangeEvent,
   OwnableContract,
-} from "../contracts/index.js";
+} from "../interfaces/index.js";
 import {
   UpgradeAuthorityBase,
   VerificationKeyUpgradeData,
@@ -46,17 +40,12 @@ import {
   UpgradeAuthorityContractConstructor,
 } from "@minatokens/upgradable";
 
-export {
-  NFTWhitelistedAdminContract,
-  PauseData,
-  NFTWhitelistedAdminDeployProps,
-};
+export { NFTAdvancedAdminContract, PauseData, NFTAdvancedAdminDeployProps };
 
 /**
- * Deployment properties for the `NFTWhitelistedAdminContract`.
+ * Deployment properties for the `NFTAdvancedAdminContract`.
  */
-interface NFTWhitelistedAdminDeployProps
-  extends Exclude<DeployArgs, undefined> {
+interface NFTAdvancedAdminDeployProps extends Exclude<DeployArgs, undefined> {
   /** The public key of the admin or owner of the contract. */
   admin: PublicKey;
   /** The public key of the Upgrade Authority Contract. */
@@ -99,7 +88,7 @@ class PauseData extends Struct({
   }
 }
 
-const NFTWhitelistedAdminContractErrors = {
+const NFTAdvancedAdminContractErrors = {
   contractIsPaused: "Contract is paused",
   notWhitelisted: "Address not whitelisted",
   senderNotWhitelisted: "Sender address not whitelisted",
@@ -113,7 +102,7 @@ const NFTWhitelistedAdminContractErrors = {
  * @param params Object containing the upgrade contract constructor.
  * @returns The `NFTWhitelistedAdmin` class.
  */
-function NFTWhitelistedAdminContract(params: {
+function NFTAdvancedAdminContract(params: {
   upgradeContract: UpgradeAuthorityContractConstructor;
 }) {
   const { upgradeContract } = params;
@@ -122,7 +111,7 @@ function NFTWhitelistedAdminContract(params: {
    * The `NFTWhitelistedAdmin` class ensures that only whitelisted addresses can perform specific actions such as minting, updating, transferring, buying, or selling NFTs.
    * It also provides functionality for pausing and resuming the contract, upgrading the contract's verification key, and transferring ownership.
    */
-  class NFTWhitelistedAdmin
+  class NFTAdvancedAdmin
     extends SmartContract
     implements
       NFTAdminBase,
@@ -143,7 +132,7 @@ function NFTWhitelistedAdminContract(params: {
      * Deploys the `NFTWhitelistedAdmin` contract with the provided initial settings.
      * @param props Deployment properties.
      */
-    async deploy(props: NFTWhitelistedAdminDeployProps) {
+    async deploy(props: NFTAdvancedAdminDeployProps) {
       await super.deploy(props);
       this.admin.set(props.admin);
       this.upgradeAuthority.set(props.upgradeAuthority);
@@ -184,9 +173,7 @@ function NFTWhitelistedAdminContract(params: {
      * @returns An `AccountUpdate` representing the admin's signed transaction.
      */
     async ensureOwnerSignature(): Promise<AccountUpdate> {
-      const sender = this.sender.getUnconstrained();
       const admin = this.admin.getAndRequireEquals();
-      admin.assertEquals(sender);
       const adminUpdate = AccountUpdate.createSigned(admin);
       adminUpdate.body.useFullCommitment = Bool(true); // prevent memo and fee change
       return adminUpdate;
@@ -223,7 +210,7 @@ function NFTWhitelistedAdminContract(params: {
         const vkHash = account.zkapp?.verificationKey?.hash;
         if (!vkHash) {
           throw Error(
-            NFTWhitelistedAdminContractErrors.verificationKeyHashNotFound
+            NFTAdvancedAdminContractErrors.verificationKeyHashNotFound
           );
         }
         return vkHash;
@@ -238,7 +225,7 @@ function NFTWhitelistedAdminContract(params: {
         data
       );
       upgradeAuthorityAnswer.isVerified.assertTrue(
-        NFTWhitelistedAdminContractErrors.cannotUpgradeVerificationKey
+        NFTAdvancedAdminContractErrors.cannotUpgradeVerificationKey
       );
       this.account.verificationKey.set(vk);
       this.upgradeAuthority.set(
@@ -264,7 +251,7 @@ function NFTWhitelistedAdminContract(params: {
         mintRequest.owner
       );
       ownerAmount.isSome.assertTrue(
-        NFTWhitelistedAdminContractErrors.notWhitelisted
+        NFTAdvancedAdminContractErrors.notWhitelisted
       );
 
       const sender = this.sender.getUnconstrained();
@@ -272,7 +259,7 @@ function NFTWhitelistedAdminContract(params: {
       senderUpdate.body.useFullCommitment = Bool(true); // prevent memo and fee change
       const senderAmount = await whitelist.getWhitelistedAmount(sender);
       senderAmount.isSome.assertTrue(
-        NFTWhitelistedAdminContractErrors.senderNotWhitelisted
+        NFTAdvancedAdminContractErrors.senderNotWhitelisted
       );
       const mintParams = await Provable.witnessAsync(
         MintParamsOption,
@@ -326,7 +313,7 @@ function NFTWhitelistedAdminContract(params: {
       const whitelist = this.whitelist.getAndRequireEquals();
       const allowedPrice = (
         await whitelist.getWhitelistedAmount(seller)
-      ).assertSome(NFTWhitelistedAdminContractErrors.notWhitelisted);
+      ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
       return price.lessThanOrEqual(allowedPrice);
     }
 
@@ -348,10 +335,10 @@ function NFTWhitelistedAdminContract(params: {
       const whitelist = this.whitelist.getAndRequireEquals();
       const allowedBuyerPrice = (
         await whitelist.getWhitelistedAmount(buyer)
-      ).assertSome(NFTWhitelistedAdminContractErrors.notWhitelisted);
+      ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
       const allowedSellerPrice = (
         await whitelist.getWhitelistedAmount(seller)
-      ).assertSome(NFTWhitelistedAdminContractErrors.notWhitelisted);
+      ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
       return price
         .lessThanOrEqual(allowedBuyerPrice)
         .and(price.lessThanOrEqual(allowedSellerPrice));
@@ -414,7 +401,39 @@ function NFTWhitelistedAdminContract(params: {
       );
       return oldOwner;
     }
+
+    @method.returns(Bool)
+    async canChangeVerificationKey(
+      vk: VerificationKey,
+      address: PublicKey,
+      tokenId: Field
+    ): Promise<Bool> {
+      const upgradeContract = await this.getUpgradeContract();
+
+      // fetchAccount() should be called before calling this method
+      // TODO: this code should be changed after verification key precondition
+      // will be added to the Mina protocol
+      const previousVerificationKeyHash = Provable.witness(Field, () => {
+        const account = Mina.getAccount(address, tokenId);
+        const vkHash = account.zkapp?.verificationKey?.hash;
+        if (!vkHash) {
+          throw Error("Verification key hash not found");
+        }
+        return vkHash;
+      });
+      const data = new VerificationKeyUpgradeData({
+        address: address,
+        tokenId: tokenId,
+        previousVerificationKeyHash,
+        newVerificationKeyHash: vk.hash,
+      });
+      const upgradeAuthorityAnswer = await upgradeContract.verifyUpgradeData(
+        data
+      );
+
+      return upgradeAuthorityAnswer.isVerified;
+    }
   }
 
-  return NFTWhitelistedAdmin;
+  return NFTAdvancedAdmin;
 }
