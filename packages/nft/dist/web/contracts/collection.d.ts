@@ -6,7 +6,7 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent } from "../interfaces/index.js";
+import { MintParams, MintRequest, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, NFTStandardOwner, UInt64Option } from "../interfaces/index.js";
 export { CollectionDeployProps, CollectionContract, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
@@ -51,6 +51,7 @@ interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
  */
 declare function CollectionContract(params: {
     adminContract: NFTAdminContractConstructor;
+    ownerContract?: NFTOwnerContractConstructor;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -116,12 +117,19 @@ declare function CollectionContract(params: {
          */
         approveBase(forest: AccountUpdateForest): Promise<void>;
         readonly getAdminContractConstructor: NFTAdminContractConstructor;
+        readonly getOwnerContractConstructor: typeof NFTStandardOwner | NFTOwnerContractConstructor;
         /**
          * Retrieves the Admin Contract instance.
          *
          * @returns The Admin Contract instance implementing NFTAdminBase.
          */
         getAdminContract(): NFTAdminBase;
+        /**
+         * Retrieves the NFT Owner Contract instance.
+         *
+         * @returns The Owner Contract instance implementing NFTOwnerBase.
+         */
+        getOwnerContract(address: PublicKey): NFTOwnerBase;
         /**
          * Ensures that the transaction is authorized by the contract owner.
          *
@@ -246,28 +254,43 @@ declare function CollectionContract(params: {
          */
         sellWithApproval(address: PublicKey, price: UInt64, buyer: PublicKey): Promise<void>;
         /**
-         * Internal method to purchase an NFT.
+         * Internal method to sell an NFT.
          *
          * @param address - The address of the NFT.
          * @param price - The price at which to purchase the NFT.
+         * @param buyer - The public key of the buyer.
          * @param royaltyFee - The royalty fee percentage.
          * @returns The BuyEvent emitted.
          */
         _sell(address: PublicKey, price: UInt64, buyer: PublicKey, royaltyFee: UInt32): Promise<SaleEvent>;
+        /**
+         * Transfers ownership of an NFT from contract without admin approval.
+         *
+         * @param address - The address of the NFT.
+         * @param to - The recipient's public key.
+         */
+        transferByContract(address: PublicKey, from: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        /**
+         * Transfers ownership of an NFT from contract with admin approval.
+         *
+         * @param address - The address of the NFT.
+         * @param to - The recipient's public key.
+         */
+        transferByContractWithApproval(address: PublicKey, from: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
         /**
          * Transfers ownership of an NFT without admin approval.
          *
          * @param address - The address of the NFT.
          * @param to - The recipient's public key.
          */
-        transfer(address: PublicKey, to: PublicKey): Promise<void>;
+        transferNFT(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
         /**
          * Transfers ownership of an NFT with admin approval.
          *
          * @param address - The address of the NFT.
          * @param to - The recipient's public key.
          */
-        transferWithApproval(address: PublicKey, to: PublicKey): Promise<void>;
+        transferNFTWithApproval(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
         /**
          * Internal method to transfer an NFT.
          *
@@ -276,7 +299,7 @@ declare function CollectionContract(params: {
          * @param transferFee - The transfer fee amount.
          * @returns The TransferEvent emitted.
          */
-        _transfer(address: PublicKey, to: PublicKey, transferFee: UInt64): Promise<TransferEvent>;
+        _transfer(address: PublicKey, from: PublicKey, to: PublicKey, price: UInt64Option, transferFee: UInt64, royaltyFee: UInt32): Promise<TransferEvent>;
         /**
          * Upgrades the verification key of a specific NFT.
          *
@@ -362,10 +385,10 @@ declare function CollectionContract(params: {
         /**
          * Transfers ownership of the collection to a new owner.
          *
-         * @param newOwner - The public key of the new owner.
+         * @param to - The public key of the new owner.
          * @returns The public key of the old owner.
          */
-        transferOwnership(newOwner: PublicKey): Promise<PublicKey>;
+        transferOwnership(to: PublicKey): Promise<PublicKey>;
         deriveTokenId(): import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
         readonly internal: {
             mint({ address, amount, }: {
@@ -386,6 +409,7 @@ declare function CollectionContract(params: {
         checkZeroBalanceChange(updates: AccountUpdateForest): void;
         approveAccountUpdate(accountUpdate: AccountUpdate | import("o1js").AccountUpdateTree): Promise<void>;
         approveAccountUpdates(accountUpdates: (AccountUpdate | import("o1js").AccountUpdateTree)[]): Promise<void>;
+        transfer(from: PublicKey | AccountUpdate, to: PublicKey | AccountUpdate, amount: UInt64 | number | bigint): Promise<void>;
         "__#3@#private": any;
         address: PublicKey;
         tokenId: Field;

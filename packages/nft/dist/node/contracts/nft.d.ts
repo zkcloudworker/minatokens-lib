@@ -72,7 +72,7 @@ declare class NFT extends SmartContract implements PausableContract {
      * @param to - The public key of the new owner (`PublicKey`).
      * @returns The public key of the old owner (`PublicKey`).
      */
-    transfer(from: PublicKey, to: PublicKey): Promise<PublicKey>;
+    transfer(from: PublicKey, to: PublicKey): Promise<void>;
     /**
      * Upgrades the verification key used by the NFT contract.
      *

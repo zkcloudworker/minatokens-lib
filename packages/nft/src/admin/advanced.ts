@@ -32,6 +32,7 @@ import {
   PausableContract,
   OwnershipChangeEvent,
   OwnableContract,
+  UInt64Option,
 } from "../interfaces/index.js";
 import {
   UpgradeAuthorityBase,
@@ -294,11 +295,28 @@ function NFTAdvancedAdminContract(params: {
      * @returns A `Bool` indicating whether the transfer is permitted.
      */
     @method.returns(Bool)
-    async canTransfer(address: PublicKey, from: PublicKey, to: PublicKey) {
+    async canTransfer(
+      address: PublicKey,
+      from: PublicKey,
+      to: PublicKey,
+      price: UInt64Option
+    ) {
       const whitelist = this.whitelist.getAndRequireEquals();
-      return (await whitelist.getWhitelistedAmount(to)).isSome.and(
-        (await whitelist.getWhitelistedAmount(from)).isSome
-      );
+      const toAmount = await whitelist.getWhitelistedAmount(to);
+      const fromAmount = await whitelist.getWhitelistedAmount(from);
+
+      const toAmountAllowed = toAmount
+        .orElse(UInt64.from(0))
+        .lessThanOrEqual(price.orElse(UInt64.MAXINT()));
+
+      const fromAmountAllowed = fromAmount
+        .orElse(UInt64.from(0))
+        .lessThanOrEqual(price.orElse(UInt64.MAXINT()));
+
+      return toAmountAllowed
+        .and(fromAmountAllowed)
+        .and(toAmount.isSome)
+        .and(fromAmount.isSome);
     }
 
     /**
@@ -388,18 +406,18 @@ function NFTAdvancedAdminContract(params: {
      * @returns The public key of the old owner.
      */
     @method.returns(PublicKey)
-    async transferOwnership(newOwner: PublicKey): Promise<PublicKey> {
+    async transferOwnership(to: PublicKey): Promise<PublicKey> {
       await this.ensureOwnerSignature();
-      const oldOwner = this.admin.getAndRequireEquals();
-      this.admin.set(newOwner);
+      const from = this.admin.getAndRequireEquals();
+      this.admin.set(to);
       this.emitEvent(
         "ownershipChange",
         new OwnershipChangeEvent({
-          oldOwner,
-          newOwner,
+          from,
+          to,
         })
       );
-      return oldOwner;
+      return from;
     }
 
     @method.returns(Bool)

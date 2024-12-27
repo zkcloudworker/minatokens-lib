@@ -5,7 +5,6 @@ import {
   Struct,
   UInt32,
   UInt64,
-  Encoding,
   Provable,
   DynamicProof,
   FeatureFlags,
@@ -23,7 +22,12 @@ export {
   NFTImmutableState,
   NFTUpdateProof,
   NFTStateStruct,
+  NFTOraclePreconditions,
+  StateElementPrecondition,
+  UInt64Option,
 };
+
+class UInt64Option extends Option(UInt64) {}
 
 /**
  * Represents the on-chain state structure of an NFT.
@@ -74,8 +78,8 @@ class NFTStateStruct extends Struct({
 class NFTImmutableState extends Struct({
   /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
+  /** Specifies if the NFT's ownership can be transferred (readonly). */
+  canTransfer: Bool, // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: Bool, // readonly
   /** Indicates if the price of the NFT can be modified (readonly). */
@@ -102,7 +106,7 @@ class NFTImmutableState extends Struct({
    */
   static assertEqual(a: NFTImmutableState, b: NFTImmutableState) {
     a.canChangeOwnerByProof.assertEquals(b.canChangeOwnerByProof);
-    a.canChangeOwnerBySignature.assertEquals(b.canChangeOwnerBySignature);
+    a.canTransfer.assertEquals(b.canTransfer);
     a.canChangeMetadata.assertEquals(b.canChangeMetadata);
     a.canChangePrice.assertEquals(b.canChangePrice);
     a.canChangeStorage.assertEquals(b.canChangeStorage);
@@ -132,7 +136,7 @@ class NFTImmutableState extends Struct({
       tokenId,
       id: nftData.id,
       canChangeOwnerByProof: nftData.canChangeOwnerByProof,
-      canChangeOwnerBySignature: nftData.canChangeOwnerBySignature,
+      canTransfer: nftData.canTransfer,
       canChangeMetadata: nftData.canChangeMetadata,
       canChangePrice: nftData.canChangePrice,
       canChangeStorage: nftData.canChangeStorage,
@@ -141,6 +145,89 @@ class NFTImmutableState extends Struct({
         nftData.canChangeMetadataVerificationKeyHash,
       canPause: nftData.canPause,
     });
+  }
+}
+
+class StateElementPrecondition extends Struct({
+  isSome: Bool,
+  value: Field,
+}) {}
+
+class NFTOraclePreconditions extends Struct({
+  /** The lower slot of the validity of the NFT update proof. */
+  lowerSlot: UInt32,
+  /** The upper slot of the validity of the NFT update proof. */
+  upperSlot: UInt32,
+  /** The public key of the Oracle. */
+  publicKey: PublicKey,
+  /** The token Id of the Oracle. */
+  tokenId: Field,
+  /** The lower balance of the Oracle. */
+  balanceLower: UInt64,
+  /** The upper balance of the Oracle. */
+  balanceUpper: UInt64,
+  /** The lower nonce of the Oracle. */
+  nonceLower: UInt32,
+  /** The upper nonce of the Oracle. */
+  nonceUpper: UInt32,
+  /** The action state of the Oracle. */
+  actionState: StateElementPrecondition,
+  /** The state of the Oracle. */
+  state: Provable.Array(StateElementPrecondition, 8),
+}) {
+  static new(
+    params: {
+      lowerSlot?: UInt32;
+      upperSlot?: UInt32;
+      publicKey?: PublicKey;
+      tokenId?: Field;
+      balanceLower?: UInt64;
+      balanceUpper?: UInt64;
+      nonceLower?: UInt32;
+      nonceUpper?: UInt32;
+      actionState?: StateElementPrecondition;
+      state?: StateElementPrecondition[];
+    } = {}
+  ) {
+    return new NFTOraclePreconditions({
+      lowerSlot: params.lowerSlot ?? UInt32.zero,
+      upperSlot: params.upperSlot ?? UInt32.MAXINT(),
+      publicKey: params.publicKey ?? PublicKey.empty(),
+      tokenId: params.tokenId ?? Field(1),
+      balanceLower: params.balanceLower ?? UInt64.zero,
+      balanceUpper: params.balanceUpper ?? UInt64.MAXINT(),
+      nonceLower: params.nonceLower ?? UInt32.zero,
+      nonceUpper: params.nonceUpper ?? UInt32.MAXINT(),
+      actionState:
+        params.actionState ??
+        new StateElementPrecondition({ isSome: Bool(false), value: Field(0) }),
+      state:
+        params.state ??
+        [...Array(8)].map(
+          (_, i) =>
+            new StateElementPrecondition({
+              isSome: Bool(false),
+              value: Field(0),
+            })
+        ),
+    });
+  }
+
+  static assertEqual(a: NFTOraclePreconditions, b: NFTOraclePreconditions) {
+    a.lowerSlot.assertEquals(b.lowerSlot);
+    a.upperSlot.assertEquals(b.upperSlot);
+    a.publicKey.assertEquals(b.publicKey);
+    a.tokenId.assertEquals(b.tokenId);
+    a.balanceLower.assertEquals(b.balanceLower);
+    a.balanceUpper.assertEquals(b.balanceUpper);
+    a.nonceLower.assertEquals(b.nonceLower);
+    a.nonceUpper.assertEquals(b.nonceUpper);
+    a.actionState.isSome.assertEquals(b.actionState.isSome);
+    a.actionState.value.assertEquals(b.actionState.value);
+    for (let i = 0; i < 8; i++) {
+      a.state[i].isSome.assertEquals(b.state[i].isSome);
+      a.state[i].value.assertEquals(b.state[i].value);
+    }
   }
 }
 
@@ -169,10 +256,9 @@ class NFTState extends Struct({
 
   /** The public key of the creator of the NFT (readonly). */
   creator: PublicKey, // readonly
-  /** The lower slot of the validity of the NFT update proof. */
-  lowerSlot: UInt32,
-  /** The upper slot of the validity of the NFT update proof. */
-  upperSlot: UInt32,
+
+  /** The state of the owner of the NFT - 8 Fields (readonly). */
+  oracle: NFTOraclePreconditions, // readonly
 }) {
   /**
    * Asserts that two NFTState instances are equal.
@@ -190,8 +276,7 @@ class NFTState extends Struct({
     a.isPaused.assertEquals(b.isPaused);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
     a.creator.assertEquals(b.creator);
-    a.lowerSlot.assertEquals(b.lowerSlot);
-    a.upperSlot.assertEquals(b.upperSlot);
+    NFTOraclePreconditions.assertEqual(a.oracle, b.oracle);
   }
 
   /**
@@ -204,11 +289,9 @@ class NFTState extends Struct({
     creator: PublicKey;
     address: PublicKey;
     tokenId: Field;
-    lowerSlot?: UInt32;
-    upperSlot?: UInt32;
+    oracle: NFTOraclePreconditions;
   }) {
-    const { nftState, creator, address, tokenId, lowerSlot, upperSlot } =
-      params;
+    const { nftState, creator, address, tokenId, oracle } = params;
     const nftData = NFTData.unpack(nftState.packedData);
     const immutableState = NFTImmutableState.fromNFTData({
       nftData,
@@ -226,8 +309,7 @@ class NFTState extends Struct({
       isPaused: nftData.isPaused,
       metadataVerificationKeyHash: nftState.metadataVerificationKeyHash,
       creator,
-      lowerSlot: lowerSlot ?? UInt32.zero,
-      upperSlot: upperSlot ?? UInt32.MAXINT(),
+      oracle,
     });
   }
 }
@@ -246,7 +328,7 @@ class NFTUpdateProof extends DynamicProof<NFTState, NFTState> {
  * Represents the data associated with an NFT, including state and permission flags.
  */
 class NFTData extends Struct({
-  /** The price of the NFT. */
+  /** The price of the NFT. Zero means that the price is not set and the NFT is not for sale. */
   price: UInt64,
   /** The version number of the NFT state. */
   version: UInt32,
@@ -254,8 +336,8 @@ class NFTData extends Struct({
   id: UInt32,
   /** Determines whether the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
+  /** Specifies if the NFT's ownership can be transferred (readonly). */
+  canTransfer: Bool, // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: Bool, // readonly
   /** Indicates if the price of the NFT can be modified (readonly). */
@@ -284,7 +366,7 @@ class NFTData extends Struct({
       version?: number;
       id?: number;
       canChangeOwnerByProof?: boolean;
-      canChangeOwnerBySignature?: boolean;
+      canTransfer?: boolean;
       canChangeMetadata?: boolean;
       canChangePrice?: boolean;
       canChangeStorage?: boolean;
@@ -300,7 +382,7 @@ class NFTData extends Struct({
       version,
       id,
       canChangeOwnerByProof,
-      canChangeOwnerBySignature,
+      canTransfer,
       canChangeMetadata,
       canChangePrice,
       canChangeStorage,
@@ -315,7 +397,7 @@ class NFTData extends Struct({
       version: UInt32.from(version ?? 0),
       id: UInt32.from(id ?? 0),
       canChangeOwnerByProof: Bool(canChangeOwnerByProof ?? false),
-      canChangeOwnerBySignature: Bool(canChangeOwnerBySignature ?? true),
+      canTransfer: Bool(canTransfer ?? true),
       canChangeMetadata: Bool(canChangeMetadata ?? false),
       canChangePrice: Bool(canChangePrice ?? true),
       canChangeStorage: Bool(canChangeStorage ?? false),
@@ -344,7 +426,7 @@ class NFTData extends Struct({
       ...version,
       ...id,
       this.canChangeOwnerByProof,
-      this.canChangeOwnerBySignature,
+      this.canTransfer,
       this.canChangeMetadata,
       this.canChangePrice,
       this.canChangeStorage,
@@ -371,7 +453,7 @@ class NFTData extends Struct({
       Field.fromBits(bits.slice(64 + 32, 64 + 32 + 32))
     );
     const canChangeOwnerByProof = bits[64 + 32 + 32];
-    const canChangeOwnerBySignature = bits[64 + 32 + 32 + 1];
+    const canTransfer = bits[64 + 32 + 32 + 1];
     const canChangeMetadata = bits[64 + 32 + 32 + 2];
     const canChangePrice = bits[64 + 32 + 32 + 3];
     const canChangeStorage = bits[64 + 32 + 32 + 4];
@@ -385,7 +467,7 @@ class NFTData extends Struct({
       version,
       id,
       canChangeOwnerByProof,
-      canChangeOwnerBySignature,
+      canTransfer,
       canChangeMetadata,
       canChangePrice,
       canChangeStorage,

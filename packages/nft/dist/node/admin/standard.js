@@ -1,6 +1,6 @@
 import { __decorate, __metadata } from "tslib";
 import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, UInt64, Field, AccountUpdate, } from "o1js";
-import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, } from "../interfaces/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, UInt64Option, } from "../interfaces/index.js";
 export { NFTAdmin };
 /**
  * The **NFTAdmin** contract serves as the foundational administrative layer for NFT collections on the Mina Protocol.
@@ -110,9 +110,10 @@ class NFTAdmin extends SmartContract {
      * @param address - The NFT contract address.
      * @param from - The sender's public key.
      * @param to - The recipient's public key.
+     * @param price - The price of the NFT, optional.
      * @returns A `Bool` indicating whether the transfer is allowed.
      */
-    async canTransfer(address, from, to) {
+    async canTransfer(address, from, to, price) {
         const isPaused = this.isPaused.getAndRequireEquals();
         return isPaused.not();
     }
@@ -161,18 +162,18 @@ class NFTAdmin extends SmartContract {
     }
     /**
      * Transfers ownership of the contract to a new admin.
-     * @param newOwner - The public key of the new owner.
+     * @param to - The public key of the new owner.
      * @returns The public key of the previous owner.
      */
-    async transferOwnership(newOwner) {
+    async transferOwnership(to) {
         await this.ensureOwnerSignature();
-        const oldOwner = this.admin.getAndRequireEquals();
-        this.admin.set(newOwner);
+        const from = this.admin.getAndRequireEquals();
+        this.admin.set(to);
         this.emitEvent("ownershipChange", new OwnershipChangeEvent({
-            oldOwner,
-            newOwner,
+            from,
+            to,
         }));
-        return oldOwner;
+        return from;
     }
     async canChangeVerificationKey(vk, address, tokenId) {
         await this.ensureOwnerSignature();
@@ -216,7 +217,10 @@ __decorate([
 __decorate([
     method.returns(Bool),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [PublicKey, PublicKey, PublicKey]),
+    __metadata("design:paramtypes", [PublicKey,
+        PublicKey,
+        PublicKey,
+        UInt64Option]),
     __metadata("design:returntype", Promise)
 ], NFTAdmin.prototype, "canTransfer", null);
 __decorate([

@@ -19,13 +19,13 @@ declare const NFTAdvancedAdmin: {
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         canMint(mintRequest: import("./index.js").MintRequest): Promise<import("./index.js").MintParamsOption>;
         canUpdate(input: import("./index.js").NFTState, output: import("./index.js").NFTState): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
-        canTransfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
+        canTransfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         canSell(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         canBuy(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, buyer: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         updateWhitelist(whitelist: import("@minatokens/storage").Whitelist): Promise<void>;
         pause(): Promise<void>;
         resume(): Promise<void>;
-        transferOwnership(newOwner: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
+        transferOwnership(to: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
         canChangeVerificationKey(vk: import("o1js").VerificationKey, address: import("o1js").PublicKey, tokenId: import("o1js").Field): Promise<import("o1js").Bool>;
         "__#3@#private": any;
         address: import("o1js").PublicKey;
@@ -223,7 +223,9 @@ declare const Collection: {
         };
         approveBase(forest: import("o1js").AccountUpdateForest): Promise<void>;
         readonly getAdminContractConstructor: import("./index.js").NFTAdminContractConstructor;
+        readonly getOwnerContractConstructor: typeof import("./index.js").NFTStandardOwner | import("./index.js").NFTOwnerContractConstructor;
         getAdminContract(): import("./index.js").NFTAdminBase;
+        getOwnerContract(address: import("o1js").PublicKey): import("./index.js").NFTOwnerBase;
         ensureOwnerSignature(): Promise<import("o1js").AccountUpdate>;
         ensureNotPaused(): Promise<import("./index.js").CollectionData>;
         mintByCreator(params: import("./index.js").MintParams): Promise<void>;
@@ -241,9 +243,11 @@ declare const Collection: {
         sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
         sellWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
         _sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").SaleEvent>;
-        transfer(address: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<void>;
-        transferWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<void>;
-        _transfer(address: import("o1js").PublicKey, to: import("o1js").PublicKey, transferFee: import("o1js").UInt64): Promise<import("./index.js").TransferEvent>;
+        transferByContract(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferByContractWithApproval(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferNFT(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferNFTWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        _transfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option, transferFee: import("o1js").UInt64, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").TransferEvent>;
         upgradeNFTVerificationKey(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         limitMinting(): Promise<void>;
@@ -256,7 +260,7 @@ declare const Collection: {
         setAdmin(admin: import("o1js").PublicKey): Promise<void>;
         setRoyaltyFee(royaltyFee: import("o1js").UInt32): Promise<void>;
         setTransferFee(transferFee: import("o1js").UInt64): Promise<void>;
-        transferOwnership(newOwner: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
+        transferOwnership(to: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
         deriveTokenId(): import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
         readonly internal: {
             mint({ address, amount, }: {
@@ -277,6 +281,7 @@ declare const Collection: {
         checkZeroBalanceChange(updates: import("o1js").AccountUpdateForest): void;
         approveAccountUpdate(accountUpdate: import("o1js").AccountUpdate | import("o1js").AccountUpdateTree): Promise<void>;
         approveAccountUpdates(accountUpdates: (import("o1js").AccountUpdate | import("o1js").AccountUpdateTree)[]): Promise<void>;
+        transfer(from: import("o1js").PublicKey | import("o1js").AccountUpdate, to: import("o1js").PublicKey | import("o1js").AccountUpdate, amount: import("o1js").UInt64 | number | bigint): Promise<void>;
         "__#3@#private": any;
         address: import("o1js").PublicKey;
         tokenId: import("o1js").Field;
@@ -474,7 +479,9 @@ declare const AdvancedCollection: {
         };
         approveBase(forest: import("o1js").AccountUpdateForest): Promise<void>;
         readonly getAdminContractConstructor: import("./index.js").NFTAdminContractConstructor;
+        readonly getOwnerContractConstructor: typeof import("./index.js").NFTStandardOwner | import("./index.js").NFTOwnerContractConstructor;
         getAdminContract(): import("./index.js").NFTAdminBase;
+        getOwnerContract(address: import("o1js").PublicKey): import("./index.js").NFTOwnerBase;
         ensureOwnerSignature(): Promise<import("o1js").AccountUpdate>;
         ensureNotPaused(): Promise<import("./index.js").CollectionData>;
         mintByCreator(params: import("./index.js").MintParams): Promise<void>;
@@ -492,9 +499,11 @@ declare const AdvancedCollection: {
         sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
         sellWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
         _sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").SaleEvent>;
-        transfer(address: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<void>;
-        transferWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey): Promise<void>;
-        _transfer(address: import("o1js").PublicKey, to: import("o1js").PublicKey, transferFee: import("o1js").UInt64): Promise<import("./index.js").TransferEvent>;
+        transferByContract(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferByContractWithApproval(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferNFT(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferNFTWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        _transfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option, transferFee: import("o1js").UInt64, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").TransferEvent>;
         upgradeNFTVerificationKey(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         limitMinting(): Promise<void>;
@@ -507,7 +516,7 @@ declare const AdvancedCollection: {
         setAdmin(admin: import("o1js").PublicKey): Promise<void>;
         setRoyaltyFee(royaltyFee: import("o1js").UInt32): Promise<void>;
         setTransferFee(transferFee: import("o1js").UInt64): Promise<void>;
-        transferOwnership(newOwner: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
+        transferOwnership(to: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
         deriveTokenId(): import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
         readonly internal: {
             mint({ address, amount, }: {
@@ -528,6 +537,7 @@ declare const AdvancedCollection: {
         checkZeroBalanceChange(updates: import("o1js").AccountUpdateForest): void;
         approveAccountUpdate(accountUpdate: import("o1js").AccountUpdate | import("o1js").AccountUpdateTree): Promise<void>;
         approveAccountUpdates(accountUpdates: (import("o1js").AccountUpdate | import("o1js").AccountUpdateTree)[]): Promise<void>;
+        transfer(from: import("o1js").PublicKey | import("o1js").AccountUpdate, to: import("o1js").PublicKey | import("o1js").AccountUpdate, amount: import("o1js").UInt64 | number | bigint): Promise<void>;
         "__#3@#private": any;
         address: import("o1js").PublicKey;
         tokenId: import("o1js").Field;

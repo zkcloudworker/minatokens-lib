@@ -45,7 +45,9 @@ __export(index_exports, {
   NFTAdvancedAdminContract: () => NFTAdvancedAdminContract,
   NFTData: () => NFTData,
   NFTImmutableState: () => NFTImmutableState,
+  NFTOraclePreconditions: () => NFTOraclePreconditions,
   NFTProgram: () => NFTProgram,
+  NFTStandardOwner: () => NFTStandardOwner,
   NFTState: () => NFTState,
   NFTStateStruct: () => NFTStateStruct,
   NFTUpdateProof: () => NFTUpdateProof,
@@ -56,9 +58,11 @@ __export(index_exports, {
   PauseEvent: () => PauseEvent,
   PauseNFTEvent: () => PauseNFTEvent,
   SaleEvent: () => SaleEvent,
+  StateElementPrecondition: () => StateElementPrecondition,
   TEXT_TREE_HEIGHT: () => TEXT_TREE_HEIGHT,
   Text: () => Text,
   TransferEvent: () => TransferEvent,
+  UInt64Option: () => UInt64Option,
   UpdateEvent: () => UpdateEvent,
   UpgradeVerificationKeyEvent: () => UpgradeVerificationKeyEvent,
   fieldFromString: () => fieldFromString,
@@ -68,12 +72,14 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // dist/node/admin/standard.js
-var import_tslib = require("tslib");
-var import_o1js6 = require("o1js");
+var import_tslib2 = require("tslib");
+var import_o1js7 = require("o1js");
 
 // dist/node/interfaces/types.js
 var import_o1js = require("o1js");
 var import_storage = require("@minatokens/storage");
+var UInt64Option = class extends (0, import_o1js.Option)(import_o1js.UInt64) {
+};
 var NFTStateStruct = class _NFTStateStruct extends (0, import_o1js.Struct)({
   name: import_o1js.Field,
   metadata: import_o1js.Field,
@@ -114,8 +120,8 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
   /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
   canChangeOwnerByProof: import_o1js.Bool,
   // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: import_o1js.Bool,
+  /** Specifies if the NFT's ownership can be transferred (readonly). */
+  canTransfer: import_o1js.Bool,
   // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: import_o1js.Bool,
@@ -152,7 +158,7 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
    */
   static assertEqual(a, b) {
     a.canChangeOwnerByProof.assertEquals(b.canChangeOwnerByProof);
-    a.canChangeOwnerBySignature.assertEquals(b.canChangeOwnerBySignature);
+    a.canTransfer.assertEquals(b.canTransfer);
     a.canChangeMetadata.assertEquals(b.canChangeMetadata);
     a.canChangePrice.assertEquals(b.canChangePrice);
     a.canChangeStorage.assertEquals(b.canChangeStorage);
@@ -175,7 +181,7 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
       tokenId,
       id: nftData.id,
       canChangeOwnerByProof: nftData.canChangeOwnerByProof,
-      canChangeOwnerBySignature: nftData.canChangeOwnerBySignature,
+      canTransfer: nftData.canTransfer,
       canChangeMetadata: nftData.canChangeMetadata,
       canChangePrice: nftData.canChangePrice,
       canChangeStorage: nftData.canChangeStorage,
@@ -183,6 +189,67 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
       canChangeMetadataVerificationKeyHash: nftData.canChangeMetadataVerificationKeyHash,
       canPause: nftData.canPause
     });
+  }
+};
+var StateElementPrecondition = class extends (0, import_o1js.Struct)({
+  isSome: import_o1js.Bool,
+  value: import_o1js.Field
+}) {
+};
+var NFTOraclePreconditions = class _NFTOraclePreconditions extends (0, import_o1js.Struct)({
+  /** The lower slot of the validity of the NFT update proof. */
+  lowerSlot: import_o1js.UInt32,
+  /** The upper slot of the validity of the NFT update proof. */
+  upperSlot: import_o1js.UInt32,
+  /** The public key of the Oracle. */
+  publicKey: import_o1js.PublicKey,
+  /** The token Id of the Oracle. */
+  tokenId: import_o1js.Field,
+  /** The lower balance of the Oracle. */
+  balanceLower: import_o1js.UInt64,
+  /** The upper balance of the Oracle. */
+  balanceUpper: import_o1js.UInt64,
+  /** The lower nonce of the Oracle. */
+  nonceLower: import_o1js.UInt32,
+  /** The upper nonce of the Oracle. */
+  nonceUpper: import_o1js.UInt32,
+  /** The action state of the Oracle. */
+  actionState: StateElementPrecondition,
+  /** The state of the Oracle. */
+  state: import_o1js.Provable.Array(StateElementPrecondition, 8)
+}) {
+  static new(params = {}) {
+    return new _NFTOraclePreconditions({
+      lowerSlot: params.lowerSlot ?? import_o1js.UInt32.zero,
+      upperSlot: params.upperSlot ?? import_o1js.UInt32.MAXINT(),
+      publicKey: params.publicKey ?? import_o1js.PublicKey.empty(),
+      tokenId: params.tokenId ?? (0, import_o1js.Field)(1),
+      balanceLower: params.balanceLower ?? import_o1js.UInt64.zero,
+      balanceUpper: params.balanceUpper ?? import_o1js.UInt64.MAXINT(),
+      nonceLower: params.nonceLower ?? import_o1js.UInt32.zero,
+      nonceUpper: params.nonceUpper ?? import_o1js.UInt32.MAXINT(),
+      actionState: params.actionState ?? new StateElementPrecondition({ isSome: (0, import_o1js.Bool)(false), value: (0, import_o1js.Field)(0) }),
+      state: params.state ?? [...Array(8)].map((_, i) => new StateElementPrecondition({
+        isSome: (0, import_o1js.Bool)(false),
+        value: (0, import_o1js.Field)(0)
+      }))
+    });
+  }
+  static assertEqual(a, b) {
+    a.lowerSlot.assertEquals(b.lowerSlot);
+    a.upperSlot.assertEquals(b.upperSlot);
+    a.publicKey.assertEquals(b.publicKey);
+    a.tokenId.assertEquals(b.tokenId);
+    a.balanceLower.assertEquals(b.balanceLower);
+    a.balanceUpper.assertEquals(b.balanceUpper);
+    a.nonceLower.assertEquals(b.nonceLower);
+    a.nonceUpper.assertEquals(b.nonceUpper);
+    a.actionState.isSome.assertEquals(b.actionState.isSome);
+    a.actionState.value.assertEquals(b.actionState.value);
+    for (let i = 0; i < 8; i++) {
+      a.state[i].isSome.assertEquals(b.state[i].isSome);
+      a.state[i].value.assertEquals(b.state[i].value);
+    }
   }
 };
 var NFTState = class _NFTState extends (0, import_o1js.Struct)({
@@ -207,10 +274,9 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
   /** The public key of the creator of the NFT (readonly). */
   creator: import_o1js.PublicKey,
   // readonly
-  /** The lower slot of the validity of the NFT update proof. */
-  lowerSlot: import_o1js.UInt32,
-  /** The upper slot of the validity of the NFT update proof. */
-  upperSlot: import_o1js.UInt32
+  /** The state of the owner of the NFT - 8 Fields (readonly). */
+  oracle: NFTOraclePreconditions
+  // readonly
 }) {
   /**
    * Asserts that two NFTState instances are equal.
@@ -228,8 +294,7 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
     a.isPaused.assertEquals(b.isPaused);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
     a.creator.assertEquals(b.creator);
-    a.lowerSlot.assertEquals(b.lowerSlot);
-    a.upperSlot.assertEquals(b.upperSlot);
+    NFTOraclePreconditions.assertEqual(a.oracle, b.oracle);
   }
   /**
    * Creates a new NFTState from an NFTStateStruct and other parameters.
@@ -237,7 +302,7 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
    * @returns A new NFTState instance.
    */
   static fromNFTState(params) {
-    const { nftState, creator, address, tokenId, lowerSlot, upperSlot } = params;
+    const { nftState, creator, address, tokenId, oracle } = params;
     const nftData = NFTData.unpack(nftState.packedData);
     const immutableState = NFTImmutableState.fromNFTData({
       nftData,
@@ -255,8 +320,7 @@ var NFTState = class _NFTState extends (0, import_o1js.Struct)({
       isPaused: nftData.isPaused,
       metadataVerificationKeyHash: nftState.metadataVerificationKeyHash,
       creator,
-      lowerSlot: lowerSlot ?? import_o1js.UInt32.zero,
-      upperSlot: upperSlot ?? import_o1js.UInt32.MAXINT()
+      oracle
     });
   }
 };
@@ -268,7 +332,7 @@ _NFTUpdateProof.maxProofsVerified = 2;
 _NFTUpdateProof.featureFlags = import_o1js.FeatureFlags.allMaybe;
 var NFTUpdateProof = _NFTUpdateProof;
 var NFTData = class _NFTData extends (0, import_o1js.Struct)({
-  /** The price of the NFT. */
+  /** The price of the NFT. Zero means that the price is not set and the NFT is not for sale. */
   price: import_o1js.UInt64,
   /** The version number of the NFT state. */
   version: import_o1js.UInt32,
@@ -277,8 +341,8 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
   /** Determines whether the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
   canChangeOwnerByProof: import_o1js.Bool,
   // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: import_o1js.Bool,
+  /** Specifies if the NFT's ownership can be transferred (readonly). */
+  canTransfer: import_o1js.Bool,
   // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: import_o1js.Bool,
@@ -310,13 +374,13 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
    * @returns A new NFTData instance.
    */
   static new(params = {}) {
-    const { price, version, id, canChangeOwnerByProof, canChangeOwnerBySignature, canChangeMetadata, canChangePrice, canChangeStorage, canChangeName, canChangeMetadataVerificationKeyHash, canPause, isPaused, requireOwnerSignatureToUpgrade } = params;
+    const { price, version, id, canChangeOwnerByProof, canTransfer, canChangeMetadata, canChangePrice, canChangeStorage, canChangeName, canChangeMetadataVerificationKeyHash, canPause, isPaused, requireOwnerSignatureToUpgrade } = params;
     return new _NFTData({
       price: import_o1js.UInt64.from(price ?? 0),
       version: import_o1js.UInt32.from(version ?? 0),
       id: import_o1js.UInt32.from(id ?? 0),
       canChangeOwnerByProof: (0, import_o1js.Bool)(canChangeOwnerByProof ?? false),
-      canChangeOwnerBySignature: (0, import_o1js.Bool)(canChangeOwnerBySignature ?? true),
+      canTransfer: (0, import_o1js.Bool)(canTransfer ?? true),
       canChangeMetadata: (0, import_o1js.Bool)(canChangeMetadata ?? false),
       canChangePrice: (0, import_o1js.Bool)(canChangePrice ?? true),
       canChangeStorage: (0, import_o1js.Bool)(canChangeStorage ?? false),
@@ -340,7 +404,7 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
       ...version,
       ...id,
       this.canChangeOwnerByProof,
-      this.canChangeOwnerBySignature,
+      this.canTransfer,
       this.canChangeMetadata,
       this.canChangePrice,
       this.canChangeStorage,
@@ -362,7 +426,7 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
     const version = import_o1js.UInt32.Unsafe.fromField(import_o1js.Field.fromBits(bits.slice(64, 64 + 32)));
     const id = import_o1js.UInt32.Unsafe.fromField(import_o1js.Field.fromBits(bits.slice(64 + 32, 64 + 32 + 32)));
     const canChangeOwnerByProof = bits[64 + 32 + 32];
-    const canChangeOwnerBySignature = bits[64 + 32 + 32 + 1];
+    const canTransfer = bits[64 + 32 + 32 + 1];
     const canChangeMetadata = bits[64 + 32 + 32 + 2];
     const canChangePrice = bits[64 + 32 + 32 + 3];
     const canChangeStorage = bits[64 + 32 + 32 + 4];
@@ -376,7 +440,7 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
       version,
       id,
       canChangeOwnerByProof,
-      canChangeOwnerBySignature,
+      canTransfer,
       canChangeMetadata,
       canChangePrice,
       canChangeStorage,
@@ -672,22 +736,77 @@ var PauseEvent = class extends (0, import_o1js4.Struct)({
 // dist/node/interfaces/ownable.js
 var import_o1js5 = require("o1js");
 var OwnershipChangeEvent = class extends (0, import_o1js5.Struct)({
-  oldOwner: import_o1js5.PublicKey,
-  newOwner: import_o1js5.PublicKey
+  from: import_o1js5.PublicKey,
+  to: import_o1js5.PublicKey
 }) {
 };
 
-// dist/node/admin/standard.js
-var NFTAdmin = class extends import_o1js6.SmartContract {
+// dist/node/interfaces/nft-owner.js
+var import_tslib = require("tslib");
+var import_o1js6 = require("o1js");
+var NFTStandardOwner = class extends import_o1js6.SmartContract {
   constructor() {
     super(...arguments);
     this.admin = (0, import_o1js6.State)();
-    this.upgradeAuthority = (0, import_o1js6.State)();
-    this.isPaused = (0, import_o1js6.State)();
-    this.canPause = (0, import_o1js6.State)();
+  }
+  /**
+   * Deploys the contract with initial settings.
+   * @param props - Deployment properties including admin, upgradeAuthority, uri, canPause, and isPaused.
+   */
+  async deploy(props) {
+    await super.deploy(props);
+    this.admin.set(props.admin);
+    this.account.zkappUri.set(props.uri);
+    this.account.permissions.set({
+      ...import_o1js6.Permissions.default(),
+      // Allow the upgrade authority to set the verification key even without a protocol upgrade,
+      // enabling upgrades in case of o1js breaking changes.
+      setVerificationKey: import_o1js6.Permissions.VerificationKey.proofDuringCurrentVersion(),
+      setPermissions: import_o1js6.Permissions.impossible()
+    });
+  }
+  /**
+   * Ensures that the transaction is authorized by the contract owner.
+   * @returns A signed `AccountUpdate` from the admin.
+   */
+  async ensureOwnerSignature() {
+    const admin = this.admin.getAndRequireEquals();
+    const adminUpdate = import_o1js6.AccountUpdate.createSigned(admin);
+    adminUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
+    return adminUpdate;
+  }
+  async canTransfer(collectionAddress, nftAddress, to, price) {
+    await this.ensureOwnerSignature();
+    return (0, import_o1js6.Bool)(true);
+  }
+};
+(0, import_tslib.__decorate)([
+  (0, import_o1js6.state)(import_o1js6.PublicKey),
+  (0, import_tslib.__metadata)("design:type", Object)
+], NFTStandardOwner.prototype, "admin", void 0);
+(0, import_tslib.__decorate)([
+  import_o1js6.method.returns(import_o1js6.Bool),
+  (0, import_tslib.__metadata)("design:type", Function),
+  (0, import_tslib.__metadata)("design:paramtypes", [
+    import_o1js6.PublicKey,
+    import_o1js6.PublicKey,
+    import_o1js6.PublicKey,
+    UInt64Option
+  ]),
+  (0, import_tslib.__metadata)("design:returntype", Promise)
+], NFTStandardOwner.prototype, "canTransfer", null);
+
+// dist/node/admin/standard.js
+var NFTAdmin = class extends import_o1js7.SmartContract {
+  constructor() {
+    super(...arguments);
+    this.admin = (0, import_o1js7.State)();
+    this.upgradeAuthority = (0, import_o1js7.State)();
+    this.isPaused = (0, import_o1js7.State)();
+    this.canPause = (0, import_o1js7.State)();
     this.events = {
       /** Emitted when the verification key is upgraded. */
-      upgradeVerificationKey: import_o1js6.Field,
+      upgradeVerificationKey: import_o1js7.Field,
       /** Emitted when the contract is paused. */
       pause: PauseEvent,
       /** Emitted when the contract is resumed. */
@@ -707,11 +826,11 @@ var NFTAdmin = class extends import_o1js6.SmartContract {
     this.canPause.set(props.canPause);
     this.account.zkappUri.set(props.uri);
     this.account.permissions.set({
-      ...import_o1js6.Permissions.default(),
+      ...import_o1js7.Permissions.default(),
       // Allow the upgrade authority to set the verification key even without a protocol upgrade,
       // enabling upgrades in case of o1js breaking changes.
-      setVerificationKey: import_o1js6.Permissions.VerificationKey.proofDuringCurrentVersion(),
-      setPermissions: import_o1js6.Permissions.impossible()
+      setVerificationKey: import_o1js7.Permissions.VerificationKey.proofDuringCurrentVersion(),
+      setPermissions: import_o1js7.Permissions.impossible()
     });
   }
   /**
@@ -720,8 +839,8 @@ var NFTAdmin = class extends import_o1js6.SmartContract {
    */
   async ensureOwnerSignature() {
     const admin = this.admin.getAndRequireEquals();
-    const adminUpdate = import_o1js6.AccountUpdate.createSigned(admin);
-    adminUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
+    const adminUpdate = import_o1js7.AccountUpdate.createSigned(admin);
+    adminUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
     return adminUpdate;
   }
   /**
@@ -758,9 +877,10 @@ var NFTAdmin = class extends import_o1js6.SmartContract {
    * @param address - The NFT contract address.
    * @param from - The sender's public key.
    * @param to - The recipient's public key.
+   * @param price - The price of the NFT, optional.
    * @returns A `Bool` indicating whether the transfer is allowed.
    */
-  async canTransfer(address, from, to) {
+  async canTransfer(address, from, to, price) {
     const isPaused = this.isPaused.getAndRequireEquals();
     return isPaused.not();
   }
@@ -794,8 +914,8 @@ var NFTAdmin = class extends import_o1js6.SmartContract {
   async pause() {
     await this.ensureOwnerSignature();
     this.canPause.getAndRequireEquals().assertTrue();
-    this.isPaused.set((0, import_o1js6.Bool)(true));
-    this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js6.Bool)(true) }));
+    this.isPaused.set((0, import_o1js7.Bool)(true));
+    this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js7.Bool)(true) }));
   }
   /**
    * Resumes the contract, re-enabling administrative actions.
@@ -804,132 +924,137 @@ var NFTAdmin = class extends import_o1js6.SmartContract {
   async resume() {
     await this.ensureOwnerSignature();
     this.canPause.getAndRequireEquals().assertTrue();
-    this.isPaused.set((0, import_o1js6.Bool)(false));
-    this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js6.Bool)(false) }));
+    this.isPaused.set((0, import_o1js7.Bool)(false));
+    this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js7.Bool)(false) }));
   }
   /**
    * Transfers ownership of the contract to a new admin.
-   * @param newOwner - The public key of the new owner.
+   * @param to - The public key of the new owner.
    * @returns The public key of the previous owner.
    */
-  async transferOwnership(newOwner) {
+  async transferOwnership(to) {
     await this.ensureOwnerSignature();
-    const oldOwner = this.admin.getAndRequireEquals();
-    this.admin.set(newOwner);
+    const from = this.admin.getAndRequireEquals();
+    this.admin.set(to);
     this.emitEvent("ownershipChange", new OwnershipChangeEvent({
-      oldOwner,
-      newOwner
+      from,
+      to
     }));
-    return oldOwner;
+    return from;
   }
   async canChangeVerificationKey(vk, address, tokenId) {
     await this.ensureOwnerSignature();
-    return (0, import_o1js6.Bool)(true);
+    return (0, import_o1js7.Bool)(true);
   }
 };
-(0, import_tslib.__decorate)([
-  (0, import_o1js6.state)(import_o1js6.PublicKey),
-  (0, import_tslib.__metadata)("design:type", Object)
+(0, import_tslib2.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.PublicKey),
+  (0, import_tslib2.__metadata)("design:type", Object)
 ], NFTAdmin.prototype, "admin", void 0);
-(0, import_tslib.__decorate)([
-  (0, import_o1js6.state)(import_o1js6.PublicKey),
-  (0, import_tslib.__metadata)("design:type", Object)
+(0, import_tslib2.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.PublicKey),
+  (0, import_tslib2.__metadata)("design:type", Object)
 ], NFTAdmin.prototype, "upgradeAuthority", void 0);
-(0, import_tslib.__decorate)([
-  (0, import_o1js6.state)(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Object)
+(0, import_tslib2.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Object)
 ], NFTAdmin.prototype, "isPaused", void 0);
-(0, import_tslib.__decorate)([
-  (0, import_o1js6.state)(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Object)
+(0, import_tslib2.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Object)
 ], NFTAdmin.prototype, "canPause", void 0);
-(0, import_tslib.__decorate)([
-  import_o1js6.method,
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [import_o1js6.VerificationKey]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.VerificationKey]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "upgradeVerificationKey", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(MintParamsOption),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [MintRequest]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(MintParamsOption),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [MintRequest]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canMint", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [NFTState, NFTState]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [NFTState, NFTState]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canUpdate", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [import_o1js6.PublicKey, import_o1js6.PublicKey, import_o1js6.PublicKey]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [
+    import_o1js7.PublicKey,
+    import_o1js7.PublicKey,
+    import_o1js7.PublicKey,
+    UInt64Option
+  ]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canTransfer", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [import_o1js6.PublicKey, import_o1js6.PublicKey, import_o1js6.UInt64]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.PublicKey, import_o1js7.PublicKey, import_o1js7.UInt64]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canSell", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [
-    import_o1js6.PublicKey,
-    import_o1js6.PublicKey,
-    import_o1js6.PublicKey,
-    import_o1js6.UInt64
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [
+    import_o1js7.PublicKey,
+    import_o1js7.PublicKey,
+    import_o1js7.PublicKey,
+    import_o1js7.UInt64
   ]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canBuy", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method,
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", []),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", []),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "pause", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method,
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", []),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", []),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "resume", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(import_o1js6.PublicKey),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [import_o1js6.PublicKey]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(import_o1js7.PublicKey),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.PublicKey]),
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "transferOwnership", null);
-(0, import_tslib.__decorate)([
-  import_o1js6.method.returns(import_o1js6.Bool),
-  (0, import_tslib.__metadata)("design:type", Function),
-  (0, import_tslib.__metadata)("design:paramtypes", [
-    import_o1js6.VerificationKey,
-    import_o1js6.PublicKey,
-    import_o1js6.Field
+(0, import_tslib2.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib2.__metadata)("design:type", Function),
+  (0, import_tslib2.__metadata)("design:paramtypes", [
+    import_o1js7.VerificationKey,
+    import_o1js7.PublicKey,
+    import_o1js7.Field
   ]),
-  (0, import_tslib.__metadata)("design:returntype", Promise)
+  (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canChangeVerificationKey", null);
 
 // dist/node/admin/advanced.js
-var import_tslib2 = require("tslib");
-var import_o1js7 = require("o1js");
+var import_tslib3 = require("tslib");
+var import_o1js8 = require("o1js");
 var import_storage3 = require("@minatokens/storage");
 var import_upgradable = require("@minatokens/upgradable");
-var PauseData = class _PauseData extends (0, import_o1js7.Struct)({
+var PauseData = class _PauseData extends (0, import_o1js8.Struct)({
   /** Indicates whether the contract can be paused. */
-  canPause: import_o1js7.Bool,
+  canPause: import_o1js8.Bool,
   /** Indicates whether the contract is currently paused. */
-  isPaused: import_o1js7.Bool
+  isPaused: import_o1js8.Bool
 }) {
   /**
    * Packs the pause data into a `Field`.
    * @returns A `Field` representing the packed pause data.
    */
   pack() {
-    return import_o1js7.Field.fromBits([this.canPause, this.isPaused]);
+    return import_o1js8.Field.fromBits([this.canPause, this.isPaused]);
   }
   /**
    * Unpacks a `Field` into `PauseData`.
@@ -951,16 +1076,16 @@ var NFTAdvancedAdminContractErrors = {
 };
 function NFTAdvancedAdminContract(params) {
   const { upgradeContract } = params;
-  class NFTAdvancedAdmin2 extends import_o1js7.SmartContract {
+  class NFTAdvancedAdmin2 extends import_o1js8.SmartContract {
     constructor() {
       super(...arguments);
-      this.admin = (0, import_o1js7.State)();
-      this.upgradeAuthority = (0, import_o1js7.State)();
-      this.whitelist = (0, import_o1js7.State)();
-      this.pauseData = (0, import_o1js7.State)();
+      this.admin = (0, import_o1js8.State)();
+      this.upgradeAuthority = (0, import_o1js8.State)();
+      this.whitelist = (0, import_o1js8.State)();
+      this.pauseData = (0, import_o1js8.State)();
       this.events = {
         /** Emitted when the contract's verification key is upgraded. */
-        upgradeVerificationKey: import_o1js7.Field,
+        upgradeVerificationKey: import_o1js8.Field,
         /** Emitted when the contract is paused. */
         pause: PauseEvent,
         /** Emitted when the contract is resumed. */
@@ -986,12 +1111,12 @@ function NFTAdvancedAdminContract(params) {
       }).pack());
       this.account.zkappUri.set(props.uri);
       this.account.permissions.set({
-        ...import_o1js7.Permissions.default(),
+        ...import_o1js8.Permissions.default(),
         // We want to allow the upgrade authority to set the verification key
         // even in the case when there is no protocol upgrade
         // to allow the upgrade in case of o1js breaking changes
-        setVerificationKey: import_o1js7.Permissions.VerificationKey.proofDuringCurrentVersion(),
-        setPermissions: import_o1js7.Permissions.impossible()
+        setVerificationKey: import_o1js8.Permissions.VerificationKey.proofDuringCurrentVersion(),
+        setPermissions: import_o1js8.Permissions.impossible()
       });
     }
     /**
@@ -1000,8 +1125,8 @@ function NFTAdvancedAdminContract(params) {
      */
     async ensureOwnerSignature() {
       const admin = this.admin.getAndRequireEquals();
-      const adminUpdate = import_o1js7.AccountUpdate.createSigned(admin);
-      adminUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+      const adminUpdate = import_o1js8.AccountUpdate.createSigned(admin);
+      adminUpdate.body.useFullCommitment = (0, import_o1js8.Bool)(true);
       return adminUpdate;
     }
     /** Gets the upgrade contract constructor. */
@@ -1022,8 +1147,8 @@ function NFTAdvancedAdminContract(params) {
     async upgradeVerificationKey(vk) {
       await this.ensureOwnerSignature();
       const upgradeContract2 = await this.getUpgradeContract();
-      const previousVerificationKeyHash = import_o1js7.Provable.witness(import_o1js7.Field, () => {
-        const account = import_o1js7.Mina.getAccount(this.address);
+      const previousVerificationKeyHash = import_o1js8.Provable.witness(import_o1js8.Field, () => {
+        const account = import_o1js8.Mina.getAccount(this.address);
         const vkHash = account.zkapp?.verificationKey?.hash;
         if (!vkHash) {
           throw Error(NFTAdvancedAdminContractErrors.verificationKeyHashNotFound);
@@ -1054,11 +1179,11 @@ function NFTAdvancedAdminContract(params) {
       const ownerAmount = await whitelist.getWhitelistedAmount(mintRequest.owner);
       ownerAmount.isSome.assertTrue(NFTAdvancedAdminContractErrors.notWhitelisted);
       const sender = this.sender.getUnconstrained();
-      const senderUpdate = import_o1js7.AccountUpdate.createSigned(sender);
-      senderUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+      const senderUpdate = import_o1js8.AccountUpdate.createSigned(sender);
+      senderUpdate.body.useFullCommitment = (0, import_o1js8.Bool)(true);
       const senderAmount = await whitelist.getWhitelistedAmount(sender);
       senderAmount.isSome.assertTrue(NFTAdvancedAdminContractErrors.senderNotWhitelisted);
-      const mintParams = await import_o1js7.Provable.witnessAsync(MintParamsOption, async () => {
+      const mintParams = await import_o1js8.Provable.witnessAsync(MintParamsOption, async () => {
         return MintParamsOption.none();
       });
       return mintParams;
@@ -1080,9 +1205,13 @@ function NFTAdvancedAdminContract(params) {
      * @param to The receiver's public key.
      * @returns A `Bool` indicating whether the transfer is permitted.
      */
-    async canTransfer(address, from, to) {
+    async canTransfer(address, from, to, price) {
       const whitelist = this.whitelist.getAndRequireEquals();
-      return (await whitelist.getWhitelistedAmount(to)).isSome.and((await whitelist.getWhitelistedAmount(from)).isSome);
+      const toAmount = await whitelist.getWhitelistedAmount(to);
+      const fromAmount = await whitelist.getWhitelistedAmount(from);
+      const toAmountAllowed = toAmount.orElse(import_o1js8.UInt64.from(0)).lessThanOrEqual(price.orElse(import_o1js8.UInt64.MAXINT()));
+      const fromAmountAllowed = fromAmount.orElse(import_o1js8.UInt64.from(0)).lessThanOrEqual(price.orElse(import_o1js8.UInt64.MAXINT()));
+      return toAmountAllowed.and(fromAmountAllowed).and(toAmount.isSome).and(fromAmount.isSome);
     }
     /**
      * Determines if the seller is permitted to list the NFT for sale at the specified price.
@@ -1127,9 +1256,9 @@ function NFTAdvancedAdminContract(params) {
       await this.ensureOwnerSignature();
       const pauseData = PauseData.unpack(this.pauseData.getAndRequireEquals());
       pauseData.canPause.assertTrue();
-      pauseData.isPaused = (0, import_o1js7.Bool)(true);
+      pauseData.isPaused = (0, import_o1js8.Bool)(true);
       this.pauseData.set(pauseData.pack());
-      this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js7.Bool)(true) }));
+      this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js8.Bool)(true) }));
     }
     /**
      * Resumes the contract, allowing administrative actions to be performed again.
@@ -1138,29 +1267,29 @@ function NFTAdvancedAdminContract(params) {
       await this.ensureOwnerSignature();
       const pauseData = PauseData.unpack(this.pauseData.getAndRequireEquals());
       pauseData.canPause.assertTrue();
-      pauseData.isPaused = (0, import_o1js7.Bool)(false);
+      pauseData.isPaused = (0, import_o1js8.Bool)(false);
       this.pauseData.set(pauseData.pack());
-      this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js7.Bool)(false) }));
+      this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js8.Bool)(false) }));
     }
     /**
      * Transfers ownership of the contract to a new admin.
      * @param newOwner The public key of the new admin.
      * @returns The public key of the old owner.
      */
-    async transferOwnership(newOwner) {
+    async transferOwnership(to) {
       await this.ensureOwnerSignature();
-      const oldOwner = this.admin.getAndRequireEquals();
-      this.admin.set(newOwner);
+      const from = this.admin.getAndRequireEquals();
+      this.admin.set(to);
       this.emitEvent("ownershipChange", new OwnershipChangeEvent({
-        oldOwner,
-        newOwner
+        from,
+        to
       }));
-      return oldOwner;
+      return from;
     }
     async canChangeVerificationKey(vk, address, tokenId) {
       const upgradeContract2 = await this.getUpgradeContract();
-      const previousVerificationKeyHash = import_o1js7.Provable.witness(import_o1js7.Field, () => {
-        const account = import_o1js7.Mina.getAccount(address, tokenId);
+      const previousVerificationKeyHash = import_o1js8.Provable.witness(import_o1js8.Field, () => {
+        const account = import_o1js8.Mina.getAccount(address, tokenId);
         const vkHash = account.zkapp?.verificationKey?.hash;
         if (!vkHash) {
           throw Error("Verification key hash not found");
@@ -1177,107 +1306,112 @@ function NFTAdvancedAdminContract(params) {
       return upgradeAuthorityAnswer.isVerified;
     }
   }
-  (0, import_tslib2.__decorate)([
-    (0, import_o1js7.state)(import_o1js7.PublicKey),
-    (0, import_tslib2.__metadata)("design:type", Object)
+  (0, import_tslib3.__decorate)([
+    (0, import_o1js8.state)(import_o1js8.PublicKey),
+    (0, import_tslib3.__metadata)("design:type", Object)
   ], NFTAdvancedAdmin2.prototype, "admin", void 0);
-  (0, import_tslib2.__decorate)([
-    (0, import_o1js7.state)(import_o1js7.PublicKey),
-    (0, import_tslib2.__metadata)("design:type", Object)
+  (0, import_tslib3.__decorate)([
+    (0, import_o1js8.state)(import_o1js8.PublicKey),
+    (0, import_tslib3.__metadata)("design:type", Object)
   ], NFTAdvancedAdmin2.prototype, "upgradeAuthority", void 0);
-  (0, import_tslib2.__decorate)([
-    (0, import_o1js7.state)(import_storage3.Whitelist),
-    (0, import_tslib2.__metadata)("design:type", Object)
+  (0, import_tslib3.__decorate)([
+    (0, import_o1js8.state)(import_storage3.Whitelist),
+    (0, import_tslib3.__metadata)("design:type", Object)
   ], NFTAdvancedAdmin2.prototype, "whitelist", void 0);
-  (0, import_tslib2.__decorate)([
-    (0, import_o1js7.state)(import_o1js7.Field),
-    (0, import_tslib2.__metadata)("design:type", Object)
+  (0, import_tslib3.__decorate)([
+    (0, import_o1js8.state)(import_o1js8.Field),
+    (0, import_tslib3.__metadata)("design:type", Object)
   ], NFTAdvancedAdmin2.prototype, "pauseData", void 0);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method,
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.VerificationKey]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method,
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.VerificationKey]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "upgradeVerificationKey", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(MintParamsOption),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [MintRequest]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(MintParamsOption),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [MintRequest]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canMint", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(import_o1js7.Bool),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [NFTState, NFTState]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(import_o1js8.Bool),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [NFTState, NFTState]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canUpdate", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(import_o1js7.Bool),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.PublicKey, import_o1js7.PublicKey, import_o1js7.PublicKey]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(import_o1js8.Bool),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [
+      import_o1js8.PublicKey,
+      import_o1js8.PublicKey,
+      import_o1js8.PublicKey,
+      UInt64Option
+    ]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canTransfer", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(import_o1js7.Bool),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.PublicKey, import_o1js7.PublicKey, import_o1js7.UInt64]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(import_o1js8.Bool),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.PublicKey, import_o1js8.PublicKey, import_o1js8.UInt64]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canSell", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(import_o1js7.Bool),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [
-      import_o1js7.PublicKey,
-      import_o1js7.PublicKey,
-      import_o1js7.PublicKey,
-      import_o1js7.UInt64
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(import_o1js8.Bool),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [
+      import_o1js8.PublicKey,
+      import_o1js8.PublicKey,
+      import_o1js8.PublicKey,
+      import_o1js8.UInt64
     ]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canBuy", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method,
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [import_storage3.Whitelist]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method,
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [import_storage3.Whitelist]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "updateWhitelist", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method,
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", []),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method,
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", []),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "pause", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method,
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", []),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method,
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", []),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "resume", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(import_o1js7.PublicKey),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.PublicKey]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(import_o1js8.PublicKey),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.PublicKey]),
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "transferOwnership", null);
-  (0, import_tslib2.__decorate)([
-    import_o1js7.method.returns(import_o1js7.Bool),
-    (0, import_tslib2.__metadata)("design:type", Function),
-    (0, import_tslib2.__metadata)("design:paramtypes", [
-      import_o1js7.VerificationKey,
-      import_o1js7.PublicKey,
-      import_o1js7.Field
+  (0, import_tslib3.__decorate)([
+    import_o1js8.method.returns(import_o1js8.Bool),
+    (0, import_tslib3.__metadata)("design:type", Function),
+    (0, import_tslib3.__metadata)("design:paramtypes", [
+      import_o1js8.VerificationKey,
+      import_o1js8.PublicKey,
+      import_o1js8.Field
     ]),
-    (0, import_tslib2.__metadata)("design:returntype", Promise)
+    (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canChangeVerificationKey", null);
   return NFTAdvancedAdmin2;
 }
 
 // dist/node/contracts/collection.js
-var import_tslib4 = require("tslib");
-var import_o1js9 = require("o1js");
+var import_tslib5 = require("tslib");
+var import_o1js10 = require("o1js");
 
 // dist/node/contracts/nft.js
-var import_tslib3 = require("tslib");
-var import_o1js8 = require("o1js");
+var import_tslib4 = require("tslib");
+var import_o1js9 = require("o1js");
 var import_storage4 = require("@minatokens/storage");
 var NFTErrors = {
   onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key",
@@ -1297,15 +1431,15 @@ var NFTErrors = {
   noPermissionToBuy: "No permission to buy",
   noPermissionToChangePrice: "No permission to change price"
 };
-var NFT = class extends import_o1js8.SmartContract {
+var NFT = class extends import_o1js9.SmartContract {
   constructor() {
     super(...arguments);
-    this.name = (0, import_o1js8.State)();
-    this.metadata = (0, import_o1js8.State)();
-    this.owner = (0, import_o1js8.State)();
-    this.storage = (0, import_o1js8.State)();
-    this.packedData = (0, import_o1js8.State)();
-    this.metadataVerificationKeyHash = (0, import_o1js8.State)();
+    this.name = (0, import_o1js9.State)();
+    this.metadata = (0, import_o1js9.State)();
+    this.owner = (0, import_o1js9.State)();
+    this.storage = (0, import_o1js9.State)();
+    this.packedData = (0, import_o1js9.State)();
+    this.metadataVerificationKeyHash = (0, import_o1js9.State)();
     this.events = {
       update: UpdateEvent,
       transfer: TransferEvent,
@@ -1324,8 +1458,9 @@ var NFT = class extends import_o1js8.SmartContract {
    */
   async ensureOwnerSignature() {
     const owner = this.owner.getAndRequireEquals();
-    const ownerUpdate = import_o1js8.AccountUpdate.createSigned(owner);
-    ownerUpdate.body.useFullCommitment = (0, import_o1js8.Bool)(true);
+    const ownerUpdate = import_o1js9.AccountUpdate.createSigned(owner);
+    ownerUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+    ownerUpdate.body.preconditions.account.provedState.isSome = (0, import_o1js9.Bool)(false);
     return ownerUpdate;
   }
   /**
@@ -1340,16 +1475,28 @@ var NFT = class extends import_o1js8.SmartContract {
     const name = this.name.getAndRequireEquals();
     const metadata = this.metadata.getAndRequireEquals();
     const owner = this.owner.getAndRequireEquals();
+    const oracleUpdate = import_o1js9.AccountUpdate.create(
+      input.oracle.publicKey,
+      // in case publicKey is empty, this AccountUpdate will NOT be created
+      input.oracle.tokenId
+    );
+    oracleUpdate.body.preconditions.account.state = input.oracle.state;
+    oracleUpdate.body.preconditions.account.balance.isSome = (0, import_o1js9.Bool)(true);
+    oracleUpdate.body.preconditions.account.balance.value.lower = input.oracle.balanceLower;
+    oracleUpdate.body.preconditions.account.balance.value.upper = input.oracle.balanceUpper;
+    oracleUpdate.body.preconditions.account.nonce.isSome = (0, import_o1js9.Bool)(true);
+    oracleUpdate.body.preconditions.account.nonce.value.lower = input.oracle.nonceLower;
+    oracleUpdate.body.preconditions.account.nonce.value.upper = input.oracle.nonceUpper;
+    oracleUpdate.body.preconditions.account.actionState = input.oracle.actionState;
+    this.network.globalSlotSinceGenesis.requireBetween(input.oracle.lowerSlot, input.oracle.upperSlot);
     const storage = this.storage.getAndRequireEquals();
     const metadataVerificationKeyHash = this.metadataVerificationKeyHash.getAndRequireEquals();
-    metadataVerificationKeyHash.assertNotEquals((0, import_o1js8.Field)(0), NFTErrors.noMetadataVerificationKey);
+    metadataVerificationKeyHash.assertNotEquals((0, import_o1js9.Field)(0), NFTErrors.noMetadataVerificationKey);
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.isPaused.assertFalse(NFTErrors.nftIsPaused);
-    this.network.globalSlotSinceGenesis.requireBetween(input.lowerSlot, input.upperSlot);
     NFTState.assertEqual(input, new NFTState({
       immutableState: new NFTImmutableState({
         canChangeOwnerByProof: data.canChangeOwnerByProof,
-        canChangeOwnerBySignature: data.canChangeOwnerBySignature,
+        canTransfer: data.canTransfer,
         canChangeMetadata: data.canChangeMetadata,
         canChangePrice: data.canChangePrice,
         canChangeStorage: data.canChangeStorage,
@@ -1369,12 +1516,10 @@ var NFT = class extends import_o1js8.SmartContract {
       isPaused: data.isPaused,
       metadataVerificationKeyHash,
       creator,
-      lowerSlot: input.lowerSlot,
-      upperSlot: input.upperSlot
+      oracle: input.oracle
     }));
     input.creator.assertEquals(output.creator);
-    input.lowerSlot.assertEquals(output.lowerSlot);
-    input.upperSlot.assertEquals(output.upperSlot);
+    NFTOraclePreconditions.assertEqual(input.oracle, output.oracle);
     name.equals(output.name).not().and(data.canChangeName.not()).assertFalse(NFTErrors.cannotChangeName);
     this.name.set(output.name);
     metadata.equals(output.metadata).not().and(data.canChangeMetadata.not()).assertFalse(NFTErrors.cannotChangeMetadata);
@@ -1415,7 +1560,7 @@ var NFT = class extends import_o1js8.SmartContract {
     this.owner.getAndRequireEquals().assertEquals(seller);
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.isPaused.assertFalse(NFTErrors.nftIsPaused);
-    data.canChangeOwnerBySignature.assertTrue(NFTErrors.noPermissionToSell);
+    data.canTransfer.assertTrue(NFTErrors.noPermissionToSell);
     data.canChangePrice.assertTrue(NFTErrors.noPermissionToChangePrice);
     const version = data.version.add(1);
     data.version = version;
@@ -1440,13 +1585,13 @@ var NFT = class extends import_o1js8.SmartContract {
   async buy(price, buyer) {
     const owner = this.owner.getAndRequireEquals();
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.price.equals(import_o1js8.UInt64.zero).assertFalse();
+    data.price.equals(import_o1js9.UInt64.zero).assertFalse();
     data.price.assertEquals(price);
     data.isPaused.assertFalse(NFTErrors.nftIsPaused);
-    data.canChangeOwnerBySignature.assertTrue(NFTErrors.noPermissionToBuy);
+    data.canTransfer.assertTrue(NFTErrors.noPermissionToBuy);
     const version = data.version.add(1);
     data.version = version;
-    data.price = import_o1js8.UInt64.zero;
+    data.price = import_o1js9.UInt64.zero;
     this.packedData.set(data.pack());
     this.owner.set(buyer);
     const event = new BuyEvent({
@@ -1458,8 +1603,8 @@ var NFT = class extends import_o1js8.SmartContract {
     });
     this.emitEvent("buy", event);
     this.emitEvent("ownershipChange", new OwnershipChangeEvent({
-      oldOwner: owner,
-      newOwner: buyer
+      from: owner,
+      to: buyer
     }));
     return event;
   }
@@ -1471,18 +1616,17 @@ var NFT = class extends import_o1js8.SmartContract {
    * @returns The public key of the old owner (`PublicKey`).
    */
   async transfer(from, to) {
-    const oldOwner = this.owner.getAndRequireEquals();
-    oldOwner.assertEquals(from);
+    const owner = this.owner.getAndRequireEquals();
+    owner.assertEquals(from);
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.canChangeOwnerBySignature.assertTrue(NFTErrors.cannotChangeOwner);
+    data.canTransfer.assertTrue(NFTErrors.cannotChangeOwner);
     data.isPaused.assertFalse(NFTErrors.nftIsPaused);
     const version = data.version.add(1);
     data.version = version;
-    data.price = import_o1js8.UInt64.zero;
+    data.price = import_o1js9.UInt64.zero;
     this.owner.set(to);
     this.packedData.set(data.pack());
-    this.emitEvent("ownershipChange", new OwnershipChangeEvent({ oldOwner, newOwner: to }));
-    return oldOwner;
+    this.emitEvent("ownershipChange", new OwnershipChangeEvent({ from, to }));
   }
   /**
    * Upgrades the verification key used by the NFT contract.
@@ -1518,9 +1662,9 @@ var NFT = class extends import_o1js8.SmartContract {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.canPause.assertTrue(NFTErrors.noPermissionToPause);
     data.isPaused.assertFalse(NFTErrors.nftAlreadyPaused);
-    data.isPaused = (0, import_o1js8.Bool)(true);
+    data.isPaused = (0, import_o1js9.Bool)(true);
     this.packedData.set(data.pack());
-    this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js8.Bool)(true) }));
+    this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js9.Bool)(true) }));
   }
   /**
    * Resumes the NFT, re-enabling actions.
@@ -1532,83 +1676,83 @@ var NFT = class extends import_o1js8.SmartContract {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.canPause.assertTrue(NFTErrors.noPermissionToPause);
     data.isPaused.assertTrue(NFTErrors.nftIsNotPaused);
-    data.isPaused = (0, import_o1js8.Bool)(false);
+    data.isPaused = (0, import_o1js9.Bool)(false);
     this.packedData.set(data.pack());
-    this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js8.Bool)(false) }));
+    this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js9.Bool)(false) }));
   }
 };
-(0, import_tslib3.__decorate)([
-  (0, import_o1js8.state)(import_o1js8.Field),
-  (0, import_tslib3.__metadata)("design:type", Object)
+(0, import_tslib4.__decorate)([
+  (0, import_o1js9.state)(import_o1js9.Field),
+  (0, import_tslib4.__metadata)("design:type", Object)
 ], NFT.prototype, "name", void 0);
-(0, import_tslib3.__decorate)([
-  (0, import_o1js8.state)(import_o1js8.Field),
-  (0, import_tslib3.__metadata)("design:type", Object)
+(0, import_tslib4.__decorate)([
+  (0, import_o1js9.state)(import_o1js9.Field),
+  (0, import_tslib4.__metadata)("design:type", Object)
 ], NFT.prototype, "metadata", void 0);
-(0, import_tslib3.__decorate)([
-  (0, import_o1js8.state)(import_o1js8.PublicKey),
-  (0, import_tslib3.__metadata)("design:type", Object)
+(0, import_tslib4.__decorate)([
+  (0, import_o1js9.state)(import_o1js9.PublicKey),
+  (0, import_tslib4.__metadata)("design:type", Object)
 ], NFT.prototype, "owner", void 0);
-(0, import_tslib3.__decorate)([
-  (0, import_o1js8.state)(import_storage4.Storage),
-  (0, import_tslib3.__metadata)("design:type", Object)
+(0, import_tslib4.__decorate)([
+  (0, import_o1js9.state)(import_storage4.Storage),
+  (0, import_tslib4.__metadata)("design:type", Object)
 ], NFT.prototype, "storage", void 0);
-(0, import_tslib3.__decorate)([
-  (0, import_o1js8.state)(import_o1js8.Field),
-  (0, import_tslib3.__metadata)("design:type", Object)
+(0, import_tslib4.__decorate)([
+  (0, import_o1js9.state)(import_o1js9.Field),
+  (0, import_tslib4.__metadata)("design:type", Object)
 ], NFT.prototype, "packedData", void 0);
-(0, import_tslib3.__decorate)([
-  (0, import_o1js8.state)(import_o1js8.Field),
-  (0, import_tslib3.__metadata)("design:type", Object)
+(0, import_tslib4.__decorate)([
+  (0, import_o1js9.state)(import_o1js9.Field),
+  (0, import_tslib4.__metadata)("design:type", Object)
 ], NFT.prototype, "metadataVerificationKeyHash", void 0);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method.returns(import_o1js8.Field),
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", [
+(0, import_tslib4.__decorate)([
+  import_o1js9.method.returns(import_o1js9.Field),
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", [
     NFTState,
     NFTState,
-    import_o1js8.PublicKey
+    import_o1js9.PublicKey
   ]),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "update", null);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method.returns(OfferEvent),
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.UInt64, import_o1js8.PublicKey]),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+(0, import_tslib4.__decorate)([
+  import_o1js9.method.returns(OfferEvent),
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.UInt64, import_o1js9.PublicKey]),
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "offer", null);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method.returns(BuyEvent),
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.UInt64, import_o1js8.PublicKey]),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+(0, import_tslib4.__decorate)([
+  import_o1js9.method.returns(BuyEvent),
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.UInt64, import_o1js9.PublicKey]),
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "buy", null);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method.returns(import_o1js8.PublicKey),
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.PublicKey, import_o1js8.PublicKey]),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+(0, import_tslib4.__decorate)([
+  import_o1js9.method,
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey, import_o1js9.PublicKey]),
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "transfer", null);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method.returns(UpgradeVerificationKeyEvent),
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", [
-    import_o1js8.VerificationKey,
-    import_o1js8.PublicKey
+(0, import_tslib4.__decorate)([
+  import_o1js9.method.returns(UpgradeVerificationKeyEvent),
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", [
+    import_o1js9.VerificationKey,
+    import_o1js9.PublicKey
   ]),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "upgradeVerificationKey", null);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method,
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", []),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+(0, import_tslib4.__decorate)([
+  import_o1js9.method,
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", []),
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "pause", null);
-(0, import_tslib3.__decorate)([
-  import_o1js8.method,
-  (0, import_tslib3.__metadata)("design:type", Function),
-  (0, import_tslib3.__metadata)("design:paramtypes", []),
-  (0, import_tslib3.__metadata)("design:returntype", Promise)
+(0, import_tslib4.__decorate)([
+  import_o1js9.method,
+  (0, import_tslib4.__metadata)("design:type", Function),
+  (0, import_tslib4.__metadata)("design:paramtypes", []),
+  (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "resume", null);
 
 // dist/node/vk.js
@@ -1617,8 +1761,8 @@ var nftVerificationKeys = {
     o1js: "2.2.0",
     vk: {
       NFT: {
-        hash: "26294100193719174337124130514494591559475332121851732332327534590308297931888",
-        data: "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",
+        hash: "4139873419466911647335133355229626577074415960725687329241140435336073618941",
+        data: "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",
         type: "nft"
       }
     }
@@ -1627,8 +1771,8 @@ var nftVerificationKeys = {
     o1js: "2.2.0",
     vk: {
       NFT: {
-        hash: "3808292129585393335330853282338271304473522481247222611695993886175047072161",
-        data: "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",
+        hash: "13746079407990464162189636748966411098497115333657710415049917997546959751859",
+        data: "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",
         type: "nft"
       }
     }
@@ -1664,18 +1808,18 @@ var CollectionErrors = {
   adminContractAddressNotSet: "Admin contract address is not set"
 };
 function CollectionContract(params) {
-  const { adminContract } = params;
-  class Collection2 extends import_o1js9.TokenContract {
+  const { adminContract, ownerContract = NFTStandardOwner } = params;
+  class Collection2 extends import_o1js10.TokenContract {
     constructor() {
       super(...arguments);
-      this.collectionName = (0, import_o1js9.State)();
-      this.creator = (0, import_o1js9.State)();
-      this.admin = (0, import_o1js9.State)();
-      this.baseURL = (0, import_o1js9.State)();
-      this.packedData = (0, import_o1js9.State)();
+      this.collectionName = (0, import_o1js10.State)();
+      this.creator = (0, import_o1js10.State)();
+      this.admin = (0, import_o1js10.State)();
+      this.baseURL = (0, import_o1js10.State)();
+      this.packedData = (0, import_o1js10.State)();
       this.events = {
         mint: MintEvent,
-        update: import_o1js9.PublicKey,
+        update: import_o1js10.PublicKey,
         transfer: TransferEvent,
         offer: OfferEvent,
         sale: SaleEvent,
@@ -1685,20 +1829,20 @@ function CollectionContract(params) {
         approveSale: SaleEvent,
         approveTransfer: TransferEvent,
         approveMint: MintEvent,
-        approveUpdate: import_o1js9.PublicKey,
+        approveUpdate: import_o1js10.PublicKey,
         upgradeNFTVerificationKey: UpgradeVerificationKeyEvent,
-        upgradeVerificationKey: import_o1js9.Field,
+        upgradeVerificationKey: import_o1js10.Field,
         limitMinting: LimitMintingEvent,
         pause: PauseEvent,
         resume: PauseEvent,
         pauseNFT: PauseNFTEvent,
         resumeNFT: PauseNFTEvent,
         ownershipChange: OwnershipChangeEvent,
-        setName: import_o1js9.Field,
-        setBaseURL: import_o1js9.Field,
-        setRoyaltyFee: import_o1js9.UInt32,
-        setTransferFee: import_o1js9.UInt64,
-        setAdmin: import_o1js9.PublicKey
+        setName: import_o1js10.Field,
+        setBaseURL: import_o1js10.Field,
+        setRoyaltyFee: import_o1js10.UInt32,
+        setTransferFee: import_o1js10.UInt64,
+        setAdmin: import_o1js10.PublicKey
       };
     }
     /**
@@ -1718,15 +1862,15 @@ function CollectionContract(params) {
       this.account.zkappUri.set(props.url);
       this.account.tokenSymbol.set(props.symbol);
       this.account.permissions.set({
-        ...import_o1js9.Permissions.default(),
+        ...import_o1js10.Permissions.default(),
         // Allow the upgrade authority to set the verification key
         // even when there is no protocol upgrade
-        setVerificationKey: import_o1js9.Permissions.VerificationKey.proofDuringCurrentVersion(),
-        setPermissions: import_o1js9.Permissions.impossible(),
-        access: import_o1js9.Permissions.proof(),
-        send: import_o1js9.Permissions.proof(),
-        setZkappUri: import_o1js9.Permissions.none(),
-        setTokenSymbol: import_o1js9.Permissions.none()
+        setVerificationKey: import_o1js10.Permissions.VerificationKey.proofDuringCurrentVersion(),
+        setPermissions: import_o1js10.Permissions.impossible(),
+        access: import_o1js10.Permissions.proof(),
+        send: import_o1js10.Permissions.proof(),
+        setZkappUri: import_o1js10.Permissions.none(),
+        setTokenSymbol: import_o1js10.Permissions.none()
       });
     }
     /**
@@ -1736,7 +1880,7 @@ function CollectionContract(params) {
      * @param collectionData - Initial collection data including flags and configurations.
      */
     async initialize(masterNFT, collectionData) {
-      this.account.provedState.requireEquals((0, import_o1js9.Bool)(false));
+      this.account.provedState.requireEquals((0, import_o1js10.Bool)(false));
       this.packedData.set(collectionData.pack());
       masterNFT.address.equals(this.address).assertTrue(CollectionErrors.wrongMasterNFTaddress);
       await this._mint(masterNFT, collectionData);
@@ -1752,6 +1896,9 @@ function CollectionContract(params) {
     get getAdminContractConstructor() {
       return adminContract;
     }
+    get getOwnerContractConstructor() {
+      return ownerContract;
+    }
     /**
      * Retrieves the Admin Contract instance.
      *
@@ -1759,8 +1906,16 @@ function CollectionContract(params) {
      */
     getAdminContract() {
       const admin = this.admin.getAndRequireEquals();
-      admin.equals(import_o1js9.PublicKey.empty()).assertFalse(CollectionErrors.adminContractAddressNotSet);
+      admin.equals(import_o1js10.PublicKey.empty()).assertFalse(CollectionErrors.adminContractAddressNotSet);
       return new this.getAdminContractConstructor(admin);
+    }
+    /**
+     * Retrieves the NFT Owner Contract instance.
+     *
+     * @returns The Owner Contract instance implementing NFTOwnerBase.
+     */
+    getOwnerContract(address) {
+      return new this.getOwnerContractConstructor(address);
     }
     /**
      * Ensures that the transaction is authorized by the contract owner.
@@ -1769,8 +1924,8 @@ function CollectionContract(params) {
      */
     async ensureOwnerSignature() {
       const creator = this.creator.getAndRequireEquals();
-      const creatorUpdate = import_o1js9.AccountUpdate.createSigned(creator);
-      creatorUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+      const creatorUpdate = import_o1js10.AccountUpdate.createSigned(creator);
+      creatorUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
       return creatorUpdate;
     }
     /**
@@ -1827,19 +1982,19 @@ function CollectionContract(params) {
      */
     async _mint(params2, collectionData) {
       const { name, address, owner, data, metadata, storage, metadataVerificationKeyHash, expiry } = params2;
-      this.network.globalSlotSinceGenesis.requireBetween(import_o1js9.UInt32.zero, expiry);
-      data.version.assertEquals(import_o1js9.UInt32.zero);
+      this.network.globalSlotSinceGenesis.requireBetween(import_o1js10.UInt32.zero, expiry);
+      data.version.assertEquals(import_o1js10.UInt32.zero);
       const packedData = data.pack();
       const tokenId = this.deriveTokenId();
-      const update = import_o1js9.AccountUpdate.createSigned(address, tokenId);
-      update.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+      const update = import_o1js10.AccountUpdate.createSigned(address, tokenId);
+      update.body.useFullCommitment = (0, import_o1js10.Bool)(true);
       update.account.isNew.getAndRequireEquals().assertTrue();
       this.internal.mint({ address: update, amount: 1e9 });
-      const verificationKey = import_o1js9.Provable.witness(import_o1js9.VerificationKey, () => {
-        const networkId = import_o1js9.Mina.getNetworkId() === "mainnet" ? "mainnet" : "devnet";
-        const verificationKey2 = new import_o1js9.VerificationKey({
+      const verificationKey = import_o1js10.Provable.witness(import_o1js10.VerificationKey, () => {
+        const networkId = import_o1js10.Mina.getNetworkId() === "mainnet" ? "mainnet" : "devnet";
+        const verificationKey2 = new import_o1js10.VerificationKey({
           data: nftVerificationKeys[networkId].vk.NFT.data,
-          hash: (0, import_o1js9.Field)(nftVerificationKeys[networkId].vk.NFT.hash)
+          hash: (0, import_o1js10.Field)(nftVerificationKeys[networkId].vk.NFT.hash)
         });
         const vkHash = NFT._verificationKey?.hash;
         if (!verificationKey2 || !verificationKey2.hash || !verificationKey2.data)
@@ -1848,28 +2003,28 @@ function CollectionContract(params) {
           throw Error("NFT verification key does not match the compiled verification key");
         return verificationKey2;
       });
-      const mainnetVerificationKeyHash = (0, import_o1js9.Field)(nftVerificationKeys.mainnet.vk.NFT.hash);
-      const devnetVerificationKeyHash = (0, import_o1js9.Field)(nftVerificationKeys.devnet.vk.NFT.hash);
-      const isMainnet = import_o1js9.Provable.witness(import_o1js9.Bool, () => {
-        return (0, import_o1js9.Bool)(import_o1js9.Mina.getNetworkId() === "mainnet");
+      const mainnetVerificationKeyHash = (0, import_o1js10.Field)(nftVerificationKeys.mainnet.vk.NFT.hash);
+      const devnetVerificationKeyHash = (0, import_o1js10.Field)(nftVerificationKeys.devnet.vk.NFT.hash);
+      const isMainnet = import_o1js10.Provable.witness(import_o1js10.Bool, () => {
+        return (0, import_o1js10.Bool)(import_o1js10.Mina.getNetworkId() === "mainnet");
       });
-      verificationKey.hash.assertEquals(import_o1js9.Provable.if(isMainnet, mainnetVerificationKeyHash, devnetVerificationKeyHash));
+      verificationKey.hash.assertEquals(import_o1js10.Provable.if(isMainnet, mainnetVerificationKeyHash, devnetVerificationKeyHash));
       update.body.update.verificationKey = {
-        isSome: (0, import_o1js9.Bool)(true),
+        isSome: (0, import_o1js10.Bool)(true),
         value: verificationKey
       };
       update.body.update.permissions = {
-        isSome: (0, import_o1js9.Bool)(true),
+        isSome: (0, import_o1js10.Bool)(true),
         value: {
-          ...import_o1js9.Permissions.default(),
-          send: import_o1js9.Permissions.proof(),
+          ...import_o1js10.Permissions.default(),
+          send: import_o1js10.Permissions.proof(),
           // Allow the upgrade authority to set the verification key
           // even when there is no protocol upgrade
-          setVerificationKey: import_o1js9.Permissions.VerificationKey.proofDuringCurrentVersion(),
-          setPermissions: import_o1js9.Permissions.impossible(),
-          access: import_o1js9.Permissions.proof(),
-          setZkappUri: import_o1js9.Permissions.none(),
-          setTokenSymbol: import_o1js9.Permissions.none()
+          setVerificationKey: import_o1js10.Permissions.VerificationKey.proofDuringCurrentVersion(),
+          setPermissions: import_o1js10.Permissions.impossible(),
+          access: import_o1js10.Permissions.proof(),
+          setZkappUri: import_o1js10.Permissions.none(),
+          setTokenSymbol: import_o1js10.Permissions.none()
         }
       };
       const initialState = new NFTStateStruct({
@@ -1881,7 +2036,7 @@ function CollectionContract(params) {
         metadataVerificationKeyHash
       });
       update.body.update.appState = NFTStateStruct.toFields(initialState).map((field) => ({
-        isSome: (0, import_o1js9.Bool)(true),
+        isSome: (0, import_o1js10.Bool)(true),
         value: field
       }));
       const event = new MintEvent({
@@ -1931,9 +2086,6 @@ function CollectionContract(params) {
       const nft = new NFT(proof.publicInput.immutableState.address, tokenId);
       const metadataVerificationKeyHash = await nft.update(proof.publicInput, proof.publicOutput, creator);
       this.emitEvent("update", proof.publicInput.immutableState.address);
-      const sender = this.sender.getUnconstrained();
-      const senderUpdate = import_o1js9.AccountUpdate.createSigned(sender);
-      senderUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
       metadataVerificationKeyHash.assertEquals(vk.hash);
       proof.verify(vk);
     }
@@ -1974,8 +2126,9 @@ function CollectionContract(params) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
       const seller = this.sender.getUnconstrained();
-      const sellerUpdate = import_o1js9.AccountUpdate.createSigned(seller);
-      sellerUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+      const sellerUpdate = import_o1js10.AccountUpdate.createSigned(seller);
+      sellerUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
+      sellerUpdate.body.preconditions.account.provedState.isSome = (0, import_o1js10.Bool)(false);
       const event = await nft.offer(price, seller);
       this.emitEvent("offer", event);
       return event;
@@ -2015,21 +2168,21 @@ function CollectionContract(params) {
      * @returns The BuyEvent emitted.
      */
     async _buy(address, price, royaltyFee) {
-      royaltyFee.assertLessThanOrEqual(import_o1js9.UInt32.from(1e5));
+      royaltyFee.assertLessThanOrEqual(import_o1js10.UInt32.from(1e5));
       const creator = this.creator.getAndRequireEquals();
       const buyer = this.sender.getUnconstrained();
-      const buyerUpdate = import_o1js9.AccountUpdate.createSigned(buyer);
-      buyerUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+      const buyerUpdate = import_o1js10.AccountUpdate.createSigned(buyer);
+      buyerUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
       const event = await nft.buy(price, buyer);
       const isSellerCreator = event.seller.equals(creator);
-      const commission = import_o1js9.Provable.if(isSellerCreator, import_o1js9.UInt64.zero, price.div(1e5).mul(import_o1js9.UInt64.from(royaltyFee)));
+      const commission = import_o1js10.Provable.if(isSellerCreator, import_o1js10.UInt64.zero, price.div(1e5).mul(import_o1js10.UInt64.from(royaltyFee)));
       const payment = price.sub(commission);
-      const sellerUpdate = import_o1js9.AccountUpdate.create(event.seller);
+      const sellerUpdate = import_o1js10.AccountUpdate.create(event.seller);
       buyerUpdate.balance.subInPlace(payment);
-      sellerUpdate.balance.addInPlace(import_o1js9.Provable.if(sellerUpdate.account.isNew.getAndRequireEquals(), payment.sub(import_o1js9.UInt64.from(1e9)), payment));
-      const creatorUpdate = import_o1js9.AccountUpdate.createIf(isSellerCreator.not(), creator);
+      sellerUpdate.balance.addInPlace(import_o1js10.Provable.if(sellerUpdate.account.isNew.getAndRequireEquals(), payment.sub(import_o1js10.UInt64.from(1e9)), payment));
+      const creatorUpdate = import_o1js10.AccountUpdate.createIf(isSellerCreator.not(), creator);
       creatorUpdate.balance.addInPlace(commission);
       buyerUpdate.balance.subInPlace(commission);
       this.emitEvent("buy", event);
@@ -2064,26 +2217,27 @@ function CollectionContract(params) {
       this.emitEvent("approveSale", event);
     }
     /**
-     * Internal method to purchase an NFT.
+     * Internal method to sell an NFT.
      *
      * @param address - The address of the NFT.
      * @param price - The price at which to purchase the NFT.
+     * @param buyer - The public key of the buyer.
      * @param royaltyFee - The royalty fee percentage.
      * @returns The BuyEvent emitted.
      */
     async _sell(address, price, buyer, royaltyFee) {
-      royaltyFee.assertLessThanOrEqual(import_o1js9.UInt32.from(1e5));
+      royaltyFee.assertLessThanOrEqual(import_o1js10.UInt32.from(1e5));
       const creator = this.creator.getAndRequireEquals();
       const seller = this.sender.getUnconstrained();
-      const sellerUpdate = import_o1js9.AccountUpdate.createSigned(seller);
-      sellerUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+      const sellerUpdate = import_o1js10.AccountUpdate.createSigned(seller);
+      sellerUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
+      sellerUpdate.body.preconditions.account.provedState.isSome = (0, import_o1js10.Bool)(false);
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      const oldOwner = await nft.transfer(seller, buyer);
-      oldOwner.assertEquals(seller);
+      await nft.transfer(seller, buyer);
       const isSellerCreator = seller.equals(creator);
-      const commission = import_o1js9.Provable.if(isSellerCreator, import_o1js9.UInt64.zero, price.div(1e5).mul(import_o1js9.UInt64.from(royaltyFee)));
-      const creatorUpdate = import_o1js9.AccountUpdate.createIf(isSellerCreator.not(), creator);
+      const commission = import_o1js10.Provable.if(isSellerCreator, import_o1js10.UInt64.zero, price.div(1e5).mul(import_o1js10.UInt64.from(royaltyFee)));
+      const creatorUpdate = import_o1js10.AccountUpdate.createIf(isSellerCreator.not(), creator);
       creatorUpdate.balance.addInPlace(commission);
       sellerUpdate.balance.subInPlace(commission);
       const saleEvent = new SaleEvent({
@@ -2096,15 +2250,47 @@ function CollectionContract(params) {
       return saleEvent;
     }
     /**
+     * Transfers ownership of an NFT from contract without admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param to - The recipient's public key.
+     */
+    async transferByContract(address, from, to, price) {
+      const collectionData = await this.ensureNotPaused();
+      collectionData.requireTransferApproval.assertFalse(CollectionErrors.transferApprovalRequired);
+      const ownerContract2 = this.getOwnerContract(from);
+      const canTransfer = await ownerContract2.canTransfer(this.address, address, to, price);
+      canTransfer.assertTrue();
+      await this._transfer(address, from, to, price, collectionData.transferFee, collectionData.royaltyFee);
+    }
+    /**
+     * Transfers ownership of an NFT from contract with admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param to - The recipient's public key.
+     */
+    async transferByContractWithApproval(address, from, to, price) {
+      const collectionData = await this.ensureNotPaused();
+      collectionData.requireTransferApproval.assertTrue(CollectionErrors.transferApprovalNotRequired);
+      const ownerContract2 = this.getOwnerContract(from);
+      const canTransferApprovalByOwner = await ownerContract2.canTransfer(this.address, address, to, price);
+      canTransferApprovalByOwner.assertTrue();
+      const event = await this._transfer(address, from, to, price, collectionData.transferFee, collectionData.royaltyFee);
+      const adminContract2 = this.getAdminContract();
+      const canTransferApprovalByAdmin = await adminContract2.canTransfer(address, from, to, price);
+      canTransferApprovalByAdmin.assertTrue();
+      this.emitEvent("approveTransfer", event);
+    }
+    /**
      * Transfers ownership of an NFT without admin approval.
      *
      * @param address - The address of the NFT.
      * @param to - The recipient's public key.
      */
-    async transfer(address, to) {
+    async transferNFT(address, to, price) {
       const collectionData = await this.ensureNotPaused();
       collectionData.requireTransferApproval.assertFalse(CollectionErrors.transferApprovalRequired);
-      await this._transfer(address, to, collectionData.transferFee);
+      await this._transfer(address, import_o1js10.PublicKey.empty(), to, price, collectionData.transferFee, collectionData.royaltyFee);
     }
     /**
      * Transfers ownership of an NFT with admin approval.
@@ -2112,12 +2298,12 @@ function CollectionContract(params) {
      * @param address - The address of the NFT.
      * @param to - The recipient's public key.
      */
-    async transferWithApproval(address, to) {
+    async transferNFTWithApproval(address, to, price) {
       const collectionData = await this.ensureNotPaused();
       collectionData.requireTransferApproval.assertTrue(CollectionErrors.transferApprovalNotRequired);
-      const event = await this._transfer(address, to, collectionData.transferFee);
+      const event = await this._transfer(address, import_o1js10.PublicKey.empty(), to, price, collectionData.transferFee, collectionData.royaltyFee);
       const adminContract2 = this.getAdminContract();
-      const canTransfer = await adminContract2.canTransfer(address, event.from, event.to);
+      const canTransfer = await adminContract2.canTransfer(address, event.from, to, price);
       canTransfer.assertTrue();
       this.emitEvent("approveTransfer", event);
     }
@@ -2129,20 +2315,29 @@ function CollectionContract(params) {
      * @param transferFee - The transfer fee amount.
      * @returns The TransferEvent emitted.
      */
-    async _transfer(address, to, transferFee) {
+    async _transfer(address, from, to, price, transferFee, royaltyFee) {
+      const fee = import_o1js10.Provable.if(
+        price.isSome,
+        // We cannot check the price here, so we just rely on owner contract
+        // Malicious owner contracts can be blocked by the admin contract
+        // or by setting the transfer fee to a higher value reflecting the market price
+        price.orElse(1000000000n).div(1e5).mul(import_o1js10.UInt64.from(royaltyFee)),
+        transferFee
+      );
       const sender = this.sender.getUnconstrained();
-      const senderUpdate = import_o1js9.AccountUpdate.createSigned(sender);
-      senderUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
+      const senderUpdate = import_o1js10.AccountUpdate.createSigned(sender);
+      senderUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
       senderUpdate.send({
         to: this.creator.getAndRequireEquals(),
-        amount: transferFee
+        // The minimum fee is the transfer fee
+        amount: import_o1js10.Provable.if(fee.lessThanOrEqual(transferFee), transferFee, fee)
       });
+      const fromAddress = import_o1js10.Provable.if(from.equals(import_o1js10.PublicKey.empty()), sender, from);
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      const oldOwner = await nft.transfer(sender, to);
-      oldOwner.assertEquals(sender);
+      await nft.transfer(fromAddress, to);
       const transferEvent = new TransferEvent({
-        from: oldOwner,
+        from: fromAddress,
         to,
         address
       });
@@ -2190,9 +2385,9 @@ function CollectionContract(params) {
     async limitMinting() {
       await this.ensureOwnerSignature();
       const collectionData = await this.ensureNotPaused();
-      collectionData.canMint = (0, import_o1js9.Bool)(false);
+      collectionData.canMint = (0, import_o1js10.Bool)(false);
       this.packedData.set(collectionData.pack());
-      this.emitEvent("limitMinting", new LimitMintingEvent({ mintingLimited: (0, import_o1js9.Bool)(true) }));
+      this.emitEvent("limitMinting", new LimitMintingEvent({ mintingLimited: (0, import_o1js10.Bool)(true) }));
     }
     /**
      * Pauses the collection, disabling certain actions.
@@ -2201,9 +2396,9 @@ function CollectionContract(params) {
       await this.ensureOwnerSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canPause.assertTrue(CollectionErrors.noPermissionToPause);
-      collectionData.isPaused = (0, import_o1js9.Bool)(true);
+      collectionData.isPaused = (0, import_o1js10.Bool)(true);
       this.packedData.set(collectionData.pack());
-      this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js9.Bool)(true) }));
+      this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js10.Bool)(true) }));
     }
     /**
      * Resumes the collection, re-enabling actions.
@@ -2213,9 +2408,9 @@ function CollectionContract(params) {
       const collectionData = CollectionData.unpack(this.packedData.getAndRequireEquals());
       collectionData.canPause.assertTrue(CollectionErrors.noPermissionToResume);
       collectionData.isPaused.assertTrue(CollectionErrors.collectionNotPaused);
-      collectionData.isPaused = (0, import_o1js9.Bool)(false);
+      collectionData.isPaused = (0, import_o1js10.Bool)(false);
       this.packedData.set(collectionData.pack());
-      this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js9.Bool)(false) }));
+      this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js10.Bool)(false) }));
     }
     /**
      * Pauses a specific NFT, disabling its actions.
@@ -2226,7 +2421,7 @@ function CollectionContract(params) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
       await nft.pause();
-      this.emitEvent("pauseNFT", new PauseNFTEvent({ isPaused: (0, import_o1js9.Bool)(true), address }));
+      this.emitEvent("pauseNFT", new PauseNFTEvent({ isPaused: (0, import_o1js10.Bool)(true), address }));
     }
     /**
      * Resumes a specific NFT, re-enabling its actions.
@@ -2237,7 +2432,7 @@ function CollectionContract(params) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
       await nft.resume();
-      this.emitEvent("resumeNFT", new PauseNFTEvent({ isPaused: (0, import_o1js9.Bool)(false), address }));
+      this.emitEvent("resumeNFT", new PauseNFTEvent({ isPaused: (0, import_o1js10.Bool)(false), address }));
     }
     /**
      * Sets a new name for the collection.
@@ -2319,232 +2514,259 @@ function CollectionContract(params) {
     /**
      * Transfers ownership of the collection to a new owner.
      *
-     * @param newOwner - The public key of the new owner.
+     * @param to - The public key of the new owner.
      * @returns The public key of the old owner.
      */
-    async transferOwnership(newOwner) {
+    async transferOwnership(to) {
       await this.ensureOwnerSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeCreator.assertTrue(CollectionErrors.noPermissionToChangeCreator);
-      const oldOwner = this.creator.getAndRequireEquals();
-      this.creator.set(newOwner);
+      const from = this.creator.getAndRequireEquals();
+      this.creator.set(to);
       this.emitEvent("ownershipChange", new OwnershipChangeEvent({
-        oldOwner,
-        newOwner
+        from,
+        to
       }));
-      return oldOwner;
+      return from;
     }
   }
-  (0, import_tslib4.__decorate)([
-    (0, import_o1js9.state)(import_o1js9.Field),
-    (0, import_tslib4.__metadata)("design:type", Object)
+  (0, import_tslib5.__decorate)([
+    (0, import_o1js10.state)(import_o1js10.Field),
+    (0, import_tslib5.__metadata)("design:type", Object)
   ], Collection2.prototype, "collectionName", void 0);
-  (0, import_tslib4.__decorate)([
-    (0, import_o1js9.state)(import_o1js9.PublicKey),
-    (0, import_tslib4.__metadata)("design:type", Object)
+  (0, import_tslib5.__decorate)([
+    (0, import_o1js10.state)(import_o1js10.PublicKey),
+    (0, import_tslib5.__metadata)("design:type", Object)
   ], Collection2.prototype, "creator", void 0);
-  (0, import_tslib4.__decorate)([
-    (0, import_o1js9.state)(import_o1js9.PublicKey),
-    (0, import_tslib4.__metadata)("design:type", Object)
+  (0, import_tslib5.__decorate)([
+    (0, import_o1js10.state)(import_o1js10.PublicKey),
+    (0, import_tslib5.__metadata)("design:type", Object)
   ], Collection2.prototype, "admin", void 0);
-  (0, import_tslib4.__decorate)([
-    (0, import_o1js9.state)(import_o1js9.Field),
-    (0, import_tslib4.__metadata)("design:type", Object)
+  (0, import_tslib5.__decorate)([
+    (0, import_o1js10.state)(import_o1js10.Field),
+    (0, import_tslib5.__metadata)("design:type", Object)
   ], Collection2.prototype, "baseURL", void 0);
-  (0, import_tslib4.__decorate)([
-    (0, import_o1js9.state)(import_o1js9.Field),
-    (0, import_tslib4.__metadata)("design:type", Object)
+  (0, import_tslib5.__decorate)([
+    (0, import_o1js10.state)(import_o1js10.Field),
+    (0, import_tslib5.__metadata)("design:type", Object)
   ], Collection2.prototype, "packedData", void 0);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [MintParams, CollectionData]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [MintParams, CollectionData]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "initialize", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [MintParams]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [MintParams]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "mintByCreator", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [MintRequest]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [MintRequest]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "mint", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
       NFTUpdateProof,
-      import_o1js9.VerificationKey
+      import_o1js10.VerificationKey
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "update", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
       NFTUpdateProof,
-      import_o1js9.VerificationKey
+      import_o1js10.VerificationKey
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "updateWithApproval", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey, import_o1js9.UInt64]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey, import_o1js10.UInt64]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "offer", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
-      import_o1js9.PublicKey,
-      import_o1js9.UInt64
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.UInt64
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "offerWithApproval", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey, import_o1js9.UInt64]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey, import_o1js10.UInt64]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "buy", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
-      import_o1js9.PublicKey,
-      import_o1js9.UInt64
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.UInt64
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "buyWithApproval", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
-      import_o1js9.PublicKey,
-      import_o1js9.UInt64,
-      import_o1js9.PublicKey
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.UInt64,
+      import_o1js10.PublicKey
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "sell", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
-      import_o1js9.PublicKey,
-      import_o1js9.UInt64,
-      import_o1js9.PublicKey
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.UInt64,
+      import_o1js10.PublicKey
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "sellWithApproval", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey, import_o1js9.PublicKey]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
-  ], Collection2.prototype, "transfer", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
-      import_o1js9.PublicKey,
-      import_o1js9.PublicKey
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey,
+      UInt64Option
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
-  ], Collection2.prototype, "transferWithApproval", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [
-      import_o1js9.PublicKey,
-      import_o1js9.VerificationKey
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "transferByContract", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey,
+      UInt64Option
     ]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "transferByContractWithApproval", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey,
+      UInt64Option
+    ]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "transferNFT", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey,
+      UInt64Option
+    ]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "transferNFTWithApproval", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.VerificationKey
+    ]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "upgradeNFTVerificationKey", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.VerificationKey]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.VerificationKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "upgradeVerificationKey", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", []),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", []),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "limitMinting", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", []),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", []),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "pause", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", []),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", []),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "resume", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "pauseNFT", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "resumeNFT", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.Field]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.Field]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "setName", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.Field]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.Field]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "setBaseURL", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "setAdmin", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.UInt32]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.UInt32]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "setRoyaltyFee", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method,
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.UInt64]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.UInt64]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "setTransferFee", null);
-  (0, import_tslib4.__decorate)([
-    import_o1js9.method.returns(import_o1js9.PublicKey),
-    (0, import_tslib4.__metadata)("design:type", Function),
-    (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey]),
-    (0, import_tslib4.__metadata)("design:returntype", Promise)
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method.returns(import_o1js10.PublicKey),
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "transferOwnership", null);
   return Collection2;
 }
 
 // dist/node/metadata/metadata.js
-var import_o1js12 = require("o1js");
+var import_o1js13 = require("o1js");
 
 // dist/node/metadata/text.js
-var import_o1js10 = require("o1js");
+var import_o1js11 = require("o1js");
 var TEXT_TREE_HEIGHT = 20;
 var Text = class {
   /**
@@ -2558,11 +2780,11 @@ var Text = class {
   constructor(text, height = TEXT_TREE_HEIGHT) {
     this.text = text;
     this.size = text.length;
-    const tree = new import_o1js10.MerkleTree(height);
+    const tree = new import_o1js11.MerkleTree(height);
     if (this.size > tree.leafCount)
       throw new Error(`Text is too long`);
     for (let i = 0; i < this.size; i++) {
-      tree.setLeaf(BigInt(i), import_o1js10.Field.from(this.text.charCodeAt(i)));
+      tree.setLeaf(BigInt(i), import_o1js11.Field.from(this.text.charCodeAt(i)));
     }
     this.root = tree.getRoot();
     this.height = height;
@@ -2578,7 +2800,7 @@ var Text = class {
 };
 
 // dist/node/metadata/tree.js
-var import_o1js11 = require("o1js");
+var import_o1js12 = require("o1js");
 var MetadataTree = class _MetadataTree {
   /**
    * Constructs a new `MetadataTree` with the specified height and key-value pairs.
@@ -2592,7 +2814,7 @@ var MetadataTree = class _MetadataTree {
   constructor(height, values) {
     this.values = values;
     this.height = height;
-    const tree = new import_o1js11.MerkleTree(height);
+    const tree = new import_o1js12.MerkleTree(height);
     const maxElements = tree.leafCount;
     if (values.length > tree.leafCount) {
       throw new Error(`Tree height ${height} can only have ${maxElements} elements`);
@@ -2645,7 +2867,7 @@ var MetadataTree = class _MetadataTree {
     }
     const tree = new _MetadataTree(height, values.map(({ key, value }) => ({
       key: BigInt(key),
-      value: import_o1js11.Field.fromJSON(value)
+      value: import_o1js12.Field.fromJSON(value)
     })));
     if (tree.root.toJSON() !== root)
       throw new Error("Invalid tree json");
@@ -2655,14 +2877,14 @@ var MetadataTree = class _MetadataTree {
 
 // dist/node/metadata/metadata.js
 var METADATA_HEIGHT = 20;
-var IndexedMerkleMap = import_o1js12.Experimental.IndexedMerkleMap;
+var IndexedMerkleMap = import_o1js13.Experimental.IndexedMerkleMap;
 var MetadataMap = class extends IndexedMerkleMap(METADATA_HEIGHT) {
 };
-var MetadataValue = class _MetadataValue extends (0, import_o1js12.Struct)({
-  value: import_o1js12.Field,
-  type: import_o1js12.Field,
-  length: import_o1js12.Field,
-  height: import_o1js12.Field
+var MetadataValue = class _MetadataValue extends (0, import_o1js13.Struct)({
+  value: import_o1js13.Field,
+  type: import_o1js13.Field,
+  length: import_o1js13.Field,
+  height: import_o1js13.Field
 }) {
   /**
    * Creates a new MetadataValue instance.
@@ -2672,11 +2894,11 @@ var MetadataValue = class _MetadataValue extends (0, import_o1js12.Struct)({
   static new(params) {
     const { value, type } = params;
     let valueField;
-    let length = (0, import_o1js12.Field)(0);
-    let height = (0, import_o1js12.Field)(0);
+    let length = (0, import_o1js13.Field)(0);
+    let height = (0, import_o1js13.Field)(0);
     switch (type) {
       case "string":
-        if (!(value instanceof import_o1js12.Field))
+        if (!(value instanceof import_o1js13.Field))
           throw new Error(`Invalid value type`);
         valueField = value;
         break;
@@ -2686,11 +2908,11 @@ var MetadataValue = class _MetadataValue extends (0, import_o1js12.Struct)({
         if (!(value instanceof Text))
           throw new Error(`Invalid value type`);
         valueField = value.root;
-        length = (0, import_o1js12.Field)(value.size);
-        height = (0, import_o1js12.Field)(value.height);
+        length = (0, import_o1js13.Field)(value.size);
+        height = (0, import_o1js13.Field)(value.height);
         break;
       case "field":
-        if (!(value instanceof import_o1js12.Field))
+        if (!(value instanceof import_o1js13.Field))
           throw new Error(`Invalid value type`);
         valueField = value;
         break;
@@ -2698,22 +2920,22 @@ var MetadataValue = class _MetadataValue extends (0, import_o1js12.Struct)({
         if (!(value instanceof Metadata))
           throw new Error(`Invalid value type`);
         valueField = value.map.root;
-        length = (0, import_o1js12.Field)(value.map.length);
-        height = (0, import_o1js12.Field)(value.map.height);
+        length = (0, import_o1js13.Field)(value.map.length);
+        height = (0, import_o1js13.Field)(value.map.height);
         break;
       case "tree":
         if (!(value instanceof MetadataTree))
           throw new Error(`Invalid value type`);
         valueField = value.root;
-        length = (0, import_o1js12.Field)(value.values.length);
-        height = (0, import_o1js12.Field)(value.height);
+        length = (0, import_o1js13.Field)(value.values.length);
+        height = (0, import_o1js13.Field)(value.height);
         break;
       default:
         throw new Error(`Unknown value type`);
     }
     return new _MetadataValue({
       value: valueField,
-      type: (0, import_o1js12.Field)(MetadataFieldTypeValues[type].code),
+      type: (0, import_o1js13.Field)(MetadataFieldTypeValues[type].code),
       length,
       height
     });
@@ -2723,7 +2945,7 @@ var MetadataValue = class _MetadataValue extends (0, import_o1js12.Struct)({
    * @returns The hash as a Field.
    */
   hash() {
-    return import_o1js12.Poseidon.hash(_MetadataValue.toFields(this));
+    return import_o1js13.Poseidon.hash(_MetadataValue.toFields(this));
   }
 };
 var MetadataPlugin = class {
@@ -2772,10 +2994,10 @@ var ColorPlugin = class extends MetadataPlugin {
     return {
       key: fieldFromString(key),
       value: new MetadataValue({
-        value: (0, import_o1js12.Field)(color),
-        type: (0, import_o1js12.Field)(10),
-        length: (0, import_o1js12.Field)(0),
-        height: (0, import_o1js12.Field)(0)
+        value: (0, import_o1js13.Field)(color),
+        type: (0, import_o1js13.Field)(10),
+        length: (0, import_o1js13.Field)(0),
+        height: (0, import_o1js13.Field)(0)
       }),
       canonicalRepresentation: color
     };
@@ -2864,7 +3086,7 @@ var Metadata = class _Metadata {
           valueObject = new Text(value);
           break;
         case "field":
-          if (!(value instanceof import_o1js12.Field))
+          if (!(value instanceof import_o1js13.Field))
             throw new Error(`Invalid trait value type`);
           valueObject = value;
           break;
@@ -2921,7 +3143,7 @@ var Metadata = class _Metadata {
             jsonValue = value;
             break;
           case "field":
-            if (!(value instanceof import_o1js12.Field))
+            if (!(value instanceof import_o1js13.Field))
               throw new Error(`Invalid trait value type`);
             jsonValue = value.toJSON();
             break;
@@ -3003,7 +3225,7 @@ var Metadata = class _Metadata {
         case "field":
           if (typeof value !== "string")
             throw new Error(`Invalid trait value type`);
-          valueField = import_o1js12.Field.fromJSON(value);
+          valueField = import_o1js13.Field.fromJSON(value);
           break;
         case "map":
           if (typeof value !== "object")
@@ -3043,7 +3265,7 @@ var Metadata = class _Metadata {
   }
 };
 var MetadataFieldTypeValues = {
-  string: { code: 1n, inputType: "string", storedType: import_o1js12.Field },
+  string: { code: 1n, inputType: "string", storedType: import_o1js13.Field },
   // Field
   text: { code: 2n, inputType: "string", storedType: Text },
   // Text
@@ -3051,7 +3273,7 @@ var MetadataFieldTypeValues = {
   // Text
   url: { code: 4n, inputType: "string", storedType: Text },
   // Text
-  field: { code: 5n, inputType: import_o1js12.Field, storedType: import_o1js12.Field },
+  field: { code: 5n, inputType: import_o1js13.Field, storedType: import_o1js13.Field },
   // Field
   map: { code: 6n, inputType: Metadata, storedType: Metadata },
   // Metadata
@@ -3060,8 +3282,8 @@ var MetadataFieldTypeValues = {
 };
 
 // dist/node/zkprogram/update.js
-var import_o1js13 = require("o1js");
-var NFTProgram = (0, import_o1js13.ZkProgram)({
+var import_o1js14 = require("o1js");
+var NFTProgram = (0, import_o1js14.ZkProgram)({
   name: "NFTProgram",
   publicInput: NFTState,
   publicOutput: NFTState,
@@ -3082,7 +3304,7 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
      * The method returns an updated NFT state with the new metadata root and increments the version.
      */
     insertMetadata: {
-      privateInputs: [MetadataMap, import_o1js13.Field, import_o1js13.Field, import_o1js13.Signature],
+      privateInputs: [MetadataMap, import_o1js14.Field, import_o1js14.Field, import_o1js14.Signature],
       auxiliaryOutput: MetadataMap,
       async method(initialState, metadata, key, value, signature) {
         signature.verify(initialState.owner, [
@@ -3103,8 +3325,7 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
             version: initialState.version.add(1),
             metadataVerificationKeyHash: initialState.metadataVerificationKeyHash,
             creator: initialState.creator,
-            lowerSlot: initialState.lowerSlot,
-            upperSlot: initialState.upperSlot
+            oracle: initialState.oracle
           }),
           auxiliaryOutput: metadata
         };
@@ -3125,7 +3346,7 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
      * The method returns the public output of the second proof as the new merged NFT state.
      */
     merge: {
-      privateInputs: [import_o1js13.SelfProof, import_o1js13.SelfProof],
+      privateInputs: [import_o1js14.SelfProof, import_o1js14.SelfProof],
       async method(initialState, proof1, proof2) {
         proof1.verify();
         proof2.verify();
@@ -3140,8 +3361,8 @@ var NFTProgram = (0, import_o1js13.ZkProgram)({
 });
 
 // dist/node/marketplace/bid.js
-var import_tslib5 = require("tslib");
-var import_o1js14 = require("o1js");
+var import_tslib6 = require("tslib");
+var import_o1js15 = require("o1js");
 var import_storage5 = require("@minatokens/storage");
 
 // dist/node/contracts.js
@@ -3157,64 +3378,64 @@ var AdvancedCollection = CollectionContract({
 });
 
 // dist/node/marketplace/bid.js
-var NFTAddress = class extends (0, import_o1js14.Struct)({
-  collection: import_o1js14.PublicKey,
-  nft: import_o1js14.PublicKey
+var NFTAddress = class extends (0, import_o1js15.Struct)({
+  collection: import_o1js15.PublicKey,
+  nft: import_o1js15.PublicKey
 }) {
 };
-var SellEvent = class extends (0, import_o1js14.Struct)({
-  collection: import_o1js14.PublicKey,
-  nft: import_o1js14.PublicKey,
-  price: import_o1js14.UInt64
+var SellEvent = class extends (0, import_o1js15.Struct)({
+  collection: import_o1js15.PublicKey,
+  nft: import_o1js15.PublicKey,
+  price: import_o1js15.UInt64
 }) {
 };
-var DepositEvent = class extends (0, import_o1js14.Struct)({
-  buyer: import_o1js14.PublicKey,
-  amount: import_o1js14.UInt64,
-  maxPoints: import_o1js14.UInt64
+var DepositEvent = class extends (0, import_o1js15.Struct)({
+  buyer: import_o1js15.PublicKey,
+  amount: import_o1js15.UInt64,
+  maxPoints: import_o1js15.UInt64
 }) {
 };
-var WithdrawEvent = class extends (0, import_o1js14.Struct)({
-  buyer: import_o1js14.PublicKey,
-  amount: import_o1js14.UInt64,
-  maxPoints: import_o1js14.UInt64
+var WithdrawEvent = class extends (0, import_o1js15.Struct)({
+  buyer: import_o1js15.PublicKey,
+  amount: import_o1js15.UInt64,
+  maxPoints: import_o1js15.UInt64
 }) {
 };
-var BidEvent = class extends (0, import_o1js14.Struct)({
-  bids: import_o1js14.Field,
-  whitelist: import_o1js14.Field,
+var BidEvent = class extends (0, import_o1js15.Struct)({
+  bids: import_o1js15.Field,
+  whitelist: import_o1js15.Field,
   storage: import_storage5.Storage
 }) {
 };
-var Bid = class _Bid extends (0, import_o1js14.Struct)({
-  price: import_o1js14.UInt64,
-  points: import_o1js14.UInt64
+var Bid = class _Bid extends (0, import_o1js15.Struct)({
+  price: import_o1js15.UInt64,
+  points: import_o1js15.UInt64
 }) {
   pack() {
-    return import_o1js14.Field.fromBits([
+    return import_o1js15.Field.fromBits([
       ...this.price.value.toBits(64),
       ...this.points.value.toBits(64)
     ]);
   }
   static unpack(field) {
     const bits = field.toBits(64 + 64);
-    const price = import_o1js14.UInt64.Unsafe.fromField(import_o1js14.Field.fromBits(bits.slice(0, 64)));
-    const points = import_o1js14.UInt64.Unsafe.fromField(import_o1js14.Field.fromBits(bits.slice(64, 64 + 64)));
+    const price = import_o1js15.UInt64.Unsafe.fromField(import_o1js15.Field.fromBits(bits.slice(0, 64)));
+    const points = import_o1js15.UInt64.Unsafe.fromField(import_o1js15.Field.fromBits(bits.slice(64, 64 + 64)));
     return new _Bid({
       price,
       points
     });
   }
 };
-var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
+var NonFungibleTokenBidContract = class extends import_o1js15.SmartContract {
   constructor() {
     super(...arguments);
-    this.buyer = (0, import_o1js14.State)();
-    this.whitelist = (0, import_o1js14.State)();
-    this.bids = (0, import_o1js14.State)();
-    this.storage = (0, import_o1js14.State)();
-    this.maxPoints = (0, import_o1js14.State)();
-    this.consumedPoints = (0, import_o1js14.State)();
+    this.buyer = (0, import_o1js15.State)();
+    this.whitelist = (0, import_o1js15.State)();
+    this.bids = (0, import_o1js15.State)();
+    this.storage = (0, import_o1js15.State)();
+    this.maxPoints = (0, import_o1js15.State)();
+    this.consumedPoints = (0, import_o1js15.State)();
     this.events = {
       deposit: DepositEvent,
       withdraw: WithdrawEvent,
@@ -3229,19 +3450,19 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     this.bids.set(args.bids);
     this.storage.set(args.storage);
     this.account.permissions.set({
-      ...import_o1js14.Permissions.default(),
-      send: import_o1js14.Permissions.proof(),
-      setVerificationKey: import_o1js14.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
-      setPermissions: import_o1js14.Permissions.impossible()
+      ...import_o1js15.Permissions.default(),
+      send: import_o1js15.Permissions.proof(),
+      setVerificationKey: import_o1js15.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+      setPermissions: import_o1js15.Permissions.impossible()
     });
   }
   async initialize(amount, maxPoints) {
-    this.account.provedState.requireEquals((0, import_o1js14.Bool)(false));
+    this.account.provedState.requireEquals((0, import_o1js15.Bool)(false));
     const buyer = this.sender.getUnconstrained();
-    const buyerUpdate = import_o1js14.AccountUpdate.createSigned(buyer);
-    buyerUpdate.balance.subInPlace(amount.add(import_o1js14.UInt64.from(1e9)));
+    const buyerUpdate = import_o1js15.AccountUpdate.createSigned(buyer);
+    buyerUpdate.balance.subInPlace(amount.add(import_o1js15.UInt64.from(1e9)));
     this.self.balance.addInPlace(amount);
-    buyerUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
+    buyerUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
     this.buyer.set(buyer);
     this.maxPoints.set(maxPoints);
     this.emitEvent("deposit", new DepositEvent({
@@ -3251,13 +3472,13 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     }));
   }
   async deposit(amount, maxPoints) {
-    amount.equals(import_o1js14.UInt64.from(0)).assertFalse();
+    amount.equals(import_o1js15.UInt64.from(0)).assertFalse();
     const sender = this.sender.getUnconstrained();
     const buyer = this.buyer.getAndRequireEquals();
     sender.assertEquals(buyer);
-    const buyerUpdate = import_o1js14.AccountUpdate.createSigned(buyer);
+    const buyerUpdate = import_o1js15.AccountUpdate.createSigned(buyer);
     buyerUpdate.send({ to: this.address, amount });
-    buyerUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
+    buyerUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
     this.maxPoints.set(maxPoints);
     this.emitEvent("deposit", new DepositEvent({
       buyer,
@@ -3266,15 +3487,15 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     }));
   }
   async withdraw(amount, maxPoints) {
-    amount.equals(import_o1js14.UInt64.from(0)).assertFalse();
-    this.account.balance.requireBetween(amount, import_o1js14.UInt64.MAXINT());
+    amount.equals(import_o1js15.UInt64.from(0)).assertFalse();
+    this.account.balance.requireBetween(amount, import_o1js15.UInt64.MAXINT());
     const buyer = this.buyer.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js14.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
+    const senderUpdate = import_o1js15.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
     sender.assertEquals(buyer);
     let bidUpdate = this.send({ to: senderUpdate, amount });
-    bidUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
+    bidUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
     this.maxPoints.set(maxPoints);
     this.emitEvent("withdraw", new WithdrawEvent({
       buyer,
@@ -3295,8 +3516,8 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     await collection.sellWithApproval(nftAddress.nft, price, buyer);
   }
   async _sell(nftAddress, price) {
-    price.equals(import_o1js14.UInt64.from(0)).assertFalse();
-    const key = import_o1js14.Poseidon.hashPacked(NFTAddress, nftAddress);
+    price.equals(import_o1js15.UInt64.from(0)).assertFalse();
+    const key = import_o1js15.Poseidon.hashPacked(NFTAddress, nftAddress);
     const storage = this.storage.getAndRequireEquals();
     const bids = new import_storage5.OffChainList({
       root: this.bids.getAndRequireEquals(),
@@ -3304,17 +3525,17 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     });
     const bid = Bid.unpack((await bids.getValue(key, "bids")).assertSome("bid not found"));
     price.assertLessThanOrEqual(bid.price, "price is too high");
-    this.account.balance.requireBetween(price, import_o1js14.UInt64.MAXINT());
+    this.account.balance.requireBetween(price, import_o1js15.UInt64.MAXINT());
     const consumedPoints = this.consumedPoints.getAndRequireEquals();
     const maxPoints = this.maxPoints.getAndRequireEquals();
     const newConsumedPoints = consumedPoints.add(bid.points);
     newConsumedPoints.assertLessThanOrEqual(maxPoints, "consumed points exceed max points");
     this.consumedPoints.set(newConsumedPoints);
     const seller = this.sender.getUnconstrained();
-    const sellerUpdate = import_o1js14.AccountUpdate.createSigned(seller);
+    const sellerUpdate = import_o1js15.AccountUpdate.createSigned(seller);
     sellerUpdate.balance.addInPlace(price);
     this.self.balance.subInPlace(price);
-    sellerUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
+    sellerUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
     const whitelist = new import_storage5.Whitelist({
       list: new import_storage5.OffChainList({
         root: this.whitelist.getAndRequireEquals(),
@@ -3324,7 +3545,7 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     const whitelistedAmount = await whitelist.getWhitelistedAmount(seller, "whitelist");
     const whitelistDisabled = whitelist.isNone();
     whitelistedAmount.isSome.or(whitelistDisabled).assertTrue("Cannot buy from non-whitelisted address");
-    const maxPrice = import_o1js14.Provable.if(whitelistDisabled, import_o1js14.UInt64.MAXINT(), whitelistedAmount.value);
+    const maxPrice = import_o1js15.Provable.if(whitelistDisabled, import_o1js15.UInt64.MAXINT(), whitelistedAmount.value);
     price.assertLessThanOrEqual(maxPrice, "price is higher than whitelisted price");
     this.emitEvent("sell", new SellEvent({
       collection: nftAddress.collection,
@@ -3335,8 +3556,8 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
   async bid(bids, whitelist, storage) {
     const buyer = this.buyer.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js14.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js14.Bool)(true);
+    const senderUpdate = import_o1js15.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
     sender.assertEquals(buyer);
     this.bids.set(bids);
     this.whitelist.set(whitelist);
@@ -3344,65 +3565,65 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
     this.emitEvent("bid", new BidEvent({ bids, whitelist, storage }));
   }
 };
-(0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_o1js14.PublicKey),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js15.state)(import_o1js15.PublicKey),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "buyer", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_o1js14.Field),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js15.state)(import_o1js15.Field),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "whitelist", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_o1js14.Field),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js15.state)(import_o1js15.Field),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "bids", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_storage5.Storage),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js15.state)(import_storage5.Storage),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "storage", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_o1js14.UInt64),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js15.state)(import_o1js15.UInt64),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "maxPoints", void 0);
-(0, import_tslib5.__decorate)([
-  (0, import_o1js14.state)(import_o1js14.UInt64),
-  (0, import_tslib5.__metadata)("design:type", Object)
+(0, import_tslib6.__decorate)([
+  (0, import_o1js15.state)(import_o1js15.UInt64),
+  (0, import_tslib6.__metadata)("design:type", Object)
 ], NonFungibleTokenBidContract.prototype, "consumedPoints", void 0);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64, import_o1js14.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js15.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js15.UInt64, import_o1js15.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "initialize", null);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64, import_o1js14.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js15.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js15.UInt64, import_o1js15.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "deposit", null);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.UInt64, import_o1js14.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js15.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js15.UInt64, import_o1js15.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "withdraw", null);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [NFTAddress, import_o1js14.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js15.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [NFTAddress, import_o1js15.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "sell", null);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [NFTAddress, import_o1js14.UInt64]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js15.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [NFTAddress, import_o1js15.UInt64]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "sellWithApproval", null);
-(0, import_tslib5.__decorate)([
-  import_o1js14.method,
-  (0, import_tslib5.__metadata)("design:type", Function),
-  (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js14.Field, import_o1js14.Field, import_storage5.Storage]),
-  (0, import_tslib5.__metadata)("design:returntype", Promise)
+(0, import_tslib6.__decorate)([
+  import_o1js15.method,
+  (0, import_tslib6.__metadata)("design:type", Function),
+  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js15.Field, import_o1js15.Field, import_storage5.Storage]),
+  (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], NonFungibleTokenBidContract.prototype, "bid", null);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
@@ -3431,7 +3652,9 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
   NFTAdvancedAdminContract,
   NFTData,
   NFTImmutableState,
+  NFTOraclePreconditions,
   NFTProgram,
+  NFTStandardOwner,
   NFTState,
   NFTStateStruct,
   NFTUpdateProof,
@@ -3442,9 +3665,11 @@ var NonFungibleTokenBidContract = class extends import_o1js14.SmartContract {
   PauseEvent,
   PauseNFTEvent,
   SaleEvent,
+  StateElementPrecondition,
   TEXT_TREE_HEIGHT,
   Text,
   TransferEvent,
+  UInt64Option,
   UpdateEvent,
   UpgradeVerificationKeyEvent,
   fieldFromString,
