@@ -30,10 +30,10 @@ export type OwnableContract = SmartContract & {
   /**
    * Transfers ownership of the contract to a new owner.
    *
-   * @param {PublicKey} newOwner - The public key of the new owner.
+   * @param {PublicKey} to - The public key of the new owner.
    * @returns {Promise<PublicKey>} A promise that resolves to the public key of the old owner.
    */
-  transferOwnership(newOwner: PublicKey): Promise<PublicKey>; // returns the old owner
+  transferOwnership(to: PublicKey): Promise<PublicKey>; // returns the old owner
 };
 
 /**
@@ -42,6 +42,6 @@ export type OwnableContract = SmartContract & {
  * Contains the old owner's and new owner's public keys.
  */
 export class OwnershipChangeEvent extends Struct({
-  oldOwner: PublicKey,
-  newOwner: PublicKey,
+  from: PublicKey,
+  to: PublicKey,
 }) {}

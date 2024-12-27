@@ -65,8 +65,7 @@ const NFTProgram = ZkProgram({
             metadataVerificationKeyHash:
               initialState.metadataVerificationKeyHash,
             creator: initialState.creator,
-            lowerSlot: initialState.lowerSlot,
-            upperSlot: initialState.upperSlot,
+            oracle: initialState.oracle,
           }),
           auxiliaryOutput: metadata,
         };

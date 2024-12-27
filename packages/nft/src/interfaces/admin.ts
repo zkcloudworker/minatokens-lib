@@ -6,7 +6,12 @@ import {
   VerificationKey,
   Field,
 } from "o1js";
-import { MintParamsOption, MintRequest, NFTState } from "./types.js";
+import {
+  MintParamsOption,
+  MintRequest,
+  NFTState,
+  UInt64Option,
+} from "./types.js";
 export { NFTAdminBase, NFTAdminContractConstructor };
 
 /**
@@ -37,12 +42,14 @@ type NFTAdminBase = SmartContract & {
    * @param address - The public key of the NFT contract address.
    * @param from - The public key of the current owner.
    * @param to - The public key of the intended new owner.
+   * @param price - The price at which the NFT is being bought in case the payment is being made outside of the collection.
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
   canTransfer(
     address: PublicKey,
     from: PublicKey,
-    to: PublicKey
+    to: PublicKey,
+    price: UInt64Option
   ): Promise<Bool>;
 
   /**

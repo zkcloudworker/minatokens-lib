@@ -21,6 +21,7 @@ import {
   PauseEvent,
   OwnershipChangeEvent,
   OwnableContract,
+  UInt64Option,
 } from "../interfaces/index.js";
 export { NFTAdmin, NFTAdminDeployProps };
 
@@ -155,10 +156,16 @@ class NFTAdmin
    * @param address - The NFT contract address.
    * @param from - The sender's public key.
    * @param to - The recipient's public key.
+   * @param price - The price of the NFT, optional.
    * @returns A `Bool` indicating whether the transfer is allowed.
    */
   @method.returns(Bool)
-  async canTransfer(address: PublicKey, from: PublicKey, to: PublicKey) {
+  async canTransfer(
+    address: PublicKey,
+    from: PublicKey,
+    to: PublicKey,
+    price: UInt64Option
+  ) {
     const isPaused = this.isPaused.getAndRequireEquals();
     return isPaused.not();
   }
@@ -221,22 +228,22 @@ class NFTAdmin
 
   /**
    * Transfers ownership of the contract to a new admin.
-   * @param newOwner - The public key of the new owner.
+   * @param to - The public key of the new owner.
    * @returns The public key of the previous owner.
    */
   @method.returns(PublicKey)
-  async transferOwnership(newOwner: PublicKey): Promise<PublicKey> {
+  async transferOwnership(to: PublicKey): Promise<PublicKey> {
     await this.ensureOwnerSignature();
-    const oldOwner = this.admin.getAndRequireEquals();
-    this.admin.set(newOwner);
+    const from = this.admin.getAndRequireEquals();
+    this.admin.set(to);
     this.emitEvent(
       "ownershipChange",
       new OwnershipChangeEvent({
-        oldOwner,
-        newOwner,
+        from,
+        to,
       })
     );
-    return oldOwner;
+    return from;
   }
 
   @method.returns(Bool)

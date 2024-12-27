@@ -55,6 +55,7 @@ const contracts: {
   type: "token" | "admin" | "upgrade" | "user" | "check" | "nft" | "collection";
 }[] = [
   { name: "NFT", contract: NFT, type: "nft" },
+  { name: "Collection", contract: Collection, type: "collection" },
   { name: "NFTAdmin", contract: NFTAdmin, type: "admin" },
   {
     name: "VerificationKeyUpgradeAuthority",
@@ -62,7 +63,7 @@ const contracts: {
     type: "upgrade",
   },
   { name: "NFTAdvancedAdmin", contract: NFTAdvancedAdmin, type: "admin" },
-  { name: "Collection", contract: Collection, type: "collection" },
+
   {
     name: "AdvancedCollection",
     contract: AdvancedCollection,

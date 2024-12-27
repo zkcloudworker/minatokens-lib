@@ -1,5 +1,5 @@
 import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, UInt64, Field, AccountUpdate } from "o1js";
-import { MintRequest, NFTState, NFTAdminBase, MintParamsOption, PausableContract, PauseEvent, OwnershipChangeEvent, OwnableContract } from "../interfaces/index.js";
+import { MintRequest, NFTState, NFTAdminBase, MintParamsOption, PausableContract, PauseEvent, OwnershipChangeEvent, OwnableContract, UInt64Option } from "../interfaces/index.js";
 export { NFTAdmin, NFTAdminDeployProps };
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {
     admin: PublicKey;
@@ -82,9 +82,10 @@ declare class NFTAdmin extends SmartContract implements NFTAdminBase, PausableCo
      * @param address - The NFT contract address.
      * @param from - The sender's public key.
      * @param to - The recipient's public key.
+     * @param price - The price of the NFT, optional.
      * @returns A `Bool` indicating whether the transfer is allowed.
      */
-    canTransfer(address: PublicKey, from: PublicKey, to: PublicKey): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
+    canTransfer(address: PublicKey, from: PublicKey, to: PublicKey, price: UInt64Option): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
     /**
      * Determines whether the NFT can be listed for sale at the given price.
      * @param address - The NFT contract address.
@@ -114,9 +115,9 @@ declare class NFTAdmin extends SmartContract implements NFTAdminBase, PausableCo
     resume(): Promise<void>;
     /**
      * Transfers ownership of the contract to a new admin.
-     * @param newOwner - The public key of the new owner.
+     * @param to - The public key of the new owner.
      * @returns The public key of the previous owner.
      */
-    transferOwnership(newOwner: PublicKey): Promise<PublicKey>;
+    transferOwnership(to: PublicKey): Promise<PublicKey>;
     canChangeVerificationKey(vk: VerificationKey, address: PublicKey, tokenId: Field): Promise<Bool>;
 }
