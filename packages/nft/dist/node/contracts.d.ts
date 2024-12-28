@@ -19,7 +19,7 @@ declare const NFTAdvancedAdmin: {
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         canMint(mintRequest: import("./index.js").MintRequest): Promise<import("./index.js").MintParamsOption>;
         canUpdate(input: import("./index.js").NFTState, output: import("./index.js").NFTState): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
-        canTransfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
+        canTransfer(transferEvent: import("./index.js").TransferEvent): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         canSell(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         canBuy(address: import("o1js").PublicKey, seller: import("o1js").PublicKey, buyer: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
         updateWhitelist(whitelist: import("@minatokens/storage").Whitelist): Promise<void>;
@@ -198,6 +198,7 @@ declare const Collection: {
             mint: typeof import("./index.js").MintEvent;
             update: typeof import("o1js").PublicKey;
             transfer: typeof import("./index.js").TransferEvent;
+            approve: typeof import("./index.js").ApproveEvent;
             offer: typeof import("./index.js").OfferEvent;
             sale: typeof import("./index.js").SaleEvent;
             buy: typeof import("./index.js").BuyEvent;
@@ -234,20 +235,15 @@ declare const Collection: {
         update(proof: import("./index.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
         updateWithApproval(proof: import("./index.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
         _update(proof: import("./index.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        offer(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        offerWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        _offer(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("./index.js").OfferEvent>;
-        buy(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        buyWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        _buy(address: import("o1js").PublicKey, price: import("o1js").UInt64, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").BuyEvent>;
-        sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
-        sellWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
-        _sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").SaleEvent>;
-        transferByContract(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
-        transferByContractWithApproval(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferByContract(params: import("./index.js").TransferParams): Promise<void>;
+        approveAddress(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         transferNFT(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
         transferNFTWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
-        _transfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option, transferFee: import("o1js").UInt64, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").TransferEvent>;
+        _transfer(params: {
+            transferEventDraft: import("./index.js").TransferEvent;
+            transferFee: import("o1js").UInt64;
+            royaltyFee: import("o1js").UInt32;
+        }): Promise<import("./index.js").TransferEvent>;
         upgradeNFTVerificationKey(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         limitMinting(): Promise<void>;
@@ -307,8 +303,8 @@ declare const Collection: {
             addInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "approve" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "approve" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: import("o1js").UInt32, end?: import("o1js").UInt32): Promise<{
             type: string;
             event: {
@@ -454,6 +450,7 @@ declare const AdvancedCollection: {
             mint: typeof import("./index.js").MintEvent;
             update: typeof import("o1js").PublicKey;
             transfer: typeof import("./index.js").TransferEvent;
+            approve: typeof import("./index.js").ApproveEvent;
             offer: typeof import("./index.js").OfferEvent;
             sale: typeof import("./index.js").SaleEvent;
             buy: typeof import("./index.js").BuyEvent;
@@ -490,20 +487,15 @@ declare const AdvancedCollection: {
         update(proof: import("./index.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
         updateWithApproval(proof: import("./index.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
         _update(proof: import("./index.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        offer(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        offerWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        _offer(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<import("./index.js").OfferEvent>;
-        buy(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        buyWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64): Promise<void>;
-        _buy(address: import("o1js").PublicKey, price: import("o1js").UInt64, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").BuyEvent>;
-        sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
-        sellWithApproval(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey): Promise<void>;
-        _sell(address: import("o1js").PublicKey, price: import("o1js").UInt64, buyer: import("o1js").PublicKey, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").SaleEvent>;
-        transferByContract(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
-        transferByContractWithApproval(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
+        transferByContract(params: import("./index.js").TransferParams): Promise<void>;
+        approveAddress(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         transferNFT(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
         transferNFTWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option): Promise<void>;
-        _transfer(address: import("o1js").PublicKey, from: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./index.js").UInt64Option, transferFee: import("o1js").UInt64, royaltyFee: import("o1js").UInt32): Promise<import("./index.js").TransferEvent>;
+        _transfer(params: {
+            transferEventDraft: import("./index.js").TransferEvent;
+            transferFee: import("o1js").UInt64;
+            royaltyFee: import("o1js").UInt32;
+        }): Promise<import("./index.js").TransferEvent>;
         upgradeNFTVerificationKey(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         limitMinting(): Promise<void>;
@@ -563,8 +555,8 @@ declare const AdvancedCollection: {
             addInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "approve" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "approve" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: import("o1js").UInt32, end?: import("o1js").UInt32): Promise<{
             type: string;
             event: {

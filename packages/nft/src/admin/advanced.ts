@@ -32,7 +32,7 @@ import {
   PausableContract,
   OwnershipChangeEvent,
   OwnableContract,
-  UInt64Option,
+  TransferEvent,
 } from "../interfaces/index.js";
 import {
   UpgradeAuthorityBase,
@@ -295,12 +295,8 @@ function NFTAdvancedAdminContract(params: {
      * @returns A `Bool` indicating whether the transfer is permitted.
      */
     @method.returns(Bool)
-    async canTransfer(
-      address: PublicKey,
-      from: PublicKey,
-      to: PublicKey,
-      price: UInt64Option
-    ) {
+    async canTransfer(transferEvent: TransferEvent) {
+      const { to, from, price } = transferEvent;
       const whitelist = this.whitelist.getAndRequireEquals();
       const toAmount = await whitelist.getWhitelistedAmount(to);
       const fromAmount = await whitelist.getWhitelistedAmount(from);

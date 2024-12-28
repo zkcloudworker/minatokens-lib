@@ -8,9 +8,8 @@ import {
   state,
   State,
   Permissions,
-  UInt64,
 } from "o1js";
-import { UInt64Option } from "./types.js";
+import { TransferEvent } from "./events.js";
 export {
   NFTOwnerBase,
   NFTOwnerContractConstructor,
@@ -31,12 +30,7 @@ type NFTOwnerBase = SmartContract & {
    * @param to - The public key of the intended new owner.
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
-  canTransfer(
-    collectionAddress: PublicKey,
-    nftAddress: PublicKey,
-    to: PublicKey,
-    price: UInt64Option
-  ): Promise<Bool>;
+  canTransfer(transferEvent: TransferEvent): Promise<Bool>;
 };
 
 /**
@@ -95,12 +89,7 @@ class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
   }
 
   @method.returns(Bool)
-  async canTransfer(
-    collectionAddress: PublicKey,
-    nftAddress: PublicKey,
-    to: PublicKey,
-    price: UInt64Option
-  ): Promise<Bool> {
+  async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
     await this.ensureOwnerSignature();
     return Bool(true);
   }

@@ -16,6 +16,7 @@ export {
   MintParams,
   MintParamsOption,
   MintRequest,
+  NFTDataPacked,
   NFTData,
   CollectionData,
   NFTState,
@@ -25,9 +26,22 @@ export {
   NFTOraclePreconditions,
   StateElementPrecondition,
   UInt64Option,
+  TransferParams,
 };
 
 class UInt64Option extends Option(UInt64) {}
+
+class NFTDataPacked extends Struct({
+  ownerX: Field,
+  approvedX: Field,
+  data: Field,
+}) {
+  static assertEqual(a: NFTDataPacked, b: NFTDataPacked) {
+    a.ownerX.assertEquals(b.ownerX);
+    a.approvedX.assertEquals(b.approvedX);
+    a.data.assertEquals(b.data);
+  }
+}
 
 /**
  * Represents the on-chain state structure of an NFT.
@@ -36,9 +50,8 @@ class UInt64Option extends Option(UInt64) {}
 class NFTStateStruct extends Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
 }) {
   /**
@@ -64,9 +77,8 @@ class NFTStateStruct extends Struct({
   static assertEqual(a: NFTStateStruct, b: NFTStateStruct) {
     a.name.assertEquals(b.name);
     a.metadata.assertEquals(b.metadata);
-    a.owner.assertEquals(b.owner);
     Storage.assertEquals(a.storage, b.storage);
-    a.packedData.assertEquals(b.packedData);
+    NFTDataPacked.assertEqual(a.packedData, b.packedData);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
   }
 }
@@ -97,7 +109,7 @@ class NFTImmutableState extends Struct({
   /** The token ID associated with the NFT (readonly). */
   tokenId: Field, // readonly
   /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
+  id: UInt64, // readonly
 }) {
   /**
    * Asserts that two NFTImmutableState instances are equal.
@@ -239,14 +251,14 @@ class NFTState extends Struct({
   immutableState: NFTImmutableState,
   /** The name of the NFT. */
   name: Field,
+  /** The owner of the NFT. */
+  owner: PublicKey,
+  /** The approved address of the NFT. */
+  approved: PublicKey,
   /** The metadata associated with the NFT. */
   metadata: Field,
   /** The off-chain storage information (e.g., IPFS hash). */
   storage: Storage,
-  /** The current owner of the NFT. */
-  owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
   /** The version number of the NFT state. */
   version: UInt32,
   /** Indicates whether the NFT contract is currently paused. */
@@ -256,7 +268,6 @@ class NFTState extends Struct({
 
   /** The public key of the creator of the NFT (readonly). */
   creator: PublicKey, // readonly
-
   /** The state of the owner of the NFT - 8 Fields (readonly). */
   oracle: NFTOraclePreconditions, // readonly
 }) {
@@ -271,7 +282,7 @@ class NFTState extends Struct({
     a.metadata.assertEquals(b.metadata);
     Storage.assertEquals(a.storage, b.storage);
     a.owner.assertEquals(b.owner);
-    a.price.assertEquals(b.price);
+    a.approved.assertEquals(b.approved);
     a.version.assertEquals(b.version);
     a.isPaused.assertEquals(b.isPaused);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
@@ -303,8 +314,8 @@ class NFTState extends Struct({
       name: nftState.name,
       metadata: nftState.metadata,
       storage: nftState.storage,
-      owner: nftState.owner,
-      price: nftData.price,
+      owner: nftData.owner,
+      approved: nftData.approved,
       version: nftData.version,
       isPaused: nftData.isPaused,
       metadataVerificationKeyHash: nftState.metadataVerificationKeyHash,
@@ -328,12 +339,14 @@ class NFTUpdateProof extends DynamicProof<NFTState, NFTState> {
  * Represents the data associated with an NFT, including state and permission flags.
  */
 class NFTData extends Struct({
-  /** The price of the NFT. Zero means that the price is not set and the NFT is not for sale. */
-  price: UInt64,
+  /** The owner of the NFT. */
+  owner: PublicKey,
+  /** The approved address of the NFT. */
+  approved: PublicKey,
   /** The version number of the NFT state. */
   version: UInt32,
   /** The unique identifier of the NFT within the collection. */
-  id: UInt32,
+  id: UInt64,
   /** Determines whether the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
   canChangeOwnerByProof: Bool, // readonly
   /** Specifies if the NFT's ownership can be transferred (readonly). */
@@ -362,7 +375,8 @@ class NFTData extends Struct({
    */
   static new(
     params: {
-      price?: number;
+      owner?: PublicKey;
+      approved?: PublicKey;
       version?: number;
       id?: number;
       canChangeOwnerByProof?: boolean;
@@ -378,7 +392,8 @@ class NFTData extends Struct({
     } = {}
   ): NFTData {
     const {
-      price,
+      owner,
+      approved,
       version,
       id,
       canChangeOwnerByProof,
@@ -393,9 +408,10 @@ class NFTData extends Struct({
       requireOwnerSignatureToUpgrade,
     } = params;
     return new NFTData({
-      price: UInt64.from(price ?? 0),
+      owner: owner ? PublicKey.from(owner) : PublicKey.empty(),
+      approved: approved ? PublicKey.from(approved) : PublicKey.empty(),
       version: UInt32.from(version ?? 0),
-      id: UInt32.from(id ?? 0),
+      id: UInt64.from(id ?? 0),
       canChangeOwnerByProof: Bool(canChangeOwnerByProof ?? false),
       canTransfer: Bool(canTransfer ?? true),
       canChangeMetadata: Bool(canChangeMetadata ?? false),
@@ -417,25 +433,29 @@ class NFTData extends Struct({
    * Packs the NFTData into a single Field for efficient storage.
    * @returns The packed Field representation of the NFTData.
    */
-  pack(): Field {
-    const price = this.price.value.toBits(64);
+  pack(): NFTDataPacked {
+    const id = this.id.value.toBits(64);
     const version = this.version.value.toBits(32);
-    const id = this.id.value.toBits(32);
-    return Field.fromBits([
-      ...price,
-      ...version,
-      ...id,
-      this.canChangeOwnerByProof,
-      this.canTransfer,
-      this.canChangeMetadata,
-      this.canChangePrice,
-      this.canChangeStorage,
-      this.canChangeName,
-      this.canChangeMetadataVerificationKeyHash,
-      this.canPause,
-      this.isPaused,
-      this.requireOwnerSignatureToUpgrade,
-    ]);
+    return new NFTDataPacked({
+      ownerX: this.owner.x,
+      approvedX: this.approved.x,
+      data: Field.fromBits([
+        ...id,
+        ...version,
+        this.canChangeOwnerByProof,
+        this.canTransfer,
+        this.canChangeMetadata,
+        this.canChangePrice,
+        this.canChangeStorage,
+        this.canChangeName,
+        this.canChangeMetadataVerificationKeyHash,
+        this.canPause,
+        this.isPaused,
+        this.requireOwnerSignatureToUpgrade,
+        this.owner.isOdd,
+        this.approved.isOdd,
+      ]),
+    });
   }
 
   /**
@@ -443,29 +463,35 @@ class NFTData extends Struct({
    * @param packed The packed Field representation of the NFTData.
    * @returns A new NFTData instance.
    */
-  static unpack(packed: Field) {
-    const bits = packed.toBits(64 + 32 + 32 + 10);
-    const price = UInt64.Unsafe.fromField(Field.fromBits(bits.slice(0, 64)));
+  static unpack(packed: NFTDataPacked): NFTData {
+    const bits = packed.data.toBits(64 + 32 + 12);
+    const id = UInt64.Unsafe.fromField(Field.fromBits(bits.slice(0, 64)));
     const version = UInt32.Unsafe.fromField(
       Field.fromBits(bits.slice(64, 64 + 32))
     );
-    const id = UInt32.Unsafe.fromField(
-      Field.fromBits(bits.slice(64 + 32, 64 + 32 + 32))
-    );
-    const canChangeOwnerByProof = bits[64 + 32 + 32];
-    const canTransfer = bits[64 + 32 + 32 + 1];
-    const canChangeMetadata = bits[64 + 32 + 32 + 2];
-    const canChangePrice = bits[64 + 32 + 32 + 3];
-    const canChangeStorage = bits[64 + 32 + 32 + 4];
-    const canChangeName = bits[64 + 32 + 32 + 5];
-    const canChangeMetadataVerificationKeyHash = bits[64 + 32 + 32 + 6];
-    const canPause = bits[64 + 32 + 32 + 7];
-    const isPaused = bits[64 + 32 + 32 + 8];
-    const requireOwnerSignatureToUpgrade = bits[64 + 32 + 32 + 9];
+
+    const canChangeOwnerByProof = bits[64 + 32 + 0];
+    const canTransfer = bits[64 + 32 + 1];
+    const canChangeMetadata = bits[64 + 32 + 2];
+    const canChangePrice = bits[64 + 32 + 3];
+    const canChangeStorage = bits[64 + 32 + 4];
+    const canChangeName = bits[64 + 32 + 5];
+    const canChangeMetadataVerificationKeyHash = bits[64 + 32 + 6];
+    const canPause = bits[64 + 32 + 7];
+    const isPaused = bits[64 + 32 + 8];
+    const requireOwnerSignatureToUpgrade = bits[64 + 32 + 9];
+    const ownerIsOdd = bits[64 + 32 + 10];
+    const approvedIsOdd = bits[64 + 32 + 11];
+    const owner = PublicKey.from({ x: packed.ownerX, isOdd: ownerIsOdd });
+    const approved = PublicKey.from({
+      x: packed.approvedX,
+      isOdd: approvedIsOdd,
+    });
     return new NFTData({
-      price,
-      version,
+      owner,
+      approved,
       id,
+      version,
       canChangeOwnerByProof,
       canTransfer,
       canChangeMetadata,
@@ -699,4 +725,18 @@ class MintRequest extends Struct({
   customId: Field, // should be interpreted by the admin contract
   /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
   customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
+}) {}
+
+/**
+ * Represents the parameters required for transferring an NFT.
+ */
+class TransferParams extends Struct({
+  /** The address of the NFT contract. */
+  address: PublicKey,
+  /** The sender's public key. */
+  from: PublicKey,
+  /** The receiver's public key. */
+  to: PublicKey,
+  /** Optional price for the transfer. */
+  price: UInt64Option,
 }) {}

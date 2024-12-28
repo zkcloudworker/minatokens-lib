@@ -7,12 +7,12 @@ import {
   state,
   State,
   VerificationKey,
-  UInt64,
   AccountUpdate,
 } from "o1js";
 import { Storage } from "@minatokens/storage";
 import {
   NFTData,
+  NFTDataPacked,
   NFTState,
   NFTImmutableState,
   UpdateEvent,
@@ -22,13 +22,13 @@ import {
   UpgradeVerificationKeyEvent,
   PausableContract,
   PauseEvent,
-  OwnershipChangeEvent,
   NFTOraclePreconditions,
+  OwnershipChangeEvent,
 } from "../interfaces/index.js";
 
 export { NFT };
 
-const NFTErrors = {
+const NftErrors = {
   onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key",
   cannotChangeMetadataVerificationKeyHash:
     "Cannot change metadata verification key hash",
@@ -63,14 +63,11 @@ class NFT extends SmartContract implements PausableContract {
   /** The metadata associated with the NFT (`Field`). */
   @state(Field) metadata = State<Field>();
 
-  /** The current owner of the NFT (`PublicKey`). */
-  @state(PublicKey) owner = State<PublicKey>();
-
   /** Holds off-chain storage information, e.g., IPFS hash (`Storage`). */
   @state(Storage) storage = State<Storage>();
 
   /** A packed field containing additional NFT data and flags (`Field`). */
-  @state(Field) packedData = State<Field>();
+  @state(NFTDataPacked) packedData = State<NFTDataPacked>();
 
   /** The hash of the verification key used for metadata proofs (`Field`). */
   @state(Field) metadataVerificationKeyHash = State<Field>();
@@ -78,13 +75,13 @@ class NFT extends SmartContract implements PausableContract {
   /** Events emitted by the NFT contract. */
   events = {
     update: UpdateEvent,
-    transfer: TransferEvent,
+    transfer: OwnershipChangeEvent,
+    approve: PublicKey,
     offer: OfferEvent,
     buy: BuyEvent,
     upgradeVerificationKey: UpgradeVerificationKeyEvent,
     pause: PauseEvent,
     resume: PauseEvent,
-    ownershipChange: OwnershipChangeEvent,
   };
 
   /**
@@ -93,7 +90,7 @@ class NFT extends SmartContract implements PausableContract {
    * @returns A signed account update for the owner.
    */
   async ensureOwnerSignature(): Promise<AccountUpdate> {
-    const owner = this.owner.getAndRequireEquals();
+    const owner = NFTData.unpack(this.packedData.getAndRequireEquals()).owner;
     const ownerUpdate = AccountUpdate.createSigned(owner);
     ownerUpdate.body.useFullCommitment = Bool(true); // prevent memo and fee change
     // We do not accept signature of the owners which are contracts
@@ -118,7 +115,8 @@ class NFT extends SmartContract implements PausableContract {
   ): Promise<Field> {
     const name = this.name.getAndRequireEquals();
     const metadata = this.metadata.getAndRequireEquals();
-    const owner = this.owner.getAndRequireEquals();
+    const data = NFTData.unpack(this.packedData.getAndRequireEquals());
+    const owner = data.owner;
 
     // Oracle preconditions
     const oracleUpdate = AccountUpdate.create(
@@ -151,15 +149,12 @@ class NFT extends SmartContract implements PausableContract {
     // Check that the metadata verification key exists
     metadataVerificationKeyHash.assertNotEquals(
       Field(0),
-      NFTErrors.noMetadataVerificationKey
+      NftErrors.noMetadataVerificationKey
     );
-
-    // Unpack price, version, flags
-    const data = NFTData.unpack(this.packedData.getAndRequireEquals());
 
     // We do not check if the NFT is paused here
     // It is the responsibility of metadata zkProgram to check if the NFT is paused,
-    // similar to data.isPaused.assertFalse(NFTErrors.nftIsPaused);
+    // similar to data.isPaused.assertFalse(NftErrors.nftIsPaused);
 
     // Assert that the public input matches the NFT state
     NFTState.assertEqual(
@@ -183,7 +178,7 @@ class NFT extends SmartContract implements PausableContract {
         metadata,
         storage,
         owner,
-        price: data.price,
+        approved: data.approved,
         version: data.version,
         isPaused: data.isPaused,
         metadataVerificationKeyHash,
@@ -201,52 +196,52 @@ class NFT extends SmartContract implements PausableContract {
       .equals(output.name)
       .not()
       .and(data.canChangeName.not())
-      .assertFalse(NFTErrors.cannotChangeName);
+      .assertFalse(NftErrors.cannotChangeName);
     this.name.set(output.name);
 
     metadata
       .equals(output.metadata)
       .not()
       .and(data.canChangeMetadata.not())
-      .assertFalse(NFTErrors.cannotChangeMetadata);
+      .assertFalse(NftErrors.cannotChangeMetadata);
     this.metadata.set(output.metadata);
 
     metadataVerificationKeyHash
       .equals(output.metadataVerificationKeyHash)
       .not()
       .and(data.canChangeMetadataVerificationKeyHash.not())
-      .assertFalse(NFTErrors.cannotChangeMetadataVerificationKeyHash);
+      .assertFalse(NftErrors.cannotChangeMetadataVerificationKeyHash);
     this.metadataVerificationKeyHash.set(output.metadataVerificationKeyHash);
 
     owner
       .equals(output.owner)
       .not()
       .and(data.canChangeOwnerByProof.not())
-      .assertFalse(NFTErrors.cannotChangeOwner);
-    this.owner.set(output.owner);
+      .assertFalse(NftErrors.cannotChangeOwner);
 
     Storage.equals(storage, output.storage)
       .not()
       .and(data.canChangeStorage.not())
-      .assertFalse(NFTErrors.cannotChangeStorage);
+      .assertFalse(NftErrors.cannotChangeStorage);
     this.storage.set(output.storage);
 
-    data.price
-      .equals(output.price)
+    data.approved
+      .equals(output.approved)
       .not()
-      .and(data.canChangePrice.not())
-      .assertFalse(NFTErrors.cannotChangePrice);
+      .and(data.canChangeOwnerByProof.not())
+      .assertFalse(NftErrors.cannotChangeOwner);
 
     data.isPaused
       .equals(output.isPaused)
       .not()
       .and(data.canPause.not())
-      .assertFalse(NFTErrors.cannotChangePauseState);
+      .assertFalse(NftErrors.cannotChangePauseState);
 
     // recursive proofs can increase the version by more than 1
     output.version.assertGreaterThan(data.version);
 
-    data.price = output.price;
+    data.owner = output.owner;
+    data.approved = output.approved;
     data.version = output.version;
 
     this.packedData.set(data.pack());
@@ -256,7 +251,7 @@ class NFT extends SmartContract implements PausableContract {
       metadata: output.metadata,
       storage: output.storage,
       owner: output.owner,
-      price: output.price,
+      approved: output.approved,
       version: output.version,
       isPaused: output.isPaused,
       metadataVerificationKeyHash: output.metadataVerificationKeyHash,
@@ -265,72 +260,72 @@ class NFT extends SmartContract implements PausableContract {
     return metadataVerificationKeyHash;
   }
 
-  /**
-   * Lists the NFT for sale at a specified price.
-   *
-   * @param price - The price at which to sell the NFT (`UInt64`).
-   * @param seller - The public key of the seller (`PublicKey`).
-   * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
-   */
-  @method.returns(OfferEvent)
-  async offer(price: UInt64, seller: PublicKey): Promise<OfferEvent> {
-    this.owner.getAndRequireEquals().assertEquals(seller);
-    const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.isPaused.assertFalse(NFTErrors.nftIsPaused);
-    data.canTransfer.assertTrue(NFTErrors.noPermissionToSell);
-    data.canChangePrice.assertTrue(NFTErrors.noPermissionToChangePrice);
-    const version = data.version.add(1);
-    data.version = version;
-    data.price = price;
-    this.packedData.set(data.pack());
-    const event = new OfferEvent({
-      seller,
-      price,
-      version,
-      address: this.address,
-    });
-    this.emitEvent("offer", event);
-    return event;
-  }
+  // /**
+  //  * Lists the NFT for sale at a specified price.
+  //  *
+  //  * @param price - The price at which to sell the NFT (`UInt64`).
+  //  * @param seller - The public key of the seller (`PublicKey`).
+  //  * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
+  //  */
+  // @method.returns(OfferEvent)
+  // async offer(price: UInt64, seller: PublicKey): Promise<OfferEvent> {
+  //   this.owner.getAndRequireEquals().assertEquals(seller);
+  //   const data = NFTData.unpack(this.packedData.getAndRequireEquals());
+  //   data.isPaused.assertFalse(NftErrors.nftIsPaused);
+  //   data.canTransfer.assertTrue(NftErrors.noPermissionToSell);
+  //   data.canChangePrice.assertTrue(NftErrors.noPermissionToChangePrice);
+  //   const version = data.version.add(1);
+  //   data.version = version;
+  //   data.price = price;
+  //   this.packedData.set(data.pack());
+  //   const event = new OfferEvent({
+  //     seller,
+  //     price,
+  //     version,
+  //     address: this.address,
+  //   });
+  //   this.emitEvent("offer", event);
+  //   return event;
+  // }
 
-  /**
-   * Purchases the NFT, transferring ownership and handling payment.
-   *
-   * @param price - The price at which to buy the NFT (`UInt64`).
-   * @param buyer - The public key of the buyer (`PublicKey`).
-   * @returns An event emitted after the NFT is purchased (`BuyEvent`).
-   */
-  @method.returns(BuyEvent)
-  async buy(price: UInt64, buyer: PublicKey): Promise<BuyEvent> {
-    const owner = this.owner.getAndRequireEquals();
-    const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.price.equals(UInt64.zero).assertFalse(); // the NFT is for sale
-    data.price.assertEquals(price); // price is correct
-    data.isPaused.assertFalse(NFTErrors.nftIsPaused);
-    data.canTransfer.assertTrue(NFTErrors.noPermissionToBuy);
-    const version = data.version.add(1);
-    data.version = version;
-    data.price = UInt64.zero; // reset price
-    this.packedData.set(data.pack());
+  // /**
+  //  * Purchases the NFT, transferring ownership and handling payment.
+  //  *
+  //  * @param price - The price at which to buy the NFT (`UInt64`).
+  //  * @param buyer - The public key of the buyer (`PublicKey`).
+  //  * @returns An event emitted after the NFT is purchased (`BuyEvent`).
+  //  */
+  // @method.returns(BuyEvent)
+  // async buy(price: UInt64, buyer: PublicKey): Promise<BuyEvent> {
+  //   const owner = this.owner.getAndRequireEquals();
+  //   const data = NFTData.unpack(this.packedData.getAndRequireEquals());
+  //   data.price.equals(UInt64.zero).assertFalse(); // the NFT is for sale
+  //   data.price.assertEquals(price); // price is correct
+  //   data.isPaused.assertFalse(NftErrors.nftIsPaused);
+  //   data.canTransfer.assertTrue(NftErrors.noPermissionToBuy);
+  //   const version = data.version.add(1);
+  //   data.version = version;
+  //   data.price = UInt64.zero; // reset price
+  //   this.packedData.set(data.pack());
 
-    this.owner.set(buyer);
-    const event = new BuyEvent({
-      seller: owner,
-      buyer,
-      price,
-      version,
-      address: this.address,
-    });
-    this.emitEvent("buy", event);
-    this.emitEvent(
-      "ownershipChange",
-      new OwnershipChangeEvent({
-        from: owner,
-        to: buyer,
-      })
-    );
-    return event;
-  }
+  //   this.owner.set(buyer);
+  //   const event = new BuyEvent({
+  //     seller: owner,
+  //     buyer,
+  //     price,
+  //     version,
+  //     address: this.address,
+  //   });
+  //   this.emitEvent("buy", event);
+  //   this.emitEvent(
+  //     "ownershipChange",
+  //     new OwnershipChangeEvent({
+  //       from: owner,
+  //       to: buyer,
+  //     })
+  //   );
+  //   return event;
+  // }
 
   /**
    * Transfers ownership of the NFT from one user to another.
@@ -339,19 +334,53 @@ class NFT extends SmartContract implements PausableContract {
    * @param to - The public key of the new owner (`PublicKey`).
    * @returns The public key of the old owner (`PublicKey`).
    */
-  @method
-  async transfer(from: PublicKey, to: PublicKey): Promise<void> {
-    const owner = this.owner.getAndRequireEquals();
-    owner.assertEquals(from);
+  @method.returns(TransferEvent)
+  async transfer(transferEvent: TransferEvent): Promise<TransferEvent> {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.canTransfer.assertTrue(NFTErrors.cannotChangeOwner);
-    data.isPaused.assertFalse(NFTErrors.nftIsPaused);
+    data.canTransfer.assertTrue(NftErrors.cannotChangeOwner);
+    data.isPaused.assertFalse(NftErrors.nftIsPaused);
+    const owner = data.owner;
+    const approved = data.approved;
+    transferEvent.transferByOwner = owner.equals(transferEvent.from);
+
+    owner
+      .equals(transferEvent.from)
+      .or(
+        approved
+          .equals(transferEvent.from)
+          .and(approved.equals(PublicKey.empty()).not())
+      )
+      .assertTrue(NftErrors.cannotChangeOwner);
+    transferEvent.from = owner;
+    transferEvent.approved = approved;
     const version = data.version.add(1);
     data.version = version;
-    data.price = UInt64.zero; // reset price
-    this.owner.set(to);
+    data.approved = PublicKey.empty();
+    data.owner = transferEvent.to;
     this.packedData.set(data.pack());
-    this.emitEvent("ownershipChange", new OwnershipChangeEvent({ from, to }));
+    this.emitEvent(
+      "transfer",
+      new OwnershipChangeEvent({
+        from: owner,
+        to: transferEvent.to,
+      })
+    );
+
+    return transferEvent;
+  }
+
+  /**
+   * Transfers ownership of the NFT from one user to another.
+   *
+   * @param approved - The public key of the approved address (`PublicKey`).
+   */
+  @method
+  async approveAddress(approved: PublicKey): Promise<void> {
+    const data = NFTData.unpack(this.packedData.getAndRequireEquals());
+    data.isPaused.assertFalse(NftErrors.nftIsPaused);
+    data.approved = approved;
+    this.packedData.set(data.pack());
+    this.emitEvent("approve", approved);
   }
 
   /**
@@ -367,12 +396,12 @@ class NFT extends SmartContract implements PausableContract {
     sender: PublicKey
   ): Promise<UpgradeVerificationKeyEvent> {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    const owner = this.owner.getAndRequireEquals();
+    const owner = data.owner;
     owner
       .equals(sender)
       .not()
       .and(data.requireOwnerSignatureToUpgrade.not())
-      .assertFalse(NFTErrors.onlyOwnerCanUpgradeVerificationKey);
+      .assertFalse(NftErrors.onlyOwnerCanUpgradeVerificationKey);
     this.account.verificationKey.set(vk);
 
     const version = data.version.add(1);
@@ -399,8 +428,8 @@ class NFT extends SmartContract implements PausableContract {
     // Contract owners should use update method with preconditions to pause the NFT
     await this.ensureOwnerSignature();
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.canPause.assertTrue(NFTErrors.noPermissionToPause);
-    data.isPaused.assertFalse(NFTErrors.nftAlreadyPaused);
+    data.canPause.assertTrue(NftErrors.noPermissionToPause);
+    data.isPaused.assertFalse(NftErrors.nftAlreadyPaused);
     data.isPaused = Bool(true);
     this.packedData.set(data.pack());
     this.emitEvent("pause", new PauseEvent({ isPaused: Bool(true) }));
@@ -417,8 +446,8 @@ class NFT extends SmartContract implements PausableContract {
     // Contract owners should use update method with preconditions to resume the NFT
     await this.ensureOwnerSignature();
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    data.canPause.assertTrue(NFTErrors.noPermissionToPause);
-    data.isPaused.assertTrue(NFTErrors.nftIsNotPaused);
+    data.canPause.assertTrue(NftErrors.noPermissionToPause);
+    data.isPaused.assertTrue(NftErrors.nftIsNotPaused);
     data.isPaused = Bool(false);
     this.packedData.set(data.pack());
     this.emitEvent("resume", new PauseEvent({ isPaused: Bool(false) }));

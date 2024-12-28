@@ -1,5 +1,5 @@
 import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, UInt64, Field, AccountUpdate } from "o1js";
-import { MintRequest, NFTState, NFTAdminBase, MintParamsOption, PausableContract, PauseEvent, OwnershipChangeEvent, OwnableContract, UInt64Option } from "../interfaces/index.js";
+import { MintRequest, NFTState, NFTAdminBase, MintParamsOption, PausableContract, PauseEvent, OwnershipChangeEvent, OwnableContract, TransferEvent } from "../interfaces/index.js";
 export { NFTAdmin, NFTAdminDeployProps };
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {
     admin: PublicKey;
@@ -85,7 +85,7 @@ declare class NFTAdmin extends SmartContract implements NFTAdminBase, PausableCo
      * @param price - The price of the NFT, optional.
      * @returns A `Bool` indicating whether the transfer is allowed.
      */
-    canTransfer(address: PublicKey, from: PublicKey, to: PublicKey, price: UInt64Option): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
+    canTransfer(transferEvent: TransferEvent): Promise<Bool>;
     /**
      * Determines whether the NFT can be listed for sale at the given price.
      * @param address - The NFT contract address.

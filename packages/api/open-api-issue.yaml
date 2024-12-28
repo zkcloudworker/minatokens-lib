@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: MinaTokens API
+  description: API for interacting with Mina Fungible Tokens and NFTs.
+  version: "0.12.5"
+servers:
+  - url: https://minatokens.com/api/v1/
+    description: Mina Devnet
+paths:
+  /token/mint:
+    post:
+      summary: Mint new tokens to a specified address.
+      operationId: mintTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenMintTransactionParams"
+      responses:
+        "200":
+          description: Successfully built mint transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    TokenTransactionType:
+      type: string
+      enum:
+        - "token:mint"
+        - "token:transfer"
+    TokenTransactionBaseParams:
+      type: object
+      properties:
+        txType:
+          type: string
+          enum:
+            $ref: "#/components/schemas/TokenTransactionType"
+          description: Type of the token transaction.
+    TokenMintTransactionParams:
+      allOf:
+        - $ref: "#/components/schemas/TokenTransactionBaseParams"
+        - type: object
+          properties:
+            txType:
+              type: string
+              enum:
+                - "token:mint"
+              description: Must be "token:mint"

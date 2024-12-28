@@ -4,4 +4,4 @@ export * from "./events.js";
 export * from "./admin.js";
 export * from "./pausable.js";
 export * from "./ownable.js";
-export * from "./nft-owner.js";
+export * from "./owner.js";

@@ -12,6 +12,7 @@ import {
   NFTState,
   UInt64Option,
 } from "./types.js";
+import { TransferEvent } from "./events.js";
 export { NFTAdminBase, NFTAdminContractConstructor };
 
 /**
@@ -39,18 +40,10 @@ type NFTAdminBase = SmartContract & {
   /**
    * Determines if an NFT can be transferred from one owner (`from`) to another (`to`) for a specific NFT contract address.
    *
-   * @param address - The public key of the NFT contract address.
-   * @param from - The public key of the current owner.
-   * @param to - The public key of the intended new owner.
-   * @param price - The price at which the NFT is being bought in case the payment is being made outside of the collection.
+   * @param transferEvent - The transfer event containing details of the transfer.
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
-  canTransfer(
-    address: PublicKey,
-    from: PublicKey,
-    to: PublicKey,
-    price: UInt64Option
-  ): Promise<Bool>;
+  canTransfer(transferEvent: TransferEvent): Promise<Bool>;
 
   /**
    * Validates if an NFT can be listed for sale by a seller at a specified price.

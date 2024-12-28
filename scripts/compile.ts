@@ -17,6 +17,8 @@ import {
   AdvancedCollection,
   NFTAdmin,
   NFTAdvancedAdmin,
+  NonFungibleTokenOfferContract,
+  NonFungibleTokenBidContract,
 } from "@minatokens/nft";
 import {
   tokenVerificationKeys,
@@ -56,6 +58,16 @@ const contracts: {
 }[] = [
   { name: "NFT", contract: NFT, type: "nft" },
   { name: "Collection", contract: Collection, type: "collection" },
+  {
+    name: "NonFungibleTokenOfferContract",
+    contract: NonFungibleTokenOfferContract,
+    type: "user",
+  },
+  {
+    name: "NonFungibleTokenBidContract",
+    contract: NonFungibleTokenBidContract,
+    type: "user",
+  },
   { name: "NFTAdmin", contract: NFTAdmin, type: "admin" },
   {
     name: "VerificationKeyUpgradeAuthority",

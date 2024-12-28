@@ -1,6 +1,6 @@
 import { __decorate, __metadata } from "tslib";
 import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, UInt64, Field, AccountUpdate, } from "o1js";
-import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, UInt64Option, } from "../interfaces/index.js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, TransferEvent, } from "../interfaces/index.js";
 export { NFTAdmin };
 /**
  * The **NFTAdmin** contract serves as the foundational administrative layer for NFT collections on the Mina Protocol.
@@ -113,7 +113,7 @@ class NFTAdmin extends SmartContract {
      * @param price - The price of the NFT, optional.
      * @returns A `Bool` indicating whether the transfer is allowed.
      */
-    async canTransfer(address, from, to, price) {
+    async canTransfer(transferEvent) {
         const isPaused = this.isPaused.getAndRequireEquals();
         return isPaused.not();
     }
@@ -217,10 +217,7 @@ __decorate([
 __decorate([
     method.returns(Bool),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [PublicKey,
-        PublicKey,
-        PublicKey,
-        UInt64Option]),
+    __metadata("design:paramtypes", [TransferEvent]),
     __metadata("design:returntype", Promise)
 ], NFTAdmin.prototype, "canTransfer", null);
 __decorate([

@@ -21,7 +21,7 @@ import {
   PauseEvent,
   OwnershipChangeEvent,
   OwnableContract,
-  UInt64Option,
+  TransferEvent,
 } from "../interfaces/index.js";
 export { NFTAdmin, NFTAdminDeployProps };
 
@@ -160,12 +160,7 @@ class NFTAdmin
    * @returns A `Bool` indicating whether the transfer is allowed.
    */
   @method.returns(Bool)
-  async canTransfer(
-    address: PublicKey,
-    from: PublicKey,
-    to: PublicKey,
-    price: UInt64Option
-  ) {
+  async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
     const isPaused = this.isPaused.getAndRequireEquals();
     return isPaused.not();
   }
