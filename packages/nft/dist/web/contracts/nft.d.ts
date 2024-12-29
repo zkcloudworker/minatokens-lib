@@ -1,6 +1,6 @@
-import { Field, PublicKey, SmartContract, State, VerificationKey, AccountUpdate } from "o1js";
+import { Field, PublicKey, SmartContract, State, VerificationKey } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTDataPacked, NFTState, UpdateEvent, TransferEvent, OfferEvent, BuyEvent, UpgradeVerificationKeyEvent, PausableContract, PauseEvent, OwnershipChangeEvent } from "../interfaces/index.js";
+import { NFTDataPacked, NFTState, UpdateEvent, TransferEvent, UpgradeVerificationKeyEvent, PauseEvent, OwnershipChangeEvent, UpgradeVerificationKeyData } from "../interfaces/index.js";
 export { NFT };
 /**
  * The NFT Contract represents an individual NFT within a collection.
@@ -10,7 +10,7 @@ export { NFT };
  * NFT properties with proofs and permissions, transferring ownership, selling and buying NFTs,
  * upgrading the verification key, and pausing or resuming the NFT.
  */
-declare class NFT extends SmartContract implements PausableContract {
+declare class NFT extends SmartContract {
     /** The name of the NFT (`Field`). */
     name: State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
     /** The metadata associated with the NFT (`Field`). */
@@ -26,18 +26,10 @@ declare class NFT extends SmartContract implements PausableContract {
         update: typeof UpdateEvent;
         transfer: typeof OwnershipChangeEvent;
         approve: typeof PublicKey;
-        offer: typeof OfferEvent;
-        buy: typeof BuyEvent;
         upgradeVerificationKey: typeof UpgradeVerificationKeyEvent;
         pause: typeof PauseEvent;
         resume: typeof PauseEvent;
     };
-    /**
-     * Ensures that the transaction is authorized by the current owner.
-     *
-     * @returns A signed account update for the owner.
-     */
-    ensureOwnerSignature(): Promise<AccountUpdate>;
     /**
      * Updates the NFT's state with provided proofs and permissions.
      *
@@ -50,7 +42,7 @@ declare class NFT extends SmartContract implements PausableContract {
     /**
      * Transfers ownership of the NFT from one user to another.
      *
-     * @param from - The public key of the current owner (`PublicKey`).
+     * @param from - The public key of the current owner (`PublicKey`) or approved address.
      * @param to - The public key of the new owner (`PublicKey`).
      * @returns The public key of the old owner (`PublicKey`).
      */
@@ -59,26 +51,26 @@ declare class NFT extends SmartContract implements PausableContract {
      * Transfers ownership of the NFT from one user to another.
      *
      * @param approved - The public key of the approved address (`PublicKey`).
+     * @returns The public key of the owner (`PublicKey`).
      */
-    approveAddress(approved: PublicKey): Promise<void>;
+    approveAddress(approved: PublicKey): Promise<PublicKey>;
     /**
      * Upgrades the verification key used by the NFT contract.
      *
      * @param vk - The new verification key (`VerificationKey`).
-     * @param sender - The public key of the sender (`PublicKey`).
-     * @returns An event emitted after the verification key is upgraded (`UpgradeVerificationKeyEvent`).
+     * @returns An owner public key to be checked by the Collection contract and the Boolean flag indicating if the owner's authorization is required
      */
-    upgradeVerificationKey(vk: VerificationKey, sender: PublicKey): Promise<UpgradeVerificationKeyEvent>;
+    upgradeVerificationKey(vk: VerificationKey): Promise<UpgradeVerificationKeyData>;
     /**
      * Pauses the NFT, disabling certain actions.
      *
-     * @returns A promise that resolves when the NFT is paused.
+     * @returns An owner public key to be checked by the Collection contract
      */
-    pause(): Promise<void>;
+    pause(): Promise<PublicKey>;
     /**
      * Resumes the NFT, re-enabling actions.
      *
-     * @returns A promise that resolves when the NFT is resumed.
+     * @returns An owner public key to be checked by the Collection contract
      */
-    resume(): Promise<void>;
+    resume(): Promise<PublicKey>;
 }

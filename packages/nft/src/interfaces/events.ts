@@ -10,6 +10,7 @@ export {
   SaleEvent,
   BuyEvent,
   UpgradeVerificationKeyEvent,
+  UpgradeVerificationKeyData,
   LimitMintingEvent,
   PauseNFTEvent,
   ApproveEvent,
@@ -143,6 +144,13 @@ class UpgradeVerificationKeyEvent extends Struct({
   address: PublicKey,
   /** The version number of the NFT state after the upgrade. */
   tokenId: Field,
+}) {}
+
+class UpgradeVerificationKeyData extends Struct({
+  /** The owner of the NFT. */
+  owner: PublicKey,
+  /** Indicates whether the owner approval is required to upgrade the verification key. */
+  isOwnerApprovalRequired: Bool,
 }) {}
 
 /**

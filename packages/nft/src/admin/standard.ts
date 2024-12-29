@@ -165,37 +165,37 @@ class NFTAdmin
     return isPaused.not();
   }
 
-  /**
-   * Determines whether the NFT can be listed for sale at the given price.
-   * @param address - The NFT contract address.
-   * @param seller - The seller's public key.
-   * @param price - The listing price.
-   * @returns A `Bool` indicating whether the sale is permitted.
-   */
-  @method.returns(Bool)
-  async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
-    const isPaused = this.isPaused.getAndRequireEquals();
-    return isPaused.not();
-  }
+  // /**
+  //  * Determines whether the NFT can be listed for sale at the given price.
+  //  * @param address - The NFT contract address.
+  //  * @param seller - The seller's public key.
+  //  * @param price - The listing price.
+  //  * @returns A `Bool` indicating whether the sale is permitted.
+  //  */
+  // @method.returns(Bool)
+  // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
+  //   const isPaused = this.isPaused.getAndRequireEquals();
+  //   return isPaused.not();
+  // }
 
-  /**
-   * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
-   * @param address - The NFT contract address.
-   * @param seller - The seller's public key.
-   * @param buyer - The buyer's public key.
-   * @param price - The purchase price.
-   * @returns A `Bool` indicating whether the purchase is allowed.
-   */
-  @method.returns(Bool)
-  async canBuy(
-    address: PublicKey,
-    seller: PublicKey,
-    buyer: PublicKey,
-    price: UInt64
-  ) {
-    const isPaused = this.isPaused.getAndRequireEquals();
-    return isPaused.not();
-  }
+  // /**
+  //  * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
+  //  * @param address - The NFT contract address.
+  //  * @param seller - The seller's public key.
+  //  * @param buyer - The buyer's public key.
+  //  * @param price - The purchase price.
+  //  * @returns A `Bool` indicating whether the purchase is allowed.
+  //  */
+  // @method.returns(Bool)
+  // async canBuy(
+  //   address: PublicKey,
+  //   seller: PublicKey,
+  //   buyer: PublicKey,
+  //   price: UInt64
+  // ) {
+  //   const isPaused = this.isPaused.getAndRequireEquals();
+  //   return isPaused.not();
+  // }
 
   /**
    * Pauses the contract, disabling certain administrative actions.

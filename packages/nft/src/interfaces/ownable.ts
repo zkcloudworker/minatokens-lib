@@ -20,14 +20,6 @@ import {
  */
 export type OwnableContract = SmartContract & {
   /**
-   * Ensures that the transaction is authorized by the contract owner.
-   * Typically used to restrict access to sensitive functions.
-   *
-   * @returns {Promise<AccountUpdate>} A promise that resolves to an `AccountUpdate`, representing the action of ensuring the owner's signature.
-   */
-  ensureOwnerSignature(): Promise<AccountUpdate>;
-
-  /**
    * Transfers ownership of the contract to a new owner.
    *
    * @param {PublicKey} to - The public key of the new owner.

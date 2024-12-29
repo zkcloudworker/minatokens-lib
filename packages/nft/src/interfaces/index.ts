@@ -5,3 +5,4 @@ export * from "./admin.js";
 export * from "./pausable.js";
 export * from "./ownable.js";
 export * from "./owner.js";
+export * from "./collection.js";

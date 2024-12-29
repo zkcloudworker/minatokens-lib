@@ -20,15 +20,22 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // dist/node/index.js
 var index_exports = {};
 __export(index_exports, {
+  Admin: () => Admin,
+  AdvancedAdmin: () => AdvancedAdmin,
+  AdvancedApproval: () => AdvancedApproval,
   AdvancedCollection: () => AdvancedCollection,
+  AdvancedOwner: () => AdvancedOwner,
+  Approval: () => Approval,
   ApproveEvent: () => ApproveEvent,
   Bid: () => Bid,
+  BidEvent: () => BidEvent,
   BuyEvent: () => BuyEvent,
   Collection: () => Collection,
-  CollectionContract: () => CollectionContract,
   CollectionData: () => CollectionData,
   CollectionErrors: () => CollectionErrors,
+  CollectionFactory: () => CollectionFactory,
   ColorPlugin: () => ColorPlugin,
+  DepositEvent: () => DepositEvent,
   LimitMintingEvent: () => LimitMintingEvent,
   Metadata: () => Metadata,
   MetadataFieldTypeValues: () => MetadataFieldTypeValues,
@@ -40,6 +47,7 @@ __export(index_exports, {
   MintParamsOption: () => MintParamsOption,
   MintRequest: () => MintRequest,
   NFT: () => NFT,
+  NFTAddress: () => NFTAddress,
   NFTAdmin: () => NFTAdmin,
   NFTAdvancedAdmin: () => NFTAdvancedAdmin,
   NFTAdvancedAdminContract: () => NFTAdvancedAdminContract,
@@ -48,18 +56,22 @@ __export(index_exports, {
   NFTImmutableState: () => NFTImmutableState,
   NFTOraclePreconditions: () => NFTOraclePreconditions,
   NFTProgram: () => NFTProgram,
+  NFTStandardApproval: () => NFTStandardApproval,
   NFTStandardOwner: () => NFTStandardOwner,
   NFTState: () => NFTState,
   NFTStateStruct: () => NFTStateStruct,
   NFTUpdateProof: () => NFTUpdateProof,
   NonFungibleTokenBidContract: () => NonFungibleTokenBidContract,
-  NonFungibleTokenOfferContract: () => NonFungibleTokenOfferContract,
+  NonFungibleTokenContractsFactory: () => NonFungibleTokenContractsFactory,
   OfferEvent: () => OfferEvent,
+  OfferFactory: () => OfferFactory,
+  Owner: () => Owner,
   OwnershipChangeEvent: () => OwnershipChangeEvent,
   PauseData: () => PauseData,
   PauseEvent: () => PauseEvent,
   PauseNFTEvent: () => PauseNFTEvent,
   SaleEvent: () => SaleEvent,
+  SellEvent: () => SellEvent,
   StateElementPrecondition: () => StateElementPrecondition,
   TEXT_TREE_HEIGHT: () => TEXT_TREE_HEIGHT,
   Text: () => Text,
@@ -67,7 +79,9 @@ __export(index_exports, {
   TransferParams: () => TransferParams,
   UInt64Option: () => UInt64Option,
   UpdateEvent: () => UpdateEvent,
+  UpgradeVerificationKeyData: () => UpgradeVerificationKeyData,
   UpgradeVerificationKeyEvent: () => UpgradeVerificationKeyEvent,
+  WithdrawEvent: () => WithdrawEvent,
   fieldFromString: () => fieldFromString,
   fieldToString: () => fieldToString,
   nftVerificationKeys: () => nftVerificationKeys
@@ -138,9 +152,6 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: import_o1js.Bool,
   // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: import_o1js.Bool,
-  // readonly
   /** Determines whether the storage associated with the NFT can be altered (readonly). */
   canChangeStorage: import_o1js.Bool,
   // readonly
@@ -172,7 +183,6 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
     a.canChangeOwnerByProof.assertEquals(b.canChangeOwnerByProof);
     a.canTransfer.assertEquals(b.canTransfer);
     a.canChangeMetadata.assertEquals(b.canChangeMetadata);
-    a.canChangePrice.assertEquals(b.canChangePrice);
     a.canChangeStorage.assertEquals(b.canChangeStorage);
     a.canChangeName.assertEquals(b.canChangeName);
     a.canChangeMetadataVerificationKeyHash.assertEquals(b.canChangeMetadataVerificationKeyHash);
@@ -195,7 +205,6 @@ var NFTImmutableState = class _NFTImmutableState extends (0, import_o1js.Struct)
       canChangeOwnerByProof: nftData.canChangeOwnerByProof,
       canTransfer: nftData.canTransfer,
       canChangeMetadata: nftData.canChangeMetadata,
-      canChangePrice: nftData.canChangePrice,
       canChangeStorage: nftData.canChangeStorage,
       canChangeName: nftData.canChangeName,
       canChangeMetadataVerificationKeyHash: nftData.canChangeMetadataVerificationKeyHash,
@@ -358,11 +367,11 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
   /** Specifies if the NFT's ownership can be transferred (readonly). */
   canTransfer: import_o1js.Bool,
   // readonly
+  /** Specifies if the NFT's approved address can be changed (readonly). */
+  canApprove: import_o1js.Bool,
+  // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: import_o1js.Bool,
-  // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: import_o1js.Bool,
   // readonly
   /** Determines whether the storage associated with the NFT can be altered (readonly). */
   canChangeStorage: import_o1js.Bool,
@@ -378,8 +387,8 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
   // readonly
   /** Indicates whether the NFT contract is currently paused. */
   isPaused: import_o1js.Bool,
-  /** Determines whether the owner's signature is required to upgrade the NFT's verification key (readonly). */
-  requireOwnerSignatureToUpgrade: import_o1js.Bool
+  /** Determines whether the owner's authorization is required to upgrade the NFT's verification key (readonly). */
+  requireOwnerAuthorizationToUpgrade: import_o1js.Bool
   // readonly
 }) {
   /**
@@ -387,23 +396,23 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
    * @param params The parameters to create the NFTData.
    * @returns A new NFTData instance.
    */
-  static new(params = {}) {
-    const { owner, approved, version, id, canChangeOwnerByProof, canTransfer, canChangeMetadata, canChangePrice, canChangeStorage, canChangeName, canChangeMetadataVerificationKeyHash, canPause, isPaused, requireOwnerSignatureToUpgrade } = params;
+  static new(params) {
+    const { owner, approved, version, id, canChangeOwnerByProof, canTransfer, canApprove, canChangeMetadata, canChangeStorage, canChangeName, canChangeMetadataVerificationKeyHash, canPause, isPaused, requireOwnerAuthorizationToUpgrade } = params;
     return new _NFTData({
-      owner: owner ? import_o1js.PublicKey.from(owner) : import_o1js.PublicKey.empty(),
-      approved: approved ? import_o1js.PublicKey.from(approved) : import_o1js.PublicKey.empty(),
+      owner: typeof owner === "string" ? import_o1js.PublicKey.fromBase58(owner) : owner,
+      approved: approved ? typeof approved === "string" ? import_o1js.PublicKey.fromBase58(approved) : approved : import_o1js.PublicKey.empty(),
       version: import_o1js.UInt32.from(version ?? 0),
       id: import_o1js.UInt64.from(id ?? 0),
       canChangeOwnerByProof: (0, import_o1js.Bool)(canChangeOwnerByProof ?? false),
       canTransfer: (0, import_o1js.Bool)(canTransfer ?? true),
+      canApprove: (0, import_o1js.Bool)(canApprove ?? true),
       canChangeMetadata: (0, import_o1js.Bool)(canChangeMetadata ?? false),
-      canChangePrice: (0, import_o1js.Bool)(canChangePrice ?? true),
       canChangeStorage: (0, import_o1js.Bool)(canChangeStorage ?? false),
       canChangeName: (0, import_o1js.Bool)(canChangeName ?? false),
       canChangeMetadataVerificationKeyHash: (0, import_o1js.Bool)(canChangeMetadataVerificationKeyHash ?? false),
       canPause: (0, import_o1js.Bool)(canPause ?? false),
       isPaused: (0, import_o1js.Bool)(isPaused ?? false),
-      requireOwnerSignatureToUpgrade: (0, import_o1js.Bool)(requireOwnerSignatureToUpgrade ?? false)
+      requireOwnerAuthorizationToUpgrade: (0, import_o1js.Bool)(requireOwnerAuthorizationToUpgrade ?? false)
     });
   }
   /**
@@ -421,14 +430,14 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
         ...version,
         this.canChangeOwnerByProof,
         this.canTransfer,
+        this.canApprove,
         this.canChangeMetadata,
-        this.canChangePrice,
         this.canChangeStorage,
         this.canChangeName,
         this.canChangeMetadataVerificationKeyHash,
         this.canPause,
         this.isPaused,
-        this.requireOwnerSignatureToUpgrade,
+        this.requireOwnerAuthorizationToUpgrade,
         this.owner.isOdd,
         this.approved.isOdd
       ])
@@ -445,14 +454,14 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
     const version = import_o1js.UInt32.Unsafe.fromField(import_o1js.Field.fromBits(bits.slice(64, 64 + 32)));
     const canChangeOwnerByProof = bits[64 + 32 + 0];
     const canTransfer = bits[64 + 32 + 1];
-    const canChangeMetadata = bits[64 + 32 + 2];
-    const canChangePrice = bits[64 + 32 + 3];
+    const canApprove = bits[64 + 32 + 2];
+    const canChangeMetadata = bits[64 + 32 + 3];
     const canChangeStorage = bits[64 + 32 + 4];
     const canChangeName = bits[64 + 32 + 5];
     const canChangeMetadataVerificationKeyHash = bits[64 + 32 + 6];
     const canPause = bits[64 + 32 + 7];
     const isPaused = bits[64 + 32 + 8];
-    const requireOwnerSignatureToUpgrade = bits[64 + 32 + 9];
+    const requireOwnerAuthorizationToUpgrade = bits[64 + 32 + 9];
     const ownerIsOdd = bits[64 + 32 + 10];
     const approvedIsOdd = bits[64 + 32 + 11];
     const owner = import_o1js.PublicKey.from({ x: packed.ownerX, isOdd: ownerIsOdd });
@@ -467,14 +476,14 @@ var NFTData = class _NFTData extends (0, import_o1js.Struct)({
       version,
       canChangeOwnerByProof,
       canTransfer,
+      canApprove,
       canChangeMetadata,
-      canChangePrice,
       canChangeStorage,
       canChangeName,
       canChangeMetadataVerificationKeyHash,
       canPause,
       isPaused,
-      requireOwnerSignatureToUpgrade
+      requireOwnerAuthorizationToUpgrade
     });
   }
 };
@@ -609,9 +618,7 @@ var MintParams = class extends (0, import_o1js.Struct)({
   address: import_o1js.PublicKey,
   /** The token ID of the NFT. */
   tokenId: import_o1js.Field,
-  /** The owner of the NFT. */
-  owner: import_o1js.PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  /** The data associated with the NFT, including owner, approved, version, id, permissions and flags. */
   data: NFTData,
   /** The fee associated with minting the NFT. */
   fee: import_o1js.UInt64,
@@ -771,6 +778,13 @@ var UpgradeVerificationKeyEvent = class extends (0, import_o1js3.Struct)({
   tokenId: import_o1js3.Field
 }) {
 };
+var UpgradeVerificationKeyData = class extends (0, import_o1js3.Struct)({
+  /** The owner of the NFT. */
+  owner: import_o1js3.PublicKey,
+  /** Indicates whether the owner approval is required to upgrade the verification key. */
+  isOwnerApprovalRequired: import_o1js3.Bool
+}) {
+};
 var LimitMintingEvent = class extends (0, import_o1js3.Struct)({
   /** Indicates whether minting is limited (`true`) or not (`false`). */
   mintingLimited: import_o1js3.Bool
@@ -833,6 +847,22 @@ var NFTStandardOwner = class extends import_o1js6.SmartContract {
     await this.ensureOwnerSignature();
     return (0, import_o1js6.Bool)(true);
   }
+  async canPause(collection, nft) {
+    await this.ensureOwnerSignature();
+    return (0, import_o1js6.Bool)(true);
+  }
+  async canResume(collection, nft) {
+    await this.ensureOwnerSignature();
+    return (0, import_o1js6.Bool)(true);
+  }
+  async canChangeVerificationKey(collection, nft, vk) {
+    await this.ensureOwnerSignature();
+    return (0, import_o1js6.Bool)(true);
+  }
+  async canApproveAddress(collection, nft, approved) {
+    await this.ensureOwnerSignature();
+    return (0, import_o1js6.Bool)(true);
+  }
 };
 (0, import_tslib.__decorate)([
   (0, import_o1js6.state)(import_o1js6.PublicKey),
@@ -844,6 +874,84 @@ var NFTStandardOwner = class extends import_o1js6.SmartContract {
   (0, import_tslib.__metadata)("design:paramtypes", [TransferEvent]),
   (0, import_tslib.__metadata)("design:returntype", Promise)
 ], NFTStandardOwner.prototype, "canTransfer", null);
+(0, import_tslib.__decorate)([
+  import_o1js6.method.returns(import_o1js6.Bool),
+  (0, import_tslib.__metadata)("design:type", Function),
+  (0, import_tslib.__metadata)("design:paramtypes", [import_o1js6.PublicKey, import_o1js6.PublicKey]),
+  (0, import_tslib.__metadata)("design:returntype", Promise)
+], NFTStandardOwner.prototype, "canPause", null);
+(0, import_tslib.__decorate)([
+  import_o1js6.method.returns(import_o1js6.Bool),
+  (0, import_tslib.__metadata)("design:type", Function),
+  (0, import_tslib.__metadata)("design:paramtypes", [import_o1js6.PublicKey, import_o1js6.PublicKey]),
+  (0, import_tslib.__metadata)("design:returntype", Promise)
+], NFTStandardOwner.prototype, "canResume", null);
+(0, import_tslib.__decorate)([
+  import_o1js6.method.returns(import_o1js6.Bool),
+  (0, import_tslib.__metadata)("design:type", Function),
+  (0, import_tslib.__metadata)("design:paramtypes", [
+    import_o1js6.PublicKey,
+    import_o1js6.PublicKey,
+    import_o1js6.VerificationKey
+  ]),
+  (0, import_tslib.__metadata)("design:returntype", Promise)
+], NFTStandardOwner.prototype, "canChangeVerificationKey", null);
+(0, import_tslib.__decorate)([
+  import_o1js6.method.returns(import_o1js6.Bool),
+  (0, import_tslib.__metadata)("design:type", Function),
+  (0, import_tslib.__metadata)("design:paramtypes", [
+    import_o1js6.PublicKey,
+    import_o1js6.PublicKey,
+    import_o1js6.PublicKey
+  ]),
+  (0, import_tslib.__metadata)("design:returntype", Promise)
+], NFTStandardOwner.prototype, "canApproveAddress", null);
+var NFTStandardApproval = class extends import_o1js6.SmartContract {
+  constructor() {
+    super(...arguments);
+    this.admin = (0, import_o1js6.State)();
+  }
+  /**
+   * Deploys the contract with initial settings.
+   * @param props - Deployment properties including admin, upgradeAuthority, uri, canPause, and isPaused.
+   */
+  async deploy(props) {
+    await super.deploy(props);
+    this.admin.set(props.admin);
+    this.account.zkappUri.set(props.uri);
+    this.account.permissions.set({
+      ...import_o1js6.Permissions.default(),
+      // Allow the upgrade authority to set the verification key even without a protocol upgrade,
+      // enabling upgrades in case of o1js breaking changes.
+      setVerificationKey: import_o1js6.Permissions.VerificationKey.proofDuringCurrentVersion(),
+      setPermissions: import_o1js6.Permissions.impossible()
+    });
+  }
+  /**
+   * Ensures that the transaction is authorized by the contract owner.
+   * @returns A signed `AccountUpdate` from the admin.
+   */
+  async ensureOwnerSignature() {
+    const admin = this.admin.getAndRequireEquals();
+    const adminUpdate = import_o1js6.AccountUpdate.createSigned(admin);
+    adminUpdate.body.useFullCommitment = (0, import_o1js6.Bool)(true);
+    return adminUpdate;
+  }
+  async canTransfer(transferEvent) {
+    await this.ensureOwnerSignature();
+    return (0, import_o1js6.Bool)(true);
+  }
+};
+(0, import_tslib.__decorate)([
+  (0, import_o1js6.state)(import_o1js6.PublicKey),
+  (0, import_tslib.__metadata)("design:type", Object)
+], NFTStandardApproval.prototype, "admin", void 0);
+(0, import_tslib.__decorate)([
+  import_o1js6.method.returns(import_o1js6.Bool),
+  (0, import_tslib.__metadata)("design:type", Function),
+  (0, import_tslib.__metadata)("design:paramtypes", [TransferEvent]),
+  (0, import_tslib.__metadata)("design:returntype", Promise)
+], NFTStandardApproval.prototype, "canTransfer", null);
 
 // dist/node/admin/standard.js
 var NFTAdmin = class extends import_o1js7.SmartContract {
@@ -933,29 +1041,36 @@ var NFTAdmin = class extends import_o1js7.SmartContract {
     const isPaused = this.isPaused.getAndRequireEquals();
     return isPaused.not();
   }
-  /**
-   * Determines whether the NFT can be listed for sale at the given price.
-   * @param address - The NFT contract address.
-   * @param seller - The seller's public key.
-   * @param price - The listing price.
-   * @returns A `Bool` indicating whether the sale is permitted.
-   */
-  async canSell(address, seller, price) {
-    const isPaused = this.isPaused.getAndRequireEquals();
-    return isPaused.not();
-  }
-  /**
-   * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
-   * @param address - The NFT contract address.
-   * @param seller - The seller's public key.
-   * @param buyer - The buyer's public key.
-   * @param price - The purchase price.
-   * @returns A `Bool` indicating whether the purchase is allowed.
-   */
-  async canBuy(address, seller, buyer, price) {
-    const isPaused = this.isPaused.getAndRequireEquals();
-    return isPaused.not();
-  }
+  // /**
+  //  * Determines whether the NFT can be listed for sale at the given price.
+  //  * @param address - The NFT contract address.
+  //  * @param seller - The seller's public key.
+  //  * @param price - The listing price.
+  //  * @returns A `Bool` indicating whether the sale is permitted.
+  //  */
+  // @method.returns(Bool)
+  // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
+  //   const isPaused = this.isPaused.getAndRequireEquals();
+  //   return isPaused.not();
+  // }
+  // /**
+  //  * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
+  //  * @param address - The NFT contract address.
+  //  * @param seller - The seller's public key.
+  //  * @param buyer - The buyer's public key.
+  //  * @param price - The purchase price.
+  //  * @returns A `Bool` indicating whether the purchase is allowed.
+  //  */
+  // @method.returns(Bool)
+  // async canBuy(
+  //   address: PublicKey,
+  //   seller: PublicKey,
+  //   buyer: PublicKey,
+  //   price: UInt64
+  // ) {
+  //   const isPaused = this.isPaused.getAndRequireEquals();
+  //   return isPaused.not();
+  // }
   /**
    * Pauses the contract, disabling certain administrative actions.
    * Can only be called by the admin if `canPause` is `true`.
@@ -1036,23 +1151,6 @@ var NFTAdmin = class extends import_o1js7.SmartContract {
   (0, import_tslib2.__metadata)("design:paramtypes", [TransferEvent]),
   (0, import_tslib2.__metadata)("design:returntype", Promise)
 ], NFTAdmin.prototype, "canTransfer", null);
-(0, import_tslib2.__decorate)([
-  import_o1js7.method.returns(import_o1js7.Bool),
-  (0, import_tslib2.__metadata)("design:type", Function),
-  (0, import_tslib2.__metadata)("design:paramtypes", [import_o1js7.PublicKey, import_o1js7.PublicKey, import_o1js7.UInt64]),
-  (0, import_tslib2.__metadata)("design:returntype", Promise)
-], NFTAdmin.prototype, "canSell", null);
-(0, import_tslib2.__decorate)([
-  import_o1js7.method.returns(import_o1js7.Bool),
-  (0, import_tslib2.__metadata)("design:type", Function),
-  (0, import_tslib2.__metadata)("design:paramtypes", [
-    import_o1js7.PublicKey,
-    import_o1js7.PublicKey,
-    import_o1js7.PublicKey,
-    import_o1js7.UInt64
-  ]),
-  (0, import_tslib2.__metadata)("design:returntype", Promise)
-], NFTAdmin.prototype, "canBuy", null);
 (0, import_tslib2.__decorate)([
   import_o1js7.method,
   (0, import_tslib2.__metadata)("design:type", Function),
@@ -1258,32 +1356,47 @@ function NFTAdvancedAdminContract(params) {
       const fromAmountAllowed = fromAmount.orElse(import_o1js8.UInt64.from(0)).lessThanOrEqual(price.orElse(import_o1js8.UInt64.MAXINT()));
       return toAmountAllowed.and(fromAmountAllowed).and(toAmount.isSome).and(fromAmount.isSome);
     }
-    /**
-     * Determines if the seller is permitted to list the NFT for sale at the specified price.
-     * @param address The address of the NFT.
-     * @param seller The seller's public key.
-     * @param price The price at which the NFT is being sold.
-     * @returns A `Bool` indicating whether the sale is permissible.
-     */
-    async canSell(address, seller, price) {
-      const whitelist = this.whitelist.getAndRequireEquals();
-      const allowedPrice = (await whitelist.getWhitelistedAmount(seller)).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-      return price.lessThanOrEqual(allowedPrice);
-    }
-    /**
-     * Determines if the buyer and seller are allowed to perform the transaction at the specified price.
-     * @param address The address of the NFT.
-     * @param seller The seller's public key.
-     * @param buyer The buyer's public key.
-     * @param price The price at which the NFT is being bought.
-     * @returns A `Bool` indicating whether the purchase is permitted.
-     */
-    async canBuy(address, seller, buyer, price) {
-      const whitelist = this.whitelist.getAndRequireEquals();
-      const allowedBuyerPrice = (await whitelist.getWhitelistedAmount(buyer)).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-      const allowedSellerPrice = (await whitelist.getWhitelistedAmount(seller)).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-      return price.lessThanOrEqual(allowedBuyerPrice).and(price.lessThanOrEqual(allowedSellerPrice));
-    }
+    // /**
+    //  * Determines if the seller is permitted to list the NFT for sale at the specified price.
+    //  * @param address The address of the NFT.
+    //  * @param seller The seller's public key.
+    //  * @param price The price at which the NFT is being sold.
+    //  * @returns A `Bool` indicating whether the sale is permissible.
+    //  */
+    // @method.returns(Bool)
+    // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
+    //   const whitelist = this.whitelist.getAndRequireEquals();
+    //   const allowedPrice = (
+    //     await whitelist.getWhitelistedAmount(seller)
+    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
+    //   return price.lessThanOrEqual(allowedPrice);
+    // }
+    // /**
+    //  * Determines if the buyer and seller are allowed to perform the transaction at the specified price.
+    //  * @param address The address of the NFT.
+    //  * @param seller The seller's public key.
+    //  * @param buyer The buyer's public key.
+    //  * @param price The price at which the NFT is being bought.
+    //  * @returns A `Bool` indicating whether the purchase is permitted.
+    //  */
+    // @method.returns(Bool)
+    // async canBuy(
+    //   address: PublicKey,
+    //   seller: PublicKey,
+    //   buyer: PublicKey,
+    //   price: UInt64
+    // ) {
+    //   const whitelist = this.whitelist.getAndRequireEquals();
+    //   const allowedBuyerPrice = (
+    //     await whitelist.getWhitelistedAmount(buyer)
+    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
+    //   const allowedSellerPrice = (
+    //     await whitelist.getWhitelistedAmount(seller)
+    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
+    //   return price
+    //     .lessThanOrEqual(allowedBuyerPrice)
+    //     .and(price.lessThanOrEqual(allowedSellerPrice));
+    // }
     /**
      * Updates the whitelist's Merkle root and the associated off-chain storage reference.
      * @param whitelistRoot The new whitelist root.
@@ -1392,23 +1505,6 @@ function NFTAdvancedAdminContract(params) {
     (0, import_tslib3.__metadata)("design:returntype", Promise)
   ], NFTAdvancedAdmin2.prototype, "canTransfer", null);
   (0, import_tslib3.__decorate)([
-    import_o1js8.method.returns(import_o1js8.Bool),
-    (0, import_tslib3.__metadata)("design:type", Function),
-    (0, import_tslib3.__metadata)("design:paramtypes", [import_o1js8.PublicKey, import_o1js8.PublicKey, import_o1js8.UInt64]),
-    (0, import_tslib3.__metadata)("design:returntype", Promise)
-  ], NFTAdvancedAdmin2.prototype, "canSell", null);
-  (0, import_tslib3.__decorate)([
-    import_o1js8.method.returns(import_o1js8.Bool),
-    (0, import_tslib3.__metadata)("design:type", Function),
-    (0, import_tslib3.__metadata)("design:paramtypes", [
-      import_o1js8.PublicKey,
-      import_o1js8.PublicKey,
-      import_o1js8.PublicKey,
-      import_o1js8.UInt64
-    ]),
-    (0, import_tslib3.__metadata)("design:returntype", Promise)
-  ], NFTAdvancedAdmin2.prototype, "canBuy", null);
-  (0, import_tslib3.__decorate)([
     import_o1js8.method,
     (0, import_tslib3.__metadata)("design:type", Function),
     (0, import_tslib3.__metadata)("design:paramtypes", [import_storage3.Whitelist]),
@@ -1454,7 +1550,6 @@ var import_tslib4 = require("tslib");
 var import_o1js9 = require("o1js");
 var import_storage4 = require("@minatokens/storage");
 var NftErrors = {
-  onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key",
   cannotChangeMetadataVerificationKeyHash: "Cannot change metadata verification key hash",
   cannotChangeOwner: "Cannot change owner",
   cannotChangeStorage: "Cannot change storage",
@@ -1483,24 +1578,12 @@ var NFT = class extends import_o1js9.SmartContract {
       update: UpdateEvent,
       transfer: OwnershipChangeEvent,
       approve: import_o1js9.PublicKey,
-      offer: OfferEvent,
-      buy: BuyEvent,
+      // offer: OfferEvent,
+      // buy: BuyEvent,
       upgradeVerificationKey: UpgradeVerificationKeyEvent,
       pause: PauseEvent,
       resume: PauseEvent
     };
-  }
-  /**
-   * Ensures that the transaction is authorized by the current owner.
-   *
-   * @returns A signed account update for the owner.
-   */
-  async ensureOwnerSignature() {
-    const owner = NFTData.unpack(this.packedData.getAndRequireEquals()).owner;
-    const ownerUpdate = import_o1js9.AccountUpdate.createSigned(owner);
-    ownerUpdate.body.useFullCommitment = (0, import_o1js9.Bool)(true);
-    ownerUpdate.body.preconditions.account.provedState.isSome = (0, import_o1js9.Bool)(false);
-    return ownerUpdate;
   }
   /**
    * Updates the NFT's state with provided proofs and permissions.
@@ -1537,7 +1620,6 @@ var NFT = class extends import_o1js9.SmartContract {
         canChangeOwnerByProof: data.canChangeOwnerByProof,
         canTransfer: data.canTransfer,
         canChangeMetadata: data.canChangeMetadata,
-        canChangePrice: data.canChangePrice,
         canChangeStorage: data.canChangeStorage,
         canChangeName: data.canChangeName,
         canChangeMetadataVerificationKeyHash: data.canChangeMetadataVerificationKeyHash,
@@ -1655,7 +1737,7 @@ var NFT = class extends import_o1js9.SmartContract {
   /**
    * Transfers ownership of the NFT from one user to another.
    *
-   * @param from - The public key of the current owner (`PublicKey`).
+   * @param from - The public key of the current owner (`PublicKey`) or approved address.
    * @param to - The public key of the new owner (`PublicKey`).
    * @returns The public key of the old owner (`PublicKey`).
    */
@@ -1684,6 +1766,7 @@ var NFT = class extends import_o1js9.SmartContract {
    * Transfers ownership of the NFT from one user to another.
    *
    * @param approved - The public key of the approved address (`PublicKey`).
+   * @returns The public key of the owner (`PublicKey`).
    */
   async approveAddress(approved) {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
@@ -1691,58 +1774,52 @@ var NFT = class extends import_o1js9.SmartContract {
     data.approved = approved;
     this.packedData.set(data.pack());
     this.emitEvent("approve", approved);
+    return data.owner;
   }
   /**
    * Upgrades the verification key used by the NFT contract.
    *
    * @param vk - The new verification key (`VerificationKey`).
-   * @param sender - The public key of the sender (`PublicKey`).
-   * @returns An event emitted after the verification key is upgraded (`UpgradeVerificationKeyEvent`).
+   * @returns An owner public key to be checked by the Collection contract and the Boolean flag indicating if the owner's authorization is required
    */
-  async upgradeVerificationKey(vk, sender) {
+  async upgradeVerificationKey(vk) {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    const owner = data.owner;
-    owner.equals(sender).not().and(data.requireOwnerSignatureToUpgrade.not()).assertFalse(NftErrors.onlyOwnerCanUpgradeVerificationKey);
-    this.account.verificationKey.set(vk);
     const version = data.version.add(1);
     data.version = version;
-    const event = new UpgradeVerificationKeyEvent({
-      verificationKeyHash: vk.hash,
-      address: this.address,
-      tokenId: this.tokenId
-    });
     this.account.verificationKey.set(vk);
     this.packedData.set(data.pack());
-    this.emitEvent("upgradeVerificationKey", event);
-    return event;
+    return new UpgradeVerificationKeyData({
+      owner: data.owner,
+      isOwnerApprovalRequired: data.requireOwnerAuthorizationToUpgrade
+    });
   }
   /**
    * Pauses the NFT, disabling certain actions.
    *
-   * @returns A promise that resolves when the NFT is paused.
+   * @returns An owner public key to be checked by the Collection contract
    */
   async pause() {
-    await this.ensureOwnerSignature();
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.canPause.assertTrue(NftErrors.noPermissionToPause);
     data.isPaused.assertFalse(NftErrors.nftAlreadyPaused);
     data.isPaused = (0, import_o1js9.Bool)(true);
     this.packedData.set(data.pack());
     this.emitEvent("pause", new PauseEvent({ isPaused: (0, import_o1js9.Bool)(true) }));
+    return data.owner;
   }
   /**
    * Resumes the NFT, re-enabling actions.
    *
-   * @returns A promise that resolves when the NFT is resumed.
+   * @returns An owner public key to be checked by the Collection contract
    */
   async resume() {
-    await this.ensureOwnerSignature();
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.canPause.assertTrue(NftErrors.noPermissionToPause);
     data.isPaused.assertTrue(NftErrors.nftIsNotPaused);
     data.isPaused = (0, import_o1js9.Bool)(false);
     this.packedData.set(data.pack());
     this.emitEvent("resume", new PauseEvent({ isPaused: (0, import_o1js9.Bool)(false) }));
+    return data.owner;
   }
 };
 (0, import_tslib4.__decorate)([
@@ -1782,28 +1859,25 @@ var NFT = class extends import_o1js9.SmartContract {
   (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "transfer", null);
 (0, import_tslib4.__decorate)([
-  import_o1js9.method,
+  import_o1js9.method.returns(import_o1js9.PublicKey),
   (0, import_tslib4.__metadata)("design:type", Function),
   (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.PublicKey]),
   (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "approveAddress", null);
 (0, import_tslib4.__decorate)([
-  import_o1js9.method.returns(UpgradeVerificationKeyEvent),
+  import_o1js9.method.returns(UpgradeVerificationKeyData),
   (0, import_tslib4.__metadata)("design:type", Function),
-  (0, import_tslib4.__metadata)("design:paramtypes", [
-    import_o1js9.VerificationKey,
-    import_o1js9.PublicKey
-  ]),
+  (0, import_tslib4.__metadata)("design:paramtypes", [import_o1js9.VerificationKey]),
   (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "upgradeVerificationKey", null);
 (0, import_tslib4.__decorate)([
-  import_o1js9.method,
+  import_o1js9.method.returns(import_o1js9.PublicKey),
   (0, import_tslib4.__metadata)("design:type", Function),
   (0, import_tslib4.__metadata)("design:paramtypes", []),
   (0, import_tslib4.__metadata)("design:returntype", Promise)
 ], NFT.prototype, "pause", null);
 (0, import_tslib4.__decorate)([
-  import_o1js9.method,
+  import_o1js9.method.returns(import_o1js9.PublicKey),
   (0, import_tslib4.__metadata)("design:type", Function),
   (0, import_tslib4.__metadata)("design:paramtypes", []),
   (0, import_tslib4.__metadata)("design:returntype", Promise)
@@ -1811,22 +1885,22 @@ var NFT = class extends import_o1js9.SmartContract {
 
 // dist/node/vk.js
 var nftVerificationKeys = {
-  mainnet: {
-    o1js: "2.2.0",
-    vk: {
-      NFT: {
-        hash: "4139873419466911647335133355229626577074415960725687329241140435336073618941",
-        data: "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",
-        type: "nft"
-      }
-    }
-  },
   devnet: {
     o1js: "2.2.0",
     vk: {
       NFT: {
-        hash: "3759129938434863538377514940020087841580552042403628000774601374509380086013",
-        data: "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",
+        hash: "18297062687982489176283114655891961931370375312372766341912026194321459893590",
+        data: "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",
+        type: "nft"
+      }
+    }
+  },
+  mainnet: {
+    o1js: "2.2.0",
+    vk: {
+      NFT: {
+        hash: "9754802211789498812705502485011240651744182275724373875129409800585031516514",
+        data: "AACnf0n+FP7zsnb8jbeQqzefb+MbHO98oWaJ6Kt63aUyFkMiZhUpe8JGkMm0MDDjxQVXFyoZkxxcDlAsOzvP0cQbRlDF3fTLacRws5Wj23sovdoMwaBRLlt8prWQZsAKThVaAWzuqAzXCtHUQQMjpJmg97+f0Dn1dMPE6yQIzFlzOu7/wIYrU9psNvIK9lVlzyQAH57sDimfGsrBzYHRMrUMDiJbDwUoDzPAcAPMnFAyJDmOkalVGdN8aMUFKWPnZAttaAgcFw3m1u8UGlEG4h+uhV2blcceVFzZV/UHWO4NPgsQIF6les+iAhbLl5hwMFodFegoprf8V1sFJv63u/8VoACUDc4af30GG3lO0/Lx7XFuxzWiZnGTKGJceqszwBofYrT5zCce9vqy22qUQrctCYRNTEKzi9Lix3rPesMRFpK3KJ9zz9A2l4+8LGWsUfkOrxHs9GVB3Le9J8ZSA30MVxpiW5aWUjB4AqO1zkkPX6CX8EsMtiBqmEfQvAVTEj5lXvqVE+rXdYi9K3kJaqZ7d2EJu7LBqljcvIgmAYXpO1z5hfcZ8Bqkw4UqHgekpEt7hCIYQUt5o0G/RiKBsJwTALuYQTieGc+BGxXBen/uL9pziNjvmcdzcDiYDKvylCYUffsxwLsejHEPzvAdAX4CAgmKXV3NtyEPXZI5CyC9cSi39DR/fpnh49FzRlavidF5uMzPGCYEvfYrlik0E+NhCXQ/c2Pi5/USaQPzfKTPQXQ87yR3atCb1JpMu5oytXM0U6Vrd/J1uH1MhDUKqFvWJFB+tTbLYQompUDkxjRhuQ0evOOfsb+5+t/MC5g9fol3ukycMo/ReVDPvyYdSqs0L3091DN2EQp6G3gvxzbrSCkrSSGYUXaJ9s3jWH8YFLM0S1ydolT9ve1BgkbZk0yIqnh1pKAcDnzoz6q/BBn9DBxH4q9mVZJ4CTBewlFEJil3xilOaGse8k7D3BP9ofuHIrQwkdZA/niYup3vgSyZW4pkFFHsio4ueZPFWDFoVpQPbiCRvqSiDvqzLgqVDwbJwiKiwVlP4srqjIgJchjlDx1iC26fJ8QP5v9NxIjUw8GeCkSOZOMW25fAGbVk5WHeDndY+ZGt82xmXJ9zWD5P8+OvJ+Rs1Jfw18lWSocMwaMCGsQU7dx2ZQ3wgmuCZY3we/ggwwRURjh/HrRKS7XtzB7p89fKYDUipQ/srrUXRVo7g0TADqTx+/XiyY92dGjmGoTDMiLJc3bSGMhoBwulEx2aQd5g4cBl2FE6XF0YizgO58OfpsUScwWo7CduDHXzXOPofp8hI1SSN/qbgblG2wKJv0dvg7U/59mbzdCuBFpYkX2IHWqIz5JWQTG1eIOiO19dksgyHD2sv/l0TBqozRvd8uiCeLe/Szzygb/IjJEXz3XRaGR0OkBYGOoMEYpNwtBX6NugBKLscId8hBBUKCrDzln4SUtalU3Lhm+/jZIACxe23V1DRW1cl7HHh8+qD7ZnMGBRBg4bd768XeFzsvVqOSAjnx8FlBGsrpf9GUoGDXQkCUTL3aur9WnrwEKUSTZiMMpXk5oNbpA6PrzMjBbTlfg6oVCARifOSapSQcLdY/kAFriwFb/K03Yt/S5/JKMICAlgAZV87j9cLh49UKPGABB6qWBeVjzoa6Ex/90WKQQiT/RL6tOQIpoE2ShUHGhb5rK0DoS7v0MgCGxHJhndJH8HLvSKWWCbvG01UdR4hq4pMpYG65tpvNRXs9tjLmlz9WgGhrY9yUOQwAALt/VS5+UajsOKdinvQETrnIUpRP+mVVchQ9Oe03qB3AxhiQOd8eFcy1aVRucjmigN8AUVMv98EleTZUZNjxZrZ0sHIS1me7SqFwdMecslS6gbDAA5XCZlMj8pnJVWczlqO8F/lcYsQ8yoPMggzGQaFGmFJT9xy6vOF8p39ilt7fzw334nQFhkZW3aD2qYZXSVQSATt07olMYnDOWvh/2jp9TGxKeCzcuCkmfD03N0yl2CFxUoFKrJqx/g2Skl713SFhmVHQXaJQmOHrW9DPIT+o6AHbibo1zq8Pafx/odf65Hc03iF34fcNQMJ4LPkHa6jBU4bG+1X6MZuwSsbQaBBcWXhKd9OnfqWIbZNzFuMETiZw5b03srqUWhb48Fqye2wkZLCIavygcKf6rraNLE47i0E8IkcKER/N/ebBXy+inqv/LCREjjDeLn+dittz8GFKsGCP35hoRCkawS/tFl209JQSovFY/DNcVcic0ZrM6JhDgkbBEe4/MN4bHfEfKgWwNgcNGnux6MozK/TWe8QxkBFuTlFJFsJxkP0G3xqH8LtgFKwvzHDMXw10smqgDRdX0SB52N35lSiGwsctgt2m/Qw48gjk2/qZ68tyFKFFKz0Q0=",
         type: "nft"
       }
     }
@@ -1859,10 +1933,11 @@ var CollectionErrors = {
   creatorSignatureRequiredToUpgradeCollection: "Creator signature is required to upgrade collection",
   creatorSignatureRequiredToUpgradeNFT: "Creator signature is required to upgrade NFT",
   upgradeContractAddressNotSet: "Upgrade contract address is not set",
-  adminContractAddressNotSet: "Admin contract address is not set"
+  adminContractAddressNotSet: "Admin contract address is not set",
+  onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key"
 };
-function CollectionContract(params) {
-  const { adminContract, ownerContract = NFTStandardOwner } = params;
+function CollectionFactory(params) {
+  const { adminContract, ownerContract, approvalContract } = params;
   class Collection2 extends import_o1js10.TokenContract {
     constructor() {
       super(...arguments);
@@ -1948,12 +2023,6 @@ function CollectionContract(params) {
     async approveBase(forest) {
       throw Error(CollectionErrors.transferNotAllowed);
     }
-    get getAdminContractConstructor() {
-      return adminContract;
-    }
-    get getOwnerContractConstructor() {
-      return ownerContract;
-    }
     /**
      * Retrieves the Admin Contract instance.
      *
@@ -1961,8 +2030,8 @@ function CollectionContract(params) {
      */
     getAdminContract() {
       const admin = this.admin.getAndRequireEquals();
-      admin.equals(import_o1js10.PublicKey.empty()).assertFalse(CollectionErrors.adminContractAddressNotSet);
-      return new this.getAdminContractConstructor(admin);
+      const AdminContract = adminContract();
+      return new AdminContract(admin);
     }
     /**
      * Retrieves the NFT Owner Contract instance.
@@ -1970,18 +2039,38 @@ function CollectionContract(params) {
      * @returns The Owner Contract instance implementing NFTOwnerBase.
      */
     getOwnerContract(address) {
-      return new this.getOwnerContractConstructor(address);
+      const OwnerContract = ownerContract();
+      return new OwnerContract(address);
     }
     /**
-     * Ensures that the transaction is authorized by the contract owner.
+     * Retrieves the NFT Approval Contract instance.
+     *
+     * @returns The Approval Contract instance implementing NFTApprovalBase.
+     */
+    getApprovalContract(address) {
+      const ApprovalContract = approvalContract();
+      return new ApprovalContract(address);
+    }
+    /**
+     * Ensures that the transaction is authorized by the creator.
      *
      * @returns The AccountUpdate of the creator.
      */
-    async ensureOwnerSignature() {
+    async ensureCreatorSignature() {
       const creator = this.creator.getAndRequireEquals();
       const creatorUpdate = import_o1js10.AccountUpdate.createSigned(creator);
       creatorUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
       return creatorUpdate;
+    }
+    /**
+     * Ensures that the transaction is authorized by the NFT owner
+     *
+     * @returns The AccountUpdate of the NFT owner.
+     */
+    async ensureOwnerSignature(owner) {
+      const ownerUpdate = import_o1js10.AccountUpdate.createSigned(owner);
+      ownerUpdate.body.useFullCommitment = (0, import_o1js10.Bool)(true);
+      return ownerUpdate;
     }
     /**
      * Ensures that the collection is not paused.
@@ -2010,7 +2099,7 @@ function CollectionContract(params) {
     async mintByCreator(params2) {
       const collectionData = await this.ensureNotPaused();
       collectionData.canMint.assertTrue(CollectionErrors.mintApprovalNotRequired);
-      const creatorUpdate = await this.ensureOwnerSignature();
+      const creatorUpdate = await this.ensureCreatorSignature();
       creatorUpdate.balance.subInPlace(1e9);
       await this._mint(params2, collectionData);
     }
@@ -2036,7 +2125,7 @@ function CollectionContract(params) {
      * @returns The MintEvent emitted.
      */
     async _mint(params2, collectionData) {
-      const { name, address, owner, data, metadata, storage, metadataVerificationKeyHash, expiry } = params2;
+      const { name, address, data, metadata, storage, metadataVerificationKeyHash, expiry } = params2;
       this.network.globalSlotSinceGenesis.requireBetween(import_o1js10.UInt32.zero, expiry);
       data.version.assertEquals(import_o1js10.UInt32.zero);
       const packedData = data.pack();
@@ -2143,243 +2232,13 @@ function CollectionContract(params) {
       metadataVerificationKeyHash.assertEquals(vk.hash);
       proof.verify(vk);
     }
-    // /**
-    //  * Lists an NFT for sale without approval.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to list the NFT.
-    //  */
-    // @method async offer(address: PublicKey, price: UInt64): Promise<void> {
-    //   const collectionData = await this.ensureNotPaused();
-    //   collectionData.requireOfferApproval.assertFalse();
-    //   await this._offer(address, price);
-    // }
-    // /**
-    //  * Lists an NFT for sale with admin approval.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to list the NFT.
-    //  */
-    // @method async offerWithApproval(
-    //   address: PublicKey,
-    //   price: UInt64
-    // ): Promise<void> {
-    //   const collectionData = await this.ensureNotPaused();
-    //   collectionData.requireOfferApproval.assertTrue();
-    //   const event = await this._offer(address, price);
-    //   const adminContract = this.getAdminContract();
-    //   const canSell = await adminContract.canSell(address, event.seller, price);
-    //   canSell.assertTrue();
-    //   this.emitEvent("approveOffer", event);
-    // }
-    // /**
-    //  * Internal method to offer an NFT for sale.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to list the NFT.
-    //  * @returns The OfferEvent emitted.
-    //  */
-    // async _offer(address: PublicKey, price: UInt64): Promise<OfferEvent> {
-    //   const tokenId = this.deriveTokenId();
-    //   const nft = new NFT(address, tokenId);
-    //   const seller = this.sender.getUnconstrained();
-    //   const sellerUpdate = AccountUpdate.createSigned(seller);
-    //   sellerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-    //   // We do not accept signature of the owners which are contracts
-    //   // Contract owners should use transferByContract methods
-    //   sellerUpdate.body.preconditions.account.provedState.isSome = Bool(false);
-    //   const event = await nft.offer(price, seller);
-    //   this.emitEvent("offer", event);
-    //   return event;
-    // }
-    // /**
-    //  * Purchases an NFT without admin approval.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to purchase the NFT.
-    //  */
-    // @method async buy(address: PublicKey, price: UInt64): Promise<void> {
-    //   const collectionData = await this.ensureNotPaused();
-    //   collectionData.requireBuyApproval.assertFalse();
-    //   await this._buy(address, price, collectionData.royaltyFee);
-    // }
-    // /**
-    //  * Purchases an NFT with admin approval.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to purchase the NFT.
-    //  */
-    // @method async buyWithApproval(
-    //   address: PublicKey,
-    //   price: UInt64
-    // ): Promise<void> {
-    //   const collectionData = await this.ensureNotPaused();
-    //   collectionData.requireBuyApproval.assertTrue();
-    //   const event = await this._buy(address, price, collectionData.royaltyFee);
-    //   const adminContract = this.getAdminContract();
-    //   const canBuy = await adminContract.canBuy(
-    //     address,
-    //     event.seller,
-    //     event.buyer,
-    //     price
-    //   );
-    //   canBuy.assertTrue();
-    //   this.emitEvent("approveBuy", event);
-    // }
-    // /**
-    //  * Internal method to purchase an NFT.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to purchase the NFT.
-    //  * @param royaltyFee - The royalty fee percentage.
-    //  * @returns The BuyEvent emitted.
-    //  */
-    // async _buy(
-    //   address: PublicKey,
-    //   price: UInt64,
-    //   royaltyFee: UInt32
-    // ): Promise<BuyEvent> {
-    //   royaltyFee.assertLessThanOrEqual(UInt32.from(100_000)); // Max 100%
-    //   const creator = this.creator.getAndRequireEquals();
-    //   const buyer = this.sender.getUnconstrained();
-    //   const buyerUpdate = AccountUpdate.createSigned(buyer);
-    //   buyerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-    //   const tokenId = this.deriveTokenId();
-    //   const nft = new NFT(address, tokenId);
-    //   const event = await nft.buy(price, buyer);
-    //   // If the seller is the creator, then the commission is 0
-    //   const isSellerCreator = event.seller.equals(creator);
-    //   const commission = Provable.if(
-    //     isSellerCreator,
-    //     UInt64.zero,
-    //     price.div(100_000).mul(UInt64.from(royaltyFee))
-    //   );
-    //   const payment = price.sub(commission);
-    //   const sellerUpdate = AccountUpdate.create(event.seller);
-    //   buyerUpdate.balance.subInPlace(payment);
-    //   sellerUpdate.balance.addInPlace(
-    //     Provable.if(
-    //       sellerUpdate.account.isNew.getAndRequireEquals(),
-    //       payment.sub(UInt64.from(1_000_000_000)),
-    //       payment
-    //     )
-    //   );
-    //   // If the seller is not the creator, then send the commission to the creator
-    //   const creatorUpdate = AccountUpdate.createIf(
-    //     isSellerCreator.not(),
-    //     creator
-    //   );
-    //   creatorUpdate.balance.addInPlace(commission);
-    //   buyerUpdate.balance.subInPlace(commission);
-    //   this.emitEvent("buy", event);
-    //   return event;
-    // }
-    // /**
-    //  * Sells an NFT without admin approval.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to purchase the NFT.
-    //  * @param to - The public key of the buyer.
-    //  */
-    // @method async sell(
-    //   address: PublicKey,
-    //   price: UInt64,
-    //   buyer: PublicKey
-    // ): Promise<void> {
-    //   const collectionData = await this.ensureNotPaused();
-    //   collectionData.requireSaleApproval.assertFalse();
-    //   await this._sell(address, price, buyer, collectionData.royaltyFee);
-    // }
-    // /**
-    //  * Sells an NFT with admin approval.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to purchase the NFT.
-    //  * @param to - The public key of the buyer.
-    //  */
-    // @method async sellWithApproval(
-    //   address: PublicKey,
-    //   price: UInt64,
-    //   buyer: PublicKey
-    // ): Promise<void> {
-    //   const collectionData = await this.ensureNotPaused();
-    //   collectionData.requireSaleApproval.assertTrue();
-    //   const event = await this._sell(
-    //     address,
-    //     price,
-    //     buyer,
-    //     collectionData.royaltyFee
-    //   );
-    //   const adminContract = this.getAdminContract();
-    //   // The admin contract checks the same info in case of buy and sale methods
-    //   // so we can use the same method canBuy()
-    //   const canSell = await adminContract.canBuy(
-    //     address,
-    //     event.seller,
-    //     buyer,
-    //     price
-    //   );
-    //   canSell.assertTrue();
-    //   this.emitEvent("approveSale", event);
-    // }
-    // /**
-    //  * Internal method to sell an NFT.
-    //  *
-    //  * @param address - The address of the NFT.
-    //  * @param price - The price at which to purchase the NFT.
-    //  * @param buyer - The public key of the buyer.
-    //  * @param royaltyFee - The royalty fee percentage.
-    //  * @returns The BuyEvent emitted.
-    //  */
-    // async _sell(
-    //   address: PublicKey,
-    //   price: UInt64,
-    //   buyer: PublicKey,
-    //   royaltyFee: UInt32
-    // ): Promise<SaleEvent> {
-    //   royaltyFee.assertLessThanOrEqual(UInt32.from(100_000)); // Max 100%
-    //   const creator = this.creator.getAndRequireEquals();
-    //   const seller = this.sender.getUnconstrained();
-    //   const sellerUpdate = AccountUpdate.createSigned(seller);
-    //   sellerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-    //   // We do not accept signature of the owners which are contracts
-    //   // Contract owners should use transferByContract methods
-    //   sellerUpdate.body.preconditions.account.provedState.isSome = Bool(false);
-    //   const tokenId = this.deriveTokenId();
-    //   const nft = new NFT(address, tokenId);
-    //   // The payment is handled outside of this method in the Bid contract
-    //   // so we only transfer the NFT here and charge the royalty fee
-    //   await nft.transfer(seller, buyer);
-    //   // If the seller is the creator, then the commission is 0
-    //   const isSellerCreator = seller.equals(creator);
-    //   const commission = Provable.if(
-    //     isSellerCreator,
-    //     UInt64.zero,
-    //     price.div(100_000).mul(UInt64.from(royaltyFee))
-    //   );
-    //   // If the seller is not the creator, then send the commission to the creator
-    //   const creatorUpdate = AccountUpdate.createIf(
-    //     isSellerCreator.not(),
-    //     creator
-    //   );
-    //   creatorUpdate.balance.addInPlace(commission);
-    //   sellerUpdate.balance.subInPlace(commission);
-    //   const saleEvent = new SaleEvent({
-    //     seller,
-    //     buyer,
-    //     price,
-    //     address,
-    //   });
-    //   this.emitEvent("sale", saleEvent);
-    //   return saleEvent;
-    // }
     /**
-     * Transfers ownership of an NFT from contract without admin approval.
+     * Transfers ownership of an NFT from contract without admin approval using a proof.
      *
      * @param address - The address of the NFT.
      * @param to - The recipient's public key.
      */
-    async transferByContract(params2) {
+    async transferByProof(params2) {
       const { address, from, to, price } = params2;
       const collectionData = await this.ensureNotPaused();
       collectionData.requireTransferApproval.assertFalse(CollectionErrors.transferApprovalRequired);
@@ -2401,8 +2260,8 @@ function CollectionContract(params) {
         transferFee: collectionData.transferFee,
         royaltyFee: collectionData.royaltyFee
       });
-      const ownerContract2 = this.getOwnerContract(from);
-      const canTransfer = await ownerContract2.canTransfer(transferEvent);
+      const approvalContract2 = this.getApprovalContract(from);
+      const canTransfer = await approvalContract2.canTransfer(transferEvent);
       canTransfer.assertTrue();
     }
     // /**
@@ -2411,7 +2270,7 @@ function CollectionContract(params) {
     //  * @param address - The address of the NFT.
     //  * @param to - The recipient's public key.
     //  */
-    // @method async transferByContractWithApproval(
+    // @method async transferByProofWithApproval(
     //   address: PublicKey,
     //   from: PublicKey,
     //   to: PublicKey,
@@ -2454,11 +2313,25 @@ function CollectionContract(params) {
      * @param to - The recipient's public key.
      */
     async approveAddress(nftAddress, approved) {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireTransferApproval.assertFalse(CollectionErrors.transferApprovalRequired);
       const tokenId = this.deriveTokenId();
       const nft = new NFT(nftAddress, tokenId);
-      await nft.approveAddress(approved);
+      const owner = await nft.approveAddress(approved);
+      await this.ensureOwnerSignature(owner);
+      this.emitEvent("approve", new ApproveEvent({ nftAddress, approved }));
+    }
+    /**
+     * Transfers ownership of an NFT without admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param to - The recipient's public key.
+     */
+    async approveAddressByProof(nftAddress, approved) {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(nftAddress, tokenId);
+      const owner = await nft.approveAddress(approved);
+      const ownerContract2 = this.getOwnerContract(owner);
+      const canApprove = await ownerContract2.canApproveAddress(this.address, nftAddress, approved);
+      canApprove.assertTrue();
       this.emitEvent("approve", new ApproveEvent({ nftAddress, approved }));
     }
     /**
@@ -2577,6 +2450,21 @@ function CollectionContract(params) {
      * @param vk - The new verification key.
      */
     async upgradeNFTVerificationKey(address, vk) {
+      await this._upgrade(address, vk);
+    }
+    /**
+     * Upgrades the verification key of a specific NFT by Proof.
+     *
+     * @param address - The address of the NFT.
+     * @param vk - The new verification key.
+     */
+    async upgradeNFTVerificationKeyByProof(address, vk) {
+      const { data } = await this._upgrade(address, vk);
+      const ownerContract2 = this.getOwnerContract(data.owner);
+      const canUpgrade = await ownerContract2.canChangeVerificationKey(this.address, address, vk);
+      canUpgrade.assertTrue();
+    }
+    async _upgrade(address, vk) {
       const collectionData = CollectionData.unpack(this.packedData.getAndRequireEquals());
       const sender = this.sender.getAndRequireSignature();
       const creator = this.creator.getAndRequireEquals();
@@ -2586,8 +2474,14 @@ function CollectionContract(params) {
       const adminContract2 = this.getAdminContract();
       const canUpgrade = await adminContract2.canChangeVerificationKey(vk, address, tokenId);
       canUpgrade.assertTrue(CollectionErrors.cannotUpgradeVerificationKey);
-      const event = await nft.upgradeVerificationKey(vk, sender);
+      const data = await nft.upgradeVerificationKey(vk);
+      const event = new UpgradeVerificationKeyEvent({
+        address,
+        tokenId,
+        verificationKeyHash: vk.hash
+      });
       this.emitEvent("upgradeNFTVerificationKey", event);
+      return { data, sender };
     }
     /**
      * Upgrades the verification key of the collection contract.
@@ -2609,7 +2503,7 @@ function CollectionContract(params) {
      * Limits further minting of NFTs in the collection.
      */
     async limitMinting() {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canMint = (0, import_o1js10.Bool)(false);
       this.packedData.set(collectionData.pack());
@@ -2619,7 +2513,7 @@ function CollectionContract(params) {
      * Pauses the collection, disabling certain actions.
      */
     async pause() {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canPause.assertTrue(CollectionErrors.noPermissionToPause);
       collectionData.isPaused = (0, import_o1js10.Bool)(true);
@@ -2630,7 +2524,7 @@ function CollectionContract(params) {
      * Resumes the collection, re-enabling actions.
      */
     async resume() {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = CollectionData.unpack(this.packedData.getAndRequireEquals());
       collectionData.canPause.assertTrue(CollectionErrors.noPermissionToResume);
       collectionData.isPaused.assertTrue(CollectionErrors.collectionNotPaused);
@@ -2646,7 +2540,22 @@ function CollectionContract(params) {
     async pauseNFT(address) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      await nft.pause();
+      const owner = await nft.pause();
+      await this.ensureOwnerSignature(owner);
+      this.emitEvent("pauseNFT", new PauseNFTEvent({ isPaused: (0, import_o1js10.Bool)(true), address }));
+    }
+    /**
+     * Pauses a specific NFT, disabling its actions.
+     *
+     * @param address - The address of the NFT to pause.
+     */
+    async pauseNFTByProof(address) {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const owner = await nft.pause();
+      const ownerContract2 = this.getOwnerContract(owner);
+      const canPause = await ownerContract2.canPause(this.address, address);
+      canPause.assertTrue();
       this.emitEvent("pauseNFT", new PauseNFTEvent({ isPaused: (0, import_o1js10.Bool)(true), address }));
     }
     /**
@@ -2657,7 +2566,22 @@ function CollectionContract(params) {
     async resumeNFT(address) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      await nft.resume();
+      const owner = await nft.resume();
+      await this.ensureOwnerSignature(owner);
+      this.emitEvent("resumeNFT", new PauseNFTEvent({ isPaused: (0, import_o1js10.Bool)(false), address }));
+    }
+    /**
+     * Resumes a specific NFT, re-enabling its actions.
+     *
+     * @param address - The address of the NFT to resume.
+     */
+    async resumeNFTByProof(address) {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const owner = await nft.resume();
+      const ownerContract2 = this.getOwnerContract(owner);
+      const canResume = await ownerContract2.canResume(this.address, address);
+      canResume.assertTrue();
       this.emitEvent("resumeNFT", new PauseNFTEvent({ isPaused: (0, import_o1js10.Bool)(false), address }));
     }
     /**
@@ -2669,7 +2593,7 @@ function CollectionContract(params) {
      * @throws {Error} If caller lacks permission to change name
      */
     async setName(name) {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeName.assertTrue(CollectionErrors.noPermissionToChangeName);
       this.collectionName.set(name);
@@ -2684,7 +2608,7 @@ function CollectionContract(params) {
      * @throws {Error} If caller lacks permission to change base URI
      */
     async setBaseURL(baseURL) {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeBaseUri.assertTrue(CollectionErrors.noPermissionToChangeBaseUri);
       this.baseURL.set(baseURL);
@@ -2699,7 +2623,7 @@ function CollectionContract(params) {
      * @throws {Error} If caller lacks permission to set admin
      */
     async setAdmin(admin) {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canSetAdmin.assertTrue(CollectionErrors.noPermissionToSetAdmin);
       this.admin.set(admin);
@@ -2714,7 +2638,7 @@ function CollectionContract(params) {
      * @throws {Error} If caller lacks permission to change royalty fee
      */
     async setRoyaltyFee(royaltyFee) {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeRoyalty.assertTrue(CollectionErrors.noPermissionToChangeRoyalty);
       collectionData.royaltyFee = royaltyFee;
@@ -2730,7 +2654,7 @@ function CollectionContract(params) {
      * @throws {Error} If caller lacks permission to change transfer fee
      */
     async setTransferFee(transferFee) {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeTransferFee.assertTrue(CollectionErrors.noPermissionToChangeTransferFee);
       collectionData.transferFee = transferFee;
@@ -2744,7 +2668,7 @@ function CollectionContract(params) {
      * @returns The public key of the old owner.
      */
     async transferOwnership(to) {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeCreator.assertTrue(CollectionErrors.noPermissionToChangeCreator);
       const from = this.creator.getAndRequireEquals();
@@ -2817,7 +2741,7 @@ function CollectionContract(params) {
     (0, import_tslib5.__metadata)("design:type", Function),
     (0, import_tslib5.__metadata)("design:paramtypes", [TransferParams]),
     (0, import_tslib5.__metadata)("design:returntype", Promise)
-  ], Collection2.prototype, "transferByContract", null);
+  ], Collection2.prototype, "transferByProof", null);
   (0, import_tslib5.__decorate)([
     import_o1js10.method,
     (0, import_tslib5.__metadata)("design:type", Function),
@@ -2827,6 +2751,15 @@ function CollectionContract(params) {
     ]),
     (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "approveAddress", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.PublicKey
+    ]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "approveAddressByProof", null);
   (0, import_tslib5.__decorate)([
     import_o1js10.method,
     (0, import_tslib5.__metadata)("design:type", Function),
@@ -2856,6 +2789,15 @@ function CollectionContract(params) {
     ]),
     (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "upgradeNFTVerificationKey", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [
+      import_o1js10.PublicKey,
+      import_o1js10.VerificationKey
+    ]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "upgradeNFTVerificationKeyByProof", null);
   (0, import_tslib5.__decorate)([
     import_o1js10.method,
     (0, import_tslib5.__metadata)("design:type", Function),
@@ -2891,7 +2833,19 @@ function CollectionContract(params) {
     (0, import_tslib5.__metadata)("design:type", Function),
     (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
     (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "pauseNFTByProof", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
   ], Collection2.prototype, "resumeNFT", null);
+  (0, import_tslib5.__decorate)([
+    import_o1js10.method,
+    (0, import_tslib5.__metadata)("design:type", Function),
+    (0, import_tslib5.__metadata)("design:paramtypes", [import_o1js10.PublicKey]),
+    (0, import_tslib5.__metadata)("design:returntype", Promise)
+  ], Collection2.prototype, "resumeNFTByProof", null);
   (0, import_tslib5.__decorate)([
     import_o1js10.method,
     (0, import_tslib5.__metadata)("design:type", Function),
@@ -3530,85 +3484,237 @@ var NFTProgram = (0, import_o1js14.ZkProgram)({
 });
 
 // dist/node/marketplace/bid.js
-var import_tslib6 = require("tslib");
-var import_o1js16 = require("o1js");
+var import_tslib7 = require("tslib");
+var import_o1js17 = require("o1js");
 var import_storage6 = require("@minatokens/storage");
 
 // dist/node/contracts.js
 var import_upgradable2 = require("@minatokens/upgradable");
+
+// dist/node/marketplace/offer.js
+var import_tslib6 = require("tslib");
+var import_o1js15 = require("o1js");
+function OfferFactory(params) {
+  const { collectionContract } = params;
+  class NonFungibleTokenOfferContract extends import_o1js15.SmartContract {
+    constructor() {
+      super(...arguments);
+      this.owner = (0, import_o1js15.State)();
+      this.price = (0, import_o1js15.State)();
+      this.collection = (0, import_o1js15.State)();
+      this.nft = (0, import_o1js15.State)();
+      this.insideBuy = (0, import_o1js15.State)();
+      this.events = {
+        buy: TransferEvent
+      };
+    }
+    async deploy(args) {
+      await super.deploy(args);
+      this.owner.set(args.owner);
+      this.price.set(args.price);
+      this.collection.set(args.collection);
+      this.nft.set(args.nft);
+      this.insideBuy.set((0, import_o1js15.Bool)(false));
+      this.account.permissions.set({
+        ...import_o1js15.Permissions.default(),
+        send: import_o1js15.Permissions.proof(),
+        setVerificationKey: import_o1js15.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+        setPermissions: import_o1js15.Permissions.impossible()
+      });
+    }
+    getCollectionContract(address) {
+      const CollectionContract = collectionContract();
+      return new CollectionContract(address);
+    }
+    async buy() {
+      const insideBuy = this.insideBuy.getAndRequireEquals();
+      insideBuy.assertFalse("Already inside buy method");
+      this.insideBuy.set((0, import_o1js15.Bool)(true));
+      const collectionAddress = this.collection.getAndRequireEquals();
+      const nftAddress = this.nft.getAndRequireEquals();
+      const price = this.price.getAndRequireEquals();
+      const collection = this.getCollectionContract(collectionAddress);
+      await collection.transferByProof({
+        address: nftAddress,
+        from: this.address,
+        to: this.sender.getUnconstrained(),
+        price: UInt64Option.fromValue(price)
+      });
+    }
+    // @method async sellWithApproval(nftAddress: NFTAddress, price: UInt64) {
+    //   await this._sell(nftAddress, price);
+    //   const buyer = this.buyer.getAndRequireEquals();
+    //   const collection = new Collection(nftAddress.collection);
+    //   await collection.sellWithApproval(nftAddress.nft, price, buyer);
+    // }
+    async canTransfer(transferEvent) {
+      this.insideBuy.requireEquals((0, import_o1js15.Bool)(true));
+      const collectionAddress = this.collection.getAndRequireEquals();
+      const nftAddress = this.nft.getAndRequireEquals();
+      const owner = this.owner.getAndRequireEquals();
+      const price = this.price.getAndRequireEquals();
+      transferEvent.collection.assertEquals(collectionAddress);
+      transferEvent.nft.assertEquals(nftAddress);
+      transferEvent.from.assertEquals(owner);
+      transferEvent.approved.assertEquals(this.address);
+      transferEvent.price.assertSome().assertEquals(price);
+      transferEvent.from.assertEquals(owner);
+      transferEvent.fee.orElse(import_o1js15.UInt64.zero).assertLessThan(price, "Fee is too high");
+      const payment = price.sub(transferEvent.fee.orElse(import_o1js15.UInt64.zero));
+      const sender = this.sender.getUnconstrained();
+      const senderUpdate = import_o1js15.AccountUpdate.createSigned(sender);
+      transferEvent.to.assertEquals(sender);
+      senderUpdate.account.balance.requireBetween(payment, import_o1js15.UInt64.MAXINT());
+      senderUpdate.balance.subInPlace(payment);
+      const ownerUpdate = import_o1js15.AccountUpdate.create(owner);
+      ownerUpdate.balance.addInPlace(payment);
+      senderUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
+      ownerUpdate.body.useFullCommitment = (0, import_o1js15.Bool)(true);
+      this.emitEvent("buy", transferEvent);
+      return (0, import_o1js15.Bool)(true);
+    }
+  }
+  (0, import_tslib6.__decorate)([
+    (0, import_o1js15.state)(import_o1js15.PublicKey),
+    (0, import_tslib6.__metadata)("design:type", Object)
+  ], NonFungibleTokenOfferContract.prototype, "owner", void 0);
+  (0, import_tslib6.__decorate)([
+    (0, import_o1js15.state)(import_o1js15.UInt64),
+    (0, import_tslib6.__metadata)("design:type", Object)
+  ], NonFungibleTokenOfferContract.prototype, "price", void 0);
+  (0, import_tslib6.__decorate)([
+    (0, import_o1js15.state)(import_o1js15.PublicKey),
+    (0, import_tslib6.__metadata)("design:type", Object)
+  ], NonFungibleTokenOfferContract.prototype, "collection", void 0);
+  (0, import_tslib6.__decorate)([
+    (0, import_o1js15.state)(import_o1js15.PublicKey),
+    (0, import_tslib6.__metadata)("design:type", Object)
+  ], NonFungibleTokenOfferContract.prototype, "nft", void 0);
+  (0, import_tslib6.__decorate)([
+    (0, import_o1js15.state)(import_o1js15.Bool),
+    (0, import_tslib6.__metadata)("design:type", Object)
+  ], NonFungibleTokenOfferContract.prototype, "insideBuy", void 0);
+  (0, import_tslib6.__decorate)([
+    import_o1js15.method,
+    (0, import_tslib6.__metadata)("design:type", Function),
+    (0, import_tslib6.__metadata)("design:paramtypes", []),
+    (0, import_tslib6.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenOfferContract.prototype, "buy", null);
+  (0, import_tslib6.__decorate)([
+    import_o1js15.method.returns(import_o1js15.Bool),
+    (0, import_tslib6.__metadata)("design:type", Function),
+    (0, import_tslib6.__metadata)("design:paramtypes", [TransferEvent]),
+    (0, import_tslib6.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenOfferContract.prototype, "canTransfer", null);
+  return NonFungibleTokenOfferContract;
+}
+
+// dist/node/contracts.js
 var NFTAdvancedAdmin = NFTAdvancedAdminContract({
   upgradeContract: import_upgradable2.VerificationKeyUpgradeAuthority
 });
-var Collection = CollectionContract({
-  adminContract: NFTAdmin
+function NonFungibleTokenContractsFactory(params) {
+  const { approvalFactory, adminContract, ownerContract } = params;
+  let Collection2;
+  let Approval2;
+  let Owner2 = ownerContract;
+  let Admin2 = adminContract;
+  function getCollection() {
+    if (!Collection2) {
+      throw new Error("Collection constructor not set up yet!");
+    }
+    return Collection2;
+  }
+  function getApproval() {
+    if (!Approval2) {
+      throw new Error("Approval constructor not set up yet!");
+    }
+    return Approval2;
+  }
+  Approval2 = approvalFactory({
+    collectionContract: getCollection
+  });
+  Collection2 = CollectionFactory({
+    adminContract: () => adminContract,
+    ownerContract: () => ownerContract,
+    approvalContract: getApproval
+  });
+  return { Collection: Collection2, Approval: Approval2, Owner: Owner2, Admin: Admin2 };
+}
+var { Collection, Approval, Owner, Admin } = NonFungibleTokenContractsFactory({
+  approvalFactory: OfferFactory,
+  adminContract: NFTAdmin,
+  ownerContract: NFTStandardOwner
 });
-var AdvancedCollection = CollectionContract({
-  adminContract: NFTAdvancedAdmin
+var { Collection: AdvancedCollection, Approval: AdvancedApproval, Owner: AdvancedOwner, Admin: AdvancedAdmin } = NonFungibleTokenContractsFactory({
+  approvalFactory: OfferFactory,
+  adminContract: NFTAdvancedAdmin,
+  ownerContract: NFTStandardOwner
 });
 
 // dist/node/marketplace/types.js
-var import_o1js15 = require("o1js");
+var import_o1js16 = require("o1js");
 var import_storage5 = require("@minatokens/storage");
-var NFTAddress = class extends (0, import_o1js15.Struct)({
-  collection: import_o1js15.PublicKey,
-  nft: import_o1js15.PublicKey
+var NFTAddress = class extends (0, import_o1js16.Struct)({
+  collection: import_o1js16.PublicKey,
+  nft: import_o1js16.PublicKey
 }) {
 };
-var SellEvent = class extends (0, import_o1js15.Struct)({
-  collection: import_o1js15.PublicKey,
-  nft: import_o1js15.PublicKey,
-  price: import_o1js15.UInt64
+var SellEvent = class extends (0, import_o1js16.Struct)({
+  collection: import_o1js16.PublicKey,
+  nft: import_o1js16.PublicKey,
+  price: import_o1js16.UInt64
 }) {
 };
-var DepositEvent = class extends (0, import_o1js15.Struct)({
-  buyer: import_o1js15.PublicKey,
-  amount: import_o1js15.UInt64,
-  maxPoints: import_o1js15.UInt64
+var DepositEvent = class extends (0, import_o1js16.Struct)({
+  buyer: import_o1js16.PublicKey,
+  amount: import_o1js16.UInt64,
+  maxPoints: import_o1js16.UInt64
 }) {
 };
-var WithdrawEvent = class extends (0, import_o1js15.Struct)({
-  buyer: import_o1js15.PublicKey,
-  amount: import_o1js15.UInt64,
-  maxPoints: import_o1js15.UInt64
+var WithdrawEvent = class extends (0, import_o1js16.Struct)({
+  buyer: import_o1js16.PublicKey,
+  amount: import_o1js16.UInt64,
+  maxPoints: import_o1js16.UInt64
 }) {
 };
-var BidEvent = class extends (0, import_o1js15.Struct)({
-  bids: import_o1js15.Field,
-  whitelist: import_o1js15.Field,
+var BidEvent = class extends (0, import_o1js16.Struct)({
+  bids: import_o1js16.Field,
+  whitelist: import_o1js16.Field,
   storage: import_storage5.Storage
 }) {
 };
 
 // dist/node/marketplace/bid.js
-var Bid = class _Bid extends (0, import_o1js16.Struct)({
-  price: import_o1js16.UInt64,
-  points: import_o1js16.UInt64
+var Bid = class _Bid extends (0, import_o1js17.Struct)({
+  price: import_o1js17.UInt64,
+  points: import_o1js17.UInt64
 }) {
   pack() {
-    return import_o1js16.Field.fromBits([
+    return import_o1js17.Field.fromBits([
       ...this.price.value.toBits(64),
       ...this.points.value.toBits(64)
     ]);
   }
   static unpack(field) {
     const bits = field.toBits(64 + 64);
-    const price = import_o1js16.UInt64.Unsafe.fromField(import_o1js16.Field.fromBits(bits.slice(0, 64)));
-    const points = import_o1js16.UInt64.Unsafe.fromField(import_o1js16.Field.fromBits(bits.slice(64, 64 + 64)));
+    const price = import_o1js17.UInt64.Unsafe.fromField(import_o1js17.Field.fromBits(bits.slice(0, 64)));
+    const points = import_o1js17.UInt64.Unsafe.fromField(import_o1js17.Field.fromBits(bits.slice(64, 64 + 64)));
     return new _Bid({
       price,
       points
     });
   }
 };
-var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
+var NonFungibleTokenBidContract = class extends import_o1js17.SmartContract {
   constructor() {
     super(...arguments);
-    this.buyer = (0, import_o1js16.State)();
-    this.whitelist = (0, import_o1js16.State)();
-    this.bids = (0, import_o1js16.State)();
-    this.storage = (0, import_o1js16.State)();
-    this.maxPoints = (0, import_o1js16.State)();
-    this.consumedPoints = (0, import_o1js16.State)();
+    this.buyer = (0, import_o1js17.State)();
+    this.whitelist = (0, import_o1js17.State)();
+    this.bids = (0, import_o1js17.State)();
+    this.storage = (0, import_o1js17.State)();
+    this.maxPoints = (0, import_o1js17.State)();
+    this.consumedPoints = (0, import_o1js17.State)();
     this.events = {
       deposit: DepositEvent,
       withdraw: WithdrawEvent,
@@ -3623,19 +3729,19 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
     this.bids.set(args.bids);
     this.storage.set(args.storage);
     this.account.permissions.set({
-      ...import_o1js16.Permissions.default(),
-      send: import_o1js16.Permissions.proof(),
-      setVerificationKey: import_o1js16.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
-      setPermissions: import_o1js16.Permissions.impossible()
+      ...import_o1js17.Permissions.default(),
+      send: import_o1js17.Permissions.proof(),
+      setVerificationKey: import_o1js17.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+      setPermissions: import_o1js17.Permissions.impossible()
     });
   }
   async initialize(amount, maxPoints) {
-    this.account.provedState.requireEquals((0, import_o1js16.Bool)(false));
+    this.account.provedState.requireEquals((0, import_o1js17.Bool)(false));
     const buyer = this.sender.getUnconstrained();
-    const buyerUpdate = import_o1js16.AccountUpdate.createSigned(buyer);
-    buyerUpdate.balance.subInPlace(amount.add(import_o1js16.UInt64.from(1e9)));
+    const buyerUpdate = import_o1js17.AccountUpdate.createSigned(buyer);
+    buyerUpdate.balance.subInPlace(amount.add(import_o1js17.UInt64.from(1e9)));
     this.self.balance.addInPlace(amount);
-    buyerUpdate.body.useFullCommitment = (0, import_o1js16.Bool)(true);
+    buyerUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
     this.buyer.set(buyer);
     this.maxPoints.set(maxPoints);
     this.emitEvent("deposit", new DepositEvent({
@@ -3645,13 +3751,13 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
     }));
   }
   async deposit(amount, maxPoints) {
-    amount.equals(import_o1js16.UInt64.from(0)).assertFalse();
+    amount.equals(import_o1js17.UInt64.from(0)).assertFalse();
     const sender = this.sender.getUnconstrained();
     const buyer = this.buyer.getAndRequireEquals();
     sender.assertEquals(buyer);
-    const buyerUpdate = import_o1js16.AccountUpdate.createSigned(buyer);
+    const buyerUpdate = import_o1js17.AccountUpdate.createSigned(buyer);
     buyerUpdate.send({ to: this.address, amount });
-    buyerUpdate.body.useFullCommitment = (0, import_o1js16.Bool)(true);
+    buyerUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
     this.maxPoints.set(maxPoints);
     this.emitEvent("deposit", new DepositEvent({
       buyer,
@@ -3660,15 +3766,15 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
     }));
   }
   async withdraw(amount, maxPoints) {
-    amount.equals(import_o1js16.UInt64.from(0)).assertFalse();
-    this.account.balance.requireBetween(amount, import_o1js16.UInt64.MAXINT());
+    amount.equals(import_o1js17.UInt64.from(0)).assertFalse();
+    this.account.balance.requireBetween(amount, import_o1js17.UInt64.MAXINT());
     const buyer = this.buyer.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js16.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js16.Bool)(true);
+    const senderUpdate = import_o1js17.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
     sender.assertEquals(buyer);
     let bidUpdate = this.send({ to: senderUpdate, amount });
-    bidUpdate.body.useFullCommitment = (0, import_o1js16.Bool)(true);
+    bidUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
     this.maxPoints.set(maxPoints);
     this.emitEvent("withdraw", new WithdrawEvent({
       buyer,
@@ -3689,8 +3795,8 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
   //   await collection.sellWithApproval(nftAddress.nft, price, buyer);
   // }
   async _sell(nftAddress, price) {
-    price.equals(import_o1js16.UInt64.from(0)).assertFalse();
-    const key = import_o1js16.Poseidon.hashPacked(NFTAddress, nftAddress);
+    price.equals(import_o1js17.UInt64.from(0)).assertFalse();
+    const key = import_o1js17.Poseidon.hashPacked(NFTAddress, nftAddress);
     const storage = this.storage.getAndRequireEquals();
     const bids = new import_storage6.OffChainList({
       root: this.bids.getAndRequireEquals(),
@@ -3698,17 +3804,17 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
     });
     const bid = Bid.unpack((await bids.getValue(key, "bids")).assertSome("bid not found"));
     price.assertLessThanOrEqual(bid.price, "price is too high");
-    this.account.balance.requireBetween(price, import_o1js16.UInt64.MAXINT());
+    this.account.balance.requireBetween(price, import_o1js17.UInt64.MAXINT());
     const consumedPoints = this.consumedPoints.getAndRequireEquals();
     const maxPoints = this.maxPoints.getAndRequireEquals();
     const newConsumedPoints = consumedPoints.add(bid.points);
     newConsumedPoints.assertLessThanOrEqual(maxPoints, "consumed points exceed max points");
     this.consumedPoints.set(newConsumedPoints);
     const seller = this.sender.getUnconstrained();
-    const sellerUpdate = import_o1js16.AccountUpdate.createSigned(seller);
+    const sellerUpdate = import_o1js17.AccountUpdate.createSigned(seller);
     sellerUpdate.balance.addInPlace(price);
     this.self.balance.subInPlace(price);
-    sellerUpdate.body.useFullCommitment = (0, import_o1js16.Bool)(true);
+    sellerUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
     const whitelist = new import_storage6.Whitelist({
       list: new import_storage6.OffChainList({
         root: this.whitelist.getAndRequireEquals(),
@@ -3718,7 +3824,7 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
     const whitelistedAmount = await whitelist.getWhitelistedAmount(seller, "whitelist");
     const whitelistDisabled = whitelist.isNone();
     whitelistedAmount.isSome.or(whitelistDisabled).assertTrue("Cannot buy from non-whitelisted address");
-    const maxPrice = import_o1js16.Provable.if(whitelistDisabled, import_o1js16.UInt64.MAXINT(), whitelistedAmount.value);
+    const maxPrice = import_o1js17.Provable.if(whitelistDisabled, import_o1js17.UInt64.MAXINT(), whitelistedAmount.value);
     price.assertLessThanOrEqual(maxPrice, "price is higher than whitelisted price");
     this.emitEvent("sell", new SellEvent({
       collection: nftAddress.collection,
@@ -3729,8 +3835,8 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
   async bid(bids, whitelist, storage) {
     const buyer = this.buyer.getAndRequireEquals();
     const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js16.AccountUpdate.createSigned(sender);
-    senderUpdate.body.useFullCommitment = (0, import_o1js16.Bool)(true);
+    const senderUpdate = import_o1js17.AccountUpdate.createSigned(sender);
+    senderUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
     sender.assertEquals(buyer);
     this.bids.set(bids);
     this.whitelist.set(whitelist);
@@ -3738,176 +3844,78 @@ var NonFungibleTokenBidContract = class extends import_o1js16.SmartContract {
     this.emitEvent("bid", new BidEvent({ bids, whitelist, storage }));
   }
 };
-(0, import_tslib6.__decorate)([
-  (0, import_o1js16.state)(import_o1js16.PublicKey),
-  (0, import_tslib6.__metadata)("design:type", Object)
-], NonFungibleTokenBidContract.prototype, "buyer", void 0);
-(0, import_tslib6.__decorate)([
-  (0, import_o1js16.state)(import_o1js16.Field),
-  (0, import_tslib6.__metadata)("design:type", Object)
-], NonFungibleTokenBidContract.prototype, "whitelist", void 0);
-(0, import_tslib6.__decorate)([
-  (0, import_o1js16.state)(import_o1js16.Field),
-  (0, import_tslib6.__metadata)("design:type", Object)
-], NonFungibleTokenBidContract.prototype, "bids", void 0);
-(0, import_tslib6.__decorate)([
-  (0, import_o1js16.state)(import_storage6.Storage),
-  (0, import_tslib6.__metadata)("design:type", Object)
-], NonFungibleTokenBidContract.prototype, "storage", void 0);
-(0, import_tslib6.__decorate)([
-  (0, import_o1js16.state)(import_o1js16.UInt64),
-  (0, import_tslib6.__metadata)("design:type", Object)
-], NonFungibleTokenBidContract.prototype, "maxPoints", void 0);
-(0, import_tslib6.__decorate)([
-  (0, import_o1js16.state)(import_o1js16.UInt64),
-  (0, import_tslib6.__metadata)("design:type", Object)
-], NonFungibleTokenBidContract.prototype, "consumedPoints", void 0);
-(0, import_tslib6.__decorate)([
-  import_o1js16.method,
-  (0, import_tslib6.__metadata)("design:type", Function),
-  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js16.UInt64, import_o1js16.UInt64]),
-  (0, import_tslib6.__metadata)("design:returntype", Promise)
-], NonFungibleTokenBidContract.prototype, "initialize", null);
-(0, import_tslib6.__decorate)([
-  import_o1js16.method,
-  (0, import_tslib6.__metadata)("design:type", Function),
-  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js16.UInt64, import_o1js16.UInt64]),
-  (0, import_tslib6.__metadata)("design:returntype", Promise)
-], NonFungibleTokenBidContract.prototype, "deposit", null);
-(0, import_tslib6.__decorate)([
-  import_o1js16.method,
-  (0, import_tslib6.__metadata)("design:type", Function),
-  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js16.UInt64, import_o1js16.UInt64]),
-  (0, import_tslib6.__metadata)("design:returntype", Promise)
-], NonFungibleTokenBidContract.prototype, "withdraw", null);
-(0, import_tslib6.__decorate)([
-  import_o1js16.method,
-  (0, import_tslib6.__metadata)("design:type", Function),
-  (0, import_tslib6.__metadata)("design:paramtypes", [NFTAddress, import_o1js16.UInt64]),
-  (0, import_tslib6.__metadata)("design:returntype", Promise)
-], NonFungibleTokenBidContract.prototype, "sell", null);
-(0, import_tslib6.__decorate)([
-  import_o1js16.method,
-  (0, import_tslib6.__metadata)("design:type", Function),
-  (0, import_tslib6.__metadata)("design:paramtypes", [import_o1js16.Field, import_o1js16.Field, import_storage6.Storage]),
-  (0, import_tslib6.__metadata)("design:returntype", Promise)
-], NonFungibleTokenBidContract.prototype, "bid", null);
-
-// dist/node/marketplace/offer.js
-var import_tslib7 = require("tslib");
-var import_o1js17 = require("o1js");
-var NonFungibleTokenOfferContract = class extends import_o1js17.SmartContract {
-  constructor() {
-    super(...arguments);
-    this.owner = (0, import_o1js17.State)();
-    this.price = (0, import_o1js17.State)();
-    this.collection = (0, import_o1js17.State)();
-    this.nft = (0, import_o1js17.State)();
-    this.insideBuy = (0, import_o1js17.State)();
-    this.events = {
-      buy: TransferEvent
-    };
-  }
-  async deploy(args) {
-    await super.deploy(args);
-    this.owner.set(args.owner);
-    this.price.set(args.price);
-    this.collection.set(args.collection);
-    this.nft.set(args.nft);
-    this.insideBuy.set((0, import_o1js17.Bool)(false));
-    this.account.permissions.set({
-      ...import_o1js17.Permissions.default(),
-      send: import_o1js17.Permissions.proof(),
-      setVerificationKey: import_o1js17.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
-      setPermissions: import_o1js17.Permissions.impossible()
-    });
-  }
-  async buy() {
-    const insideBuy = this.insideBuy.getAndRequireEquals();
-    insideBuy.assertFalse("Already inside buy method");
-    this.insideBuy.set((0, import_o1js17.Bool)(true));
-    const collectionAddress = this.collection.getAndRequireEquals();
-    const nftAddress = this.nft.getAndRequireEquals();
-    const owner = this.owner.getAndRequireEquals();
-    const price = this.price.getAndRequireEquals();
-    const collection = new Collection(collectionAddress);
-    await collection.transferByContract({
-      address: nftAddress,
-      from: this.address,
-      to: this.sender.getUnconstrained(),
-      price: UInt64Option.fromValue(price)
-    });
-  }
-  // @method async sellWithApproval(nftAddress: NFTAddress, price: UInt64) {
-  //   await this._sell(nftAddress, price);
-  //   const buyer = this.buyer.getAndRequireEquals();
-  //   const collection = new Collection(nftAddress.collection);
-  //   await collection.sellWithApproval(nftAddress.nft, price, buyer);
-  // }
-  async canTransfer(transferEvent) {
-    const insideBuy = this.insideBuy.getAndRequireEquals();
-    insideBuy.assertTrue("Cannot call canTransfer outside of buy method");
-    const collectionAddress = this.collection.getAndRequireEquals();
-    const nftAddress = this.nft.getAndRequireEquals();
-    const owner = this.owner.getAndRequireEquals();
-    const price = this.price.getAndRequireEquals();
-    transferEvent.collection.assertEquals(collectionAddress);
-    transferEvent.nft.assertEquals(nftAddress);
-    transferEvent.from.assertEquals(owner);
-    transferEvent.approved.assertEquals(this.address);
-    transferEvent.price.assertSome().assertEquals(price);
-    transferEvent.from.assertEquals(owner);
-    transferEvent.fee.orElse(import_o1js17.UInt64.zero).assertLessThan(price, "Fee is too high");
-    const payment = price.sub(transferEvent.fee.orElse(import_o1js17.UInt64.zero));
-    const sender = this.sender.getUnconstrained();
-    const senderUpdate = import_o1js17.AccountUpdate.createSigned(sender);
-    transferEvent.to.assertEquals(sender);
-    senderUpdate.account.balance.requireBetween(payment, import_o1js17.UInt64.MAXINT());
-    senderUpdate.balance.subInPlace(payment);
-    const ownerUpdate = import_o1js17.AccountUpdate.create(owner);
-    ownerUpdate.balance.addInPlace(payment);
-    senderUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
-    ownerUpdate.body.useFullCommitment = (0, import_o1js17.Bool)(true);
-    this.emitEvent("buy", transferEvent);
-  }
-};
 (0, import_tslib7.__decorate)([
   (0, import_o1js17.state)(import_o1js17.PublicKey),
   (0, import_tslib7.__metadata)("design:type", Object)
-], NonFungibleTokenOfferContract.prototype, "owner", void 0);
+], NonFungibleTokenBidContract.prototype, "buyer", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js17.state)(import_o1js17.Field),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], NonFungibleTokenBidContract.prototype, "whitelist", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js17.state)(import_o1js17.Field),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], NonFungibleTokenBidContract.prototype, "bids", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js17.state)(import_storage6.Storage),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], NonFungibleTokenBidContract.prototype, "storage", void 0);
 (0, import_tslib7.__decorate)([
   (0, import_o1js17.state)(import_o1js17.UInt64),
   (0, import_tslib7.__metadata)("design:type", Object)
-], NonFungibleTokenOfferContract.prototype, "price", void 0);
+], NonFungibleTokenBidContract.prototype, "maxPoints", void 0);
 (0, import_tslib7.__decorate)([
-  (0, import_o1js17.state)(import_o1js17.PublicKey),
+  (0, import_o1js17.state)(import_o1js17.UInt64),
   (0, import_tslib7.__metadata)("design:type", Object)
-], NonFungibleTokenOfferContract.prototype, "collection", void 0);
-(0, import_tslib7.__decorate)([
-  (0, import_o1js17.state)(import_o1js17.PublicKey),
-  (0, import_tslib7.__metadata)("design:type", Object)
-], NonFungibleTokenOfferContract.prototype, "nft", void 0);
-(0, import_tslib7.__decorate)([
-  (0, import_o1js17.state)(import_o1js17.Bool),
-  (0, import_tslib7.__metadata)("design:type", Object)
-], NonFungibleTokenOfferContract.prototype, "insideBuy", void 0);
+], NonFungibleTokenBidContract.prototype, "consumedPoints", void 0);
 (0, import_tslib7.__decorate)([
   import_o1js17.method,
   (0, import_tslib7.__metadata)("design:type", Function),
-  (0, import_tslib7.__metadata)("design:paramtypes", []),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js17.UInt64, import_o1js17.UInt64]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], NonFungibleTokenOfferContract.prototype, "buy", null);
+], NonFungibleTokenBidContract.prototype, "initialize", null);
+(0, import_tslib7.__decorate)([
+  import_o1js17.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js17.UInt64, import_o1js17.UInt64]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], NonFungibleTokenBidContract.prototype, "deposit", null);
+(0, import_tslib7.__decorate)([
+  import_o1js17.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js17.UInt64, import_o1js17.UInt64]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], NonFungibleTokenBidContract.prototype, "withdraw", null);
+(0, import_tslib7.__decorate)([
+  import_o1js17.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [NFTAddress, import_o1js17.UInt64]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], NonFungibleTokenBidContract.prototype, "sell", null);
+(0, import_tslib7.__decorate)([
+  import_o1js17.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js17.Field, import_o1js17.Field, import_storage6.Storage]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], NonFungibleTokenBidContract.prototype, "bid", null);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  Admin,
+  AdvancedAdmin,
+  AdvancedApproval,
   AdvancedCollection,
+  AdvancedOwner,
+  Approval,
   ApproveEvent,
   Bid,
+  BidEvent,
   BuyEvent,
   Collection,
-  CollectionContract,
   CollectionData,
   CollectionErrors,
+  CollectionFactory,
   ColorPlugin,
+  DepositEvent,
   LimitMintingEvent,
   Metadata,
   MetadataFieldTypeValues,
@@ -3919,6 +3927,7 @@ var NonFungibleTokenOfferContract = class extends import_o1js17.SmartContract {
   MintParamsOption,
   MintRequest,
   NFT,
+  NFTAddress,
   NFTAdmin,
   NFTAdvancedAdmin,
   NFTAdvancedAdminContract,
@@ -3927,18 +3936,22 @@ var NonFungibleTokenOfferContract = class extends import_o1js17.SmartContract {
   NFTImmutableState,
   NFTOraclePreconditions,
   NFTProgram,
+  NFTStandardApproval,
   NFTStandardOwner,
   NFTState,
   NFTStateStruct,
   NFTUpdateProof,
   NonFungibleTokenBidContract,
-  NonFungibleTokenOfferContract,
+  NonFungibleTokenContractsFactory,
   OfferEvent,
+  OfferFactory,
+  Owner,
   OwnershipChangeEvent,
   PauseData,
   PauseEvent,
   PauseNFTEvent,
   SaleEvent,
+  SellEvent,
   StateElementPrecondition,
   TEXT_TREE_HEIGHT,
   Text,
@@ -3946,7 +3959,9 @@ var NonFungibleTokenOfferContract = class extends import_o1js17.SmartContract {
   TransferParams,
   UInt64Option,
   UpdateEvent,
+  UpgradeVerificationKeyData,
   UpgradeVerificationKeyEvent,
+  WithdrawEvent,
   fieldFromString,
   fieldToString,
   nftVerificationKeys

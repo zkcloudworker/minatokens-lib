@@ -6,8 +6,8 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, ApproveEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, NFTStandardOwner, UInt64Option } from "../interfaces/index.js";
-export { CollectionDeployProps, CollectionContract, CollectionErrors };
+import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, ApproveEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UInt64Option, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase } from "../interfaces/index.js";
+export { CollectionDeployProps, CollectionFactory, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
     transferNotAllowed: string;
@@ -34,6 +34,7 @@ declare const CollectionErrors: {
     creatorSignatureRequiredToUpgradeNFT: string;
     upgradeContractAddressNotSet: string;
     adminContractAddressNotSet: string;
+    onlyOwnerCanUpgradeVerificationKey: string;
 };
 interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
     collectionName: Field;
@@ -49,9 +50,10 @@ interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
  * @param params - Constructor parameters including admin and upgrade contracts, and network ID.
  * @returns The Collection class extending TokenContract and implementing required interfaces.
  */
-declare function CollectionContract(params: {
-    adminContract: NFTAdminContractConstructor;
-    ownerContract?: NFTOwnerContractConstructor;
+declare function CollectionFactory(params: {
+    adminContract: () => NFTAdminContractConstructor;
+    ownerContract: () => NFTOwnerContractConstructor;
+    approvalContract: () => NFTApprovalContractConstructor;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -117,8 +119,6 @@ declare function CollectionContract(params: {
          * @param forest - The account update forest.
          */
         approveBase(forest: AccountUpdateForest): Promise<void>;
-        readonly getAdminContractConstructor: NFTAdminContractConstructor;
-        readonly getOwnerContractConstructor: typeof NFTStandardOwner | NFTOwnerContractConstructor;
         /**
          * Retrieves the Admin Contract instance.
          *
@@ -132,11 +132,23 @@ declare function CollectionContract(params: {
          */
         getOwnerContract(address: PublicKey): NFTOwnerBase;
         /**
-         * Ensures that the transaction is authorized by the contract owner.
+         * Retrieves the NFT Approval Contract instance.
+         *
+         * @returns The Approval Contract instance implementing NFTApprovalBase.
+         */
+        getApprovalContract(address: PublicKey): NFTApprovalBase;
+        /**
+         * Ensures that the transaction is authorized by the creator.
          *
          * @returns The AccountUpdate of the creator.
          */
-        ensureOwnerSignature(): Promise<AccountUpdate>;
+        ensureCreatorSignature(): Promise<AccountUpdate>;
+        /**
+         * Ensures that the transaction is authorized by the NFT owner
+         *
+         * @returns The AccountUpdate of the NFT owner.
+         */
+        ensureOwnerSignature(owner: PublicKey): Promise<AccountUpdate>;
         /**
          * Ensures that the collection is not paused.
          *
@@ -194,12 +206,12 @@ declare function CollectionContract(params: {
          */
         _update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
         /**
-         * Transfers ownership of an NFT from contract without admin approval.
+         * Transfers ownership of an NFT from contract without admin approval using a proof.
          *
          * @param address - The address of the NFT.
          * @param to - The recipient's public key.
          */
-        transferByContract(params: TransferParams): Promise<void>;
+        transferByProof(params: TransferParams): Promise<void>;
         /**
          * Transfers ownership of an NFT without admin approval.
          *
@@ -207,6 +219,13 @@ declare function CollectionContract(params: {
          * @param to - The recipient's public key.
          */
         approveAddress(nftAddress: PublicKey, approved: PublicKey): Promise<void>;
+        /**
+         * Transfers ownership of an NFT without admin approval.
+         *
+         * @param address - The address of the NFT.
+         * @param to - The recipient's public key.
+         */
+        approveAddressByProof(nftAddress: PublicKey, approved: PublicKey): Promise<void>;
         /**
          * Transfers ownership of an NFT without admin approval.
          *
@@ -242,6 +261,17 @@ declare function CollectionContract(params: {
          */
         upgradeNFTVerificationKey(address: PublicKey, vk: VerificationKey): Promise<void>;
         /**
+         * Upgrades the verification key of a specific NFT by Proof.
+         *
+         * @param address - The address of the NFT.
+         * @param vk - The new verification key.
+         */
+        upgradeNFTVerificationKeyByProof(address: PublicKey, vk: VerificationKey): Promise<void>;
+        _upgrade(address: PublicKey, vk: VerificationKey): Promise<{
+            data: UpgradeVerificationKeyData;
+            sender: PublicKey;
+        }>;
+        /**
          * Upgrades the verification key of the collection contract.
          *
          * @param vk - The new verification key.
@@ -266,11 +296,23 @@ declare function CollectionContract(params: {
          */
         pauseNFT(address: PublicKey): Promise<void>;
         /**
+         * Pauses a specific NFT, disabling its actions.
+         *
+         * @param address - The address of the NFT to pause.
+         */
+        pauseNFTByProof(address: PublicKey): Promise<void>;
+        /**
          * Resumes a specific NFT, re-enabling its actions.
          *
          * @param address - The address of the NFT to resume.
          */
         resumeNFT(address: PublicKey): Promise<void>;
+        /**
+         * Resumes a specific NFT, re-enabling its actions.
+         *
+         * @param address - The address of the NFT to resume.
+         */
+        resumeNFTByProof(address: PublicKey): Promise<void>;
         /**
          * Sets a new name for the collection.
          * Requires owner signature and collection to not be paused.
@@ -369,8 +411,8 @@ declare function CollectionContract(params: {
             addInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "approve" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "approve" | "transfer" | "offer" | "buy" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "sale" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: UInt32, end?: UInt32): Promise<{
             type: string;
             event: {
@@ -439,7 +481,7 @@ declare function CollectionContract(params: {
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             }) => {
                 fields?: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
-                packed?: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;
+                packed? /** The name of the NFT collection. */: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;
             };
             toJSON: (x: {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
@@ -472,9 +514,7 @@ declare function CollectionContract(params: {
             check: (value: import("o1js").Proof<any, any>) => void;
             toValue: (x: import("o1js").Proof<any, any>) => import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>;
             fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>) => import("o1js").Proof<any, any>;
-            toCanonical? /**
-             * Defines the events emitted by the contract.
-             */: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
+            toCanonical?: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
         };
         publicFields(value: import("o1js").ProofBase<any, any>): {
             input: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[];

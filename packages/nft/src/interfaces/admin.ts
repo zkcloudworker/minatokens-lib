@@ -13,6 +13,9 @@ import {
   UInt64Option,
 } from "./types.js";
 import { TransferEvent } from "./events.js";
+import { NFTCollectionContractConstructor } from "./collection.js";
+import { NFTOwnerContractConstructor } from "./owner.js";
+import { NFTApprovalContractConstructor } from "./owner.js";
 export { NFTAdminBase, NFTAdminContractConstructor };
 
 /**
@@ -45,31 +48,31 @@ type NFTAdminBase = SmartContract & {
    */
   canTransfer(transferEvent: TransferEvent): Promise<Bool>;
 
-  /**
-   * Validates if an NFT can be listed for sale by a seller at a specified price.
-   *
-   * @param address - The public key of the NFT contract address.
-   * @param seller - The public key of the seller.
-   * @param price - The price at which the NFT is to be sold.
-   * @returns A `Promise` resolving to a `Bool` indicating whether the sale is permissible.
-   */
-  canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<Bool>;
+  // /**
+  //  * Validates if an NFT can be listed for sale by a seller at a specified price.
+  //  *
+  //  * @param address - The public key of the NFT contract address.
+  //  * @param seller - The public key of the seller.
+  //  * @param price - The price at which the NFT is to be sold.
+  //  * @returns A `Promise` resolving to a `Bool` indicating whether the sale is permissible.
+  //  */
+  // canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<Bool>;
 
-  /**
-   * Checks whether a buyer is allowed to purchase an NFT from a seller at a given price.
-   *
-   * @param address - The public key of the NFT contract address.
-   * @param seller - The public key of the seller.
-   * @param buyer - The public key of the buyer.
-   * @param price - The price at which the NFT is being bought.
-   * @returns A `Promise` resolving to a `Bool` indicating whether the purchase is allowed.
-   */
-  canBuy(
-    address: PublicKey,
-    seller: PublicKey,
-    buyer: PublicKey,
-    price: UInt64
-  ): Promise<Bool>;
+  // /**
+  //  * Checks whether a buyer is allowed to purchase an NFT from a seller at a given price.
+  //  *
+  //  * @param address - The public key of the NFT contract address.
+  //  * @param seller - The public key of the seller.
+  //  * @param buyer - The public key of the buyer.
+  //  * @param price - The price at which the NFT is being bought.
+  //  * @returns A `Promise` resolving to a `Bool` indicating whether the purchase is allowed.
+  //  */
+  // canBuy(
+  //   address: PublicKey,
+  //   seller: PublicKey,
+  //   buyer: PublicKey,
+  //   price: UInt64
+  // ): Promise<Bool>;
 
   canChangeVerificationKey(
     vk: VerificationKey,
@@ -79,9 +82,9 @@ type NFTAdminBase = SmartContract & {
 };
 
 /**
- * Defines a constructor for contracts implementing `NFTAdminBase`, accepting an `admin` public key and returning an instance of `NFTAdminBase`.
+ * Defines a constructor for contracts implementing `NFTAdminBase`, accepting an `address` public key and returning an instance of `NFTAdminBase`.
  *
- * @param admin - The public key of the contract's administrator.
+ * @param address - The contract's address.
  * @returns An instance of `NFTAdminBase`.
  */
-type NFTAdminContractConstructor = new (admin: PublicKey) => NFTAdminBase;
+type NFTAdminContractConstructor = new (address: PublicKey) => NFTAdminBase;

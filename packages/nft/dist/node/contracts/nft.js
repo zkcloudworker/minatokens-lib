@@ -1,10 +1,9 @@
 import { __decorate, __metadata } from "tslib";
 import { Field, PublicKey, Bool, SmartContract, method, state, State, VerificationKey, AccountUpdate, } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTData, NFTDataPacked, NFTState, NFTImmutableState, UpdateEvent, TransferEvent, OfferEvent, BuyEvent, UpgradeVerificationKeyEvent, PauseEvent, NFTOraclePreconditions, OwnershipChangeEvent, } from "../interfaces/index.js";
+import { NFTData, NFTDataPacked, NFTState, NFTImmutableState, UpdateEvent, TransferEvent, UpgradeVerificationKeyEvent, PauseEvent, NFTOraclePreconditions, OwnershipChangeEvent, UpgradeVerificationKeyData, } from "../interfaces/index.js";
 export { NFT };
 const NftErrors = {
-    onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key",
     cannotChangeMetadataVerificationKeyHash: "Cannot change metadata verification key hash",
     cannotChangeOwner: "Cannot change owner",
     cannotChangeStorage: "Cannot change storage",
@@ -47,26 +46,12 @@ class NFT extends SmartContract {
             update: UpdateEvent,
             transfer: OwnershipChangeEvent,
             approve: PublicKey,
-            offer: OfferEvent,
-            buy: BuyEvent,
+            // offer: OfferEvent,
+            // buy: BuyEvent,
             upgradeVerificationKey: UpgradeVerificationKeyEvent,
             pause: PauseEvent,
             resume: PauseEvent,
         };
-    }
-    /**
-     * Ensures that the transaction is authorized by the current owner.
-     *
-     * @returns A signed account update for the owner.
-     */
-    async ensureOwnerSignature() {
-        const owner = NFTData.unpack(this.packedData.getAndRequireEquals()).owner;
-        const ownerUpdate = AccountUpdate.createSigned(owner);
-        ownerUpdate.body.useFullCommitment = Bool(true); // prevent memo and fee change
-        // We do not accept signature of the owners which are contracts
-        // Contract owners should use update method with preconditions
-        ownerUpdate.body.preconditions.account.provedState.isSome = Bool(false);
-        return ownerUpdate;
     }
     /**
      * Updates the NFT's state with provided proofs and permissions.
@@ -112,7 +97,6 @@ class NFT extends SmartContract {
                 canChangeOwnerByProof: data.canChangeOwnerByProof,
                 canTransfer: data.canTransfer,
                 canChangeMetadata: data.canChangeMetadata,
-                canChangePrice: data.canChangePrice,
                 canChangeStorage: data.canChangeStorage,
                 canChangeName: data.canChangeName,
                 canChangeMetadataVerificationKeyHash: data.canChangeMetadataVerificationKeyHash,
@@ -260,7 +244,7 @@ class NFT extends SmartContract {
     /**
      * Transfers ownership of the NFT from one user to another.
      *
-     * @param from - The public key of the current owner (`PublicKey`).
+     * @param from - The public key of the current owner (`PublicKey`) or approved address.
      * @param to - The public key of the new owner (`PublicKey`).
      * @returns The public key of the old owner (`PublicKey`).
      */
@@ -294,6 +278,7 @@ class NFT extends SmartContract {
      * Transfers ownership of the NFT from one user to another.
      *
      * @param approved - The public key of the approved address (`PublicKey`).
+     * @returns The public key of the owner (`PublicKey`).
      */
     async approveAddress(approved) {
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
@@ -301,66 +286,58 @@ class NFT extends SmartContract {
         data.approved = approved;
         this.packedData.set(data.pack());
         this.emitEvent("approve", approved);
+        return data.owner;
     }
     /**
      * Upgrades the verification key used by the NFT contract.
      *
      * @param vk - The new verification key (`VerificationKey`).
-     * @param sender - The public key of the sender (`PublicKey`).
-     * @returns An event emitted after the verification key is upgraded (`UpgradeVerificationKeyEvent`).
+     * @returns An owner public key to be checked by the Collection contract and the Boolean flag indicating if the owner's authorization is required
      */
-    async upgradeVerificationKey(vk, sender) {
+    async upgradeVerificationKey(vk) {
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-        const owner = data.owner;
-        owner
-            .equals(sender)
-            .not()
-            .and(data.requireOwnerSignatureToUpgrade.not())
-            .assertFalse(NftErrors.onlyOwnerCanUpgradeVerificationKey);
-        this.account.verificationKey.set(vk);
+        // const owner = data.owner;
+        // owner
+        //   .equals(sender)
+        //   .not()
+        //   .and(data.requireOwnerSignatureToUpgrade.not())
+        //   .assertFalse(NftErrors.onlyOwnerCanUpgradeVerificationKey);
         const version = data.version.add(1);
         data.version = version;
-        const event = new UpgradeVerificationKeyEvent({
-            verificationKeyHash: vk.hash,
-            address: this.address,
-            tokenId: this.tokenId,
-        });
         this.account.verificationKey.set(vk);
         this.packedData.set(data.pack());
-        this.emitEvent("upgradeVerificationKey", event);
-        return event;
+        return new UpgradeVerificationKeyData({
+            owner: data.owner,
+            isOwnerApprovalRequired: data.requireOwnerAuthorizationToUpgrade,
+        });
     }
     /**
      * Pauses the NFT, disabling certain actions.
      *
-     * @returns A promise that resolves when the NFT is paused.
+     * @returns An owner public key to be checked by the Collection contract
      */
     async pause() {
-        // Only signature authorization is accepted, proof authorization is not allowed
-        // Contract owners should use update method with preconditions to pause the NFT
-        await this.ensureOwnerSignature();
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
         data.canPause.assertTrue(NftErrors.noPermissionToPause);
         data.isPaused.assertFalse(NftErrors.nftAlreadyPaused);
         data.isPaused = Bool(true);
         this.packedData.set(data.pack());
         this.emitEvent("pause", new PauseEvent({ isPaused: Bool(true) }));
+        return data.owner;
     }
     /**
      * Resumes the NFT, re-enabling actions.
      *
-     * @returns A promise that resolves when the NFT is resumed.
+     * @returns An owner public key to be checked by the Collection contract
      */
     async resume() {
-        // Only signature authorization is accepted, proof authorization is not allowed
-        // Contract owners should use update method with preconditions to resume the NFT
-        await this.ensureOwnerSignature();
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
         data.canPause.assertTrue(NftErrors.noPermissionToPause);
         data.isPaused.assertTrue(NftErrors.nftIsNotPaused);
         data.isPaused = Bool(false);
         this.packedData.set(data.pack());
         this.emitEvent("resume", new PauseEvent({ isPaused: Bool(false) }));
+        return data.owner;
     }
 }
 __decorate([
@@ -398,26 +375,25 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "transfer", null);
 __decorate([
-    method,
+    method.returns(PublicKey),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [PublicKey]),
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "approveAddress", null);
 __decorate([
-    method.returns(UpgradeVerificationKeyEvent),
+    method.returns(UpgradeVerificationKeyData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [VerificationKey,
-        PublicKey]),
+    __metadata("design:paramtypes", [VerificationKey]),
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "upgradeVerificationKey", null);
 __decorate([
-    method,
+    method.returns(PublicKey),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "pause", null);
 __decorate([
-    method,
+    method.returns(PublicKey),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

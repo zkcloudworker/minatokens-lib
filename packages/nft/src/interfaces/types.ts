@@ -94,8 +94,6 @@ class NFTImmutableState extends Struct({
   canTransfer: Bool, // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
   /** Determines whether the storage associated with the NFT can be altered (readonly). */
   canChangeStorage: Bool, // readonly
   /** Specifies if the name of the NFT can be changed (readonly). */
@@ -120,7 +118,6 @@ class NFTImmutableState extends Struct({
     a.canChangeOwnerByProof.assertEquals(b.canChangeOwnerByProof);
     a.canTransfer.assertEquals(b.canTransfer);
     a.canChangeMetadata.assertEquals(b.canChangeMetadata);
-    a.canChangePrice.assertEquals(b.canChangePrice);
     a.canChangeStorage.assertEquals(b.canChangeStorage);
     a.canChangeName.assertEquals(b.canChangeName);
     a.canChangeMetadataVerificationKeyHash.assertEquals(
@@ -150,7 +147,6 @@ class NFTImmutableState extends Struct({
       canChangeOwnerByProof: nftData.canChangeOwnerByProof,
       canTransfer: nftData.canTransfer,
       canChangeMetadata: nftData.canChangeMetadata,
-      canChangePrice: nftData.canChangePrice,
       canChangeStorage: nftData.canChangeStorage,
       canChangeName: nftData.canChangeName,
       canChangeMetadataVerificationKeyHash:
@@ -351,10 +347,10 @@ class NFTData extends Struct({
   canChangeOwnerByProof: Bool, // readonly
   /** Specifies if the NFT's ownership can be transferred (readonly). */
   canTransfer: Bool, // readonly
+  /** Specifies if the NFT's approved address can be changed (readonly). */
+  canApprove: Bool, // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
   /** Determines whether the storage associated with the NFT can be altered (readonly). */
   canChangeStorage: Bool, // readonly
   /** Specifies if the name of the NFT can be changed (readonly). */
@@ -365,32 +361,30 @@ class NFTData extends Struct({
   canPause: Bool, // readonly
   /** Indicates whether the NFT contract is currently paused. */
   isPaused: Bool,
-  /** Determines whether the owner's signature is required to upgrade the NFT's verification key (readonly). */
-  requireOwnerSignatureToUpgrade: Bool, // readonly
+  /** Determines whether the owner's authorization is required to upgrade the NFT's verification key (readonly). */
+  requireOwnerAuthorizationToUpgrade: Bool, // readonly
 }) {
   /**
    * Creates a new NFTData instance with optional parameters.
    * @param params The parameters to create the NFTData.
    * @returns A new NFTData instance.
    */
-  static new(
-    params: {
-      owner?: PublicKey;
-      approved?: PublicKey;
-      version?: number;
-      id?: number;
-      canChangeOwnerByProof?: boolean;
-      canTransfer?: boolean;
-      canChangeMetadata?: boolean;
-      canChangePrice?: boolean;
-      canChangeStorage?: boolean;
-      canChangeName?: boolean;
-      canChangeMetadataVerificationKeyHash?: boolean;
-      canPause?: boolean;
-      isPaused?: boolean;
-      requireOwnerSignatureToUpgrade?: boolean;
-    } = {}
-  ): NFTData {
+  static new(params: {
+    owner: string | PublicKey;
+    approved?: string | PublicKey;
+    version?: number;
+    id?: bigint;
+    canChangeOwnerByProof?: boolean;
+    canTransfer?: boolean;
+    canApprove?: boolean;
+    canChangeMetadata?: boolean;
+    canChangeStorage?: boolean;
+    canChangeName?: boolean;
+    canChangeMetadataVerificationKeyHash?: boolean;
+    canPause?: boolean;
+    isPaused?: boolean;
+    requireOwnerAuthorizationToUpgrade?: boolean;
+  }): NFTData {
     const {
       owner,
       approved,
@@ -398,24 +392,28 @@ class NFTData extends Struct({
       id,
       canChangeOwnerByProof,
       canTransfer,
+      canApprove,
       canChangeMetadata,
-      canChangePrice,
       canChangeStorage,
       canChangeName,
       canChangeMetadataVerificationKeyHash,
       canPause,
       isPaused,
-      requireOwnerSignatureToUpgrade,
+      requireOwnerAuthorizationToUpgrade,
     } = params;
     return new NFTData({
-      owner: owner ? PublicKey.from(owner) : PublicKey.empty(),
-      approved: approved ? PublicKey.from(approved) : PublicKey.empty(),
+      owner: typeof owner === "string" ? PublicKey.fromBase58(owner) : owner,
+      approved: approved
+        ? typeof approved === "string"
+          ? PublicKey.fromBase58(approved)
+          : approved
+        : PublicKey.empty(),
       version: UInt32.from(version ?? 0),
       id: UInt64.from(id ?? 0),
       canChangeOwnerByProof: Bool(canChangeOwnerByProof ?? false),
       canTransfer: Bool(canTransfer ?? true),
+      canApprove: Bool(canApprove ?? true),
       canChangeMetadata: Bool(canChangeMetadata ?? false),
-      canChangePrice: Bool(canChangePrice ?? true),
       canChangeStorage: Bool(canChangeStorage ?? false),
       canChangeName: Bool(canChangeName ?? false),
       canChangeMetadataVerificationKeyHash: Bool(
@@ -423,8 +421,8 @@ class NFTData extends Struct({
       ),
       canPause: Bool(canPause ?? false),
       isPaused: Bool(isPaused ?? false),
-      requireOwnerSignatureToUpgrade: Bool(
-        requireOwnerSignatureToUpgrade ?? false
+      requireOwnerAuthorizationToUpgrade: Bool(
+        requireOwnerAuthorizationToUpgrade ?? false
       ),
     });
   }
@@ -444,14 +442,14 @@ class NFTData extends Struct({
         ...version,
         this.canChangeOwnerByProof,
         this.canTransfer,
+        this.canApprove,
         this.canChangeMetadata,
-        this.canChangePrice,
         this.canChangeStorage,
         this.canChangeName,
         this.canChangeMetadataVerificationKeyHash,
         this.canPause,
         this.isPaused,
-        this.requireOwnerSignatureToUpgrade,
+        this.requireOwnerAuthorizationToUpgrade,
         this.owner.isOdd,
         this.approved.isOdd,
       ]),
@@ -472,14 +470,14 @@ class NFTData extends Struct({
 
     const canChangeOwnerByProof = bits[64 + 32 + 0];
     const canTransfer = bits[64 + 32 + 1];
-    const canChangeMetadata = bits[64 + 32 + 2];
-    const canChangePrice = bits[64 + 32 + 3];
+    const canApprove = bits[64 + 32 + 2];
+    const canChangeMetadata = bits[64 + 32 + 3];
     const canChangeStorage = bits[64 + 32 + 4];
     const canChangeName = bits[64 + 32 + 5];
     const canChangeMetadataVerificationKeyHash = bits[64 + 32 + 6];
     const canPause = bits[64 + 32 + 7];
     const isPaused = bits[64 + 32 + 8];
-    const requireOwnerSignatureToUpgrade = bits[64 + 32 + 9];
+    const requireOwnerAuthorizationToUpgrade = bits[64 + 32 + 9];
     const ownerIsOdd = bits[64 + 32 + 10];
     const approvedIsOdd = bits[64 + 32 + 11];
     const owner = PublicKey.from({ x: packed.ownerX, isOdd: ownerIsOdd });
@@ -494,14 +492,14 @@ class NFTData extends Struct({
       version,
       canChangeOwnerByProof,
       canTransfer,
+      canApprove,
       canChangeMetadata,
-      canChangePrice,
       canChangeStorage,
       canChangeName,
       canChangeMetadataVerificationKeyHash,
       canPause,
       isPaused,
-      requireOwnerSignatureToUpgrade,
+      requireOwnerAuthorizationToUpgrade,
     });
   }
 }
@@ -692,9 +690,7 @@ class MintParams extends Struct({
   address: PublicKey,
   /** The token ID of the NFT. */
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  /** The data associated with the NFT, including owner, approved, version, id, permissions and flags. */
   data: NFTData,
   /** The fee associated with minting the NFT. */
   fee: UInt64,

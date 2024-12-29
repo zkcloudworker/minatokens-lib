@@ -42,8 +42,8 @@ export const contractList: Record<string, Compilable> = {
   FungibleTokenOfferContract: FungibleTokenOfferContract,
   FungibleTokenClaimContract: FungibleTokenClaimContract,
   NFT: NFT,
-  Collection: Collection,
-  AdvancedCollection: AdvancedCollection,
+  Collection: Collection as unknown as Compilable, // TODO: better type
+  AdvancedCollection: AdvancedCollection as unknown as Compilable, // TODO: better type
   NFTAdmin: NFTAdmin,
   NFTAdvancedAdmin: NFTAdvancedAdmin,
   VerificationKeyUpgradeAuthority: VerificationKeyUpgradeAuthority,

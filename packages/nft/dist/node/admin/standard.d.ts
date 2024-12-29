@@ -1,4 +1,4 @@
-import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, UInt64, Field, AccountUpdate } from "o1js";
+import { Bool, DeployArgs, PublicKey, SmartContract, State, VerificationKey, Field, AccountUpdate } from "o1js";
 import { MintRequest, NFTState, NFTAdminBase, MintParamsOption, PausableContract, PauseEvent, OwnershipChangeEvent, OwnableContract, TransferEvent } from "../interfaces/index.js";
 export { NFTAdmin, NFTAdminDeployProps };
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {
@@ -86,23 +86,6 @@ declare class NFTAdmin extends SmartContract implements NFTAdminBase, PausableCo
      * @returns A `Bool` indicating whether the transfer is allowed.
      */
     canTransfer(transferEvent: TransferEvent): Promise<Bool>;
-    /**
-     * Determines whether the NFT can be listed for sale at the given price.
-     * @param address - The NFT contract address.
-     * @param seller - The seller's public key.
-     * @param price - The listing price.
-     * @returns A `Bool` indicating whether the sale is permitted.
-     */
-    canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
-    /**
-     * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
-     * @param address - The NFT contract address.
-     * @param seller - The seller's public key.
-     * @param buyer - The buyer's public key.
-     * @param price - The purchase price.
-     * @returns A `Bool` indicating whether the purchase is allowed.
-     */
-    canBuy(address: PublicKey, seller: PublicKey, buyer: PublicKey, price: UInt64): Promise<import("node_modules/o1js/dist/node/lib/provable/bool.js").Bool>;
     /**
      * Pauses the contract, disabling certain administrative actions.
      * Can only be called by the admin if `canPause` is `true`.
