@@ -32,7 +32,7 @@ import {
   PausableContract,
   OwnershipChangeEvent,
   OwnableContract,
-  UInt64Option,
+  TransferEvent,
 } from "../interfaces/index.js";
 import {
   UpgradeAuthorityBase,
@@ -99,9 +99,9 @@ const NFTAdvancedAdminContractErrors = {
 };
 
 /**
- * Constructs the `NFTWhitelistedAdmin` class, an admin contract that uses a whitelist to control access.
+ * Constructs the `NFTAdvancedAdmin` class, an admin contract that uses a whitelist to control access.
  * @param params Object containing the upgrade contract constructor.
- * @returns The `NFTWhitelistedAdmin` class.
+ * @returns The `NFTAdvancedAdmin` class.
  */
 function NFTAdvancedAdminContract(params: {
   upgradeContract: UpgradeAuthorityContractConstructor;
@@ -295,12 +295,8 @@ function NFTAdvancedAdminContract(params: {
      * @returns A `Bool` indicating whether the transfer is permitted.
      */
     @method.returns(Bool)
-    async canTransfer(
-      address: PublicKey,
-      from: PublicKey,
-      to: PublicKey,
-      price: UInt64Option
-    ) {
+    async canTransfer(transferEvent: TransferEvent) {
+      const { to, from, price } = transferEvent;
       const whitelist = this.whitelist.getAndRequireEquals();
       const toAmount = await whitelist.getWhitelistedAmount(to);
       const fromAmount = await whitelist.getWhitelistedAmount(from);
@@ -319,48 +315,48 @@ function NFTAdvancedAdminContract(params: {
         .and(fromAmount.isSome);
     }
 
-    /**
-     * Determines if the seller is permitted to list the NFT for sale at the specified price.
-     * @param address The address of the NFT.
-     * @param seller The seller's public key.
-     * @param price The price at which the NFT is being sold.
-     * @returns A `Bool` indicating whether the sale is permissible.
-     */
-    @method.returns(Bool)
-    async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
-      const whitelist = this.whitelist.getAndRequireEquals();
-      const allowedPrice = (
-        await whitelist.getWhitelistedAmount(seller)
-      ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-      return price.lessThanOrEqual(allowedPrice);
-    }
+    // /**
+    //  * Determines if the seller is permitted to list the NFT for sale at the specified price.
+    //  * @param address The address of the NFT.
+    //  * @param seller The seller's public key.
+    //  * @param price The price at which the NFT is being sold.
+    //  * @returns A `Bool` indicating whether the sale is permissible.
+    //  */
+    // @method.returns(Bool)
+    // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
+    //   const whitelist = this.whitelist.getAndRequireEquals();
+    //   const allowedPrice = (
+    //     await whitelist.getWhitelistedAmount(seller)
+    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
+    //   return price.lessThanOrEqual(allowedPrice);
+    // }
 
-    /**
-     * Determines if the buyer and seller are allowed to perform the transaction at the specified price.
-     * @param address The address of the NFT.
-     * @param seller The seller's public key.
-     * @param buyer The buyer's public key.
-     * @param price The price at which the NFT is being bought.
-     * @returns A `Bool` indicating whether the purchase is permitted.
-     */
-    @method.returns(Bool)
-    async canBuy(
-      address: PublicKey,
-      seller: PublicKey,
-      buyer: PublicKey,
-      price: UInt64
-    ) {
-      const whitelist = this.whitelist.getAndRequireEquals();
-      const allowedBuyerPrice = (
-        await whitelist.getWhitelistedAmount(buyer)
-      ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-      const allowedSellerPrice = (
-        await whitelist.getWhitelistedAmount(seller)
-      ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-      return price
-        .lessThanOrEqual(allowedBuyerPrice)
-        .and(price.lessThanOrEqual(allowedSellerPrice));
-    }
+    // /**
+    //  * Determines if the buyer and seller are allowed to perform the transaction at the specified price.
+    //  * @param address The address of the NFT.
+    //  * @param seller The seller's public key.
+    //  * @param buyer The buyer's public key.
+    //  * @param price The price at which the NFT is being bought.
+    //  * @returns A `Bool` indicating whether the purchase is permitted.
+    //  */
+    // @method.returns(Bool)
+    // async canBuy(
+    //   address: PublicKey,
+    //   seller: PublicKey,
+    //   buyer: PublicKey,
+    //   price: UInt64
+    // ) {
+    //   const whitelist = this.whitelist.getAndRequireEquals();
+    //   const allowedBuyerPrice = (
+    //     await whitelist.getWhitelistedAmount(buyer)
+    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
+    //   const allowedSellerPrice = (
+    //     await whitelist.getWhitelistedAmount(seller)
+    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
+    //   return price
+    //     .lessThanOrEqual(allowedBuyerPrice)
+    //     .and(price.lessThanOrEqual(allowedSellerPrice));
+    // }
 
     /**
      * Updates the whitelist's Merkle root and the associated off-chain storage reference.

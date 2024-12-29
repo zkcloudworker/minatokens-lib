@@ -17,6 +17,8 @@ import {
   AdvancedCollection,
   NFTAdmin,
   NFTAdvancedAdmin,
+  Approval,
+  NonFungibleTokenBidContract,
 } from "@minatokens/nft";
 import {
   tokenVerificationKeys,
@@ -55,7 +57,21 @@ const contracts: {
   type: "token" | "admin" | "upgrade" | "user" | "check" | "nft" | "collection";
 }[] = [
   { name: "NFT", contract: NFT, type: "nft" },
-  { name: "Collection", contract: Collection, type: "collection" },
+  {
+    name: "Collection",
+    contract: Collection as unknown as CompilableInternal,
+    type: "collection",
+  },
+  {
+    name: "NonFungibleTokenOfferContract",
+    contract: Approval as unknown as CompilableInternal,
+    type: "user",
+  },
+  {
+    name: "NonFungibleTokenBidContract",
+    contract: NonFungibleTokenBidContract,
+    type: "user",
+  },
   { name: "NFTAdmin", contract: NFTAdmin, type: "admin" },
   {
     name: "VerificationKeyUpgradeAuthority",
@@ -66,7 +82,7 @@ const contracts: {
 
   {
     name: "AdvancedCollection",
-    contract: AdvancedCollection,
+    contract: AdvancedCollection as unknown as CompilableInternal,
     type: "collection",
   },
 
@@ -240,7 +256,7 @@ export async function compileContracts(chain: string) {
   await it("should save new verification keys", async () => {
     //isDifferent = true;
     if (isDifferent) {
-      console.log("saving new verification keys");
+      console.log("\x1b[31msaving new verification keys\x1b[0m");
       let vk: ChainVerificationKeysList = {
         o1js: o1jsVersion,
         vk: contracts
@@ -289,7 +305,7 @@ export const ${networkId}: ChainVerificationKeysList =  ` +
 
       await fs.writeFile(`./packages/abi/src/vk/${networkId}.ts`, vkString);
     } else {
-      console.log("Verification keys are up to date");
+      console.log("\x1b[32mVerification keys are up to date\x1b[0m");
     }
   });
 }

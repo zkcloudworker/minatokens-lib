@@ -1,6 +1,6 @@
 import { __decorate, __metadata } from "tslib";
-import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, UInt64, Field, AccountUpdate, } from "o1js";
-import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, UInt64Option, } from "../interfaces/index.js";
+import { Bool, method, Permissions, PublicKey, SmartContract, State, state, VerificationKey, Field, AccountUpdate, } from "o1js";
+import { MintRequest, NFTState, MintParamsOption, PauseEvent, OwnershipChangeEvent, TransferEvent, } from "../interfaces/index.js";
 export { NFTAdmin };
 /**
  * The **NFTAdmin** contract serves as the foundational administrative layer for NFT collections on the Mina Protocol.
@@ -113,33 +113,40 @@ class NFTAdmin extends SmartContract {
      * @param price - The price of the NFT, optional.
      * @returns A `Bool` indicating whether the transfer is allowed.
      */
-    async canTransfer(address, from, to, price) {
+    async canTransfer(transferEvent) {
         const isPaused = this.isPaused.getAndRequireEquals();
         return isPaused.not();
     }
-    /**
-     * Determines whether the NFT can be listed for sale at the given price.
-     * @param address - The NFT contract address.
-     * @param seller - The seller's public key.
-     * @param price - The listing price.
-     * @returns A `Bool` indicating whether the sale is permitted.
-     */
-    async canSell(address, seller, price) {
-        const isPaused = this.isPaused.getAndRequireEquals();
-        return isPaused.not();
-    }
-    /**
-     * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
-     * @param address - The NFT contract address.
-     * @param seller - The seller's public key.
-     * @param buyer - The buyer's public key.
-     * @param price - The purchase price.
-     * @returns A `Bool` indicating whether the purchase is allowed.
-     */
-    async canBuy(address, seller, buyer, price) {
-        const isPaused = this.isPaused.getAndRequireEquals();
-        return isPaused.not();
-    }
+    // /**
+    //  * Determines whether the NFT can be listed for sale at the given price.
+    //  * @param address - The NFT contract address.
+    //  * @param seller - The seller's public key.
+    //  * @param price - The listing price.
+    //  * @returns A `Bool` indicating whether the sale is permitted.
+    //  */
+    // @method.returns(Bool)
+    // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
+    //   const isPaused = this.isPaused.getAndRequireEquals();
+    //   return isPaused.not();
+    // }
+    // /**
+    //  * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
+    //  * @param address - The NFT contract address.
+    //  * @param seller - The seller's public key.
+    //  * @param buyer - The buyer's public key.
+    //  * @param price - The purchase price.
+    //  * @returns A `Bool` indicating whether the purchase is allowed.
+    //  */
+    // @method.returns(Bool)
+    // async canBuy(
+    //   address: PublicKey,
+    //   seller: PublicKey,
+    //   buyer: PublicKey,
+    //   price: UInt64
+    // ) {
+    //   const isPaused = this.isPaused.getAndRequireEquals();
+    //   return isPaused.not();
+    // }
     /**
      * Pauses the contract, disabling certain administrative actions.
      * Can only be called by the admin if `canPause` is `true`.
@@ -217,27 +224,9 @@ __decorate([
 __decorate([
     method.returns(Bool),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [PublicKey,
-        PublicKey,
-        PublicKey,
-        UInt64Option]),
+    __metadata("design:paramtypes", [TransferEvent]),
     __metadata("design:returntype", Promise)
 ], NFTAdmin.prototype, "canTransfer", null);
-__decorate([
-    method.returns(Bool),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [PublicKey, PublicKey, UInt64]),
-    __metadata("design:returntype", Promise)
-], NFTAdmin.prototype, "canSell", null);
-__decorate([
-    method.returns(Bool),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [PublicKey,
-        PublicKey,
-        PublicKey,
-        UInt64]),
-    __metadata("design:returntype", Promise)
-], NFTAdmin.prototype, "canBuy", null);
 __decorate([
     method,
     __metadata("design:type", Function),

@@ -16,35 +16,14 @@ import {
 } from "o1js";
 import { Whitelist, OffChainList, Storage } from "@minatokens/storage";
 import { Collection } from "../contracts.js";
-
-export class NFTAddress extends Struct({
-  collection: PublicKey,
-  nft: PublicKey,
-}) {}
-
-class SellEvent extends Struct({
-  collection: PublicKey,
-  nft: PublicKey,
-  price: UInt64,
-}) {}
-
-class DepositEvent extends Struct({
-  buyer: PublicKey,
-  amount: UInt64,
-  maxPoints: UInt64,
-}) {}
-
-class WithdrawEvent extends Struct({
-  buyer: PublicKey,
-  amount: UInt64,
-  maxPoints: UInt64,
-}) {}
-
-class BidEvent extends Struct({
-  bids: Field,
-  whitelist: Field,
-  storage: Storage,
-}) {}
+import {
+  NFTAddress,
+  SellEvent,
+  DepositEvent,
+  WithdrawEvent,
+  BidEvent,
+} from "./types.js";
+import { UInt64Option, TransferEvent } from "../interfaces/index.js";
 
 export class Bid extends Struct({
   price: UInt64,
@@ -182,15 +161,20 @@ export class NonFungibleTokenBidContract extends SmartContract {
     await this._sell(nftAddress, price);
     const buyer = this.buyer.getAndRequireEquals();
     const collection = new Collection(nftAddress.collection);
-    await collection.sell(nftAddress.nft, price, buyer);
+    await collection.transferNFT(
+      nftAddress.nft,
+      buyer,
+      UInt64Option.fromValue(price)
+    );
+    // await collection.sell(nftAddress.nft, price, buyer);
   }
 
-  @method async sellWithApproval(nftAddress: NFTAddress, price: UInt64) {
-    await this._sell(nftAddress, price);
-    const buyer = this.buyer.getAndRequireEquals();
-    const collection = new Collection(nftAddress.collection);
-    await collection.sellWithApproval(nftAddress.nft, price, buyer);
-  }
+  // @method async sellWithApproval(nftAddress: NFTAddress, price: UInt64) {
+  //   await this._sell(nftAddress, price);
+  //   const buyer = this.buyer.getAndRequireEquals();
+  //   const collection = new Collection(nftAddress.collection);
+  //   await collection.sellWithApproval(nftAddress.nft, price, buyer);
+  // }
 
   async _sell(nftAddress: NFTAddress, price: UInt64) {
     price.equals(UInt64.from(0)).assertFalse();
@@ -206,7 +190,7 @@ export class NonFungibleTokenBidContract extends SmartContract {
 
     // We do not require the price to be equal to the bid price,
     // because the price can be lower than the bid price
-    // and the seller can still willing to sell the NFT
+    // and the seller can still be willing to sell the NFT
     // as the deposit remaining is less than bid price
     price.assertLessThanOrEqual(bid.price, "price is too high");
     this.account.balance.requireBetween(price, UInt64.MAXINT());

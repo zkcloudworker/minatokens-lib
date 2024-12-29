@@ -29,11 +29,13 @@ import { NFT } from "./nft.js";
 import {
   MintParams,
   MintRequest,
+  TransferParams,
   CollectionData,
   NFTUpdateProof,
   NFTStateStruct,
   MintEvent,
   TransferEvent,
+  ApproveEvent,
   OfferEvent,
   SaleEvent,
   BuyEvent,
@@ -50,9 +52,16 @@ import {
   NFTOwnerContractConstructor,
   NFTStandardOwner,
   UInt64Option,
+  NFTCollectionBase,
+  UpgradeVerificationKeyData,
+  NFTApprovalContractConstructor,
+  NFTStandardApproval,
+  NFTApprovalBase,
+  NFTCollectionContractConstructor,
 } from "../interfaces/index.js";
+import { NFTAdmin } from "../admin/standard.js";
 import { nftVerificationKeys } from "../vk.js";
-export { CollectionDeployProps, CollectionContract, CollectionErrors };
+export { CollectionDeployProps, CollectionFactory, CollectionErrors };
 
 const CollectionErrors = {
   wrongMasterNFTaddress:
@@ -84,6 +93,7 @@ const CollectionErrors = {
     "Creator signature is required to upgrade NFT",
   upgradeContractAddressNotSet: "Upgrade contract address is not set",
   adminContractAddressNotSet: "Admin contract address is not set",
+  onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key",
 };
 
 interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
@@ -101,18 +111,20 @@ interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
  * @param params - Constructor parameters including admin and upgrade contracts, and network ID.
  * @returns The Collection class extending TokenContract and implementing required interfaces.
  */
-function CollectionContract(params: {
-  adminContract: NFTAdminContractConstructor;
-  ownerContract?: NFTOwnerContractConstructor;
+function CollectionFactory(params: {
+  adminContract: () => NFTAdminContractConstructor;
+  ownerContract: () => NFTOwnerContractConstructor;
+  approvalContract: () => NFTApprovalContractConstructor;
 }) {
-  const { adminContract, ownerContract = NFTStandardOwner } = params;
+  const { adminContract, ownerContract, approvalContract } = params;
+
   /**
    * The NFT Collection Contract manages a collection of NFTs.
    * It handles minting, transferring, buying, selling, and integrates with Admin Contracts.
    */
   class Collection
     extends TokenContract
-    implements OwnableContract, PausableContract
+    implements OwnableContract, PausableContract, NFTCollectionBase
   {
     /** The name of the NFT collection. */
     @state(Field) collectionName = State<Field>();
@@ -184,6 +196,7 @@ function CollectionContract(params: {
       mint: MintEvent,
       update: PublicKey,
       transfer: TransferEvent,
+      approve: ApproveEvent,
       offer: OfferEvent,
       sale: SaleEvent,
       buy: BuyEvent,
@@ -217,14 +230,6 @@ function CollectionContract(params: {
       throw Error(CollectionErrors.transferNotAllowed);
     }
 
-    get getAdminContractConstructor() {
-      return adminContract;
-    }
-
-    get getOwnerContractConstructor() {
-      return ownerContract;
-    }
-
     /**
      * Retrieves the Admin Contract instance.
      *
@@ -232,10 +237,8 @@ function CollectionContract(params: {
      */
     getAdminContract(): NFTAdminBase {
       const admin = this.admin.getAndRequireEquals();
-      admin
-        .equals(PublicKey.empty())
-        .assertFalse(CollectionErrors.adminContractAddressNotSet);
-      return new this.getAdminContractConstructor(admin);
+      const AdminContract = adminContract();
+      return new AdminContract(admin);
     }
 
     /**
@@ -244,19 +247,41 @@ function CollectionContract(params: {
      * @returns The Owner Contract instance implementing NFTOwnerBase.
      */
     getOwnerContract(address: PublicKey): NFTOwnerBase {
-      return new this.getOwnerContractConstructor(address);
+      const OwnerContract = ownerContract();
+      return new OwnerContract(address);
     }
 
     /**
-     * Ensures that the transaction is authorized by the contract owner.
+     * Retrieves the NFT Approval Contract instance.
+     *
+     * @returns The Approval Contract instance implementing NFTApprovalBase.
+     */
+    getApprovalContract(address: PublicKey): NFTApprovalBase {
+      const ApprovalContract = approvalContract();
+      return new ApprovalContract(address);
+    }
+
+    /**
+     * Ensures that the transaction is authorized by the creator.
      *
      * @returns The AccountUpdate of the creator.
      */
-    async ensureOwnerSignature(): Promise<AccountUpdate> {
+    async ensureCreatorSignature(): Promise<AccountUpdate> {
       const creator = this.creator.getAndRequireEquals();
       const creatorUpdate = AccountUpdate.createSigned(creator);
       creatorUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
       return creatorUpdate;
+    }
+
+    /**
+     * Ensures that the transaction is authorized by the NFT owner
+     *
+     * @returns The AccountUpdate of the NFT owner.
+     */
+    async ensureOwnerSignature(owner: PublicKey): Promise<AccountUpdate> {
+      const ownerUpdate = AccountUpdate.createSigned(owner);
+      ownerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
+      return ownerUpdate;
     }
 
     /**
@@ -292,7 +317,7 @@ function CollectionContract(params: {
       collectionData.canMint.assertTrue(
         CollectionErrors.mintApprovalNotRequired
       );
-      const creatorUpdate = await this.ensureOwnerSignature();
+      const creatorUpdate = await this.ensureCreatorSignature();
       // Pay 1 MINA fee for a new account
       creatorUpdate.balance.subInPlace(1_000_000_000);
       await this._mint(params, collectionData);
@@ -336,7 +361,6 @@ function CollectionContract(params: {
       const {
         name,
         address,
-        owner,
         data,
         metadata,
         storage,
@@ -432,7 +456,6 @@ function CollectionContract(params: {
       const initialState = new NFTStateStruct({
         name,
         metadata,
-        owner,
         storage,
         packedData,
         metadataVerificationKeyHash,
@@ -520,338 +543,130 @@ function CollectionContract(params: {
     }
 
     /**
-     * Lists an NFT for sale without approval.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to list the NFT.
-     */
-    @method async offer(address: PublicKey, price: UInt64): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireOfferApproval.assertFalse();
-      await this._offer(address, price);
-    }
-
-    /**
-     * Lists an NFT for sale with admin approval.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to list the NFT.
-     */
-    @method async offerWithApproval(
-      address: PublicKey,
-      price: UInt64
-    ): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireOfferApproval.assertTrue();
-
-      const event = await this._offer(address, price);
-      const adminContract = this.getAdminContract();
-      const canSell = await adminContract.canSell(address, event.seller, price);
-      canSell.assertTrue();
-      this.emitEvent("approveOffer", event);
-    }
-
-    /**
-     * Internal method to offer an NFT for sale.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to list the NFT.
-     * @returns The OfferEvent emitted.
-     */
-    async _offer(address: PublicKey, price: UInt64): Promise<OfferEvent> {
-      const tokenId = this.deriveTokenId();
-      const nft = new NFT(address, tokenId);
-      const seller = this.sender.getUnconstrained();
-      const sellerUpdate = AccountUpdate.createSigned(seller);
-      sellerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-      // We do not accept signature of the owners which are contracts
-      // Contract owners should use transferByContract methods
-      sellerUpdate.body.preconditions.account.provedState.isSome = Bool(false);
-      const event = await nft.offer(price, seller);
-      this.emitEvent("offer", event);
-      return event;
-    }
-
-    /**
-     * Purchases an NFT without admin approval.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to purchase the NFT.
-     */
-    @method async buy(address: PublicKey, price: UInt64): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireBuyApproval.assertFalse();
-      await this._buy(address, price, collectionData.royaltyFee);
-    }
-
-    /**
-     * Purchases an NFT with admin approval.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to purchase the NFT.
-     */
-    @method async buyWithApproval(
-      address: PublicKey,
-      price: UInt64
-    ): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireBuyApproval.assertTrue();
-
-      const event = await this._buy(address, price, collectionData.royaltyFee);
-      const adminContract = this.getAdminContract();
-      const canBuy = await adminContract.canBuy(
-        address,
-        event.seller,
-        event.buyer,
-        price
-      );
-      canBuy.assertTrue();
-      this.emitEvent("approveBuy", event);
-    }
-
-    /**
-     * Internal method to purchase an NFT.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to purchase the NFT.
-     * @param royaltyFee - The royalty fee percentage.
-     * @returns The BuyEvent emitted.
-     */
-    async _buy(
-      address: PublicKey,
-      price: UInt64,
-      royaltyFee: UInt32
-    ): Promise<BuyEvent> {
-      royaltyFee.assertLessThanOrEqual(UInt32.from(100_000)); // Max 100%
-      const creator = this.creator.getAndRequireEquals();
-      const buyer = this.sender.getUnconstrained();
-      const buyerUpdate = AccountUpdate.createSigned(buyer);
-      buyerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-      const tokenId = this.deriveTokenId();
-      const nft = new NFT(address, tokenId);
-      const event = await nft.buy(price, buyer);
-
-      // If the seller is the creator, then the commission is 0
-      const isSellerCreator = event.seller.equals(creator);
-      const commission = Provable.if(
-        isSellerCreator,
-        UInt64.zero,
-        price.div(100_000).mul(UInt64.from(royaltyFee))
-      );
-      const payment = price.sub(commission);
-      const sellerUpdate = AccountUpdate.create(event.seller);
-      buyerUpdate.balance.subInPlace(payment);
-      sellerUpdate.balance.addInPlace(
-        Provable.if(
-          sellerUpdate.account.isNew.getAndRequireEquals(),
-          payment.sub(UInt64.from(1_000_000_000)),
-          payment
-        )
-      );
-
-      // If the seller is not the creator, then send the commission to the creator
-      const creatorUpdate = AccountUpdate.createIf(
-        isSellerCreator.not(),
-        creator
-      );
-      creatorUpdate.balance.addInPlace(commission);
-      buyerUpdate.balance.subInPlace(commission);
-      this.emitEvent("buy", event);
-      return event;
-    }
-
-    /**
-     * Sells an NFT without admin approval.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to purchase the NFT.
-     * @param to - The public key of the buyer.
-     */
-    @method async sell(
-      address: PublicKey,
-      price: UInt64,
-      buyer: PublicKey
-    ): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireSaleApproval.assertFalse();
-      await this._sell(address, price, buyer, collectionData.royaltyFee);
-    }
-
-    /**
-     * Sells an NFT with admin approval.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to purchase the NFT.
-     * @param to - The public key of the buyer.
-     */
-    @method async sellWithApproval(
-      address: PublicKey,
-      price: UInt64,
-      buyer: PublicKey
-    ): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireSaleApproval.assertTrue();
-
-      const event = await this._sell(
-        address,
-        price,
-        buyer,
-        collectionData.royaltyFee
-      );
-      const adminContract = this.getAdminContract();
-      // The admin contract checks the same info in case of buy and sale methods
-      // so we can use the same method canBuy()
-      const canSell = await adminContract.canBuy(
-        address,
-        event.seller,
-        buyer,
-        price
-      );
-      canSell.assertTrue();
-      this.emitEvent("approveSale", event);
-    }
-
-    /**
-     * Internal method to sell an NFT.
-     *
-     * @param address - The address of the NFT.
-     * @param price - The price at which to purchase the NFT.
-     * @param buyer - The public key of the buyer.
-     * @param royaltyFee - The royalty fee percentage.
-     * @returns The BuyEvent emitted.
-     */
-    async _sell(
-      address: PublicKey,
-      price: UInt64,
-      buyer: PublicKey,
-      royaltyFee: UInt32
-    ): Promise<SaleEvent> {
-      royaltyFee.assertLessThanOrEqual(UInt32.from(100_000)); // Max 100%
-      const creator = this.creator.getAndRequireEquals();
-      const seller = this.sender.getUnconstrained();
-      const sellerUpdate = AccountUpdate.createSigned(seller);
-      sellerUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-      // We do not accept signature of the owners which are contracts
-      // Contract owners should use transferByContract methods
-      sellerUpdate.body.preconditions.account.provedState.isSome = Bool(false);
-
-      const tokenId = this.deriveTokenId();
-      const nft = new NFT(address, tokenId);
-      // The payment is handled outside of this method in the Bid contract
-      // so we only transfer the NFT here and charge the royalty fee
-      await nft.transfer(seller, buyer);
-
-      // If the seller is the creator, then the commission is 0
-      const isSellerCreator = seller.equals(creator);
-      const commission = Provable.if(
-        isSellerCreator,
-        UInt64.zero,
-        price.div(100_000).mul(UInt64.from(royaltyFee))
-      );
-
-      // If the seller is not the creator, then send the commission to the creator
-      const creatorUpdate = AccountUpdate.createIf(
-        isSellerCreator.not(),
-        creator
-      );
-      creatorUpdate.balance.addInPlace(commission);
-      sellerUpdate.balance.subInPlace(commission);
-      const saleEvent = new SaleEvent({
-        seller,
-        buyer,
-        price,
-        address,
-      });
-      this.emitEvent("sale", saleEvent);
-      return saleEvent;
-    }
-
-    /**
-     * Transfers ownership of an NFT from contract without admin approval.
+     * Transfers ownership of an NFT from contract without admin approval using a proof.
      *
      * @param address - The address of the NFT.
      * @param to - The recipient's public key.
      */
-    @method async transferByContract(
-      address: PublicKey,
-      from: PublicKey,
-      to: PublicKey,
-      price: UInt64Option
-    ): Promise<void> {
+    @method async transferByProof(params: TransferParams): Promise<void> {
+      const { address, from, to, price } = params;
       const collectionData = await this.ensureNotPaused();
       collectionData.requireTransferApproval.assertFalse(
         CollectionErrors.transferApprovalRequired
       );
 
-      const ownerContract = this.getOwnerContract(from);
-      // This operation is not atomic and the owner contract cannot rely on the fact
+      const transferEventDraft = new TransferEvent({
+        from,
+        to,
+        collection: this.address,
+        nft: address,
+        fee: UInt64Option.none(), // will be added later
+        price,
+        transferByOwner: Bool(false), // will be added later
+        approved: PublicKey.empty(), // will be added later
+      });
+      const transferEvent = await this._transfer({
+        transferEventDraft,
+        transferFee: collectionData.transferFee,
+        royaltyFee: collectionData.royaltyFee,
+      });
+
+      const approvalContract = this.getApprovalContract(from);
+      // This operation is not atomic and the owner or approval contract cannot rely on the fact
       // that it is being called by the Collection contract
       // It is the responsibility of the owner contract to maintain the state
       // that allow for escrow-like agreement between the buyer and the seller
       // in case of the selling and buying of the NFT and return 'true' only if the
       // payment is made or guaranteed by the deposit of the funds in the owner contract
-      // TODO: refactor after the msg.sender will be supported by o1js
-      const canTransfer = await ownerContract.canTransfer(
-        this.address,
-        address,
-        to,
-        price
-      );
+      // or the owner contract is able to verify that it is being called by the Collection contract
+      // by setting the flag in its state
+      const canTransfer = await approvalContract.canTransfer(transferEvent);
       canTransfer.assertTrue();
-
-      await this._transfer(
-        address,
-        from,
-        to,
-        price,
-        collectionData.transferFee,
-        collectionData.royaltyFee
-      );
     }
 
+    // /**
+    //  * Transfers ownership of an NFT from contract with admin approval.
+    //  *
+    //  * @param address - The address of the NFT.
+    //  * @param to - The recipient's public key.
+    //  */
+    // @method async transferByProofWithApproval(
+    //   address: PublicKey,
+    //   from: PublicKey,
+    //   to: PublicKey,
+    //   price: UInt64Option
+    // ): Promise<void> {
+    //   const collectionData = await this.ensureNotPaused();
+    //   collectionData.requireTransferApproval.assertTrue(
+    //     CollectionErrors.transferApprovalNotRequired
+    //   );
+
+    //   const ownerContract = this.getOwnerContract(from);
+    //   const canTransferApprovalByOwner = await ownerContract.canTransfer(
+    //     this.address,
+    //     address,
+    //     to,
+    //     price
+    //   );
+    //   canTransferApprovalByOwner.assertTrue();
+
+    //   const event = await this._transfer(
+    //     address,
+    //     from,
+    //     to,
+    //     price,
+    //     collectionData.transferFee,
+    //     collectionData.royaltyFee
+    //   );
+    //   const adminContract = this.getAdminContract();
+    //   const canTransferApprovalByAdmin = await adminContract.canTransfer(
+    //     address,
+    //     from,
+    //     to,
+    //     price
+    //   );
+    //   canTransferApprovalByAdmin.assertTrue();
+    //   this.emitEvent("approveTransfer", event);
+    // }
+
     /**
-     * Transfers ownership of an NFT from contract with admin approval.
+     * Transfers ownership of an NFT without admin approval.
      *
      * @param address - The address of the NFT.
      * @param to - The recipient's public key.
      */
-    @method async transferByContractWithApproval(
-      address: PublicKey,
-      from: PublicKey,
-      to: PublicKey,
-      price: UInt64Option
+    @method async approveAddress(
+      nftAddress: PublicKey,
+      approved: PublicKey
     ): Promise<void> {
-      const collectionData = await this.ensureNotPaused();
-      collectionData.requireTransferApproval.assertTrue(
-        CollectionErrors.transferApprovalNotRequired
-      );
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(nftAddress, tokenId);
+      const owner = await nft.approveAddress(approved);
+      await this.ensureOwnerSignature(owner);
+      this.emitEvent("approve", new ApproveEvent({ nftAddress, approved }));
+    }
 
-      const ownerContract = this.getOwnerContract(from);
-      const canTransferApprovalByOwner = await ownerContract.canTransfer(
+    /**
+     * Transfers ownership of an NFT without admin approval.
+     *
+     * @param address - The address of the NFT.
+     * @param to - The recipient's public key.
+     */
+    @method async approveAddressByProof(
+      nftAddress: PublicKey,
+      approved: PublicKey
+    ): Promise<void> {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(nftAddress, tokenId);
+      const owner = await nft.approveAddress(approved);
+      const ownerContract = this.getOwnerContract(owner);
+      const canApprove = await ownerContract.canApproveAddress(
         this.address,
-        address,
-        to,
-        price
+        nftAddress,
+        approved
       );
-      canTransferApprovalByOwner.assertTrue();
-
-      const event = await this._transfer(
-        address,
-        from,
-        to,
-        price,
-        collectionData.transferFee,
-        collectionData.royaltyFee
-      );
-      const adminContract = this.getAdminContract();
-      const canTransferApprovalByAdmin = await adminContract.canTransfer(
-        address,
-        from,
-        to,
-        price
-      );
-      canTransferApprovalByAdmin.assertTrue();
-      this.emitEvent("approveTransfer", event);
+      canApprove.assertTrue();
+      this.emitEvent("approve", new ApproveEvent({ nftAddress, approved }));
     }
 
     /**
@@ -870,14 +685,21 @@ function CollectionContract(params: {
         CollectionErrors.transferApprovalRequired
       );
 
-      await this._transfer(
-        address,
-        PublicKey.empty(),
+      const transferEventDraft = new TransferEvent({
+        from: PublicKey.empty(), // will be added later
         to,
+        collection: this.address,
+        nft: address,
+        fee: UInt64Option.none(), // will be added later
         price,
-        collectionData.transferFee,
-        collectionData.royaltyFee
-      );
+        transferByOwner: Bool(false), // will be added later
+        approved: PublicKey.empty(), // will be added later
+      });
+      await this._transfer({
+        transferEventDraft,
+        transferFee: collectionData.transferFee,
+        royaltyFee: collectionData.royaltyFee,
+      });
     }
 
     /**
@@ -896,23 +718,25 @@ function CollectionContract(params: {
         CollectionErrors.transferApprovalNotRequired
       );
 
-      const event = await this._transfer(
-        address,
-        PublicKey.empty(),
+      const transferEventDraft = new TransferEvent({
+        from: PublicKey.empty(), // will be added later
         to,
+        collection: this.address,
+        nft: address,
+        fee: UInt64Option.none(), // will be added later
         price,
-        collectionData.transferFee,
-        collectionData.royaltyFee
-      );
+        transferByOwner: Bool(false), // will be added later
+        approved: PublicKey.empty(), // will be added later
+      });
+      const transferEvent = await this._transfer({
+        transferEventDraft,
+        transferFee: collectionData.transferFee,
+        royaltyFee: collectionData.royaltyFee,
+      });
       const adminContract = this.getAdminContract();
-      const canTransfer = await adminContract.canTransfer(
-        address,
-        event.from,
-        to,
-        price
-      );
+      const canTransfer = await adminContract.canTransfer(transferEvent);
       canTransfer.assertTrue();
-      this.emitEvent("approveTransfer", event);
+      this.emitEvent("approveTransfer", transferEvent);
     }
 
     /**
@@ -923,48 +747,63 @@ function CollectionContract(params: {
      * @param transferFee - The transfer fee amount.
      * @returns The TransferEvent emitted.
      */
-    async _transfer(
-      address: PublicKey,
-      from: PublicKey,
-      to: PublicKey,
-      price: UInt64Option,
-      transferFee: UInt64,
-      royaltyFee: UInt32
-    ): Promise<TransferEvent> {
-      const fee = Provable.if(
-        price.isSome,
+    async _transfer(params: {
+      transferEventDraft: TransferEvent;
+      transferFee: UInt64;
+      royaltyFee: UInt32;
+    }): Promise<TransferEvent> {
+      const { transferEventDraft, transferFee, royaltyFee } = params;
+      const sender = this.sender.getUnconstrained();
+      const isFromEmpty = transferEventDraft.from.equals(PublicKey.empty());
+      transferEventDraft.from = Provable.if(
+        isFromEmpty,
+        sender,
+        transferEventDraft.from
+      );
+
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(transferEventDraft.nft, tokenId);
+      const transferEvent = await nft.transfer(transferEventDraft);
+      const creator = this.creator.getAndRequireEquals();
+      // TODO: check is the owner is the creator
+      let fee = Provable.if(
+        transferEventDraft.price.isSome,
         // We cannot check the price here, so we just rely on owner contract
         // Malicious owner contracts can be blocked by the admin contract
         // or by setting the transfer fee to a higher value reflecting the market price
-        price
+        transferEventDraft.price
           .orElse(1_000_000_000n) // is not used, can be any value
           .div(100_000)
           .mul(UInt64.from(royaltyFee)),
         transferFee
       );
 
-      const sender = this.sender.getUnconstrained();
-      const senderUpdate = AccountUpdate.createSigned(sender);
-      senderUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
-      senderUpdate.send({
-        to: this.creator.getAndRequireEquals(),
+      const isOwnedByCreator = transferEvent.from.equals(creator);
+      fee = Provable.if(
+        isOwnedByCreator,
+        UInt64.zero,
         // The minimum fee is the transfer fee
-        amount: Provable.if(fee.lessThanOrEqual(transferFee), transferFee, fee),
-      });
-
-      const fromAddress = Provable.if(
-        from.equals(PublicKey.empty()),
-        sender,
-        from
+        Provable.if(fee.lessThanOrEqual(transferFee), transferFee, fee)
+      );
+      const senderUpdate = AccountUpdate.createIf(
+        fee.equals(UInt64.zero).not().or(isFromEmpty),
+        sender
+      );
+      senderUpdate.requireSignature();
+      senderUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
+      senderUpdate.account.balance.requireBetween(
+        transferEventDraft.price.orElse(fee),
+        UInt64.MAXINT()
       );
 
-      const tokenId = this.deriveTokenId();
-      const nft = new NFT(address, tokenId);
-      await nft.transfer(fromAddress, to);
-      const transferEvent = new TransferEvent({
-        from: fromAddress,
-        to,
-        address,
+      senderUpdate.send({
+        to: this.creator.getAndRequireEquals(),
+        amount: fee,
+      });
+
+      transferEventDraft.fee = UInt64Option.fromValue({
+        value: fee,
+        isSome: isOwnedByCreator.not(),
       });
       this.emitEvent("transfer", transferEvent);
       return transferEvent;
@@ -981,6 +820,34 @@ function CollectionContract(params: {
       address: PublicKey,
       vk: VerificationKey
     ): Promise<void> {
+      await this._upgrade(address, vk);
+    }
+
+    /**
+     * Upgrades the verification key of a specific NFT by Proof.
+     *
+     * @param address - The address of the NFT.
+     * @param vk - The new verification key.
+     */
+    @method
+    async upgradeNFTVerificationKeyByProof(
+      address: PublicKey,
+      vk: VerificationKey
+    ): Promise<void> {
+      const { data } = await this._upgrade(address, vk);
+      const ownerContract = this.getOwnerContract(data.owner);
+      const canUpgrade = await ownerContract.canChangeVerificationKey(
+        this.address,
+        address,
+        vk
+      );
+      canUpgrade.assertTrue();
+    }
+
+    async _upgrade(
+      address: PublicKey,
+      vk: VerificationKey
+    ): Promise<{ data: UpgradeVerificationKeyData; sender: PublicKey }> {
       const collectionData = CollectionData.unpack(
         this.packedData.getAndRequireEquals()
       );
@@ -1001,8 +868,15 @@ function CollectionContract(params: {
       );
       canUpgrade.assertTrue(CollectionErrors.cannotUpgradeVerificationKey);
 
-      const event = await nft.upgradeVerificationKey(vk, sender);
+      const data = await nft.upgradeVerificationKey(vk);
+
+      const event = new UpgradeVerificationKeyEvent({
+        address,
+        tokenId,
+        verificationKeyHash: vk.hash,
+      });
       this.emitEvent("upgradeNFTVerificationKey", event);
+      return { data, sender };
     }
 
     /**
@@ -1041,7 +915,7 @@ function CollectionContract(params: {
      */
     @method
     async limitMinting(): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canMint = Bool(false);
       this.packedData.set(collectionData.pack());
@@ -1056,7 +930,7 @@ function CollectionContract(params: {
      */
     @method
     async pause(): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canPause.assertTrue(CollectionErrors.noPermissionToPause);
       collectionData.isPaused = Bool(true);
@@ -1075,7 +949,7 @@ function CollectionContract(params: {
       We can define maxPausePeriod and if the collection is paused for the maxPausePeriod time
       then anyone can resume it.
       */
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = CollectionData.unpack(
         this.packedData.getAndRequireEquals()
       );
@@ -1095,7 +969,27 @@ function CollectionContract(params: {
     async pauseNFT(address: PublicKey): Promise<void> {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      await nft.pause();
+      const owner = await nft.pause();
+      await this.ensureOwnerSignature(owner);
+      this.emitEvent(
+        "pauseNFT",
+        new PauseNFTEvent({ isPaused: Bool(true), address })
+      );
+    }
+
+    /**
+     * Pauses a specific NFT, disabling its actions.
+     *
+     * @param address - The address of the NFT to pause.
+     */
+    @method
+    async pauseNFTByProof(address: PublicKey): Promise<void> {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const owner = await nft.pause();
+      const ownerContract = this.getOwnerContract(owner);
+      const canPause = await ownerContract.canPause(this.address, address);
+      canPause.assertTrue();
       this.emitEvent(
         "pauseNFT",
         new PauseNFTEvent({ isPaused: Bool(true), address })
@@ -1111,7 +1005,27 @@ function CollectionContract(params: {
     async resumeNFT(address: PublicKey): Promise<void> {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      await nft.resume();
+      const owner = await nft.resume();
+      await this.ensureOwnerSignature(owner);
+      this.emitEvent(
+        "resumeNFT",
+        new PauseNFTEvent({ isPaused: Bool(false), address })
+      );
+    }
+
+    /**
+     * Resumes a specific NFT, re-enabling its actions.
+     *
+     * @param address - The address of the NFT to resume.
+     */
+    @method
+    async resumeNFTByProof(address: PublicKey): Promise<void> {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const owner = await nft.resume();
+      const ownerContract = this.getOwnerContract(owner);
+      const canResume = await ownerContract.canResume(this.address, address);
+      canResume.assertTrue();
       this.emitEvent(
         "resumeNFT",
         new PauseNFTEvent({ isPaused: Bool(false), address })
@@ -1128,7 +1042,7 @@ function CollectionContract(params: {
      */
     @method
     async setName(name: Field): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeName.assertTrue(
         CollectionErrors.noPermissionToChangeName
@@ -1147,7 +1061,7 @@ function CollectionContract(params: {
      */
     @method
     async setBaseURL(baseURL: Field): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeBaseUri.assertTrue(
         CollectionErrors.noPermissionToChangeBaseUri
@@ -1166,7 +1080,7 @@ function CollectionContract(params: {
      */
     @method
     async setAdmin(admin: PublicKey): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canSetAdmin.assertTrue(
         CollectionErrors.noPermissionToSetAdmin
@@ -1185,7 +1099,7 @@ function CollectionContract(params: {
      */
     @method
     async setRoyaltyFee(royaltyFee: UInt32): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeRoyalty.assertTrue(
         CollectionErrors.noPermissionToChangeRoyalty
@@ -1205,7 +1119,7 @@ function CollectionContract(params: {
      */
     @method
     async setTransferFee(transferFee: UInt64): Promise<void> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeTransferFee.assertTrue(
         CollectionErrors.noPermissionToChangeTransferFee
@@ -1223,7 +1137,7 @@ function CollectionContract(params: {
      */
     @method.returns(PublicKey)
     async transferOwnership(to: PublicKey): Promise<PublicKey> {
-      await this.ensureOwnerSignature();
+      await this.ensureCreatorSignature();
       const collectionData = await this.ensureNotPaused();
       collectionData.canChangeCreator.assertTrue(
         CollectionErrors.noPermissionToChangeCreator
