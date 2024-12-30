@@ -2,20 +2,13 @@ import {
   Bool,
   PublicKey,
   SmartContract,
-  UInt64,
   VerificationKey,
   Field,
+  UInt32,
+  UInt64,
 } from "o1js";
-import {
-  MintParamsOption,
-  MintRequest,
-  NFTState,
-  UInt64Option,
-} from "./types.js";
+import { MintParamsOption, MintRequest, NFTState } from "./types.js";
 import { TransferEvent } from "./events.js";
-import { NFTCollectionContractConstructor } from "./collection.js";
-import { NFTOwnerContractConstructor } from "./owner.js";
-import { NFTApprovalContractConstructor } from "./owner.js";
 export { NFTAdminBase, NFTAdminContractConstructor };
 
 /**
@@ -48,32 +41,76 @@ type NFTAdminBase = SmartContract & {
    */
   canTransfer(transferEvent: TransferEvent): Promise<Bool>;
 
-  // /**
-  //  * Validates if an NFT can be listed for sale by a seller at a specified price.
-  //  *
-  //  * @param address - The public key of the NFT contract address.
-  //  * @param seller - The public key of the seller.
-  //  * @param price - The price at which the NFT is to be sold.
-  //  * @returns A `Promise` resolving to a `Bool` indicating whether the sale is permissible.
-  //  */
-  // canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<Bool>;
+  /**
+   * Determines if the name can be changed for a Collection.
+   *
+   * @param name - The new name for the Collection.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the name change is allowed.
+   */
+  canChangeName(name: Field): Promise<Bool>;
 
-  // /**
-  //  * Checks whether a buyer is allowed to purchase an NFT from a seller at a given price.
-  //  *
-  //  * @param address - The public key of the NFT contract address.
-  //  * @param seller - The public key of the seller.
-  //  * @param buyer - The public key of the buyer.
-  //  * @param price - The price at which the NFT is being bought.
-  //  * @returns A `Promise` resolving to a `Bool` indicating whether the purchase is allowed.
-  //  */
-  // canBuy(
-  //   address: PublicKey,
-  //   seller: PublicKey,
-  //   buyer: PublicKey,
-  //   price: UInt64
-  // ): Promise<Bool>;
+  /**
+   * Determines if the creator can be changed for a Collection.
+   *
+   * @param creator - The new creator for the Collection.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the creator change is allowed.
+   */
+  canChangeCreator(creator: PublicKey): Promise<Bool>;
 
+  /**
+   * Determines if the base URI can be changed for a Collection.
+   *
+   * @param baseUri - The new base URI for the Collection.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the base URI change is allowed.
+   */
+  canChangeBaseUri(baseUri: Field): Promise<Bool>;
+
+  /**
+   * Determines if the royalty fee can be changed for a Collection.
+   *
+   * @param royaltyFee - The new royalty fee for the Collection.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the royalty fee change is allowed.
+   */
+  canChangeRoyalty(royaltyFee: UInt32): Promise<Bool>;
+
+  /**
+   * Determines if the transfer fee can be changed for a Collection.
+   *
+   * @param transferFee - The new transfer fee for the Collection.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the transfer fee change is allowed.
+   */
+  canChangeTransferFee(transferFee: UInt64): Promise<Bool>;
+
+  /**
+   * Determines if the admin contract can be changed for a Collection.
+   *
+   * @param admin - The new admin for the Collection.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the admin contract change is allowed.
+   */
+  canSetAdmin(admin: PublicKey): Promise<Bool>;
+
+  /**
+   * Determines if the collection can be paused.
+   *
+   * @returns A `Promise` resolving to a `Bool` indicating whether the collection can be paused.
+   */
+  canPause(): Promise<Bool>;
+
+  /**
+   * Determines if the collection can be resumed.
+   *
+   * @returns A `Promise` resolving to a `Bool` indicating whether the collection can be resumed.
+   */
+  canResume(): Promise<Bool>;
+
+  /**
+   * Determines if the verification key can be changed for a specific NFT contract address and token ID.
+   *
+   * @param vk - The verification key to be changed.
+   * @param address - The public key of the NFT contract address or CollectionContract address.
+   * @param tokenId - The token ID of the NFT.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the verification key change is allowed.
+   */
   canChangeVerificationKey(
     vk: VerificationKey,
     address: PublicKey,

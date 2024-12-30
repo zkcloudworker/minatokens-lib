@@ -27,6 +27,7 @@ export {
   StateElementPrecondition,
   UInt64Option,
   TransferParams,
+  MAX_ROYALTY_FEE,
 };
 
 class UInt64Option extends Option(UInt64) {}
@@ -92,6 +93,8 @@ class NFTImmutableState extends Struct({
   canChangeOwnerByProof: Bool, // readonly
   /** Specifies if the NFT's ownership can be transferred (readonly). */
   canTransfer: Bool, // readonly
+  /** Specifies if the NFT's approved address can be changed (readonly). */
+  canApprove: Bool, // readonly
   /** Indicates whether the NFT's metadata can be updated (readonly). */
   canChangeMetadata: Bool, // readonly
   /** Determines whether the storage associated with the NFT can be altered (readonly). */
@@ -117,6 +120,7 @@ class NFTImmutableState extends Struct({
   static assertEqual(a: NFTImmutableState, b: NFTImmutableState) {
     a.canChangeOwnerByProof.assertEquals(b.canChangeOwnerByProof);
     a.canTransfer.assertEquals(b.canTransfer);
+    a.canApprove.assertEquals(b.canApprove);
     a.canChangeMetadata.assertEquals(b.canChangeMetadata);
     a.canChangeStorage.assertEquals(b.canChangeStorage);
     a.canChangeName.assertEquals(b.canChangeName);
@@ -146,6 +150,7 @@ class NFTImmutableState extends Struct({
       id: nftData.id,
       canChangeOwnerByProof: nftData.canChangeOwnerByProof,
       canTransfer: nftData.canTransfer,
+      canApprove: nftData.canApprove,
       canChangeMetadata: nftData.canChangeMetadata,
       canChangeStorage: nftData.canChangeStorage,
       canChangeName: nftData.canChangeName,
@@ -504,44 +509,20 @@ class NFTData extends Struct({
   }
 }
 
+const MAX_ROYALTY_FEE = 100000;
+
 /**
  * Represents the data associated with an NFT collection, including configuration parameters and permission flags.
  */
 class CollectionData extends Struct({
-  /** The royalty fee percentage (e.g., 1000 = 1%, 100 = 0.1%). */
-  royaltyFee: UInt32, // 1000 = 1%, 100 = 0.1%, 10000 = 10%
+  /** The royalty fee percentage (e.g., 1000 = 1%, 100 = 0.1%, 10000 = 10%, 100000 = 100%). */
+  royaltyFee: UInt32, // 1000 = 1%, 100 = 0.1%, 10000 = 10%, 100000 = 100%
   /** The transfer fee amount. */
   transferFee: UInt64,
   /** If true, transferring NFTs requires approval from the admin contract. */
   requireTransferApproval: Bool,
-  /** If true, updating NFTs requires approval from the admin contract. */
-  requireUpdateApproval: Bool,
-  /** If true, listing NFTs for sale requires approval from the admin contract. */
-  requireOfferApproval: Bool,
-  /** If true, selling NFTs requires approval from the admin contract. */
-  requireSaleApproval: Bool,
-  /** If true, purchasing NFTs requires approval from the admin contract. */
-  requireBuyApproval: Bool,
-  /** If true, upgrading the collection's verification key requires the creator's signature. */
-  requireCreatorSignatureToUpgradeCollection: Bool,
-  /** If true, upgrading an NFT's verification key requires the creator's signature. */
-  requireCreatorSignatureToUpgradeNFT: Bool,
-  /** If true, new NFTs can be minted in this collection. */
-  canMint: Bool,
-  /** If true, the collection can be paused and resumed by authorized parties. */
-  canPause: Bool,
-  /** If true, the name of the collection can be changed. */
-  canChangeName: Bool,
-  /** If true, the creator of the collection can be changed. */
-  canChangeCreator: Bool,
-  /** If true, the base URI for the collection's metadata can be changed. */
-  canChangeBaseUri: Bool,
-  /** If true, the royalty fee configuration can be changed. */
-  canChangeRoyalty: Bool,
-  /** If true, the transfer fee configuration can be changed. */
-  canChangeTransferFee: Bool,
-  /** If true, the admin contract associated with the collection can be changed. */
-  canSetAdmin: Bool,
+  /** If true, the minting is stopped and cannot be resumed. */
+  mintingIsLimited: Bool,
   /** Indicates whether the collection is currently paused. */
   isPaused: Bool,
 }) {
@@ -554,64 +535,21 @@ class CollectionData extends Struct({
     royaltyFee?: number;
     transferFee?: number;
     requireTransferApproval?: boolean;
-    requireUpdateApproval?: boolean;
-    requireOfferApproval?: boolean;
-    requireSaleApproval?: boolean;
-    requireBuyApproval?: boolean;
-    requireCreatorSignatureToUpgradeCollection?: boolean;
-    requireCreatorSignatureToUpgradeNFT?: boolean;
-    canMint?: boolean;
-    canChangeName?: boolean;
-    canChangeCreator?: boolean;
-    canChangeBaseUri?: boolean;
-    canChangeRoyalty?: boolean;
-    canChangeTransferFee?: boolean;
-    canSetAdmin?: boolean;
-    canPause?: boolean;
+    mintingIsLimited?: boolean;
     isPaused?: boolean;
   }): CollectionData {
     const {
       royaltyFee,
       transferFee,
       requireTransferApproval,
-      requireUpdateApproval,
-      requireOfferApproval,
-      requireSaleApproval,
-      requireBuyApproval,
-      requireCreatorSignatureToUpgradeCollection,
-      requireCreatorSignatureToUpgradeNFT,
-      canMint,
-      canChangeName,
-      canChangeCreator,
-      canChangeBaseUri,
-      canChangeRoyalty,
-      canChangeTransferFee,
-      canSetAdmin,
-      canPause,
+      mintingIsLimited,
       isPaused,
     } = params;
     return new CollectionData({
       royaltyFee: UInt32.from(royaltyFee ?? 0),
       transferFee: UInt64.from(transferFee ?? 0),
       requireTransferApproval: Bool(requireTransferApproval ?? false),
-      requireUpdateApproval: Bool(requireUpdateApproval ?? false),
-      requireOfferApproval: Bool(requireOfferApproval ?? false),
-      requireSaleApproval: Bool(requireSaleApproval ?? false),
-      requireBuyApproval: Bool(requireBuyApproval ?? false),
-      requireCreatorSignatureToUpgradeCollection: Bool(
-        requireCreatorSignatureToUpgradeCollection ?? false
-      ),
-      requireCreatorSignatureToUpgradeNFT: Bool(
-        requireCreatorSignatureToUpgradeNFT ?? false
-      ),
-      canMint: Bool(canMint ?? true),
-      canPause: Bool(canPause ?? true),
-      canChangeName: Bool(canChangeName ?? false),
-      canChangeCreator: Bool(canChangeCreator ?? false),
-      canChangeBaseUri: Bool(canChangeBaseUri ?? false),
-      canChangeRoyalty: Bool(canChangeRoyalty ?? false),
-      canChangeTransferFee: Bool(canChangeTransferFee ?? false),
-      canSetAdmin: Bool(canSetAdmin ?? false),
+      mintingIsLimited: Bool(mintingIsLimited ?? false),
       isPaused: Bool(isPaused ?? false),
     });
   }
@@ -622,24 +560,11 @@ class CollectionData extends Struct({
    */
   pack(): Field {
     return Field.fromBits([
+      this.isPaused,
+      this.requireTransferApproval,
+      this.mintingIsLimited,
       ...this.royaltyFee.value.toBits(32),
       ...this.transferFee.value.toBits(64),
-      this.requireTransferApproval,
-      this.requireUpdateApproval,
-      this.requireOfferApproval,
-      this.requireSaleApproval,
-      this.requireBuyApproval,
-      this.requireCreatorSignatureToUpgradeCollection,
-      this.requireCreatorSignatureToUpgradeNFT,
-      this.canMint,
-      this.canChangeName,
-      this.canChangeCreator,
-      this.canChangeBaseUri,
-      this.canChangeRoyalty,
-      this.canChangeTransferFee,
-      this.canSetAdmin,
-      this.canPause,
-      this.isPaused,
     ]);
   }
 
@@ -649,34 +574,36 @@ class CollectionData extends Struct({
    * @returns A new CollectionData instance.
    */
   static unpack(packed: Field) {
-    const bits = packed.toBits(32 + 64 + 16);
+    const bits = packed.toBits(3 + 32 + 64);
     const royaltyFee = UInt32.Unsafe.fromField(
-      Field.fromBits(bits.slice(0, 32))
+      Field.fromBits(bits.slice(3, 3 + 32))
     );
     const transferFee = UInt64.Unsafe.fromField(
-      Field.fromBits(bits.slice(32, 32 + 64))
+      Field.fromBits(bits.slice(3 + 32, 3 + 32 + 64))
     );
 
     return new CollectionData({
+      isPaused: bits[0],
+      requireTransferApproval: bits[1],
+      mintingIsLimited: bits[2],
       royaltyFee,
       transferFee,
-      requireTransferApproval: bits[32 + 64],
-      requireUpdateApproval: bits[32 + 64 + 1],
-      requireOfferApproval: bits[32 + 64 + 2],
-      requireSaleApproval: bits[32 + 64 + 3],
-      requireBuyApproval: bits[32 + 64 + 4],
-      requireCreatorSignatureToUpgradeCollection: bits[32 + 64 + 5],
-      requireCreatorSignatureToUpgradeNFT: bits[32 + 64 + 6],
-      canMint: bits[32 + 64 + 7],
-      canChangeName: bits[32 + 64 + 8],
-      canChangeCreator: bits[32 + 64 + 9],
-      canChangeBaseUri: bits[32 + 64 + 10],
-      canChangeRoyalty: bits[32 + 64 + 11],
-      canChangeTransferFee: bits[32 + 64 + 12],
-      canSetAdmin: bits[32 + 64 + 13],
-      canPause: bits[32 + 64 + 14],
-      isPaused: bits[32 + 64 + 15],
     });
+  }
+
+  static isPaused(packed: Field) {
+    return packed.toBits(3 + 32 + 64)[0];
+  }
+
+  static requireTransferApproval(packed: Field) {
+    return packed.toBits(3 + 32 + 64)[1];
+  }
+
+  static mintingIsLimited(packed: Field) {
+    const bits = packed.toBits(3 + 32 + 64);
+    const isPaused = bits[0];
+    const mintingIsLimited = bits[2];
+    return isPaused.or(mintingIsLimited);
   }
 }
 
@@ -700,7 +627,7 @@ class MintParams extends Struct({
   storage: Storage,
   /** The hash of the verification key used for metadata proofs. */
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  /** The expiry time slot for minting the NFT. */
   expiry: UInt32,
 }) {}
 
@@ -717,10 +644,12 @@ class MintRequest extends Struct({
   address: PublicKey,
   /** The owner of the new NFT (can be different from the sender). */
   owner: PublicKey, // can be different from the sender
-  /** A custom identifier that can be interpreted by the admin contract. */
-  customId: Field, // should be interpreted by the admin contract
-  /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
-  customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
+  /** A custom value that can be interpreted by the admin contract. */
+  customId1: Field, // should be interpreted by the admin contract
+  /** A custom value that can be interpreted by the admin contract. */
+  customId2: Field, // should be interpreted by the admin contract, can form PublicKey or Storage together with customId1
+  /** A custom value that can be interpreted by the admin contract. */
+  customId3: Field, // should be interpreted by the admin contract, can serve as root of the merkle tree for the storage or store two PublicKeys together with customId1 and customId2
 }) {}
 
 /**

@@ -6,9 +6,6 @@ export {
   MintEvent,
   UpdateEvent,
   TransferEvent,
-  OfferEvent,
-  SaleEvent,
-  BuyEvent,
   UpgradeVerificationKeyEvent,
   UpgradeVerificationKeyData,
   LimitMintingEvent,
@@ -88,50 +85,6 @@ class PauseNFTEvent extends Struct({
   address: PublicKey,
   /** Indicates whether the NFT is paused (`true`) or resumed (`false`). */
   isPaused: Bool,
-}) {}
-
-/**
- * Emitted when an NFT is listed for sale.
- */
-class OfferEvent extends Struct({
-  /** The public key of the seller listing the NFT for sale. */
-  seller: PublicKey,
-  /** The price at which the NFT is listed for sale. */
-  price: UInt64,
-  /** The public key address of the NFT being sold. */
-  address: PublicKey,
-  /** The version number of the NFT state at the time of listing. */
-  version: UInt32,
-}) {}
-
-/**
- * Emitted when an NFT is sold to a buyer
- */
-class SaleEvent extends Struct({
-  /** The public key of the seller. */
-  seller: PublicKey,
-  /** The public key of the bidder. */
-  buyer: PublicKey,
-  /** The price at which the NFT is listed for sale. */
-  price: UInt64,
-  /** The public key address of the NFT being sold. */
-  address: PublicKey,
-}) {}
-
-/**
- * Emitted when an NFT is purchased.
- */
-class BuyEvent extends Struct({
-  /** The public key of the seller from whom the NFT is purchased. */
-  seller: PublicKey,
-  /** The public key of the buyer who purchased the NFT. */
-  buyer: PublicKey,
-  /** The price at which the NFT was purchased. */
-  price: UInt64,
-  /** The public key address of the NFT being purchased. */
-  address: PublicKey,
-  /** The version number of the NFT state at the time of purchase. */
-  version: UInt32,
 }) {}
 
 /**
