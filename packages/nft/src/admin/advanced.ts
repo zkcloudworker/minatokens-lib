@@ -41,7 +41,7 @@ import {
   UpgradeAuthorityContractConstructor,
 } from "@minatokens/upgradable";
 
-export { NFTAdvancedAdminContract, PauseData, NFTAdvancedAdminDeployProps };
+export { NFTAdvancedAdminContract, AdminData, NFTAdvancedAdminDeployProps };
 
 /**
  * Deployment properties for the `NFTAdvancedAdminContract`.
@@ -56,36 +56,109 @@ interface NFTAdvancedAdminDeployProps extends Exclude<DeployArgs, undefined> {
 
   /** The URI of the zkApp. */
   uri: string;
-  /** Flag indicating whether the contract can be paused. */
-  canPause: Bool;
-  /** Flag indicating whether the contract is currently paused. */
-  isPaused: Bool;
+  /** The admin data. */
+  adminData: AdminData;
 }
 
 /**
  * Represents pause-related data, containing flags for pause functionality.
  */
-class PauseData extends Struct({
+class AdminData extends Struct({
   /** Indicates whether the contract can be paused. */
   canPause: Bool,
   /** Indicates whether the contract is currently paused. */
   isPaused: Bool,
+  /** Indicates whether the contract can change the royalty fee. */
+  allowChangeRoyalty: Bool,
+  /** Indicates whether the contract can change the transfer fee. */
+  allowChangeTransferFee: Bool,
+  /** Indicates whether the contract can change the base URI. */
+  allowChangeBaseUri: Bool,
+  /** Indicates whether the contract can change the creator. */
+  allowChangeCreator: Bool,
+  /** Indicates whether the contract can change the admin. */
+  allowChangeAdmin: Bool,
+  /** Indicates whether the contract can change the name. */
+  allowChangeName: Bool,
 }) {
+  static new(
+    params: {
+      canPause?: boolean;
+      isPaused?: boolean;
+      allowChangeRoyalty?: boolean;
+      allowChangeTransferFee?: boolean;
+      allowChangeBaseUri?: boolean;
+      allowChangeCreator?: boolean;
+      allowChangeAdmin?: boolean;
+      allowChangeName?: boolean;
+    } = {}
+  ) {
+    const {
+      canPause,
+      isPaused,
+      allowChangeRoyalty,
+      allowChangeTransferFee,
+      allowChangeBaseUri,
+      allowChangeCreator,
+      allowChangeAdmin,
+      allowChangeName,
+    } = params;
+    return new AdminData({
+      canPause: Bool(canPause ?? true),
+      isPaused: Bool(isPaused ?? false),
+      allowChangeRoyalty: Bool(allowChangeRoyalty ?? false),
+      allowChangeTransferFee: Bool(allowChangeTransferFee ?? false),
+      allowChangeBaseUri: Bool(allowChangeBaseUri ?? false),
+      allowChangeCreator: Bool(allowChangeCreator ?? false),
+      allowChangeAdmin: Bool(allowChangeAdmin ?? false),
+      allowChangeName: Bool(allowChangeName ?? false),
+    });
+  }
   /**
    * Packs the pause data into a `Field`.
    * @returns A `Field` representing the packed pause data.
    */
   pack(): Field {
-    return Field.fromBits([this.canPause, this.isPaused]);
+    return Field.fromBits([
+      this.isPaused,
+      this.canPause,
+      this.allowChangeRoyalty,
+      this.allowChangeTransferFee,
+      this.allowChangeBaseUri,
+      this.allowChangeCreator,
+      this.allowChangeAdmin,
+      this.allowChangeName,
+    ]);
   }
   /**
    * Unpacks a `Field` into `PauseData`.
    * @param field The `Field` to unpack.
    * @returns An instance of `PauseData`.
    */
-  static unpack(field: Field): PauseData {
-    const [canPause, isPaused] = field.toBits(2);
-    return new PauseData({ canPause, isPaused });
+  static unpack(field: Field): AdminData {
+    const [
+      isPaused,
+      canPause,
+      allowChangeRoyalty,
+      allowChangeTransferFee,
+      allowChangeBaseUri,
+      allowChangeCreator,
+      allowChangeAdmin,
+      allowChangeName,
+    ] = field.toBits(8);
+    return new AdminData({
+      canPause,
+      isPaused,
+      allowChangeRoyalty,
+      allowChangeTransferFee,
+      allowChangeBaseUri,
+      allowChangeCreator,
+      allowChangeAdmin,
+      allowChangeName,
+    });
+  }
+  static isPaused(field: Field): Bool {
+    return field.toBits(8)[0];
   }
 }
 
@@ -127,7 +200,7 @@ function NFTAdvancedAdminContract(params: {
     /** The root hash of the Merkle tree representing the whitelist. */
     @state(Whitelist) whitelist = State<Whitelist>();
     /** Packed field containing pause-related flags. */
-    @state(Field) pauseData = State<Field>();
+    @state(Field) data = State<Field>();
 
     /**
      * Deploys the `NFTWhitelistedAdmin` contract with the provided initial settings.
@@ -138,21 +211,19 @@ function NFTAdvancedAdminContract(params: {
       this.admin.set(props.admin);
       this.upgradeAuthority.set(props.upgradeAuthority);
       this.whitelist.set(props.whitelist);
-      this.pauseData.set(
-        new PauseData({
-          canPause: props.canPause,
-          isPaused: props.isPaused,
-        }).pack()
-      );
+      this.data.set(props.adminData.pack());
       this.account.zkappUri.set(props.uri);
       this.account.permissions.set({
         ...Permissions.default(),
-        // We want to allow the upgrade authority to set the verification key
-        // even in the case when there is no protocol upgrade
-        // to allow the upgrade in case of o1js breaking changes
+        // Allow the upgrade authority to set the verification key
+        // even when there is no protocol upgrade
         setVerificationKey:
           Permissions.VerificationKey.proofDuringCurrentVersion(),
         setPermissions: Permissions.impossible(),
+        access: Permissions.proof(),
+        send: Permissions.proof(),
+        setZkappUri: Permissions.none(),
+        setTokenSymbol: Permissions.none(),
       });
     }
 
@@ -244,8 +315,9 @@ function NFTAdvancedAdminContract(params: {
      */
     @method.returns(MintParamsOption)
     async canMint(mintRequest: MintRequest): Promise<MintParamsOption> {
-      const pauseData = PauseData.unpack(this.pauseData.getAndRequireEquals());
-      pauseData.isPaused.assertFalse("Contract is paused");
+      AdminData.isPaused(this.data.getAndRequireEquals()).assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
 
       const whitelist = this.whitelist.getAndRequireEquals();
       const ownerAmount = await whitelist.getWhitelistedAmount(
@@ -281,6 +353,9 @@ function NFTAdvancedAdminContract(params: {
      */
     @method.returns(Bool)
     async canUpdate(input: NFTState, output: NFTState) {
+      AdminData.isPaused(this.data.getAndRequireEquals()).assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
       const whitelist = this.whitelist.getAndRequireEquals();
       return (await whitelist.getWhitelistedAmount(output.owner)).isSome.and(
         (await whitelist.getWhitelistedAmount(input.owner)).isSome
@@ -296,6 +371,9 @@ function NFTAdvancedAdminContract(params: {
      */
     @method.returns(Bool)
     async canTransfer(transferEvent: TransferEvent) {
+      AdminData.isPaused(this.data.getAndRequireEquals()).assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
       const { to, from, price } = transferEvent;
       const whitelist = this.whitelist.getAndRequireEquals();
       const toAmount = await whitelist.getWhitelistedAmount(to);
@@ -315,49 +393,6 @@ function NFTAdvancedAdminContract(params: {
         .and(fromAmount.isSome);
     }
 
-    // /**
-    //  * Determines if the seller is permitted to list the NFT for sale at the specified price.
-    //  * @param address The address of the NFT.
-    //  * @param seller The seller's public key.
-    //  * @param price The price at which the NFT is being sold.
-    //  * @returns A `Bool` indicating whether the sale is permissible.
-    //  */
-    // @method.returns(Bool)
-    // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
-    //   const whitelist = this.whitelist.getAndRequireEquals();
-    //   const allowedPrice = (
-    //     await whitelist.getWhitelistedAmount(seller)
-    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-    //   return price.lessThanOrEqual(allowedPrice);
-    // }
-
-    // /**
-    //  * Determines if the buyer and seller are allowed to perform the transaction at the specified price.
-    //  * @param address The address of the NFT.
-    //  * @param seller The seller's public key.
-    //  * @param buyer The buyer's public key.
-    //  * @param price The price at which the NFT is being bought.
-    //  * @returns A `Bool` indicating whether the purchase is permitted.
-    //  */
-    // @method.returns(Bool)
-    // async canBuy(
-    //   address: PublicKey,
-    //   seller: PublicKey,
-    //   buyer: PublicKey,
-    //   price: UInt64
-    // ) {
-    //   const whitelist = this.whitelist.getAndRequireEquals();
-    //   const allowedBuyerPrice = (
-    //     await whitelist.getWhitelistedAmount(buyer)
-    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-    //   const allowedSellerPrice = (
-    //     await whitelist.getWhitelistedAmount(seller)
-    //   ).assertSome(NFTAdvancedAdminContractErrors.notWhitelisted);
-    //   return price
-    //     .lessThanOrEqual(allowedBuyerPrice)
-    //     .and(price.lessThanOrEqual(allowedSellerPrice));
-    // }
-
     /**
      * Updates the whitelist's Merkle root and the associated off-chain storage reference.
      * @param whitelistRoot The new whitelist root.
@@ -365,6 +400,9 @@ function NFTAdvancedAdminContract(params: {
      */
     @method
     async updateWhitelist(whitelist: Whitelist) {
+      AdminData.isPaused(this.data.getAndRequireEquals()).assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
       await this.ensureOwnerSignature();
       this.whitelist.set(whitelist);
       this.emitEvent("updateWhitelist", whitelist);
@@ -376,10 +414,10 @@ function NFTAdvancedAdminContract(params: {
     @method
     async pause(): Promise<void> {
       await this.ensureOwnerSignature();
-      const pauseData = PauseData.unpack(this.pauseData.getAndRequireEquals());
-      pauseData.canPause.assertTrue();
-      pauseData.isPaused = Bool(true);
-      this.pauseData.set(pauseData.pack());
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.canPause.assertTrue();
+      adminData.isPaused = Bool(true);
+      this.data.set(adminData.pack());
       this.emitEvent("pause", new PauseEvent({ isPaused: Bool(true) }));
     }
 
@@ -389,10 +427,10 @@ function NFTAdvancedAdminContract(params: {
     @method
     async resume(): Promise<void> {
       await this.ensureOwnerSignature();
-      const pauseData = PauseData.unpack(this.pauseData.getAndRequireEquals());
-      pauseData.canPause.assertTrue();
-      pauseData.isPaused = Bool(false);
-      this.pauseData.set(pauseData.pack());
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.canPause.assertTrue();
+      adminData.isPaused = Bool(false);
+      this.data.set(adminData.pack());
       this.emitEvent("resume", new PauseEvent({ isPaused: Bool(false) }));
     }
 
@@ -403,6 +441,9 @@ function NFTAdvancedAdminContract(params: {
      */
     @method.returns(PublicKey)
     async transferOwnership(to: PublicKey): Promise<PublicKey> {
+      AdminData.isPaused(this.data.getAndRequireEquals()).assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
       await this.ensureOwnerSignature();
       const from = this.admin.getAndRequireEquals();
       this.admin.set(to);
@@ -422,6 +463,9 @@ function NFTAdvancedAdminContract(params: {
       address: PublicKey,
       tokenId: Field
     ): Promise<Bool> {
+      AdminData.isPaused(this.data.getAndRequireEquals()).assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
       const upgradeContract = await this.getUpgradeContract();
 
       // fetchAccount() should be called before calling this method
@@ -446,6 +490,109 @@ function NFTAdvancedAdminContract(params: {
       );
 
       return upgradeAuthorityAnswer.isVerified;
+    }
+    /**
+     * Determines if the name can be changed for a Collection.
+     */
+    @method.returns(Bool)
+    async canChangeName(name: Field): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.allowChangeName;
+    }
+
+    /**
+     * Determines if the creator can be changed for a Collection.
+     */
+    @method.returns(Bool)
+    async canChangeCreator(creator: PublicKey): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.allowChangeCreator;
+    }
+
+    /**
+     * Determines if the base URI can be changed for a Collection.
+     */
+    @method.returns(Bool)
+    async canChangeBaseUri(baseUri: Field): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.allowChangeBaseUri;
+    }
+
+    /**
+     * Determines if the royalty fee can be changed for a Collection.
+     */
+    @method.returns(Bool)
+    async canChangeRoyalty(royaltyFee: UInt32): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.allowChangeRoyalty;
+    }
+
+    /**
+     * Determines if the transfer fee can be changed for a Collection.
+     */
+    @method.returns(Bool)
+    async canChangeTransferFee(transferFee: UInt64): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.allowChangeTransferFee;
+    }
+
+    /**
+     * Determines if the admin contract can be changed for a Collection.
+     */
+    @method.returns(Bool)
+    async canSetAdmin(admin: PublicKey): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.allowChangeAdmin;
+    }
+
+    /**
+     * Determines if the collection can be paused.
+     */
+    @method.returns(Bool)
+    async canPause(): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.canPause;
+    }
+
+    /**
+     * Determines if the collection can be resumed.
+     */
+    @method.returns(Bool)
+    async canResume(): Promise<Bool> {
+      await this.ensureOwnerSignature();
+      const adminData = AdminData.unpack(this.data.getAndRequireEquals());
+      adminData.isPaused.assertFalse(
+        NFTAdvancedAdminContractErrors.contractIsPaused
+      );
+      return adminData.canPause;
     }
   }
 

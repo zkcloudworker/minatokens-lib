@@ -1,33 +1,32 @@
 import {
   AccountUpdate,
   Bool,
-  DeployArgs,
   method,
   PublicKey,
   SmartContract,
   state,
   State,
   Permissions,
-  VerificationKey,
+  DeployArgs,
 } from "o1js";
 import { TransferEvent } from "./events.js";
 import { NFTCollectionContractConstructor } from "./collection.js";
 export {
-  NFTOwnerBase,
-  NFTOwnerContractConstructor,
-  NFTOwnerDeployProps,
-  NFTStandardOwner,
-  DefineOwnerFactory,
+  NFTApprovalBase,
+  NFTApprovalContractConstructor,
+  NFTStandardApproval,
+  NFTApprovalDeployProps,
+  DefineApprovalFactory,
 };
-type DefineOwnerFactory = (params: {
+type DefineApprovalFactory = (params: {
   collectionContract: () => NFTCollectionContractConstructor;
-}) => NFTOwnerContractConstructor;
+}) => NFTApprovalContractConstructor;
 
 /**
  * The `NFTAdminBase` interface defines the administrative functionalities required for managing an NFT collection on the Mina Protocol.
  * It extends the `SmartContract` class and specifies methods that enforce permissions and validations for various NFT operations.
  */
-type NFTOwnerBase = SmartContract & {
+type NFTApprovalBase = SmartContract & {
   /**
    * Determines if an NFT can be transferred from one owner (`from`) to another (`to`) for a specific NFT contract address.
    *
@@ -37,22 +36,6 @@ type NFTOwnerBase = SmartContract & {
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
   canTransfer(transferEvent: TransferEvent): Promise<Bool>;
-
-  canApproveAddress(
-    collection: PublicKey,
-    nft: PublicKey,
-    approved: PublicKey
-  ): Promise<Bool>;
-
-  canPause(collection: PublicKey, nft: PublicKey): Promise<Bool>;
-
-  canResume(collection: PublicKey, nft: PublicKey): Promise<Bool>;
-
-  canChangeVerificationKey(
-    collection: PublicKey,
-    nft: PublicKey,
-    vk: VerificationKey
-  ): Promise<Bool>;
 };
 
 /**
@@ -61,9 +44,11 @@ type NFTOwnerBase = SmartContract & {
  * @param address - The public key of the contract's owner.
  * @returns An instance of `NFTOwnerBase`.
  */
-type NFTOwnerContractConstructor = new (address: PublicKey) => NFTOwnerBase;
+type NFTApprovalContractConstructor = new (
+  address: PublicKey
+) => NFTApprovalBase;
 
-interface NFTOwnerDeployProps extends Exclude<DeployArgs, undefined> {
+interface NFTApprovalDeployProps extends Exclude<DeployArgs, undefined> {
   admin: PublicKey;
   uri: string;
 }
@@ -74,7 +59,7 @@ interface NFTOwnerDeployProps extends Exclude<DeployArgs, undefined> {
  * This contract can be extended by custom admin contracts to implement specific administrative logic,
  * ensuring flexibility while maintaining a standardized interface.
  */
-class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
+class NFTStandardApproval extends SmartContract implements NFTApprovalBase {
   /**
    * The public key of the contract's administrator.
    * This account has the authority to perform administrative actions such as pausing the contract or upgrading the verification key.
@@ -85,7 +70,7 @@ class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
    * Deploys the contract with initial settings.
    * @param props - Deployment properties including admin, upgradeAuthority, uri, canPause, and isPaused.
    */
-  async deploy(props: NFTOwnerDeployProps) {
+  async deploy(props: NFTApprovalDeployProps) {
     await super.deploy(props);
     this.admin.set(props.admin);
     this.account.zkappUri.set(props.uri);
@@ -112,38 +97,6 @@ class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
 
   @method.returns(Bool)
   async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
-    await this.ensureOwnerSignature();
-    return Bool(true);
-  }
-
-  @method.returns(Bool)
-  async canPause(collection: PublicKey, nft: PublicKey): Promise<Bool> {
-    await this.ensureOwnerSignature();
-    return Bool(true);
-  }
-
-  @method.returns(Bool)
-  async canResume(collection: PublicKey, nft: PublicKey): Promise<Bool> {
-    await this.ensureOwnerSignature();
-    return Bool(true);
-  }
-
-  @method.returns(Bool)
-  async canChangeVerificationKey(
-    collection: PublicKey,
-    nft: PublicKey,
-    vk: VerificationKey
-  ): Promise<Bool> {
-    await this.ensureOwnerSignature();
-    return Bool(true);
-  }
-
-  @method.returns(Bool)
-  async canApproveAddress(
-    collection: PublicKey,
-    nft: PublicKey,
-    approved: PublicKey
-  ): Promise<Bool> {
     await this.ensureOwnerSignature();
     return Bool(true);
   }

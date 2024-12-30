@@ -7,7 +7,6 @@ const NftErrors = {
     cannotChangeMetadataVerificationKeyHash: "Cannot change metadata verification key hash",
     cannotChangeOwner: "Cannot change owner",
     cannotChangeStorage: "Cannot change storage",
-    cannotChangePrice: "Cannot change price",
     cannotChangePauseState: "Cannot change pause state",
     noPermissionToPause: "No permission to pause",
     nftAlreadyPaused: "NFT is already paused",
@@ -16,9 +15,6 @@ const NftErrors = {
     cannotChangeName: "Cannot change name",
     cannotChangeMetadata: "Cannot change metadata",
     noMetadataVerificationKey: "No metadata verification key",
-    noPermissionToSell: "No permission to sell",
-    noPermissionToBuy: "No permission to buy",
-    noPermissionToChangePrice: "No permission to change price",
 };
 /**
  * The NFT Contract represents an individual NFT within a collection.
@@ -96,6 +92,7 @@ class NFT extends SmartContract {
             immutableState: new NFTImmutableState({
                 canChangeOwnerByProof: data.canChangeOwnerByProof,
                 canTransfer: data.canTransfer,
+                canApprove: data.canApprove,
                 canChangeMetadata: data.canChangeMetadata,
                 canChangeStorage: data.canChangeStorage,
                 canChangeName: data.canChangeName,
@@ -177,70 +174,6 @@ class NFT extends SmartContract {
         this.emitEvent("update", event);
         return metadataVerificationKeyHash;
     }
-    // /**
-    //  * Lists the NFT for sale at a specified price.
-    //  *
-    //  * @param price - The price at which to sell the NFT (`UInt64`).
-    //  * @param seller - The public key of the seller (`PublicKey`).
-    //  * @returns An event emitted after the NFT is listed for sale (`SellEvent`).
-    //  */
-    // @method.returns(OfferEvent)
-    // async offer(price: UInt64, seller: PublicKey): Promise<OfferEvent> {
-    //   this.owner.getAndRequireEquals().assertEquals(seller);
-    //   const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    //   data.isPaused.assertFalse(NftErrors.nftIsPaused);
-    //   data.canTransfer.assertTrue(NftErrors.noPermissionToSell);
-    //   data.canChangePrice.assertTrue(NftErrors.noPermissionToChangePrice);
-    //   const version = data.version.add(1);
-    //   data.version = version;
-    //   data.price = price;
-    //   this.packedData.set(data.pack());
-    //   const event = new OfferEvent({
-    //     seller,
-    //     price,
-    //     version,
-    //     address: this.address,
-    //   });
-    //   this.emitEvent("offer", event);
-    //   return event;
-    // }
-    // /**
-    //  * Purchases the NFT, transferring ownership and handling payment.
-    //  *
-    //  * @param price - The price at which to buy the NFT (`UInt64`).
-    //  * @param buyer - The public key of the buyer (`PublicKey`).
-    //  * @returns An event emitted after the NFT is purchased (`BuyEvent`).
-    //  */
-    // @method.returns(BuyEvent)
-    // async buy(price: UInt64, buyer: PublicKey): Promise<BuyEvent> {
-    //   const owner = this.owner.getAndRequireEquals();
-    //   const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-    //   data.price.equals(UInt64.zero).assertFalse(); // the NFT is for sale
-    //   data.price.assertEquals(price); // price is correct
-    //   data.isPaused.assertFalse(NftErrors.nftIsPaused);
-    //   data.canTransfer.assertTrue(NftErrors.noPermissionToBuy);
-    //   const version = data.version.add(1);
-    //   data.version = version;
-    //   data.price = UInt64.zero; // reset price
-    //   this.packedData.set(data.pack());
-    //   this.owner.set(buyer);
-    //   const event = new BuyEvent({
-    //     seller: owner,
-    //     buyer,
-    //     price,
-    //     version,
-    //     address: this.address,
-    //   });
-    //   this.emitEvent("buy", event);
-    //   this.emitEvent(
-    //     "ownershipChange",
-    //     new OwnershipChangeEvent({
-    //       from: owner,
-    //       to: buyer,
-    //     })
-    //   );
-    //   return event;
-    // }
     /**
      * Transfers ownership of the NFT from one user to another.
      *
@@ -296,12 +229,6 @@ class NFT extends SmartContract {
      */
     async upgradeVerificationKey(vk) {
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
-        // const owner = data.owner;
-        // owner
-        //   .equals(sender)
-        //   .not()
-        //   .and(data.requireOwnerSignatureToUpgrade.not())
-        //   .assertFalse(NftErrors.onlyOwnerCanUpgradeVerificationKey);
         const version = data.version.add(1);
         data.version = version;
         this.account.verificationKey.set(vk);

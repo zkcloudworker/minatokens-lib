@@ -1,11 +1,11 @@
-import { CollectionFactory } from "./contracts/collection.js";
-import { NFTOwnerContractConstructor, NFTAdminContractConstructor, NFTApprovalContractConstructor, DefineApprovalFactory } from "./interfaces/index.js";
+import { CollectionFactory } from "./contracts/index.js";
+import { NFTOwnerContractConstructor, NFTAdminContractConstructor, NFTApprovalContractConstructor, DefineApprovalFactory, DefineOwnerFactory } from "./interfaces/index.js";
 export declare const NFTAdvancedAdmin: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
         admin: import("o1js").State<import("o1js").PublicKey>;
         upgradeAuthority: import("o1js").State<import("o1js").PublicKey>;
         whitelist: import("o1js").State<import("@minatokens/storage").Whitelist>;
-        pauseData: import("o1js").State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
+        data: import("o1js").State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
         deploy(props: import("./admin/advanced.js").NFTAdvancedAdminDeployProps): Promise<void>;
         events: {
             upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
@@ -26,6 +26,14 @@ export declare const NFTAdvancedAdmin: {
         resume(): Promise<void>;
         transferOwnership(to: import("o1js").PublicKey): Promise<import("o1js").PublicKey>;
         canChangeVerificationKey(vk: import("o1js").VerificationKey, address: import("o1js").PublicKey, tokenId: import("o1js").Field): Promise<import("o1js").Bool>;
+        canChangeName(name: import("o1js").Field): Promise<import("o1js").Bool>;
+        canChangeCreator(creator: import("o1js").PublicKey): Promise<import("o1js").Bool>;
+        canChangeBaseUri(baseUri: import("o1js").Field): Promise<import("o1js").Bool>;
+        canChangeRoyalty(royaltyFee: import("o1js").UInt32): Promise<import("o1js").Bool>;
+        canChangeTransferFee(transferFee: import("o1js").UInt64): Promise<import("o1js").Bool>;
+        canSetAdmin(admin: import("o1js").PublicKey): Promise<import("o1js").Bool>;
+        canPause(): Promise<import("o1js").Bool>;
+        canResume(): Promise<import("o1js").Bool>;
         "__#3@#private": any;
         address: import("o1js").PublicKey;
         tokenId: import("o1js").Field;
@@ -191,9 +199,9 @@ export type NonFungibleTokenContracts = {
     Admin: NFTAdminContractConstructor;
 };
 export declare function NonFungibleTokenContractsFactory(params: {
-    approvalFactory: DefineApprovalFactory;
-    adminContract: NFTAdminContractConstructor;
-    ownerContract: NFTOwnerContractConstructor;
+    adminContract?: NFTAdminContractConstructor;
+    approvalFactory?: DefineApprovalFactory;
+    ownerFactory?: DefineOwnerFactory;
 }): NonFungibleTokenContracts;
 export declare const Collection: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
@@ -209,15 +217,6 @@ export declare const Collection: {
             update: typeof import("o1js").PublicKey;
             transfer: typeof import("./interfaces/events.js").TransferEvent;
             approve: typeof import("./interfaces/events.js").ApproveEvent;
-            offer: typeof import("./interfaces/events.js").OfferEvent;
-            sale: typeof import("./interfaces/events.js").SaleEvent;
-            buy: typeof import("./interfaces/events.js").BuyEvent;
-            approveBuy: typeof import("./interfaces/events.js").BuyEvent;
-            approveOffer: typeof import("./interfaces/events.js").OfferEvent;
-            approveSale: typeof import("./interfaces/events.js").SaleEvent;
-            approveTransfer: typeof import("./interfaces/events.js").TransferEvent;
-            approveMint: typeof import("./interfaces/events.js").MintEvent;
-            approveUpdate: typeof import("o1js").PublicKey;
             upgradeNFTVerificationKey: typeof import("./interfaces/events.js").UpgradeVerificationKeyEvent;
             upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
             limitMinting: typeof import("./interfaces/events.js").LimitMintingEvent;
@@ -235,37 +234,33 @@ export declare const Collection: {
         approveBase(forest: import("o1js").AccountUpdateForest): Promise<void>;
         getAdminContract(): import("./interfaces/admin.js").NFTAdminBase;
         getOwnerContract(address: import("o1js").PublicKey): import("./interfaces/owner.js").NFTOwnerBase;
-        getApprovalContract(address: import("o1js").PublicKey): import("./interfaces/owner.js").NFTApprovalBase;
+        getApprovalContract(address: import("o1js").PublicKey): import("./interfaces/approval.js").NFTApprovalBase;
         ensureCreatorSignature(): Promise<import("o1js").AccountUpdate>;
         ensureOwnerSignature(owner: import("o1js").PublicKey): Promise<import("o1js").AccountUpdate>;
-        ensureNotPaused(): Promise<import("./interfaces/types.js").CollectionData>;
+        ensureNotPaused(): Promise<void>;
         mintByCreator(params: import("./interfaces/types.js").MintParams): Promise<void>;
         mint(mintRequest: import("./interfaces/types.js").MintRequest): Promise<void>;
-        _mint(params: import("./interfaces/types.js").MintParams, collectionData: import("./interfaces/types.js").CollectionData): Promise<import("./interfaces/events.js").MintEvent>;
+        _mint(params: import("./interfaces/types.js").MintParams): Promise<import("./interfaces/events.js").MintEvent>;
         update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        updateWithApproval(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        _update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        transferByProof(params: import("./interfaces/types.js").TransferParams): Promise<void>;
         approveAddress(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         approveAddressByProof(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
-        transferNFT(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
-        transferNFTWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
+        transferBySignature(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
+        transferByProof(params: import("./interfaces/types.js").TransferParams): Promise<void>;
+        approvedTransferByProof(params: import("./interfaces/types.js").TransferParams): Promise<void>;
+        approvedTransferBySignature(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
         _transfer(params: {
             transferEventDraft: import("./interfaces/events.js").TransferEvent;
             transferFee: import("o1js").UInt64;
             royaltyFee: import("o1js").UInt32;
         }): Promise<import("./interfaces/events.js").TransferEvent>;
-        upgradeNFTVerificationKey(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
+        upgradeNFTVerificationKeyBySignature(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
         upgradeNFTVerificationKeyByProof(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
-        _upgrade(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<{
-            data: import("./interfaces/events.js").UpgradeVerificationKeyData;
-            sender: import("o1js").PublicKey;
-        }>;
+        _upgrade(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<import("./interfaces/events.js").UpgradeVerificationKeyData>;
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         limitMinting(): Promise<void>;
         pause(): Promise<void>;
         resume(): Promise<void>;
-        pauseNFT(address: import("o1js").PublicKey): Promise<void>;
+        pauseNFTBySignature(address: import("o1js").PublicKey): Promise<void>;
         pauseNFTByProof(address: import("o1js").PublicKey): Promise<void>;
         resumeNFT(address: import("o1js").PublicKey): Promise<void>;
         resumeNFTByProof(address: import("o1js").PublicKey): Promise<void>;
@@ -321,8 +316,8 @@ export declare const Collection: {
             addInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: import("o1js").UInt32, end?: import("o1js").UInt32): Promise<{
             type: string;
             event: {
@@ -469,15 +464,6 @@ export declare const AdvancedCollection: {
             update: typeof import("o1js").PublicKey;
             transfer: typeof import("./interfaces/events.js").TransferEvent;
             approve: typeof import("./interfaces/events.js").ApproveEvent;
-            offer: typeof import("./interfaces/events.js").OfferEvent;
-            sale: typeof import("./interfaces/events.js").SaleEvent;
-            buy: typeof import("./interfaces/events.js").BuyEvent;
-            approveBuy: typeof import("./interfaces/events.js").BuyEvent;
-            approveOffer: typeof import("./interfaces/events.js").OfferEvent;
-            approveSale: typeof import("./interfaces/events.js").SaleEvent;
-            approveTransfer: typeof import("./interfaces/events.js").TransferEvent;
-            approveMint: typeof import("./interfaces/events.js").MintEvent;
-            approveUpdate: typeof import("o1js").PublicKey;
             upgradeNFTVerificationKey: typeof import("./interfaces/events.js").UpgradeVerificationKeyEvent;
             upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
             limitMinting: typeof import("./interfaces/events.js").LimitMintingEvent;
@@ -495,37 +481,33 @@ export declare const AdvancedCollection: {
         approveBase(forest: import("o1js").AccountUpdateForest): Promise<void>;
         getAdminContract(): import("./interfaces/admin.js").NFTAdminBase;
         getOwnerContract(address: import("o1js").PublicKey): import("./interfaces/owner.js").NFTOwnerBase;
-        getApprovalContract(address: import("o1js").PublicKey): import("./interfaces/owner.js").NFTApprovalBase;
+        getApprovalContract(address: import("o1js").PublicKey): import("./interfaces/approval.js").NFTApprovalBase;
         ensureCreatorSignature(): Promise<import("o1js").AccountUpdate>;
         ensureOwnerSignature(owner: import("o1js").PublicKey): Promise<import("o1js").AccountUpdate>;
-        ensureNotPaused(): Promise<import("./interfaces/types.js").CollectionData>;
+        ensureNotPaused(): Promise<void>;
         mintByCreator(params: import("./interfaces/types.js").MintParams): Promise<void>;
         mint(mintRequest: import("./interfaces/types.js").MintRequest): Promise<void>;
-        _mint(params: import("./interfaces/types.js").MintParams, collectionData: import("./interfaces/types.js").CollectionData): Promise<import("./interfaces/events.js").MintEvent>;
+        _mint(params: import("./interfaces/types.js").MintParams): Promise<import("./interfaces/events.js").MintEvent>;
         update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        updateWithApproval(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        _update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
-        transferByProof(params: import("./interfaces/types.js").TransferParams): Promise<void>;
         approveAddress(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         approveAddressByProof(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
-        transferNFT(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
-        transferNFTWithApproval(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
+        transferBySignature(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
+        transferByProof(params: import("./interfaces/types.js").TransferParams): Promise<void>;
+        approvedTransferByProof(params: import("./interfaces/types.js").TransferParams): Promise<void>;
+        approvedTransferBySignature(address: import("o1js").PublicKey, to: import("o1js").PublicKey, price: import("./interfaces/types.js").UInt64Option): Promise<void>;
         _transfer(params: {
             transferEventDraft: import("./interfaces/events.js").TransferEvent;
             transferFee: import("o1js").UInt64;
             royaltyFee: import("o1js").UInt32;
         }): Promise<import("./interfaces/events.js").TransferEvent>;
-        upgradeNFTVerificationKey(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
+        upgradeNFTVerificationKeyBySignature(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
         upgradeNFTVerificationKeyByProof(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<void>;
-        _upgrade(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<{
-            data: import("./interfaces/events.js").UpgradeVerificationKeyData;
-            sender: import("o1js").PublicKey;
-        }>;
+        _upgrade(address: import("o1js").PublicKey, vk: import("o1js").VerificationKey): Promise<import("./interfaces/events.js").UpgradeVerificationKeyData>;
         upgradeVerificationKey(vk: import("o1js").VerificationKey): Promise<void>;
         limitMinting(): Promise<void>;
         pause(): Promise<void>;
         resume(): Promise<void>;
-        pauseNFT(address: import("o1js").PublicKey): Promise<void>;
+        pauseNFTBySignature(address: import("o1js").PublicKey): Promise<void>;
         pauseNFTByProof(address: import("o1js").PublicKey): Promise<void>;
         resumeNFT(address: import("o1js").PublicKey): Promise<void>;
         resumeNFTByProof(address: import("o1js").PublicKey): Promise<void>;
@@ -581,8 +563,8 @@ export declare const AdvancedCollection: {
             addInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | import("o1js").UInt64 | import("o1js").UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: import("o1js").Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: import("o1js").UInt32, end?: import("o1js").UInt32): Promise<{
             type: string;
             event: {

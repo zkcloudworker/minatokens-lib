@@ -1,15 +1,14 @@
-import { CollectionFactory } from "./contracts/collection.js";
-import { NFTAdmin, NFTAdvancedAdminContract } from "./admin/index.js";
+import { CollectionFactory, NFTAdmin } from "./contracts/index.js";
+import { NFTAdvancedAdminContract } from "./admin/index.js";
 import { VerificationKeyUpgradeAuthority } from "@minatokens/upgradable";
 import { OfferFactory } from "./marketplace/offer.js";
 import {
   NFTOwnerContractConstructor,
   NFTAdminContractConstructor,
   NFTApprovalContractConstructor,
-  NFTCollectionContractConstructor,
   NFTStandardOwner,
-  NFTStandardApproval,
   DefineApprovalFactory,
+  DefineOwnerFactory,
 } from "./interfaces/index.js";
 
 export const NFTAdvancedAdmin = NFTAdvancedAdminContract({
@@ -24,15 +23,19 @@ export type NonFungibleTokenContracts = {
 };
 
 export function NonFungibleTokenContractsFactory(params: {
-  approvalFactory: DefineApprovalFactory;
-  adminContract: NFTAdminContractConstructor;
-  ownerContract: NFTOwnerContractConstructor;
+  adminContract?: NFTAdminContractConstructor;
+  approvalFactory?: DefineApprovalFactory;
+  ownerFactory?: DefineOwnerFactory;
 }): NonFungibleTokenContracts {
-  const { approvalFactory, adminContract, ownerContract } = params;
+  const {
+    adminContract = NFTAdmin,
+    approvalFactory = OfferFactory,
+    ownerFactory = ({ collectionContract }) => NFTStandardOwner,
+  } = params;
 
   let Collection: ReturnType<typeof CollectionFactory>;
   let Approval: NFTApprovalContractConstructor;
-  let Owner: NFTOwnerContractConstructor = ownerContract;
+  let Owner: NFTOwnerContractConstructor;
   let Admin: NFTAdminContractConstructor = adminContract;
 
   function getCollection() {
@@ -47,6 +50,12 @@ export function NonFungibleTokenContractsFactory(params: {
     }
     return Approval;
   }
+  function getOwner() {
+    if (!Owner) {
+      throw new Error("Owner constructor not set up yet!");
+    }
+    return Owner;
+  }
 
   Approval = approvalFactory({
     collectionContract: getCollection,
@@ -54,19 +63,19 @@ export function NonFungibleTokenContractsFactory(params: {
 
   Collection = CollectionFactory({
     adminContract: () => adminContract,
-    ownerContract: () => ownerContract,
+    ownerContract: getOwner,
     approvalContract: getApproval,
+  });
+
+  Owner = ownerFactory({
+    collectionContract: getCollection,
   });
 
   return { Collection, Approval, Owner, Admin };
 }
 
 export const { Collection, Approval, Owner, Admin } =
-  NonFungibleTokenContractsFactory({
-    approvalFactory: OfferFactory,
-    adminContract: NFTAdmin,
-    ownerContract: NFTStandardOwner,
-  });
+  NonFungibleTokenContractsFactory({});
 
 export const {
   Collection: AdvancedCollection,
@@ -74,7 +83,5 @@ export const {
   Owner: AdvancedOwner,
   Admin: AdvancedAdmin,
 } = NonFungibleTokenContractsFactory({
-  approvalFactory: OfferFactory,
   adminContract: NFTAdvancedAdmin,
-  ownerContract: NFTStandardOwner,
 });

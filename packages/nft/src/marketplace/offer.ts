@@ -10,16 +10,12 @@ import {
   SmartContract,
   Bool,
 } from "o1js";
-import { Whitelist, OffChainList, Storage } from "@minatokens/storage";
 import {
   UInt64Option,
   TransferEvent,
-  NFTOwnerBase,
-  NFTOwnerContractConstructor,
   NFTCollectionContractConstructor,
   NFTApprovalBase,
   NFTCollectionBase,
-  NFTApprovalContractConstructor,
 } from "../interfaces/index.js";
 
 export interface NonFungibleTokenOfferContractDeployProps
@@ -44,8 +40,7 @@ export interface NonFungibleTokenOfferContractDeployProps
  * @param params - Constructor parameters including admin and upgrade contracts, and network ID.
  * @returns The Collection class extending TokenContract and implementing required interfaces.
  */
-/* 
-// Start of Selection */
+
 export function OfferFactory(params: {
   collectionContract: () => NFTCollectionContractConstructor;
 }) {

@@ -17,10 +17,7 @@ import {
   NFTImmutableState,
   UpdateEvent,
   TransferEvent,
-  OfferEvent,
-  BuyEvent,
   UpgradeVerificationKeyEvent,
-  PausableContract,
   PauseEvent,
   NFTOraclePreconditions,
   OwnershipChangeEvent,
@@ -34,7 +31,6 @@ const NftErrors = {
     "Cannot change metadata verification key hash",
   cannotChangeOwner: "Cannot change owner",
   cannotChangeStorage: "Cannot change storage",
-  cannotChangePrice: "Cannot change price",
   cannotChangePauseState: "Cannot change pause state",
   noPermissionToPause: "No permission to pause",
   nftAlreadyPaused: "NFT is already paused",
@@ -43,9 +39,6 @@ const NftErrors = {
   cannotChangeName: "Cannot change name",
   cannotChangeMetadata: "Cannot change metadata",
   noMetadataVerificationKey: "No metadata verification key",
-  noPermissionToSell: "No permission to sell",
-  noPermissionToBuy: "No permission to buy",
-  noPermissionToChangePrice: "No permission to change price",
 };
 
 /**
@@ -148,6 +141,7 @@ class NFT extends SmartContract {
         immutableState: new NFTImmutableState({
           canChangeOwnerByProof: data.canChangeOwnerByProof,
           canTransfer: data.canTransfer,
+          canApprove: data.canApprove,
           canChangeMetadata: data.canChangeMetadata,
           canChangeStorage: data.canChangeStorage,
           canChangeName: data.canChangeName,

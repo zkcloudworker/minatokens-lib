@@ -11,6 +11,7 @@ import {
   UInt64,
   Field,
   AccountUpdate,
+  UInt32,
 } from "o1js";
 import {
   MintRequest,
@@ -28,8 +29,10 @@ export { NFTAdmin, NFTAdminDeployProps };
 interface NFTAdminDeployProps extends Exclude<DeployArgs, undefined> {
   admin: PublicKey;
   uri: string;
-  canPause: Bool;
-  isPaused: Bool;
+  canBePaused?: Bool;
+  allowChangeRoyalty?: Bool;
+  allowChangeTransferFee?: Bool;
+  isPaused?: Bool;
 }
 
 /**
@@ -49,12 +52,6 @@ class NFTAdmin
   @state(PublicKey) admin = State<PublicKey>();
 
   /**
-   * The public key of the upgrade authority contract.
-   * This is the contract responsible for validating and authorizing upgrades to the verification key.
-   */
-  @state(PublicKey) upgradeAuthority = State<PublicKey>();
-
-  /**
    * A boolean flag indicating whether the contract is currently paused.
    * When `true`, certain operations are disabled.
    */
@@ -64,7 +61,17 @@ class NFTAdmin
    * A boolean flag indicating whether the contract has the ability to be paused.
    * This allows for disabling the pause functionality if desired.
    */
-  @state(Bool) canPause = State<Bool>();
+  @state(Bool) canBePaused = State<Bool>();
+
+  /**
+   * A boolean flag indicating whether the contract has the ability to change the royalty fee.
+   */
+  @state(Bool) allowChangeRoyalty = State<Bool>();
+
+  /**
+   * A boolean flag indicating whether the contract has the ability to change the transfer fee.
+   */
+  @state(Bool) allowChangeTransferFee = State<Bool>();
 
   /**
    * Deploys the contract with initial settings.
@@ -73,16 +80,24 @@ class NFTAdmin
   async deploy(props: NFTAdminDeployProps) {
     await super.deploy(props);
     this.admin.set(props.admin);
-    this.isPaused.set(props.isPaused);
-    this.canPause.set(props.canPause);
+    this.isPaused.set(props.isPaused ?? Bool(false));
+    this.canBePaused.set(props.canBePaused ?? Bool(true));
+    this.allowChangeRoyalty.set(props.allowChangeRoyalty ?? Bool(false));
+    this.allowChangeTransferFee.set(
+      props.allowChangeTransferFee ?? Bool(false)
+    );
     this.account.zkappUri.set(props.uri);
     this.account.permissions.set({
       ...Permissions.default(),
-      // Allow the upgrade authority to set the verification key even without a protocol upgrade,
-      // enabling upgrades in case of o1js breaking changes.
+      // Allow the upgrade authority to set the verification key
+      // even when there is no protocol upgrade
       setVerificationKey:
         Permissions.VerificationKey.proofDuringCurrentVersion(),
       setPermissions: Permissions.impossible(),
+      access: Permissions.proof(),
+      send: Permissions.proof(),
+      setZkappUri: Permissions.none(),
+      setTokenSymbol: Permissions.none(),
     });
   }
 
@@ -146,9 +161,8 @@ class NFTAdmin
    * @returns A `Bool` indicating whether the update is allowed.
    */
   @method.returns(Bool)
-  async canUpdate(input: NFTState, output: NFTState) {
-    const isPaused = this.isPaused.getAndRequireEquals();
-    return isPaused.not();
+  async canUpdate(input: NFTState, output: NFTState): Promise<Bool> {
+    return Bool(true);
   }
 
   /**
@@ -161,41 +175,8 @@ class NFTAdmin
    */
   @method.returns(Bool)
   async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
-    const isPaused = this.isPaused.getAndRequireEquals();
-    return isPaused.not();
+    return Bool(true);
   }
-
-  // /**
-  //  * Determines whether the NFT can be listed for sale at the given price.
-  //  * @param address - The NFT contract address.
-  //  * @param seller - The seller's public key.
-  //  * @param price - The listing price.
-  //  * @returns A `Bool` indicating whether the sale is permitted.
-  //  */
-  // @method.returns(Bool)
-  // async canSell(address: PublicKey, seller: PublicKey, price: UInt64) {
-  //   const isPaused = this.isPaused.getAndRequireEquals();
-  //   return isPaused.not();
-  // }
-
-  // /**
-  //  * Determines whether the NFT can be purchased by the buyer from the seller at the given price.
-  //  * @param address - The NFT contract address.
-  //  * @param seller - The seller's public key.
-  //  * @param buyer - The buyer's public key.
-  //  * @param price - The purchase price.
-  //  * @returns A `Bool` indicating whether the purchase is allowed.
-  //  */
-  // @method.returns(Bool)
-  // async canBuy(
-  //   address: PublicKey,
-  //   seller: PublicKey,
-  //   buyer: PublicKey,
-  //   price: UInt64
-  // ) {
-  //   const isPaused = this.isPaused.getAndRequireEquals();
-  //   return isPaused.not();
-  // }
 
   /**
    * Pauses the contract, disabling certain administrative actions.
@@ -204,7 +185,7 @@ class NFTAdmin
   @method
   async pause(): Promise<void> {
     await this.ensureOwnerSignature();
-    this.canPause.getAndRequireEquals().assertTrue();
+    this.canBePaused.getAndRequireEquals().assertTrue();
     this.isPaused.set(Bool(true));
     this.emitEvent("pause", new PauseEvent({ isPaused: Bool(true) }));
   }
@@ -216,7 +197,7 @@ class NFTAdmin
   @method
   async resume(): Promise<void> {
     await this.ensureOwnerSignature();
-    this.canPause.getAndRequireEquals().assertTrue();
+    this.canBePaused.getAndRequireEquals().assertTrue();
     this.isPaused.set(Bool(false));
     this.emitEvent("resume", new PauseEvent({ isPaused: Bool(false) }));
   }
@@ -228,6 +209,8 @@ class NFTAdmin
    */
   @method.returns(PublicKey)
   async transferOwnership(to: PublicKey): Promise<PublicKey> {
+    const isPaused = this.isPaused.getAndRequireEquals();
+    isPaused.assertTrue("Contract is paused");
     await this.ensureOwnerSignature();
     const from = this.admin.getAndRequireEquals();
     this.admin.set(to);
@@ -249,5 +232,73 @@ class NFTAdmin
   ): Promise<Bool> {
     await this.ensureOwnerSignature();
     return Bool(true);
+  }
+
+  /**
+   * Determines if the name can be changed for a Collection.
+   */
+  @method.returns(Bool)
+  async canChangeName(name: Field): Promise<Bool> {
+    return Bool(false);
+  }
+
+  /**
+   * Determines if the creator can be changed for a Collection.
+   */
+  @method.returns(Bool)
+  async canChangeCreator(creator: PublicKey): Promise<Bool> {
+    return Bool(false);
+  }
+
+  /**
+   * Determines if the base URI can be changed for a Collection.
+   */
+  @method.returns(Bool)
+  async canChangeBaseUri(baseUri: Field): Promise<Bool> {
+    return Bool(false);
+  }
+
+  /**
+   * Determines if the royalty fee can be changed for a Collection.
+   */
+  @method.returns(Bool)
+  async canChangeRoyalty(royaltyFee: UInt32): Promise<Bool> {
+    await this.ensureOwnerSignature();
+    return this.allowChangeRoyalty.getAndRequireEquals();
+  }
+
+  /**
+   * Determines if the transfer fee can be changed for a Collection.
+   */
+  @method.returns(Bool)
+  async canChangeTransferFee(transferFee: UInt64): Promise<Bool> {
+    await this.ensureOwnerSignature();
+    return this.allowChangeTransferFee.getAndRequireEquals();
+  }
+
+  /**
+   * Determines if the admin contract can be changed for a Collection.
+   */
+  @method.returns(Bool)
+  async canSetAdmin(admin: PublicKey): Promise<Bool> {
+    return Bool(false);
+  }
+
+  /**
+   * Determines if the collection can be paused.
+   */
+  @method.returns(Bool)
+  async canPause(): Promise<Bool> {
+    await this.ensureOwnerSignature();
+    return this.canBePaused.getAndRequireEquals();
+  }
+
+  /**
+   * Determines if the collection can be resumed.
+   */
+  @method.returns(Bool)
+  async canResume(): Promise<Bool> {
+    await this.ensureOwnerSignature();
+    return this.canBePaused.getAndRequireEquals();
   }
 }

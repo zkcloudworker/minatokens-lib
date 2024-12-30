@@ -6,23 +6,18 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, ApproveEvent, OfferEvent, SaleEvent, BuyEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UInt64Option, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase } from "../interfaces/index.js";
+import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UInt64Option, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase } from "../interfaces/index.js";
 export { CollectionDeployProps, CollectionFactory, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
     transferNotAllowed: string;
     collectionPaused: string;
-    mintApprovalRequired: string;
-    mintApprovalNotRequired: string;
     cannotMintMasterNFT: string;
     cannotMint: string;
     noPermissionToPause: string;
     noPermissionToResume: string;
     collectionNotPaused: string;
     transferApprovalRequired: string;
-    transferApprovalNotRequired: string;
-    updateApprovalRequired: string;
-    updateApprovalNotRequired: string;
     noPermissionToChangeName: string;
     noPermissionToChangeBaseUri: string;
     noPermissionToChangeCreator: string;
@@ -30,11 +25,10 @@ declare const CollectionErrors: {
     noPermissionToChangeTransferFee: string;
     noPermissionToSetAdmin: string;
     cannotUpgradeVerificationKey: string;
-    creatorSignatureRequiredToUpgradeCollection: string;
-    creatorSignatureRequiredToUpgradeNFT: string;
     upgradeContractAddressNotSet: string;
     adminContractAddressNotSet: string;
     onlyOwnerCanUpgradeVerificationKey: string;
+    invalidRoyaltyFee: string;
 };
 interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
     collectionName: Field;
@@ -90,15 +84,6 @@ declare function CollectionFactory(params: {
             update: typeof PublicKey;
             transfer: typeof TransferEvent;
             approve: typeof ApproveEvent;
-            offer: typeof OfferEvent;
-            sale: typeof SaleEvent;
-            buy: typeof BuyEvent;
-            approveBuy: typeof BuyEvent;
-            approveOffer: typeof OfferEvent;
-            approveSale: typeof SaleEvent;
-            approveTransfer: typeof TransferEvent;
-            approveMint: typeof MintEvent;
-            approveUpdate: typeof PublicKey;
             upgradeNFTVerificationKey: typeof UpgradeVerificationKeyEvent;
             upgradeVerificationKey: typeof import("node_modules/o1js/dist/node/lib/provable/field.js").Field & ((x: string | number | bigint | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldConst | import("node_modules/o1js/dist/node/lib/provable/core/fieldvar.js").FieldVar | import("node_modules/o1js/dist/node/lib/provable/field.js").Field) => import("node_modules/o1js/dist/node/lib/provable/field.js").Field);
             limitMinting: typeof LimitMintingEvent;
@@ -152,9 +137,9 @@ declare function CollectionFactory(params: {
         /**
          * Ensures that the collection is not paused.
          *
-         * @returns The current collection data.
+         * @returns The packed data of the collection.
          */
-        ensureNotPaused(): Promise<CollectionData>;
+        ensureNotPaused(): Promise<void>;
         /**
          * Mints a new NFT directly by the creator.
          *
@@ -183,40 +168,19 @@ declare function CollectionFactory(params: {
          * @param collectionData - The current collection data.
          * @returns The MintEvent emitted.
          */
-        _mint(params: MintParams, collectionData: CollectionData): Promise<MintEvent>;
-        /**
-         * Updates the NFT without admin approval.
-         *
-         * @param proof - The proof of the NFT update.
-         * @param vk - The verification key.
-         */
-        update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
+        _mint(params: MintParams): Promise<MintEvent>;
         /**
          * Updates the NFT with admin approval.
          *
          * @param proof - The proof of the NFT update.
          * @param vk - The verification key.
          */
-        updateWithApproval(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
+        update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
         /**
-         * Internal method to update an NFT.
+         * Approves an address to transfer an NFT.
          *
-         * @param proof - The proof of the NFT update.
-         * @param vk - The verification key.
-         */
-        _update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
-        /**
-         * Transfers ownership of an NFT from contract without admin approval using a proof.
-         *
-         * @param address - The address of the NFT.
-         * @param to - The recipient's public key.
-         */
-        transferByProof(params: TransferParams): Promise<void>;
-        /**
-         * Transfers ownership of an NFT without admin approval.
-         *
-         * @param address - The address of the NFT.
-         * @param to - The recipient's public key.
+         * @param nftAddress - The address of the NFT.
+         * @param approved - The approved public key.
          */
         approveAddress(nftAddress: PublicKey, approved: PublicKey): Promise<void>;
         /**
@@ -228,18 +192,38 @@ declare function CollectionFactory(params: {
         approveAddressByProof(nftAddress: PublicKey, approved: PublicKey): Promise<void>;
         /**
          * Transfers ownership of an NFT without admin approval.
+         * This method should be used by wallets for collections that do not require transfer approval
+         * and the owners of the NFTs which approve the transfer by signature
          *
          * @param address - The address of the NFT.
          * @param to - The recipient's public key.
+         * @param price - The price of the NFT (optional).
          */
-        transferNFT(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        transferBySignature(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        /**
+         * Transfers ownership of an NFT using a proof in case the owner is a contract
+         * Can be called by the owner or approved that should be a contracts
+         * supporting NFTApprovalBase interface
+         *
+         * @param params - The transfer parameters.
+         */
+        transferByProof(params: TransferParams): Promise<void>;
+        /**
+         * Transfers ownership of an NFT using a proof in case the owner is a contract
+         * Can be called by the owner or approved that should be a contracts
+         * supporting NFTApprovalBase interface
+         *
+         * @param params - The transfer parameters.
+         */
+        approvedTransferByProof(params: TransferParams): Promise<void>;
         /**
          * Transfers ownership of an NFT with admin approval.
          *
          * @param address - The address of the NFT.
          * @param to - The recipient's public key.
+         * @param price - The price of the NFT (optional).
          */
-        transferNFTWithApproval(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        approvedTransferBySignature(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
         /**
          * Internal method to transfer an NFT.
          *
@@ -259,7 +243,7 @@ declare function CollectionFactory(params: {
          * @param address - The address of the NFT.
          * @param vk - The new verification key.
          */
-        upgradeNFTVerificationKey(address: PublicKey, vk: VerificationKey): Promise<void>;
+        upgradeNFTVerificationKeyBySignature(address: PublicKey, vk: VerificationKey): Promise<void>;
         /**
          * Upgrades the verification key of a specific NFT by Proof.
          *
@@ -267,10 +251,7 @@ declare function CollectionFactory(params: {
          * @param vk - The new verification key.
          */
         upgradeNFTVerificationKeyByProof(address: PublicKey, vk: VerificationKey): Promise<void>;
-        _upgrade(address: PublicKey, vk: VerificationKey): Promise<{
-            data: UpgradeVerificationKeyData;
-            sender: PublicKey;
-        }>;
+        _upgrade(address: PublicKey, vk: VerificationKey): Promise<UpgradeVerificationKeyData>;
         /**
          * Upgrades the verification key of the collection contract.
          *
@@ -294,7 +275,7 @@ declare function CollectionFactory(params: {
          *
          * @param address - The address of the NFT to pause.
          */
-        pauseNFT(address: PublicKey): Promise<void>;
+        pauseNFTBySignature(address: PublicKey): Promise<void>;
         /**
          * Pauses a specific NFT, disabling its actions.
          *
@@ -411,8 +392,8 @@ declare function CollectionFactory(params: {
             addInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
             subInPlace(x: string | number | bigint | UInt64 | UInt32 | import("o1js").Int64): void;
         };
-        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: Bool, type: K, event: any): void;
-        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "ownershipChange" | "mint" | "offer" | "sale" | "buy" | "approveBuy" | "approveOffer" | "approveSale" | "approveTransfer" | "approveMint" | "approveUpdate" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
+        emitEventIf<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(condition: Bool, type: K, event: any): void;
+        emitEvent<K extends "update" | "approve" | "transfer" | "upgradeVerificationKey" | "pause" | "resume" | "mint" | "upgradeNFTVerificationKey" | "limitMinting" | "pauseNFT" | "resumeNFT" | "ownershipChange" | "setName" | "setBaseURL" | "setRoyaltyFee" | "setTransferFee" | "setAdmin">(type: K, event: any): void;
         fetchEvents(start?: UInt32, end?: UInt32): Promise<{
             type: string;
             event: {
@@ -481,7 +462,7 @@ declare function CollectionFactory(params: {
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             }) => {
                 fields?: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
-                packed? /** The name of the NFT collection. */: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;
+                packed?: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;
             };
             toJSON: (x: {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
@@ -513,7 +494,9 @@ declare function CollectionFactory(params: {
             sizeInFields(): number;
             check: (value: import("o1js").Proof<any, any>) => void;
             toValue: (x: import("o1js").Proof<any, any>) => import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>;
-            fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>) => import("o1js").Proof<any, any>;
+            fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js" /**
+             * Defines the events emitted by the contract.
+             */).ProofValue<any, any>) => import("o1js").Proof<any, any>;
             toCanonical?: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
         };
         publicFields(value: import("o1js").ProofBase<any, any>): {

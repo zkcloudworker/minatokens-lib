@@ -1,7 +1,7 @@
 import { PublicKey, TokenContract } from "o1js";
 import { TransferParams, UInt64Option } from "./types.js";
 import { NFTOwnerContractConstructor } from "./owner.js";
-import { NFTApprovalContractConstructor } from "./owner.js";
+import { NFTApprovalContractConstructor } from "./approval.js";
 import { NFTAdminContractConstructor } from "./admin.js";
 export {
   NFTCollectionBase,
@@ -28,7 +28,27 @@ type NFTCollectionBase = TokenContract & {
    * @param to - The recipient's public key.
    * @param price - The price of the NFT.
    */
-  transferNFT(
+  transferBySignature(
+    address: PublicKey,
+    to: PublicKey,
+    price: UInt64Option
+  ): Promise<void>;
+
+  /**
+   * Transfers ownership of an NFT from contract without admin approval using a proof.
+   *
+   * @param address - The address of the NFT.
+   * @param to - The recipient's public key.
+   */
+  approvedTransferByProof(params: TransferParams): Promise<void>;
+  /**
+   * Transfers ownership of an NFT from contract without admin approval.
+   *
+   * @param address - The address of the NFT.
+   * @param to - The recipient's public key.
+   * @param price - The price of the NFT.
+   */
+  approvedTransferBySignature(
     address: PublicKey,
     to: PublicKey,
     price: UInt64Option

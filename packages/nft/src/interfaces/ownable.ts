@@ -1,11 +1,4 @@
-import {
-  PublicKey,
-  SmartContract,
-  Field,
-  Struct,
-  Bool,
-  AccountUpdate,
-} from "o1js";
+import { PublicKey, SmartContract, Field, Struct, Bool } from "o1js";
 
 /**
  * Interface representing ownable functionality for smart contracts.
