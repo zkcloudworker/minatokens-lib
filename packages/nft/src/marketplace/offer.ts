@@ -32,8 +32,6 @@ export interface NonFungibleTokenOfferContractDeployProps
   owner: PublicKey;
 }
 
-// export type OfferClass = ReturnType<typeof defineOfferFactory>;
-
 /**
  * Creates a new NFT Collection Contract class.
  *
@@ -115,22 +113,21 @@ export function OfferFactory(params: {
       const nftAddress = this.nft.getAndRequireEquals();
       const owner = this.owner.getAndRequireEquals();
       const price = this.price.getAndRequireEquals();
+      const sender = this.sender.getUnconstrained();
 
       transferEvent.collection.assertEquals(collectionAddress);
       transferEvent.nft.assertEquals(nftAddress);
       transferEvent.from.assertEquals(owner);
       transferEvent.approved.assertEquals(this.address);
       transferEvent.price.assertSome().assertEquals(price);
-      transferEvent.from.assertEquals(owner);
+      transferEvent.to.assertEquals(sender);
       transferEvent.fee
         .orElse(UInt64.zero)
         .assertLessThan(price, "Fee is too high");
 
       const payment = price.sub(transferEvent.fee.orElse(UInt64.zero));
 
-      const sender = this.sender.getUnconstrained();
       const senderUpdate = AccountUpdate.createSigned(sender);
-      transferEvent.to.assertEquals(sender);
       senderUpdate.account.balance.requireBetween(payment, UInt64.MAXINT());
       senderUpdate.balance.subInPlace(payment);
       const ownerUpdate = AccountUpdate.create(owner);

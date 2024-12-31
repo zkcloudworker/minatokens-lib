@@ -28,6 +28,10 @@ __export(index_exports, {
   AdvancedOwner: () => AdvancedOwner,
   Approval: () => Approval,
   ApproveEvent: () => ApproveEvent,
+  Auction: () => Auction,
+  AuctionBidEvent: () => AuctionBidEvent,
+  AuctionFactory: () => AuctionFactory,
+  AuctionPacked: () => AuctionPacked,
   Bid: () => Bid,
   BidEvent: () => BidEvent,
   BidFactory: () => BidFactory,
@@ -3851,7 +3855,6 @@ function OfferFactory(params) {
       transferEvent.from.assertEquals(owner);
       transferEvent.approved.assertEquals(this.address);
       transferEvent.price.assertSome().assertEquals(price);
-      transferEvent.from.assertEquals(owner);
       transferEvent.fee.orElse(import_o1js18.UInt64.zero).assertLessThan(price, "Fee is too high");
       const payment = price.sub(transferEvent.fee.orElse(import_o1js18.UInt64.zero));
       const sender = this.sender.getUnconstrained();
@@ -3900,6 +3903,209 @@ function OfferFactory(params) {
     (0, import_tslib8.__metadata)("design:returntype", Promise)
   ], NonFungibleTokenOfferContract.prototype, "canTransfer", null);
   return NonFungibleTokenOfferContract;
+}
+
+// dist/node/marketplace/auction.js
+var import_tslib9 = require("tslib");
+var import_o1js19 = require("o1js");
+var AuctionPacked = class extends (0, import_o1js19.Struct)({
+  ownerX: import_o1js19.Field,
+  collectionX: import_o1js19.Field,
+  nftX: import_o1js19.Field,
+  data: import_o1js19.Field
+}) {
+};
+var Auction = class _Auction extends (0, import_o1js19.Struct)({
+  owner: import_o1js19.PublicKey,
+  collection: import_o1js19.PublicKey,
+  nft: import_o1js19.PublicKey,
+  minimumPrice: import_o1js19.UInt64,
+  auctionEndTime: import_o1js19.UInt32
+}) {
+  pack() {
+    const data = import_o1js19.Field.fromBits([
+      ...this.minimumPrice.value.toBits(64),
+      ...this.auctionEndTime.value.toBits(32),
+      this.owner.isOdd,
+      this.collection.isOdd,
+      this.nft.isOdd
+    ]);
+    return new AuctionPacked({
+      ownerX: this.owner.x,
+      collectionX: this.collection.x,
+      nftX: this.nft.x,
+      data
+    });
+  }
+  static unpack(packed) {
+    const bits = packed.data.toBits(64 + 32 + 3);
+    const ownerX = packed.ownerX;
+    const collectionX = packed.collectionX;
+    const nftX = packed.nftX;
+    const ownerIsOdd = bits[64 + 32];
+    const collectionIsOdd = bits[64 + 32 + 1];
+    const nftIsOdd = bits[64 + 32 + 2];
+    const owner = import_o1js19.PublicKey.from({ x: ownerX, isOdd: ownerIsOdd });
+    const collection = import_o1js19.PublicKey.from({
+      x: collectionX,
+      isOdd: collectionIsOdd
+    });
+    const nft = import_o1js19.PublicKey.from({ x: nftX, isOdd: nftIsOdd });
+    const minimumPrice = import_o1js19.UInt64.Unsafe.fromField(import_o1js19.Field.fromBits(bits.slice(0, 64)));
+    const auctionEndTime = import_o1js19.UInt32.Unsafe.fromField(import_o1js19.Field.fromBits(bits.slice(64, 64 + 32)));
+    return new _Auction({
+      owner,
+      collection,
+      nft,
+      minimumPrice,
+      auctionEndTime
+    });
+  }
+};
+var AuctionBidEvent = class extends (0, import_o1js19.Struct)({
+  bidder: import_o1js19.PublicKey,
+  price: import_o1js19.UInt64
+}) {
+};
+function AuctionFactory(params) {
+  const { collectionContract } = params;
+  class NonFungibleTokenAuctionContract extends import_o1js19.SmartContract {
+    constructor() {
+      super(...arguments);
+      this.auctionData = (0, import_o1js19.State)();
+      this.bidder = (0, import_o1js19.State)(import_o1js19.PublicKey.empty());
+      this.insideSettleAuction = (0, import_o1js19.State)((0, import_o1js19.Bool)(false));
+      this.events = {
+        bid: AuctionBidEvent,
+        settle: TransferEvent
+      };
+    }
+    async deploy(args) {
+      await super.deploy(args);
+      this.auctionData.set(new Auction({
+        owner: args.owner,
+        collection: args.collection,
+        nft: args.nft,
+        minimumPrice: args.minimumPrice,
+        auctionEndTime: args.auctionEndTime
+      }).pack());
+      this.insideSettleAuction.set((0, import_o1js19.Bool)(false));
+      this.account.permissions.set({
+        ...import_o1js19.Permissions.default(),
+        send: import_o1js19.Permissions.proof(),
+        setVerificationKey: import_o1js19.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+        setPermissions: import_o1js19.Permissions.impossible()
+      });
+    }
+    getCollectionContract(address) {
+      const CollectionContract = collectionContract();
+      return new CollectionContract(address);
+    }
+    async bid(price) {
+      const insideSettleAuction = this.insideSettleAuction.getAndRequireEquals();
+      insideSettleAuction.assertFalse("Auction already finished");
+      const bidder = this.bidder.getAndRequireEquals();
+      const balance = this.account.balance.getAndRequireEquals();
+      balance.assertLessThan(price, "Bid is lower than the existing bid");
+      const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      price.assertGreaterThanOrEqual(auction.minimumPrice, "Bid should be greater or equal than the minimum price");
+      this.network.globalSlotSinceGenesis.requireBetween(import_o1js19.UInt32.from(0), auction.auctionEndTime);
+      const sender = this.sender.getUnconstrained();
+      const senderUpdate = import_o1js19.AccountUpdate.createSigned(sender);
+      const returnUpdate = import_o1js19.AccountUpdate.create(bidder);
+      senderUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
+      returnUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
+      this.balance.subInPlace(balance);
+      returnUpdate.balance.addInPlace(balance);
+      senderUpdate.balance.subInPlace(price);
+      this.balance.addInPlace(price);
+      this.bidder.set(sender);
+      this.emitEvent("bid", new AuctionBidEvent({ bidder: sender, price }));
+    }
+    // anyone can call this method to settle the auction
+    async settleAuction() {
+      const insideSettleAuction = this.insideSettleAuction.getAndRequireEquals();
+      insideSettleAuction.assertFalse("Auction already settled");
+      this.insideSettleAuction.set((0, import_o1js19.Bool)(true));
+      const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
+      const collectionAddress = auction.collection;
+      const nftAddress = auction.nft;
+      const price = auction.minimumPrice;
+      const collection = this.getCollectionContract(collectionAddress);
+      const balance = this.account.balance.getAndRequireEquals();
+      const bidder = this.bidder.getAndRequireEquals();
+      bidder.equals(import_o1js19.PublicKey.empty()).assertFalse("No bidder");
+      balance.assertGreaterThanOrEqual(price, "Bidder does not have enough balance");
+      await collection.transferByProof({
+        address: nftAddress,
+        from: this.address,
+        to: bidder,
+        price: UInt64Option.fromValue(balance)
+      });
+    }
+    async canTransfer(transferEvent) {
+      this.insideSettleAuction.requireEquals((0, import_o1js19.Bool)(true));
+      const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      const collectionAddress = auction.collection;
+      const nftAddress = auction.nft;
+      const owner = auction.owner;
+      const bidder = this.bidder.getAndRequireEquals();
+      const balance = this.account.balance.getAndRequireEquals();
+      transferEvent.collection.assertEquals(collectionAddress);
+      transferEvent.nft.assertEquals(nftAddress);
+      transferEvent.from.assertEquals(owner);
+      transferEvent.approved.assertEquals(this.address);
+      transferEvent.price.assertSome().assertEquals(balance);
+      transferEvent.to.assertEquals(bidder);
+      import_o1js19.Provable.log(transferEvent.fee.orElse(import_o1js19.UInt64.zero));
+      import_o1js19.Provable.log(balance);
+      transferEvent.fee.orElse(import_o1js19.UInt64.zero).assertLessThan(balance, "Fee is too high");
+      const payment = balance.sub(transferEvent.fee.orElse(import_o1js19.UInt64.zero));
+      const sender = this.sender.getUnconstrained();
+      const senderUpdate = import_o1js19.AccountUpdate.createIf(transferEvent.fee.isSome, sender);
+      senderUpdate.requireSignature();
+      senderUpdate.balance.addInPlace(transferEvent.fee.orElse(import_o1js19.UInt64.zero));
+      const ownerUpdate = import_o1js19.AccountUpdate.create(owner);
+      ownerUpdate.balance.addInPlace(payment);
+      this.balance.subInPlace(balance);
+      senderUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
+      ownerUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
+      this.emitEvent("settle", transferEvent);
+      return (0, import_o1js19.Bool)(true);
+    }
+  }
+  (0, import_tslib9.__decorate)([
+    (0, import_o1js19.state)(AuctionPacked),
+    (0, import_tslib9.__metadata)("design:type", Object)
+  ], NonFungibleTokenAuctionContract.prototype, "auctionData", void 0);
+  (0, import_tslib9.__decorate)([
+    (0, import_o1js19.state)(import_o1js19.PublicKey),
+    (0, import_tslib9.__metadata)("design:type", Object)
+  ], NonFungibleTokenAuctionContract.prototype, "bidder", void 0);
+  (0, import_tslib9.__decorate)([
+    (0, import_o1js19.state)(import_o1js19.Bool),
+    (0, import_tslib9.__metadata)("design:type", Object)
+  ], NonFungibleTokenAuctionContract.prototype, "insideSettleAuction", void 0);
+  (0, import_tslib9.__decorate)([
+    import_o1js19.method,
+    (0, import_tslib9.__metadata)("design:type", Function),
+    (0, import_tslib9.__metadata)("design:paramtypes", [import_o1js19.UInt64]),
+    (0, import_tslib9.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenAuctionContract.prototype, "bid", null);
+  (0, import_tslib9.__decorate)([
+    import_o1js19.method,
+    (0, import_tslib9.__metadata)("design:type", Function),
+    (0, import_tslib9.__metadata)("design:paramtypes", []),
+    (0, import_tslib9.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenAuctionContract.prototype, "settleAuction", null);
+  (0, import_tslib9.__decorate)([
+    import_o1js19.method.returns(import_o1js19.Bool),
+    (0, import_tslib9.__metadata)("design:type", Function),
+    (0, import_tslib9.__metadata)("design:paramtypes", [TransferEvent]),
+    (0, import_tslib9.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenAuctionContract.prototype, "canTransfer", null);
+  return NonFungibleTokenAuctionContract;
 }
 
 // dist/node/contracts.js
@@ -3958,6 +4164,10 @@ var { Collection: AdvancedCollection, Approval: AdvancedApproval, Owner: Advance
   AdvancedOwner,
   Approval,
   ApproveEvent,
+  Auction,
+  AuctionBidEvent,
+  AuctionFactory,
+  AuctionPacked,
   Bid,
   BidEvent,
   BidFactory,
