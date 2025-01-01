@@ -1,6 +1,10 @@
 import { PublicKey, Struct, UInt64, UInt32, Field, Bool } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTStateStruct, UInt64Option } from "./types.js";
+import {
+  NFTTransactionContext,
+  NFTStateStruct,
+  UInt64Option,
+} from "./types.js";
 
 export {
   MintEvent,

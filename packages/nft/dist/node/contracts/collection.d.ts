@@ -6,7 +6,7 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UInt64Option, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase } from "../interfaces/index.js";
+import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, NFTStateStruct, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase, TransferExtendedParams } from "../interfaces/index.js";
 export { CollectionDeployProps, CollectionFactory, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
@@ -199,7 +199,7 @@ declare function CollectionFactory(params: {
          * @param to - The recipient's public key.
          * @param price - The price of the NFT (optional).
          */
-        transferBySignature(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        transferBySignature(params: TransferParams): Promise<void>;
         /**
          * Transfers ownership of an NFT using a proof in case the owner is a contract
          * Can be called by the owner or approved that should be a contracts
@@ -223,7 +223,7 @@ declare function CollectionFactory(params: {
          * @param to - The recipient's public key.
          * @param price - The price of the NFT (optional).
          */
-        approvedTransferBySignature(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        approvedTransferBySignature(params: TransferParams): Promise<void>;
         /**
          * Internal method to transfer an NFT.
          *
@@ -233,10 +233,10 @@ declare function CollectionFactory(params: {
          * @returns The TransferEvent emitted.
          */
         _transfer(params: {
-            transferEventDraft: TransferEvent;
+            transferEventDraft: TransferExtendedParams;
             transferFee: UInt64;
             royaltyFee: UInt32;
-        }): Promise<TransferEvent>;
+        }): Promise<TransferExtendedParams>;
         /**
          * Upgrades the verification key of a specific NFT.
          *
@@ -346,6 +346,7 @@ declare function CollectionFactory(params: {
          * @returns The public key of the old owner.
          */
         transferOwnership(to: PublicKey): Promise<PublicKey>;
+        getNFTState(address: PublicKey): Promise<NFTStateStruct>;
         deriveTokenId(): import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
         readonly internal: {
             mint({ address, amount, }: {
@@ -452,14 +453,17 @@ declare function CollectionFactory(params: {
             accountUpdate: bigint;
             calls: bigint;
         }>, "fromFields"> & {
-            fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
+            fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js" /** The public key of the creator of the collection. */).Field[]) => {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             };
         } & {
             toInput: (x: {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-                calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
+                calls: import("node_modules/o1js/dist/node/lib/provable/field.js" /**
+                 * A packed data field containing additional collection parameters,
+                 * such as flags and fee configurations.
+                 */).Field;
             }) => {
                 fields?: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
                 packed?: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;
@@ -494,9 +498,7 @@ declare function CollectionFactory(params: {
             sizeInFields(): number;
             check: (value: import("o1js").Proof<any, any>) => void;
             toValue: (x: import("o1js").Proof<any, any>) => import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>;
-            fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js" /**
-             * Defines the events emitted by the contract.
-             */).ProofValue<any, any>) => import("o1js").Proof<any, any>;
+            fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>) => import("o1js").Proof<any, any>;
             toCanonical?: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
         };
         publicFields(value: import("o1js").ProofBase<any, any>): {

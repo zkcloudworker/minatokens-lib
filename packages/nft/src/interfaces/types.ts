@@ -28,6 +28,8 @@ export {
   UInt64Option,
   TransferParams,
   MAX_ROYALTY_FEE,
+  NFTTransactionContext,
+  TransferExtendedParams,
 };
 
 class UInt64Option extends Option(UInt64) {}
@@ -631,6 +633,13 @@ class MintParams extends Struct({
   expiry: UInt32,
 }) {}
 
+class NFTTransactionContext extends Struct({
+  /** Custom context that can be interpreted by the owner or approved contract.
+   *  Can hold Storage and root or two PublicKeys and UInt64
+   */
+  custom: Provable.Array(Field, 3),
+}) {}
+
 /**
  * Represents an optional MintParams, used in scenarios where minting may or may not be allowed.
  */
@@ -645,11 +654,7 @@ class MintRequest extends Struct({
   /** The owner of the new NFT (can be different from the sender). */
   owner: PublicKey, // can be different from the sender
   /** A custom value that can be interpreted by the admin contract. */
-  customId1: Field, // should be interpreted by the admin contract
-  /** A custom value that can be interpreted by the admin contract. */
-  customId2: Field, // should be interpreted by the admin contract, can form PublicKey or Storage together with customId1
-  /** A custom value that can be interpreted by the admin contract. */
-  customId3: Field, // should be interpreted by the admin contract, can serve as root of the merkle tree for the storage or store two PublicKeys together with customId1 and customId2
+  context: NFTTransactionContext, // should be interpreted by the admin contract
 }) {}
 
 /**
@@ -664,4 +669,27 @@ class TransferParams extends Struct({
   to: PublicKey,
   /** Optional price for the transfer. */
   price: UInt64Option,
+  /** Custom value that can be interpreted by the owner or approved contract. */
+  context: NFTTransactionContext,
+}) {}
+
+class TransferExtendedParams extends Struct({
+  /** The public key of the sender (current owner) before the transfer. */
+  from: PublicKey,
+  /** The public key of the recipient (new owner) after the transfer. */
+  to: PublicKey,
+  /** The public key of the collection. */
+  collection: PublicKey,
+  /** The public key address of the NFT being transferred. */
+  nft: PublicKey,
+  /** The fee paid for the transfer. */
+  fee: UInt64Option,
+  /** The price of the NFT being transferred. */
+  price: UInt64Option,
+  /** Indicates whether the transfer is by owner or by approved address. */
+  transferByOwner: Bool,
+  /** The public key of the approved address. */
+  approved: PublicKey,
+  /** Custom value that can be interpreted by the owner or approved contract. */
+  context: NFTTransactionContext,
 }) {}

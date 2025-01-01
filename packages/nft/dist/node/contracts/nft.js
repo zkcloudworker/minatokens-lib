@@ -1,7 +1,7 @@
 import { __decorate, __metadata } from "tslib";
 import { Field, PublicKey, Bool, SmartContract, method, state, State, VerificationKey, AccountUpdate, } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTData, NFTDataPacked, NFTState, NFTImmutableState, UpdateEvent, TransferEvent, UpgradeVerificationKeyEvent, PauseEvent, NFTOraclePreconditions, OwnershipChangeEvent, UpgradeVerificationKeyData, } from "../interfaces/index.js";
+import { NFTData, NFTDataPacked, NFTState, NFTImmutableState, UpdateEvent, TransferExtendedParams, UpgradeVerificationKeyEvent, PauseEvent, NFTOraclePreconditions, OwnershipChangeEvent, UpgradeVerificationKeyData, NFTStateStruct, } from "../interfaces/index.js";
 export { NFT };
 const NftErrors = {
     cannotChangeMetadataVerificationKeyHash: "Cannot change metadata verification key hash",
@@ -48,6 +48,20 @@ class NFT extends SmartContract {
             pause: PauseEvent,
             resume: PauseEvent,
         };
+    }
+    async getState() {
+        const name = this.name.getAndRequireEquals();
+        const metadata = this.metadata.getAndRequireEquals();
+        const storage = this.storage.getAndRequireEquals();
+        const packedData = this.packedData.getAndRequireEquals();
+        const metadataVerificationKeyHash = this.metadataVerificationKeyHash.getAndRequireEquals();
+        return new NFTStateStruct({
+            name,
+            metadata,
+            storage,
+            packedData,
+            metadataVerificationKeyHash,
+        });
     }
     /**
      * Updates the NFT's state with provided proofs and permissions.
@@ -177,35 +191,34 @@ class NFT extends SmartContract {
     /**
      * Transfers ownership of the NFT from one user to another.
      *
-     * @param from - The public key of the current owner (`PublicKey`) or approved address.
-     * @param to - The public key of the new owner (`PublicKey`).
+     * @param params - The parameters for the transfer (`TransferExtendedParams`).
      * @returns The public key of the old owner (`PublicKey`).
      */
-    async transfer(transferEvent) {
+    async transfer(params) {
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
         data.canTransfer.assertTrue(NftErrors.cannotChangeOwner);
         data.isPaused.assertFalse(NftErrors.nftIsPaused);
         const owner = data.owner;
         const approved = data.approved;
-        transferEvent.transferByOwner = owner.equals(transferEvent.from);
+        params.transferByOwner = owner.equals(params.from);
         owner
-            .equals(transferEvent.from)
+            .equals(params.from)
             .or(approved
-            .equals(transferEvent.from)
+            .equals(params.from)
             .and(approved.equals(PublicKey.empty()).not()))
             .assertTrue(NftErrors.cannotChangeOwner);
-        transferEvent.from = owner;
-        transferEvent.approved = approved;
+        params.from = owner;
+        params.approved = approved;
         const version = data.version.add(1);
         data.version = version;
         data.approved = PublicKey.empty();
-        data.owner = transferEvent.to;
+        data.owner = params.to;
         this.packedData.set(data.pack());
         this.emitEvent("transfer", new OwnershipChangeEvent({
             from: owner,
-            to: transferEvent.to,
+            to: params.to,
         }));
-        return transferEvent;
+        return params;
     }
     /**
      * Transfers ownership of the NFT from one user to another.
@@ -288,6 +301,12 @@ __decorate([
     __metadata("design:type", Object)
 ], NFT.prototype, "metadataVerificationKeyHash", void 0);
 __decorate([
+    method.returns(NFTStateStruct),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], NFT.prototype, "getState", null);
+__decorate([
     method.returns(Field),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [NFTState,
@@ -296,9 +315,9 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "update", null);
 __decorate([
-    method.returns(TransferEvent),
+    method.returns(TransferExtendedParams),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [TransferEvent]),
+    __metadata("design:paramtypes", [TransferExtendedParams]),
     __metadata("design:returntype", Promise)
 ], NFT.prototype, "transfer", null);
 __decorate([

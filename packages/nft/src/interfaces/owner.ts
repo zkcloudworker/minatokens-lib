@@ -10,8 +10,8 @@ import {
   Permissions,
   VerificationKey,
 } from "o1js";
-import { TransferEvent } from "./events.js";
 import { NFTCollectionContractConstructor } from "./collection.js";
+import { TransferExtendedParams } from "./types.js";
 export {
   NFTOwnerBase,
   NFTOwnerContractConstructor,
@@ -36,7 +36,7 @@ type NFTOwnerBase = SmartContract & {
    * @param to - The public key of the intended new owner.
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
-  canTransfer(transferEvent: TransferEvent): Promise<Bool>;
+  canTransfer(params: TransferExtendedParams): Promise<Bool>;
 
   canApproveAddress(
     collection: PublicKey,
@@ -111,7 +111,7 @@ class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
   }
 
   @method.returns(Bool)
-  async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
+  async canTransfer(params: TransferExtendedParams): Promise<Bool> {
     await this.ensureOwnerSignature();
     return Bool(true);
   }

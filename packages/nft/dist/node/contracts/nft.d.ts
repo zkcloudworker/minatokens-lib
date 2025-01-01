@@ -1,6 +1,6 @@
 import { Field, PublicKey, SmartContract, State, VerificationKey } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTDataPacked, NFTState, UpdateEvent, TransferEvent, UpgradeVerificationKeyEvent, PauseEvent, OwnershipChangeEvent, UpgradeVerificationKeyData } from "../interfaces/index.js";
+import { NFTDataPacked, NFTState, UpdateEvent, TransferExtendedParams, UpgradeVerificationKeyEvent, PauseEvent, OwnershipChangeEvent, UpgradeVerificationKeyData, NFTStateStruct } from "../interfaces/index.js";
 export { NFT };
 /**
  * The NFT Contract represents an individual NFT within a collection.
@@ -30,6 +30,7 @@ declare class NFT extends SmartContract {
         pause: typeof PauseEvent;
         resume: typeof PauseEvent;
     };
+    getState(): Promise<NFTStateStruct>;
     /**
      * Updates the NFT's state with provided proofs and permissions.
      *
@@ -42,11 +43,10 @@ declare class NFT extends SmartContract {
     /**
      * Transfers ownership of the NFT from one user to another.
      *
-     * @param from - The public key of the current owner (`PublicKey`) or approved address.
-     * @param to - The public key of the new owner (`PublicKey`).
+     * @param params - The parameters for the transfer (`TransferExtendedParams`).
      * @returns The public key of the old owner (`PublicKey`).
      */
-    transfer(transferEvent: TransferEvent): Promise<TransferEvent>;
+    transfer(params: TransferExtendedParams): Promise<TransferExtendedParams>;
     /**
      * Transfers ownership of the NFT from one user to another.
      *

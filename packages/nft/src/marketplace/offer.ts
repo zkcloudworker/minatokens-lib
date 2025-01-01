@@ -9,13 +9,16 @@ import {
   UInt64,
   SmartContract,
   Bool,
+  Field,
 } from "o1js";
 import {
   UInt64Option,
-  TransferEvent,
   NFTCollectionContractConstructor,
   NFTApprovalBase,
   NFTCollectionBase,
+  NFTTransactionContext,
+  TransferExtendedParams,
+  TransferEvent,
 } from "../interfaces/index.js";
 
 export interface NonFungibleTokenOfferContractDeployProps
@@ -94,6 +97,9 @@ export function OfferFactory(params: {
         from: this.address,
         to: this.sender.getUnconstrained(),
         price: UInt64Option.fromValue(price),
+        context: new NFTTransactionContext({
+          custom: [Field(0), Field(0), Field(0)],
+        }),
       });
     }
 
@@ -105,7 +111,7 @@ export function OfferFactory(params: {
     // }
 
     @method.returns(Bool)
-    async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
+    async canTransfer(params: TransferExtendedParams): Promise<Bool> {
       this.insideBuy.requireEquals(Bool(true));
       // We do not set the insideBuy to false here as buy() can be called once only
       // and then the offer is accepted and not valid anymore for other buyers
@@ -115,17 +121,15 @@ export function OfferFactory(params: {
       const price = this.price.getAndRequireEquals();
       const sender = this.sender.getUnconstrained();
 
-      transferEvent.collection.assertEquals(collectionAddress);
-      transferEvent.nft.assertEquals(nftAddress);
-      transferEvent.from.assertEquals(owner);
-      transferEvent.approved.assertEquals(this.address);
-      transferEvent.price.assertSome().assertEquals(price);
-      transferEvent.to.assertEquals(sender);
-      transferEvent.fee
-        .orElse(UInt64.zero)
-        .assertLessThan(price, "Fee is too high");
+      params.collection.assertEquals(collectionAddress);
+      params.nft.assertEquals(nftAddress);
+      params.from.assertEquals(owner);
+      params.approved.assertEquals(this.address);
+      params.price.assertSome().assertEquals(price);
+      params.to.assertEquals(sender);
+      params.fee.orElse(UInt64.zero).assertLessThan(price, "Fee is too high");
 
-      const payment = price.sub(transferEvent.fee.orElse(UInt64.zero));
+      const payment = price.sub(params.fee.orElse(UInt64.zero));
 
       const senderUpdate = AccountUpdate.createSigned(sender);
       senderUpdate.account.balance.requireBetween(payment, UInt64.MAXINT());
@@ -135,7 +139,12 @@ export function OfferFactory(params: {
       senderUpdate.body.useFullCommitment = Bool(true);
       ownerUpdate.body.useFullCommitment = Bool(true);
 
-      this.emitEvent("buy", transferEvent);
+      this.emitEvent(
+        "buy",
+        new TransferEvent({
+          ...params,
+        })
+      );
       return Bool(true);
     }
   }

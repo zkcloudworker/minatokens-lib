@@ -53,6 +53,7 @@ import {
   NFTApprovalContractConstructor,
   NFTApprovalBase,
   MAX_ROYALTY_FEE,
+  TransferExtendedParams,
 } from "../interfaces/index.js";
 import { nftVerificationKeys } from "../vk.js";
 export { CollectionDeployProps, CollectionFactory, CollectionErrors };
@@ -534,11 +535,8 @@ function CollectionFactory(params: {
      * @param to - The recipient's public key.
      * @param price - The price of the NFT (optional).
      */
-    @method async transferBySignature(
-      address: PublicKey,
-      to: PublicKey,
-      price: UInt64Option
-    ): Promise<void> {
+    @method async transferBySignature(params: TransferParams): Promise<void> {
+      const { address, to, price, context } = params;
       const collectionData = CollectionData.unpack(
         this.packedData.getAndRequireEquals()
       );
@@ -547,7 +545,7 @@ function CollectionFactory(params: {
         CollectionErrors.transferApprovalRequired
       );
 
-      const transferEventDraft = new TransferEvent({
+      const transferEventDraft = new TransferExtendedParams({
         from: PublicKey.empty(), // will be added later
         to,
         collection: this.address,
@@ -556,13 +554,13 @@ function CollectionFactory(params: {
         price,
         transferByOwner: Bool(false), // will be added later
         approved: PublicKey.empty(), // will be added later
+        context,
       });
-      const transferEvent = await this._transfer({
+      await this._transfer({
         transferEventDraft,
         transferFee: collectionData.transferFee,
         royaltyFee: collectionData.royaltyFee,
       });
-      await this.ensureOwnerSignature(transferEvent.from);
     }
 
     /**
@@ -573,13 +571,13 @@ function CollectionFactory(params: {
      * @param params - The transfer parameters.
      */
     @method async transferByProof(params: TransferParams): Promise<void> {
-      const { address, from, to, price } = params;
+      const { address, from, to, price, context } = params;
       const collectionData = CollectionData.unpack(
         this.packedData.getAndRequireEquals()
       );
       collectionData.isPaused.assertFalse(CollectionErrors.collectionPaused);
 
-      const transferEventDraft = new TransferEvent({
+      const transferEventDraft = new TransferExtendedParams({
         from,
         to,
         collection: this.address,
@@ -588,13 +586,13 @@ function CollectionFactory(params: {
         price,
         transferByOwner: Bool(false), // will be added later
         approved: PublicKey.empty(), // will be added later
+        context,
       });
       const transferEvent = await this._transfer({
         transferEventDraft,
         transferFee: collectionData.transferFee,
         royaltyFee: collectionData.royaltyFee,
       });
-
       const approvalContract = this.getApprovalContract(from);
       // This operation is not atomic and the owner or approval contract cannot rely on the fact
       // that it is being called by the Collection contract
@@ -618,13 +616,13 @@ function CollectionFactory(params: {
     @method async approvedTransferByProof(
       params: TransferParams
     ): Promise<void> {
-      const { address, from, to, price } = params;
+      const { address, from, to, price, context } = params;
       const collectionData = CollectionData.unpack(
         this.packedData.getAndRequireEquals()
       );
       collectionData.isPaused.assertFalse(CollectionErrors.collectionPaused);
 
-      const transferEventDraft = new TransferEvent({
+      const transferEventDraft = new TransferExtendedParams({
         from,
         to,
         collection: this.address,
@@ -633,6 +631,7 @@ function CollectionFactory(params: {
         price,
         transferByOwner: Bool(false), // will be added later
         approved: PublicKey.empty(), // will be added later
+        context,
       });
       const transferEvent = await this._transfer({
         transferEventDraft,
@@ -667,16 +666,15 @@ function CollectionFactory(params: {
      * @param price - The price of the NFT (optional).
      */
     @method async approvedTransferBySignature(
-      address: PublicKey,
-      to: PublicKey,
-      price: UInt64Option
+      params: TransferParams
     ): Promise<void> {
+      const { address, to, price, context } = params;
       const collectionData = CollectionData.unpack(
         this.packedData.getAndRequireEquals()
       );
       collectionData.isPaused.assertFalse(CollectionErrors.collectionPaused);
 
-      const transferEventDraft = new TransferEvent({
+      const transferEventDraft = new TransferExtendedParams({
         from: PublicKey.empty(), // will be added later
         to,
         collection: this.address,
@@ -685,6 +683,7 @@ function CollectionFactory(params: {
         price,
         transferByOwner: Bool(false), // will be added later
         approved: PublicKey.empty(), // will be added later
+        context,
       });
       const transferEvent = await this._transfer({
         transferEventDraft,
@@ -694,7 +693,6 @@ function CollectionFactory(params: {
       const adminContract = this.getAdminContract();
       const canTransfer = await adminContract.canTransfer(transferEvent);
       canTransfer.assertTrue();
-      await this.ensureOwnerSignature(transferEvent.from);
       this.emitEvent("transfer", transferEvent);
     }
 
@@ -707,12 +705,13 @@ function CollectionFactory(params: {
      * @returns The TransferEvent emitted.
      */
     async _transfer(params: {
-      transferEventDraft: TransferEvent;
+      transferEventDraft: TransferExtendedParams;
       transferFee: UInt64;
       royaltyFee: UInt32;
-    }): Promise<TransferEvent> {
+    }): Promise<TransferExtendedParams> {
       const { transferEventDraft, transferFee, royaltyFee } = params;
       const sender = this.sender.getUnconstrained();
+      // If the from is empty, we set the sender as the from and require signature from the sender
       const isFromEmpty = transferEventDraft.from.equals(PublicKey.empty());
       transferEventDraft.from = Provable.if(
         isFromEmpty,
@@ -732,7 +731,7 @@ function CollectionFactory(params: {
         // or by setting the transfer fee to a higher value reflecting the market price
         transferEventDraft.price
           .orElse(1_000_000_000n) // is not used, can be any value
-          .div(100_000)
+          .div(MAX_ROYALTY_FEE)
           .mul(UInt64.from(royaltyFee)),
         transferFee
       );
@@ -757,11 +756,16 @@ function CollectionFactory(params: {
         amount: fee,
       });
 
-      transferEventDraft.fee = UInt64Option.fromValue({
+      transferEvent.fee = UInt64Option.fromValue({
         value: fee,
-        isSome: isOwnedByCreator.not(),
+        isSome: fee.equals(UInt64.zero).not(),
       });
-      this.emitEvent("transfer", transferEvent);
+      this.emitEvent(
+        "transfer",
+        new TransferEvent({
+          ...transferEvent,
+        })
+      );
       return transferEvent;
     }
 
@@ -1102,6 +1106,14 @@ function CollectionFactory(params: {
         })
       );
       return from;
+    }
+
+    @method.returns(NFTStateStruct)
+    async getNFTState(address: PublicKey): Promise<NFTStateStruct> {
+      const tokenId = this.deriveTokenId();
+      const nft = new NFT(address, tokenId);
+      const state = await nft.getState();
+      return state;
     }
   }
   return Collection;
