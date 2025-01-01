@@ -3985,6 +3985,7 @@ function OfferFactory(params) {
 var import_tslib9 = require("tslib");
 var import_o1js19 = require("o1js");
 var MAX_SALE_FEE = 1e5;
+var MIN_STEP = 10;
 var AuctionPacked = class extends (0, import_o1js19.Struct)({
   ownerX: import_o1js19.Field,
   collectionX: import_o1js19.Field,
@@ -4004,7 +4005,8 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
   transferFee: import_o1js19.UInt64,
   /** The sale fee percentage (e.g., 1000 = 1%, 100 = 0.1%, 10000 = 10%, 100000 = 100%). */
   saleFee: import_o1js19.UInt32,
-  auctionEndTime: import_o1js19.UInt32
+  auctionEndTime: import_o1js19.UInt32,
+  isOwnerPaid: import_o1js19.Bool
 }) {
   pack() {
     const data = import_o1js19.Field.fromBits([
@@ -4016,7 +4018,8 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
       this.collection.isOdd,
       this.nft.isOdd,
       this.auctioneer.isOdd,
-      this.bidder.isOdd
+      this.bidder.isOdd,
+      this.isOwnerPaid
     ]);
     return new AuctionPacked({
       ownerX: this.owner.x,
@@ -4028,7 +4031,7 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
     });
   }
   static unpack(packed) {
-    const bits = packed.data.toBits(64 + 64 + 32 + 32 + 5);
+    const bits = packed.data.toBits(64 + 64 + 32 + 32 + 6);
     const ownerX = packed.ownerX;
     const collectionX = packed.collectionX;
     const nftX = packed.nftX;
@@ -4039,6 +4042,7 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
     const nftIsOdd = bits[64 + 64 + 32 + 32 + 2];
     const auctioneerIsOdd = bits[64 + 64 + 32 + 32 + 3];
     const bidderIsOdd = bits[64 + 64 + 32 + 32 + 4];
+    const isOwnerPaid = bits[64 + 64 + 32 + 32 + 5];
     const owner = import_o1js19.PublicKey.from({ x: ownerX, isOdd: ownerIsOdd });
     const collection = import_o1js19.PublicKey.from({
       x: collectionX,
@@ -4066,7 +4070,8 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
       minimumPrice,
       transferFee,
       saleFee,
-      auctionEndTime
+      auctionEndTime,
+      isOwnerPaid
     });
   }
 };
@@ -4086,6 +4091,7 @@ function AuctionFactory(params) {
       this.insideSettleAuction = (0, import_o1js19.State)((0, import_o1js19.Bool)(false));
       this.events = {
         bid: AuctionBidEvent,
+        settleAuction: TransferParams,
         canTransfer: TransferEvent,
         settlePayment: import_o1js19.UInt64,
         settleAuctioneerPayment: import_o1js19.UInt64,
@@ -4104,7 +4110,8 @@ function AuctionFactory(params) {
         transferFee: args.transferFee,
         saleFee: args.saleFee,
         auctionEndTime: args.auctionEndTime,
-        bidder: import_o1js19.PublicKey.empty()
+        bidder: import_o1js19.PublicKey.empty(),
+        isOwnerPaid: (0, import_o1js19.Bool)(false)
       }).pack());
       this.insideSettleAuction.set((0, import_o1js19.Bool)(false));
       this.bidAmount.set(import_o1js19.UInt64.zero);
@@ -4131,7 +4138,7 @@ function AuctionFactory(params) {
       this.account.balance.requireBetween(bidAmount, import_o1js19.UInt64.MAXINT());
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       price.assertGreaterThanOrEqual(auction.minimumPrice, "Bid should be greater or equal than the minimum price");
-      price.assertGreaterThan(bidAmount, "Bid should be greater than the existing bid");
+      price.assertGreaterThan(bidAmount.add(bidAmount.div(1e3).mul(import_o1js19.UInt64.from(MIN_STEP))), "Bid should be greater than the existing bid plus the minimum step");
       this.network.globalSlotSinceGenesis.requireBetween(import_o1js19.UInt32.from(0), auction.auctionEndTime);
       const sender = this.sender.getUnconstrained();
       const senderUpdate = import_o1js19.AccountUpdate.createSigned(sender);
@@ -4164,20 +4171,18 @@ function AuctionFactory(params) {
       auction.bidder.equals(import_o1js19.PublicKey.empty()).assertFalse("No bidder");
       bidAmount.assertGreaterThanOrEqual(auction.minimumPrice, "Bidder does not have enough balance");
       const collection = this.getCollectionContract(auction.collection);
-      await collection.transferByProof({
+      const transferParams = new TransferParams({
         address: nftAddress,
         from: this.address,
         to: auction.bidder,
         price: UInt64Option.fromValue(bidAmount),
-        // We set custom to 1 to indicate that the auction is settled in atomic mode
-        context: new NFTTransactionContext({
-          custom: [(0, import_o1js19.Field)(1), (0, import_o1js19.Field)(0), (0, import_o1js19.Field)(0)]
-        })
+        context: NFTTransactionContext.empty()
       });
+      await collection.transferByProof(transferParams);
+      this.emitEvent("settleAuction", transferParams);
     }
     async canTransfer(params2) {
-      const isAtomic = params2.context.custom[0].equals((0, import_o1js19.Field)(1));
-      this.insideSettleAuction.requireEquals(isAtomic);
+      this.insideSettleAuction.requireEquals((0, import_o1js19.Bool)(true));
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       const collectionAddress = auction.collection;
       const nftAddress = auction.nft;
@@ -4193,57 +4198,47 @@ function AuctionFactory(params) {
       params2.price.assertSome().assertGreaterThanOrEqual(auction.minimumPrice, "Bid should be greater or equal than the minimum price");
       params2.to.assertEquals(bidder);
       const fee = params2.fee.orElse(import_o1js19.UInt64.zero);
-      fee.assertLessThanOrEqual(bidAmount, "Fee is too high");
-      const payment = bidAmount.sub(this.calculateSaleFee({
+      fee.assertLessThanOrEqual(bidAmount, "Fee is higher than the bid");
+      const saleFee = this.calculateSaleFee({
         price: bidAmount,
         saleFee: auction.saleFee,
         transferFee: auction.transferFee
-      }));
-      const ownerUpdate = import_o1js19.AccountUpdate.createIf(isAtomic, owner);
-      ownerUpdate.balance.addInPlace(payment);
-      this.balance.subInPlace(import_o1js19.Provable.if(isAtomic, payment, import_o1js19.UInt64.zero));
-      ownerUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
+      });
+      fee.assertLessThanOrEqual(saleFee, "Fee is higher than the sale fee");
       this.emitEvent("canTransfer", new TransferEvent({
         ...params2
       }));
       return (0, import_o1js19.Bool)(true);
     }
-    /**
-     * It is important for this method to be called after BEFORE WITHDRAW_PERIOD expiry
-     * as after WITHDRAW_PERIOD expiry, the bidder can withdraw the deposit even if the NFT is already transferred
-     * but this method is not called yet
-     */
     async settlePayment() {
-      this.insideSettleAuction.getAndRequireEquals().assertFalse("Auction already settled");
+      this.insideSettleAuction.getAndRequireEquals().assertTrue("Auction not settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
-      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
-      const bidder = auction.bidder;
+      auction.isOwnerPaid.assertFalse("Owner is not paid yet");
       const bidAmount = this.bidAmount.getAndRequireEquals();
-      const collection = this.getCollectionContract(auction.collection);
-      const nftState = await collection.getNFTState(auction.nft);
-      const nftData = NFTData.unpack(nftState.packedData);
-      const nftOwner = nftData.owner;
-      nftOwner.assertEquals(bidder);
+      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
       const payment = bidAmount.sub(this.calculateSaleFee({
         price: bidAmount,
         saleFee: auction.saleFee,
         transferFee: auction.transferFee
       }));
+      this.account.balance.requireBetween(payment, import_o1js19.UInt64.MAXINT());
       const ownerUpdate = import_o1js19.AccountUpdate.create(auction.owner);
       ownerUpdate.balance.addInPlace(payment);
       this.balance.subInPlace(payment);
       ownerUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
-      this.insideSettleAuction.set((0, import_o1js19.Bool)(true));
+      auction.isOwnerPaid = (0, import_o1js19.Bool)(true);
+      this.auctionData.set(auction.pack());
       this.emitEvent("settlePayment", payment);
     }
     /*
     const balance = this.account.balance.getAndRequireEquals();
     is not stable and sometimes gives 0 on devnet during proving, so we put the amount as a parameter
-    This method can be called many times by anyone, allowing the auctioneer to use the hardware wallet
+    This method can be called many times by anyone, allowing the auctioneer to use the hardware wallet and bots
     */
     async settleAuctioneerPayment(amount) {
       this.insideSettleAuction.getAndRequireEquals().assertTrue("Auction not settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      auction.isOwnerPaid.assertTrue("Owner is not paid yet, first call settlePayment");
       this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
       this.account.balance.requireBetween(amount, import_o1js19.UInt64.MAXINT());
       const auctioneerUpdate = import_o1js19.AccountUpdate.create(auction.auctioneer);
@@ -4254,19 +4249,15 @@ function AuctionFactory(params) {
     }
     /**
      * Withdraw the deposit from the auction
-     * in case the auction is not settled after the WITHDRAW_PERIOD
+     * in case the auction is not settled during the WITHDRAW_PERIOD
+     * for any reason
+     * Anybody can call this method to allow the use of bots by the auctioneer or bidder
      */
     async withdraw() {
       this.insideSettleAuction.getAndRequireEquals().assertFalse("Auction already settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(WITHDRAW_PERIOD), import_o1js19.UInt32.MAXINT());
-      const collectionAddress = auction.collection;
-      const tokenId = import_o1js19.TokenId.derive(collectionAddress);
-      const nft = new NFT(auction.nft, tokenId);
       const bidAmount = this.bidAmount.getAndRequireEquals();
-      const nftData = NFTData.unpack(nft.packedData.getAndRequireEquals());
-      const nftOwner = nftData.owner;
-      nftOwner.equals(auction.bidder).assertFalse("NFT not transferred");
       const bidderUpdate = import_o1js19.AccountUpdate.create(auction.bidder);
       bidderUpdate.balance.addInPlace(bidAmount);
       this.balance.subInPlace(bidAmount);
