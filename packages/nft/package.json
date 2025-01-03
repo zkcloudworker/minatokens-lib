@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@minatokens/storage": "0.14.1",
+    "@minatokens/token": "0.14.1",
     "@minatokens/upgradable": "0.14.1",
     "@types/node": "^22.10.2",
     "esbuild": "^0.24.0",
@@ -47,6 +48,7 @@
   "peerDependencies": {
     "@minatokens/storage": "0.14.1",
     "@minatokens/upgradable": "0.14.1",
+    "@minatokens/token": "0.14.1",
     "o1js": "^2.2.0"
   },
   "publishConfig": {

@@ -13,6 +13,7 @@ import {
   Field,
   Struct,
   assert,
+  Provable,
 } from "o1js";
 import {
   UInt64Option,
@@ -48,7 +49,10 @@ export class Auction extends Struct({
   /** The sale fee percentage (e.g., 1000 = 1%, 100 = 0.1%, 10000 = 10%, 100000 = 100%). */
   saleFee: UInt32,
   auctionEndTime: UInt32,
+  withdrawPeriod: UInt32, // in slots
   isOwnerPaid: Bool,
+  isNFTtransferred: Bool,
+  isNFTwithdrawn: Bool,
 }) {
   pack(): AuctionPacked {
     const data = Field.fromBits([
@@ -56,12 +60,15 @@ export class Auction extends Struct({
       ...this.transferFee.value.toBits(64),
       ...this.saleFee.value.toBits(32),
       ...this.auctionEndTime.value.toBits(32),
+      ...this.withdrawPeriod.value.toBits(32),
       this.owner.isOdd,
       this.collection.isOdd,
       this.nft.isOdd,
       this.auctioneer.isOdd,
       this.bidder.isOdd,
       this.isOwnerPaid,
+      this.isNFTtransferred,
+      this.isNFTwithdrawn,
     ]);
     return new AuctionPacked({
       ownerX: this.owner.x,
@@ -73,18 +80,20 @@ export class Auction extends Struct({
     });
   }
   static unpack(packed: AuctionPacked): Auction {
-    const bits = packed.data.toBits(64 + 64 + 32 + 32 + 6);
+    const bits = packed.data.toBits(64 + 64 + 32 + 32 + 32 + 8);
     const ownerX = packed.ownerX;
     const collectionX = packed.collectionX;
     const nftX = packed.nftX;
     const auctioneerX = packed.auctioneerX;
     const bidderX = packed.bidderX;
-    const ownerIsOdd = bits[64 + 64 + 32 + 32];
-    const collectionIsOdd = bits[64 + 64 + 32 + 32 + 1];
-    const nftIsOdd = bits[64 + 64 + 32 + 32 + 2];
-    const auctioneerIsOdd = bits[64 + 64 + 32 + 32 + 3];
-    const bidderIsOdd = bits[64 + 64 + 32 + 32 + 4];
-    const isOwnerPaid = bits[64 + 64 + 32 + 32 + 5];
+    const ownerIsOdd = bits[64 + 64 + 32 + 32 + 32];
+    const collectionIsOdd = bits[64 + 64 + 32 + 32 + 32 + 1];
+    const nftIsOdd = bits[64 + 64 + 32 + 32 + 32 + 2];
+    const auctioneerIsOdd = bits[64 + 64 + 32 + 32 + 32 + 3];
+    const bidderIsOdd = bits[64 + 64 + 32 + 32 + 32 + 4];
+    const isOwnerPaid = bits[64 + 64 + 32 + 32 + 32 + 5];
+    const isNFTtransferred = bits[64 + 64 + 32 + 32 + 32 + 6];
+    const isNFTwithdrawn = bits[64 + 64 + 32 + 32 + 32 + 7];
     const owner = PublicKey.from({ x: ownerX, isOdd: ownerIsOdd });
     const collection = PublicKey.from({
       x: collectionX,
@@ -111,6 +120,9 @@ export class Auction extends Struct({
     const auctionEndTime = UInt32.Unsafe.fromField(
       Field.fromBits(bits.slice(64 + 64 + 32, 64 + 64 + 32 + 32))
     );
+    const withdrawPeriod = UInt32.Unsafe.fromField(
+      Field.fromBits(bits.slice(64 + 64 + 32 + 32, 64 + 64 + 32 + 32 + 32))
+    );
     return new Auction({
       owner,
       collection,
@@ -121,10 +133,19 @@ export class Auction extends Struct({
       transferFee,
       saleFee,
       auctionEndTime,
+      withdrawPeriod,
       isOwnerPaid,
+      isNFTtransferred,
+      isNFTwithdrawn,
     });
   }
 }
+
+export class AuctionState extends Struct({
+  bidAmount: UInt64,
+  auction: Auction,
+  settled: Bool,
+}) {}
 
 export interface NonFungibleTokenAuctionContractDeployProps
   extends Exclude<DeployArgs, undefined> {
@@ -144,14 +165,14 @@ export interface NonFungibleTokenAuctionContractDeployProps
   transferFee: UInt64;
   /** The sale fee. */
   saleFee: UInt32;
+  /** The withdraw period. */
+  withdrawPeriod: UInt32;
 }
 
 export class AuctionBidEvent extends Struct({
   bidder: PublicKey,
   price: UInt64,
 }) {}
-
-const WITHDRAW_PERIOD = 3360; // Number of slots equal to 1 week
 
 /**
  * Creates a new NFT Collection Contract class.
@@ -171,7 +192,7 @@ export function AuctionFactory(params: {
   {
     @state(AuctionPacked) auctionData = State<AuctionPacked>();
     @state(UInt64) bidAmount = State<UInt64>(UInt64.zero);
-    @state(Bool) insideSettleAuction = State<Bool>(Bool(false));
+    @state(Bool) settled = State<Bool>(Bool(false));
 
     async deploy(args: NonFungibleTokenAuctionContractDeployProps) {
       await super.deploy(args);
@@ -189,11 +210,14 @@ export function AuctionFactory(params: {
           transferFee: args.transferFee,
           saleFee: args.saleFee,
           auctionEndTime: args.auctionEndTime,
+          withdrawPeriod: args.withdrawPeriod,
           bidder: PublicKey.empty(),
           isOwnerPaid: Bool(false),
+          isNFTtransferred: Bool(false),
+          isNFTwithdrawn: Bool(false),
         }).pack()
       );
-      this.insideSettleAuction.set(Bool(false));
+      this.settled.set(Bool(false));
       this.bidAmount.set(UInt64.zero);
       this.account.permissions.set({
         ...Permissions.default(),
@@ -230,11 +254,11 @@ export function AuctionFactory(params: {
       );
       return price.div(MAX_SALE_FEE).mul(UInt64.from(saleFee));
     }
-
-    @method async bid(price: UInt64) {
-      const insideSettleAuction =
-        this.insideSettleAuction.getAndRequireEquals();
-      insideSettleAuction.assertFalse("Auction already finished");
+    // anyone can call this method to bid, paying the bid amount for the bidder
+    @method.returns(Auction)
+    async bid(price: UInt64, bidder: PublicKey): Promise<Auction> {
+      const settled = this.settled.getAndRequireEquals();
+      settled.assertFalse("Auction already finished");
 
       const bidAmount = this.bidAmount.getAndRequireEquals();
       this.account.balance.requireBetween(bidAmount, UInt64.MAXINT());
@@ -264,22 +288,30 @@ export function AuctionFactory(params: {
       senderUpdate.balance.subInPlace(price);
       this.balance.addInPlace(price);
       this.bidAmount.set(price);
-      auction.bidder = sender;
+      auction.bidder = bidder;
       this.auctionData.set(auction.pack());
-      this.emitEvent("bid", new AuctionBidEvent({ bidder: sender, price }));
+      this.emitEvent("bid", new AuctionBidEvent({ bidder, price }));
+      return auction;
+    }
+
+    @method.returns(AuctionState)
+    async getAuctionState(): Promise<AuctionState> {
+      return new AuctionState({
+        auction: Auction.unpack(this.auctionData.getAndRequireEquals()),
+        bidAmount: this.bidAmount.getAndRequireEquals(),
+        settled: this.settled.getAndRequireEquals(),
+      });
     }
 
     // anyone can call this method to settle the auction
     // but it is intended to be called by the auctioneer
     // because the auctioneer is the one who will get the auction commission
     // and pay the royalty to NFT creator
-    // This method is atomic, so it will settle the auction and pay the NFT creator and owner
-    // This method will NOT pay the auctioneer to save the number of AccountUpdates
+    // This method is atomic, so it will settle the auction
     @method async settleAuction() {
-      const insideSettleAuction =
-        this.insideSettleAuction.getAndRequireEquals();
-      insideSettleAuction.assertFalse("Auction already settled");
-      this.insideSettleAuction.set(Bool(true));
+      const settled = this.settled.getAndRequireEquals();
+      settled.assertFalse("Auction already settled");
+      this.settled.set(Bool(true));
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       this.network.globalSlotSinceGenesis.requireBetween(
         auction.auctionEndTime.add(1),
@@ -299,7 +331,38 @@ export function AuctionFactory(params: {
         from: this.address,
         to: auction.bidder,
         price: UInt64Option.fromValue(bidAmount),
-        context: NFTTransactionContext.empty(),
+        context: new NFTTransactionContext({
+          custom: [Field(1), Field(0), Field(0)],
+        }),
+      });
+      await collection.transferByProof(transferParams);
+      this.emitEvent("settleAuction", transferParams);
+    }
+
+    // and pay the royalty to NFT creator
+    // This method is atomic, so it will settle the auction
+    @method async withdrawNFT() {
+      const settled = this.settled.getAndRequireEquals();
+      settled.assertFalse("Auction already settled");
+      this.settled.set(Bool(true));
+      const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      auction.isNFTwithdrawn.assertFalse("NFT already withdrawn");
+      auction.isNFTtransferred.assertFalse("NFT already transferred");
+      this.network.globalSlotSinceGenesis.requireBetween(
+        auction.auctionEndTime.add(auction.withdrawPeriod),
+        UInt32.MAXINT()
+      );
+      const nftAddress = auction.nft;
+
+      const collection = this.getCollectionContract(auction.collection);
+      const transferParams = new TransferParams({
+        address: nftAddress,
+        from: this.address,
+        to: auction.owner,
+        price: UInt64Option.none(),
+        context: new NFTTransactionContext({
+          custom: [Field(2), Field(0), Field(0)],
+        }),
       });
       await collection.transferByProof(transferParams);
       this.emitEvent("settleAuction", transferParams);
@@ -307,39 +370,65 @@ export function AuctionFactory(params: {
 
     @method.returns(Bool)
     async canTransfer(params: TransferExtendedParams): Promise<Bool> {
-      this.insideSettleAuction.requireEquals(Bool(true));
+      this.settled.requireEquals(Bool(true));
+      const isSale = params.context.custom[0].equals(Field(1));
+      const isWithdraw = params.context.custom[0].equals(Field(2));
+      isSale.or(isWithdraw).assertTrue("Invalid context");
 
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      auction.isNFTtransferred.assertFalse("NFT already transferred");
+      auction.isNFTwithdrawn.assertFalse("NFT already withdrawn");
       const collectionAddress = auction.collection;
       const nftAddress = auction.nft;
       const owner = auction.owner;
       const bidder = auction.bidder;
       const bidAmount = this.bidAmount.getAndRequireEquals();
       this.network.globalSlotSinceGenesis.requireBetween(
-        auction.auctionEndTime.add(1),
+        auction.auctionEndTime.add(
+          Provable.if(isSale, UInt32.from(1), auction.withdrawPeriod)
+        ),
         UInt32.MAXINT()
       );
 
       params.collection.assertEquals(collectionAddress);
       params.nft.assertEquals(nftAddress);
-      params.from.assertEquals(owner);
-      params.approved.assertEquals(this.address);
-      params.price.assertSome().assertEquals(bidAmount);
+      params.from
+        .equals(owner)
+        .and(params.approved.equals(this.address))
+        .or(
+          params.from
+            .equals(this.address)
+            .and(params.approved.equals(PublicKey.empty()))
+        )
+        .assertTrue("Only owner or auction can transfer");
+      params.price.isSome.assertEquals(isSale);
       params.price
-        .assertSome()
+        .orElse(UInt64.zero)
+        .assertEquals(Provable.if(isSale, bidAmount, UInt64.zero));
+      params.price
+        .orElse(UInt64.MAXINT())
         .assertGreaterThanOrEqual(
           auction.minimumPrice,
           "Bid should be greater or equal than the minimum price"
         );
-      params.to.assertEquals(bidder);
+      params.to.assertEquals(Provable.if(isSale, bidder, auction.owner));
       const fee = params.fee.orElse(UInt64.zero);
-      fee.assertLessThanOrEqual(bidAmount, "Fee is higher than the bid");
+      fee.assertLessThanOrEqual(
+        Provable.if(isSale, bidAmount, UInt64.MAXINT()),
+        "Fee is higher than the bid"
+      );
       const saleFee = this.calculateSaleFee({
         price: bidAmount,
         saleFee: auction.saleFee,
         transferFee: auction.transferFee,
       });
-      fee.assertLessThanOrEqual(saleFee, "Fee is higher than the sale fee");
+      fee.assertLessThanOrEqual(
+        Provable.if(isSale, saleFee, UInt64.MAXINT()),
+        "Fee is higher than the sale fee"
+      );
+      auction.isNFTtransferred = isSale;
+      auction.isNFTwithdrawn = isWithdraw;
+      this.auctionData.set(auction.pack());
 
       this.emitEvent(
         "canTransfer",
@@ -352,11 +441,10 @@ export function AuctionFactory(params: {
 
     @method
     async settlePayment(): Promise<void> {
-      this.insideSettleAuction
-        .getAndRequireEquals()
-        .assertTrue("Auction not settled");
+      this.settled.getAndRequireEquals().assertTrue("Auction not settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       auction.isOwnerPaid.assertFalse("Owner is not paid yet");
+      auction.isNFTtransferred.assertTrue("NFT not transferred");
       const bidAmount = this.bidAmount.getAndRequireEquals();
       this.network.globalSlotSinceGenesis.requireBetween(
         auction.auctionEndTime.add(1),
@@ -390,9 +478,7 @@ export function AuctionFactory(params: {
     */
     @method
     async settleAuctioneerPayment(amount: UInt64): Promise<void> {
-      this.insideSettleAuction
-        .getAndRequireEquals()
-        .assertTrue("Auction not settled");
+      this.settled.getAndRequireEquals().assertTrue("Auction not settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       auction.isOwnerPaid.assertTrue(
         "Owner is not paid yet, first call settlePayment"
@@ -420,12 +506,10 @@ export function AuctionFactory(params: {
      */
     @method
     async withdraw(): Promise<void> {
-      this.insideSettleAuction
-        .getAndRequireEquals()
-        .assertFalse("Auction already settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      auction.isNFTtransferred.assertFalse("NFT already transferred");
       this.network.globalSlotSinceGenesis.requireBetween(
-        auction.auctionEndTime.add(WITHDRAW_PERIOD),
+        auction.auctionEndTime.add(auction.withdrawPeriod),
         UInt32.MAXINT()
       );
       const bidAmount = this.bidAmount.getAndRequireEquals();
@@ -433,7 +517,7 @@ export function AuctionFactory(params: {
       bidderUpdate.balance.addInPlace(bidAmount);
       this.balance.subInPlace(bidAmount);
       bidderUpdate.body.useFullCommitment = Bool(true);
-      this.insideSettleAuction.set(Bool(true));
+      this.settled.set(Bool(true));
 
       this.emitEvent("withdraw", bidAmount);
     }

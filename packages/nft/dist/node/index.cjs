@@ -32,6 +32,7 @@ __export(index_exports, {
   AuctionBidEvent: () => AuctionBidEvent,
   AuctionFactory: () => AuctionFactory,
   AuctionPacked: () => AuctionPacked,
+  AuctionState: () => AuctionState,
   Bid: () => Bid,
   BidEvent: () => BidEvent,
   BidFactory: () => BidFactory,
@@ -62,6 +63,9 @@ __export(index_exports, {
   NFTImmutableState: () => NFTImmutableState,
   NFTOraclePreconditions: () => NFTOraclePreconditions,
   NFTProgram: () => NFTProgram,
+  NFTSharesData: () => NFTSharesData,
+  NFTSharesDataPacked: () => NFTSharesDataPacked,
+  NFTSharesFactory: () => NFTSharesFactory,
   NFTStandardApproval: () => NFTStandardApproval,
   NFTStandardOwner: () => NFTStandardOwner,
   NFTState: () => NFTState,
@@ -1123,8 +1127,8 @@ function NFTAdvancedAdminContract(params) {
       const whitelist = this.whitelist.getAndRequireEquals();
       const toAmount = await whitelist.getWhitelistedAmount(to);
       const fromAmount = await whitelist.getWhitelistedAmount(from);
-      const toAmountAllowed = toAmount.orElse(import_o1js8.UInt64.from(0)).lessThanOrEqual(price.orElse(import_o1js8.UInt64.MAXINT()));
-      const fromAmountAllowed = fromAmount.orElse(import_o1js8.UInt64.from(0)).lessThanOrEqual(price.orElse(import_o1js8.UInt64.MAXINT()));
+      const toAmountAllowed = toAmount.orElse(import_o1js8.UInt64.from(0)).greaterThanOrEqual(price.orElse(import_o1js8.UInt64.zero));
+      const fromAmountAllowed = fromAmount.orElse(import_o1js8.UInt64.from(0)).greaterThanOrEqual(price.orElse(import_o1js8.UInt64.zero));
       return toAmountAllowed.and(fromAmountAllowed).and(toAmount.isSome).and(fromAmount.isSome);
     }
     /**
@@ -2463,8 +2467,8 @@ function CollectionFactory(params) {
     async getNFTState(address) {
       const tokenId = this.deriveTokenId();
       const nft = new NFT(address, tokenId);
-      const state10 = await nft.getState();
-      return state10;
+      const state11 = await nft.getState();
+      return state11;
     }
   }
   (0, import_tslib5.__decorate)([
@@ -4006,7 +4010,11 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
   /** The sale fee percentage (e.g., 1000 = 1%, 100 = 0.1%, 10000 = 10%, 100000 = 100%). */
   saleFee: import_o1js19.UInt32,
   auctionEndTime: import_o1js19.UInt32,
-  isOwnerPaid: import_o1js19.Bool
+  withdrawPeriod: import_o1js19.UInt32,
+  // in slots
+  isOwnerPaid: import_o1js19.Bool,
+  isNFTtransferred: import_o1js19.Bool,
+  isNFTwithdrawn: import_o1js19.Bool
 }) {
   pack() {
     const data = import_o1js19.Field.fromBits([
@@ -4014,12 +4022,15 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
       ...this.transferFee.value.toBits(64),
       ...this.saleFee.value.toBits(32),
       ...this.auctionEndTime.value.toBits(32),
+      ...this.withdrawPeriod.value.toBits(32),
       this.owner.isOdd,
       this.collection.isOdd,
       this.nft.isOdd,
       this.auctioneer.isOdd,
       this.bidder.isOdd,
-      this.isOwnerPaid
+      this.isOwnerPaid,
+      this.isNFTtransferred,
+      this.isNFTwithdrawn
     ]);
     return new AuctionPacked({
       ownerX: this.owner.x,
@@ -4031,18 +4042,20 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
     });
   }
   static unpack(packed) {
-    const bits = packed.data.toBits(64 + 64 + 32 + 32 + 6);
+    const bits = packed.data.toBits(64 + 64 + 32 + 32 + 32 + 8);
     const ownerX = packed.ownerX;
     const collectionX = packed.collectionX;
     const nftX = packed.nftX;
     const auctioneerX = packed.auctioneerX;
     const bidderX = packed.bidderX;
-    const ownerIsOdd = bits[64 + 64 + 32 + 32];
-    const collectionIsOdd = bits[64 + 64 + 32 + 32 + 1];
-    const nftIsOdd = bits[64 + 64 + 32 + 32 + 2];
-    const auctioneerIsOdd = bits[64 + 64 + 32 + 32 + 3];
-    const bidderIsOdd = bits[64 + 64 + 32 + 32 + 4];
-    const isOwnerPaid = bits[64 + 64 + 32 + 32 + 5];
+    const ownerIsOdd = bits[64 + 64 + 32 + 32 + 32];
+    const collectionIsOdd = bits[64 + 64 + 32 + 32 + 32 + 1];
+    const nftIsOdd = bits[64 + 64 + 32 + 32 + 32 + 2];
+    const auctioneerIsOdd = bits[64 + 64 + 32 + 32 + 32 + 3];
+    const bidderIsOdd = bits[64 + 64 + 32 + 32 + 32 + 4];
+    const isOwnerPaid = bits[64 + 64 + 32 + 32 + 32 + 5];
+    const isNFTtransferred = bits[64 + 64 + 32 + 32 + 32 + 6];
+    const isNFTwithdrawn = bits[64 + 64 + 32 + 32 + 32 + 7];
     const owner = import_o1js19.PublicKey.from({ x: ownerX, isOdd: ownerIsOdd });
     const collection = import_o1js19.PublicKey.from({
       x: collectionX,
@@ -4061,6 +4074,7 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
     const transferFee = import_o1js19.UInt64.Unsafe.fromField(import_o1js19.Field.fromBits(bits.slice(64, 64 + 64)));
     const saleFee = import_o1js19.UInt32.Unsafe.fromField(import_o1js19.Field.fromBits(bits.slice(64 + 64, 64 + 64 + 32)));
     const auctionEndTime = import_o1js19.UInt32.Unsafe.fromField(import_o1js19.Field.fromBits(bits.slice(64 + 64 + 32, 64 + 64 + 32 + 32)));
+    const withdrawPeriod = import_o1js19.UInt32.Unsafe.fromField(import_o1js19.Field.fromBits(bits.slice(64 + 64 + 32 + 32, 64 + 64 + 32 + 32 + 32)));
     return new _Auction({
       owner,
       collection,
@@ -4071,16 +4085,24 @@ var Auction = class _Auction extends (0, import_o1js19.Struct)({
       transferFee,
       saleFee,
       auctionEndTime,
-      isOwnerPaid
+      withdrawPeriod,
+      isOwnerPaid,
+      isNFTtransferred,
+      isNFTwithdrawn
     });
   }
+};
+var AuctionState = class extends (0, import_o1js19.Struct)({
+  bidAmount: import_o1js19.UInt64,
+  auction: Auction,
+  settled: import_o1js19.Bool
+}) {
 };
 var AuctionBidEvent = class extends (0, import_o1js19.Struct)({
   bidder: import_o1js19.PublicKey,
   price: import_o1js19.UInt64
 }) {
 };
-var WITHDRAW_PERIOD = 3360;
 function AuctionFactory(params) {
   const { collectionContract } = params;
   class NonFungibleTokenAuctionContract extends import_o1js19.SmartContract {
@@ -4088,7 +4110,7 @@ function AuctionFactory(params) {
       super(...arguments);
       this.auctionData = (0, import_o1js19.State)();
       this.bidAmount = (0, import_o1js19.State)(import_o1js19.UInt64.zero);
-      this.insideSettleAuction = (0, import_o1js19.State)((0, import_o1js19.Bool)(false));
+      this.settled = (0, import_o1js19.State)((0, import_o1js19.Bool)(false));
       this.events = {
         bid: AuctionBidEvent,
         settleAuction: TransferParams,
@@ -4110,10 +4132,13 @@ function AuctionFactory(params) {
         transferFee: args.transferFee,
         saleFee: args.saleFee,
         auctionEndTime: args.auctionEndTime,
+        withdrawPeriod: args.withdrawPeriod,
         bidder: import_o1js19.PublicKey.empty(),
-        isOwnerPaid: (0, import_o1js19.Bool)(false)
+        isOwnerPaid: (0, import_o1js19.Bool)(false),
+        isNFTtransferred: (0, import_o1js19.Bool)(false),
+        isNFTwithdrawn: (0, import_o1js19.Bool)(false)
       }).pack());
-      this.insideSettleAuction.set((0, import_o1js19.Bool)(false));
+      this.settled.set((0, import_o1js19.Bool)(false));
       this.bidAmount.set(import_o1js19.UInt64.zero);
       this.account.permissions.set({
         ...import_o1js19.Permissions.default(),
@@ -4131,9 +4156,10 @@ function AuctionFactory(params) {
       saleFee.assertLessThanOrEqual(import_o1js19.UInt32.from(MAX_SALE_FEE), "Sale fee is too high");
       return price.div(MAX_SALE_FEE).mul(import_o1js19.UInt64.from(saleFee));
     }
-    async bid(price) {
-      const insideSettleAuction = this.insideSettleAuction.getAndRequireEquals();
-      insideSettleAuction.assertFalse("Auction already finished");
+    // anyone can call this method to bid, paying the bid amount for the bidder
+    async bid(price, bidder) {
+      const settled = this.settled.getAndRequireEquals();
+      settled.assertFalse("Auction already finished");
       const bidAmount = this.bidAmount.getAndRequireEquals();
       this.account.balance.requireBetween(bidAmount, import_o1js19.UInt64.MAXINT());
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
@@ -4150,20 +4176,27 @@ function AuctionFactory(params) {
       senderUpdate.balance.subInPlace(price);
       this.balance.addInPlace(price);
       this.bidAmount.set(price);
-      auction.bidder = sender;
+      auction.bidder = bidder;
       this.auctionData.set(auction.pack());
-      this.emitEvent("bid", new AuctionBidEvent({ bidder: sender, price }));
+      this.emitEvent("bid", new AuctionBidEvent({ bidder, price }));
+      return auction;
+    }
+    async getAuctionState() {
+      return new AuctionState({
+        auction: Auction.unpack(this.auctionData.getAndRequireEquals()),
+        bidAmount: this.bidAmount.getAndRequireEquals(),
+        settled: this.settled.getAndRequireEquals()
+      });
     }
     // anyone can call this method to settle the auction
     // but it is intended to be called by the auctioneer
     // because the auctioneer is the one who will get the auction commission
     // and pay the royalty to NFT creator
-    // This method is atomic, so it will settle the auction and pay the NFT creator and owner
-    // This method will NOT pay the auctioneer to save the number of AccountUpdates
+    // This method is atomic, so it will settle the auction
     async settleAuction() {
-      const insideSettleAuction = this.insideSettleAuction.getAndRequireEquals();
-      insideSettleAuction.assertFalse("Auction already settled");
-      this.insideSettleAuction.set((0, import_o1js19.Bool)(true));
+      const settled = this.settled.getAndRequireEquals();
+      settled.assertFalse("Auction already settled");
+      this.settled.set((0, import_o1js19.Bool)(true));
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
       const nftAddress = auction.nft;
@@ -4176,44 +4209,79 @@ function AuctionFactory(params) {
         from: this.address,
         to: auction.bidder,
         price: UInt64Option.fromValue(bidAmount),
-        context: NFTTransactionContext.empty()
+        context: new NFTTransactionContext({
+          custom: [(0, import_o1js19.Field)(1), (0, import_o1js19.Field)(0), (0, import_o1js19.Field)(0)]
+        })
+      });
+      await collection.transferByProof(transferParams);
+      this.emitEvent("settleAuction", transferParams);
+    }
+    // and pay the royalty to NFT creator
+    // This method is atomic, so it will settle the auction
+    async withdrawNFT() {
+      const settled = this.settled.getAndRequireEquals();
+      settled.assertFalse("Auction already settled");
+      this.settled.set((0, import_o1js19.Bool)(true));
+      const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      auction.isNFTwithdrawn.assertFalse("NFT already withdrawn");
+      auction.isNFTtransferred.assertFalse("NFT already transferred");
+      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(auction.withdrawPeriod), import_o1js19.UInt32.MAXINT());
+      const nftAddress = auction.nft;
+      const collection = this.getCollectionContract(auction.collection);
+      const transferParams = new TransferParams({
+        address: nftAddress,
+        from: this.address,
+        to: auction.owner,
+        price: UInt64Option.none(),
+        context: new NFTTransactionContext({
+          custom: [(0, import_o1js19.Field)(2), (0, import_o1js19.Field)(0), (0, import_o1js19.Field)(0)]
+        })
       });
       await collection.transferByProof(transferParams);
       this.emitEvent("settleAuction", transferParams);
     }
     async canTransfer(params2) {
-      this.insideSettleAuction.requireEquals((0, import_o1js19.Bool)(true));
+      this.settled.requireEquals((0, import_o1js19.Bool)(true));
+      const isSale = params2.context.custom[0].equals((0, import_o1js19.Field)(1));
+      const isWithdraw = params2.context.custom[0].equals((0, import_o1js19.Field)(2));
+      isSale.or(isWithdraw).assertTrue("Invalid context");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
+      auction.isNFTtransferred.assertFalse("NFT already transferred");
+      auction.isNFTwithdrawn.assertFalse("NFT already withdrawn");
       const collectionAddress = auction.collection;
       const nftAddress = auction.nft;
       const owner = auction.owner;
       const bidder = auction.bidder;
       const bidAmount = this.bidAmount.getAndRequireEquals();
-      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
+      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(import_o1js19.Provable.if(isSale, import_o1js19.UInt32.from(1), auction.withdrawPeriod)), import_o1js19.UInt32.MAXINT());
       params2.collection.assertEquals(collectionAddress);
       params2.nft.assertEquals(nftAddress);
-      params2.from.assertEquals(owner);
-      params2.approved.assertEquals(this.address);
-      params2.price.assertSome().assertEquals(bidAmount);
-      params2.price.assertSome().assertGreaterThanOrEqual(auction.minimumPrice, "Bid should be greater or equal than the minimum price");
-      params2.to.assertEquals(bidder);
+      params2.from.equals(owner).and(params2.approved.equals(this.address)).or(params2.from.equals(this.address).and(params2.approved.equals(import_o1js19.PublicKey.empty()))).assertTrue("Only owner or auction can transfer");
+      params2.price.isSome.assertEquals(isSale);
+      params2.price.orElse(import_o1js19.UInt64.zero).assertEquals(import_o1js19.Provable.if(isSale, bidAmount, import_o1js19.UInt64.zero));
+      params2.price.orElse(import_o1js19.UInt64.MAXINT()).assertGreaterThanOrEqual(auction.minimumPrice, "Bid should be greater or equal than the minimum price");
+      params2.to.assertEquals(import_o1js19.Provable.if(isSale, bidder, auction.owner));
       const fee = params2.fee.orElse(import_o1js19.UInt64.zero);
-      fee.assertLessThanOrEqual(bidAmount, "Fee is higher than the bid");
+      fee.assertLessThanOrEqual(import_o1js19.Provable.if(isSale, bidAmount, import_o1js19.UInt64.MAXINT()), "Fee is higher than the bid");
       const saleFee = this.calculateSaleFee({
         price: bidAmount,
         saleFee: auction.saleFee,
         transferFee: auction.transferFee
       });
-      fee.assertLessThanOrEqual(saleFee, "Fee is higher than the sale fee");
+      fee.assertLessThanOrEqual(import_o1js19.Provable.if(isSale, saleFee, import_o1js19.UInt64.MAXINT()), "Fee is higher than the sale fee");
+      auction.isNFTtransferred = isSale;
+      auction.isNFTwithdrawn = isWithdraw;
+      this.auctionData.set(auction.pack());
       this.emitEvent("canTransfer", new TransferEvent({
         ...params2
       }));
       return (0, import_o1js19.Bool)(true);
     }
     async settlePayment() {
-      this.insideSettleAuction.getAndRequireEquals().assertTrue("Auction not settled");
+      this.settled.getAndRequireEquals().assertTrue("Auction not settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       auction.isOwnerPaid.assertFalse("Owner is not paid yet");
+      auction.isNFTtransferred.assertTrue("NFT not transferred");
       const bidAmount = this.bidAmount.getAndRequireEquals();
       this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
       const payment = bidAmount.sub(this.calculateSaleFee({
@@ -4236,7 +4304,7 @@ function AuctionFactory(params) {
     This method can be called many times by anyone, allowing the auctioneer to use the hardware wallet and bots
     */
     async settleAuctioneerPayment(amount) {
-      this.insideSettleAuction.getAndRequireEquals().assertTrue("Auction not settled");
+      this.settled.getAndRequireEquals().assertTrue("Auction not settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
       auction.isOwnerPaid.assertTrue("Owner is not paid yet, first call settlePayment");
       this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(1), import_o1js19.UInt32.MAXINT());
@@ -4254,15 +4322,15 @@ function AuctionFactory(params) {
      * Anybody can call this method to allow the use of bots by the auctioneer or bidder
      */
     async withdraw() {
-      this.insideSettleAuction.getAndRequireEquals().assertFalse("Auction already settled");
       const auction = Auction.unpack(this.auctionData.getAndRequireEquals());
-      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(WITHDRAW_PERIOD), import_o1js19.UInt32.MAXINT());
+      auction.isNFTtransferred.assertFalse("NFT already transferred");
+      this.network.globalSlotSinceGenesis.requireBetween(auction.auctionEndTime.add(auction.withdrawPeriod), import_o1js19.UInt32.MAXINT());
       const bidAmount = this.bidAmount.getAndRequireEquals();
       const bidderUpdate = import_o1js19.AccountUpdate.create(auction.bidder);
       bidderUpdate.balance.addInPlace(bidAmount);
       this.balance.subInPlace(bidAmount);
       bidderUpdate.body.useFullCommitment = (0, import_o1js19.Bool)(true);
-      this.insideSettleAuction.set((0, import_o1js19.Bool)(true));
+      this.settled.set((0, import_o1js19.Bool)(true));
       this.emitEvent("withdraw", bidAmount);
     }
   }
@@ -4277,19 +4345,31 @@ function AuctionFactory(params) {
   (0, import_tslib9.__decorate)([
     (0, import_o1js19.state)(import_o1js19.Bool),
     (0, import_tslib9.__metadata)("design:type", Object)
-  ], NonFungibleTokenAuctionContract.prototype, "insideSettleAuction", void 0);
+  ], NonFungibleTokenAuctionContract.prototype, "settled", void 0);
   (0, import_tslib9.__decorate)([
-    import_o1js19.method,
+    import_o1js19.method.returns(Auction),
     (0, import_tslib9.__metadata)("design:type", Function),
-    (0, import_tslib9.__metadata)("design:paramtypes", [import_o1js19.UInt64]),
+    (0, import_tslib9.__metadata)("design:paramtypes", [import_o1js19.UInt64, import_o1js19.PublicKey]),
     (0, import_tslib9.__metadata)("design:returntype", Promise)
   ], NonFungibleTokenAuctionContract.prototype, "bid", null);
+  (0, import_tslib9.__decorate)([
+    import_o1js19.method.returns(AuctionState),
+    (0, import_tslib9.__metadata)("design:type", Function),
+    (0, import_tslib9.__metadata)("design:paramtypes", []),
+    (0, import_tslib9.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenAuctionContract.prototype, "getAuctionState", null);
   (0, import_tslib9.__decorate)([
     import_o1js19.method,
     (0, import_tslib9.__metadata)("design:type", Function),
     (0, import_tslib9.__metadata)("design:paramtypes", []),
     (0, import_tslib9.__metadata)("design:returntype", Promise)
   ], NonFungibleTokenAuctionContract.prototype, "settleAuction", null);
+  (0, import_tslib9.__decorate)([
+    import_o1js19.method,
+    (0, import_tslib9.__metadata)("design:type", Function),
+    (0, import_tslib9.__metadata)("design:paramtypes", []),
+    (0, import_tslib9.__metadata)("design:returntype", Promise)
+  ], NonFungibleTokenAuctionContract.prototype, "withdrawNFT", null);
   (0, import_tslib9.__decorate)([
     import_o1js19.method.returns(import_o1js19.Bool),
     (0, import_tslib9.__metadata)("design:type", Function),
@@ -4315,6 +4395,400 @@ function AuctionFactory(params) {
     (0, import_tslib9.__metadata)("design:returntype", Promise)
   ], NonFungibleTokenAuctionContract.prototype, "withdraw", null);
   return NonFungibleTokenAuctionContract;
+}
+
+// dist/node/marketplace/nft-shares.js
+var import_tslib10 = require("tslib");
+var import_o1js20 = require("o1js");
+var import_token = require("@minatokens/token");
+var NFTSharesDataPacked = class extends (0, import_o1js20.Struct)({
+  adminX: import_o1js20.Field,
+  ownerX: import_o1js20.Field,
+  collectionX: import_o1js20.Field,
+  nftX: import_o1js20.Field,
+  auctionX: import_o1js20.Field,
+  data: import_o1js20.Field
+}) {
+};
+var NFTSharesData = class _NFTSharesData extends (0, import_o1js20.Struct)({
+  admin: import_o1js20.PublicKey,
+  owner: import_o1js20.PublicKey,
+  collection: import_o1js20.PublicKey,
+  nft: import_o1js20.PublicKey,
+  auction: import_o1js20.PublicKey,
+  maxBuyPrice: import_o1js20.UInt64,
+  minSellPrice: import_o1js20.UInt64
+}) {
+  pack() {
+    const data = import_o1js20.Field.fromBits([
+      ...this.maxBuyPrice.value.toBits(64),
+      ...this.minSellPrice.value.toBits(64),
+      this.admin.isOdd,
+      this.owner.isOdd,
+      this.collection.isOdd,
+      this.nft.isOdd,
+      this.auction.isOdd
+    ]);
+    return new NFTSharesDataPacked({
+      adminX: this.admin.x,
+      ownerX: this.owner.x,
+      collectionX: this.collection.x,
+      nftX: this.nft.x,
+      auctionX: this.auction.x,
+      data
+    });
+  }
+  static unpack(packed) {
+    const bits = packed.data.toBits(64 + 64 + 5);
+    const adminIsOdd = bits[64 + 64];
+    const ownerIsOdd = bits[64 + 64 + 1];
+    const collectionIsOdd = bits[64 + 64 + 2];
+    const nftIsOdd = bits[64 + 64 + 3];
+    const auctionIsOdd = bits[64 + 64 + 4];
+    const adminX = packed.adminX;
+    const ownerX = packed.ownerX;
+    const collectionX = packed.collectionX;
+    const nftX = packed.nftX;
+    const auctionX = packed.auctionX;
+    const admin = import_o1js20.PublicKey.from({ x: adminX, isOdd: adminIsOdd });
+    const owner = import_o1js20.PublicKey.from({ x: ownerX, isOdd: ownerIsOdd });
+    const collection = import_o1js20.PublicKey.from({
+      x: collectionX,
+      isOdd: collectionIsOdd
+    });
+    const nft = import_o1js20.PublicKey.from({ x: nftX, isOdd: nftIsOdd });
+    const auction = import_o1js20.PublicKey.from({ x: auctionX, isOdd: auctionIsOdd });
+    const maxBuyPrice = import_o1js20.UInt64.Unsafe.fromField(import_o1js20.Field.fromBits(bits.slice(0, 64)));
+    const minSellPrice = import_o1js20.UInt64.Unsafe.fromField(import_o1js20.Field.fromBits(bits.slice(64, 64 + 64)));
+    return new _NFTSharesData({
+      admin,
+      owner,
+      collection,
+      nft,
+      auction,
+      maxBuyPrice,
+      minSellPrice
+    });
+  }
+};
+function NFTSharesFactory(params) {
+  const { auctionContract } = params;
+  class NFTSharesAdmin extends import_o1js20.SmartContract {
+    constructor() {
+      super(...arguments);
+      this.admin = (0, import_o1js20.State)();
+      this.owner = (0, import_o1js20.State)();
+    }
+    async deploy(props) {
+      await super.deploy(props);
+      this.admin.set(props.admin);
+      this.owner.set(props.owner);
+      this.account.permissions.set({
+        ...import_o1js20.Permissions.default(),
+        setVerificationKey: import_o1js20.Permissions.VerificationKey.proofDuringCurrentVersion(),
+        setPermissions: import_o1js20.Permissions.impossible()
+      });
+    }
+    async updateVerificationKey(vk) {
+      this.ensureAdminSignature();
+      this.account.verificationKey.set(vk);
+    }
+    ensureAdminSignature() {
+      const admin = this.admin.getAndRequireEquals();
+      return import_o1js20.AccountUpdate.createSigned(admin);
+    }
+    getOwner() {
+      return new NFTSharesOwner(this.owner.getAndRequireEquals());
+    }
+    async canMint(_accountUpdate) {
+      const owner = this.getOwner();
+      return await owner.canMint(_accountUpdate);
+    }
+    async canChangeAdmin(_admin) {
+      this.ensureAdminSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canPause() {
+      this.ensureAdminSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canResume() {
+      this.ensureAdminSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canChangeVerificationKey(_vk) {
+      this.ensureAdminSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+  }
+  (0, import_tslib10.__decorate)([
+    (0, import_o1js20.state)(import_o1js20.PublicKey),
+    (0, import_tslib10.__metadata)("design:type", Object)
+  ], NFTSharesAdmin.prototype, "admin", void 0);
+  (0, import_tslib10.__decorate)([
+    (0, import_o1js20.state)(import_o1js20.PublicKey),
+    (0, import_tslib10.__metadata)("design:type", Object)
+  ], NFTSharesAdmin.prototype, "owner", void 0);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method,
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.VerificationKey]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesAdmin.prototype, "updateVerificationKey", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.AccountUpdate]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesAdmin.prototype, "canMint", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.PublicKey]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesAdmin.prototype, "canChangeAdmin", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", []),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesAdmin.prototype, "canPause", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", []),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesAdmin.prototype, "canResume", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.VerificationKey]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesAdmin.prototype, "canChangeVerificationKey", null);
+  const FungibleToken = (0, import_token.FungibleTokenContract)(NFTSharesAdmin);
+  class NFTSharesOwner extends import_o1js20.SmartContract {
+    constructor() {
+      super(...arguments);
+      this.data = (0, import_o1js20.State)();
+      this.subscriptionOpen = (0, import_o1js20.State)((0, import_o1js20.Bool)(true));
+      this.sharesOutstanding = (0, import_o1js20.State)(import_o1js20.UInt64.zero);
+    }
+    /**
+     * Deploys the contract with initial settings.
+     * @param props - Deployment properties including admin, upgradeAuthority, uri, canPause, and isPaused.
+     */
+    async deploy(props) {
+      await super.deploy(props);
+      this.data.set(new NFTSharesData({
+        admin: props.admin,
+        owner: props.owner,
+        collection: props.collection,
+        nft: props.nft,
+        auction: props.auction,
+        maxBuyPrice: props.maxBuyPrice,
+        minSellPrice: props.minSellPrice
+      }).pack());
+      this.account.zkappUri.set(props.uri);
+      this.subscriptionOpen.set((0, import_o1js20.Bool)(true));
+      this.sharesOutstanding.set(import_o1js20.UInt64.zero);
+      this.account.permissions.set({
+        ...import_o1js20.Permissions.default(),
+        // Allow the upgrade authority to set the verification key even without a protocol upgrade,
+        // enabling upgrades in case of o1js breaking changes.
+        setVerificationKey: import_o1js20.Permissions.VerificationKey.proofDuringCurrentVersion(),
+        setPermissions: import_o1js20.Permissions.impossible()
+      });
+    }
+    /**
+     * Ensures that the transaction is authorized by the contract owner.
+     * @returns A signed `AccountUpdate` from the admin.
+     */
+    ensureOwnerSignature() {
+      const data = NFTSharesData.unpack(this.data.getAndRequireEquals());
+      const adminUpdate = import_o1js20.AccountUpdate.createSigned(data.admin);
+      adminUpdate.body.useFullCommitment = (0, import_o1js20.Bool)(true);
+      return data;
+    }
+    getAuction(auction) {
+      return new (auctionContract())(auction);
+    }
+    /**
+     * Allows the owner to mint shares.
+     * This method should NOT called directly, but through the FungibleToken.mint()
+     *
+     * @param _accountUpdate - The account update containing the sender's information.
+     * @returns A boolean indicating if the minting is allowed.
+     */
+    async canMint(_accountUpdate) {
+      const subscriptionOpen = this.subscriptionOpen.getAndRequireEquals();
+      subscriptionOpen.assertEquals((0, import_o1js20.Bool)(true), "Subscription is closed");
+      const address = _accountUpdate.publicKey;
+      const amount = _accountUpdate.balanceChange.magnitude;
+      const senderUpdate = import_o1js20.AccountUpdate.createSigned(address);
+      senderUpdate.balance.subInPlace(amount);
+      this.balance.addInPlace(amount);
+      const sharesOutstanding = this.sharesOutstanding.getAndRequireEquals();
+      this.sharesOutstanding.set(sharesOutstanding.add(amount));
+      return (0, import_o1js20.Bool)(true);
+    }
+    async withdraw(shares) {
+      const subscriptionOpen = this.subscriptionOpen.getAndRequireEquals();
+      subscriptionOpen.assertEquals((0, import_o1js20.Bool)(false), "Subscription is not closed, cannot withdraw");
+      const sharesOutstanding = this.sharesOutstanding.getAndRequireEquals();
+      const balance = this.account.balance.getAndRequireEquals();
+      balance.equals(import_o1js20.UInt64.zero).assertFalse("Balance is zero, nothing to withdraw");
+      const amountInMinaField = shares.value.mul(balance.value).div(sharesOutstanding.value);
+      amountInMinaField.assertLessThanOrEqual(balance.value, "Amount in Mina is greater than the balance");
+      const amountInMina = import_o1js20.UInt64.Unsafe.fromField(amountInMinaField);
+      const sender = this.sender.getUnconstrained();
+      const senderUpdate = import_o1js20.AccountUpdate.createSigned(sender);
+      senderUpdate.balance.addInPlace(amountInMina);
+      this.balance.subInPlace(amountInMina);
+      senderUpdate.body.useFullCommitment = (0, import_o1js20.Bool)(true);
+      this.sharesOutstanding.set(sharesOutstanding.sub(shares));
+      const data = NFTSharesData.unpack(this.data.getAndRequireEquals());
+      const token = new FungibleToken(data.owner);
+      await token.burn(sender, shares);
+    }
+    async closeSubscription() {
+      const data = this.ensureOwnerSignature();
+      const maxBuyPrice = data.maxBuyPrice;
+      this.account.balance.requireBetween(maxBuyPrice, import_o1js20.UInt64.MAXINT());
+      this.subscriptionOpen.set((0, import_o1js20.Bool)(false));
+    }
+    async bid(price) {
+      const data = this.ensureOwnerSignature();
+      const maxBuyPrice = data.maxBuyPrice;
+      price.assertLessThanOrEqual(maxBuyPrice, "Price is too high");
+      this.account.balance.requireBetween(price, import_o1js20.UInt64.MAXINT());
+      this.subscriptionOpen.set((0, import_o1js20.Bool)(false));
+      const sharesOutstanding = this.sharesOutstanding.getAndRequireEquals();
+      const auction = this.getAuction(data.auction);
+      const sender = this.sender.getUnconstrained();
+      const senderUpdate = import_o1js20.AccountUpdate.createSigned(sender);
+      const tokenId = import_o1js20.TokenId.derive(data.owner);
+      const tokenUpdate = import_o1js20.AccountUpdate.create(sender, tokenId);
+      const tokenBalance = tokenUpdate.account.balance.getAndRequireEquals();
+      import_o1js20.Provable.log("owner", data.owner);
+      import_o1js20.Provable.log("sender", sender);
+      import_o1js20.Provable.log("tokenId", tokenId);
+      import_o1js20.Provable.log("tokenBalance", tokenBalance);
+      import_o1js20.Provable.log("sharesOutstanding", sharesOutstanding);
+      tokenBalance.mul(4).assertGreaterThanOrEqual(sharesOutstanding, "Not enough shares to bid, minimum is 25% of the shares outstanding");
+      senderUpdate.balance.addInPlace(price);
+      this.balance.subInPlace(price);
+      senderUpdate.body.useFullCommitment = (0, import_o1js20.Bool)(true);
+      await auction.bid(price, this.address);
+    }
+    async canTransfer(params2) {
+      const data = NFTSharesData.unpack(this.data.getAndRequireEquals());
+      params2.collection.assertEquals(data.collection);
+      params2.nft.assertEquals(data.nft);
+      const amount = params2.price.assertSome();
+      amount.assertGreaterThanOrEqual(data.minSellPrice, "Price is too low");
+      const sender = this.sender.getUnconstrained();
+      const senderUpdate = import_o1js20.AccountUpdate.createSigned(sender);
+      senderUpdate.balance.subInPlace(amount);
+      senderUpdate.body.useFullCommitment = (0, import_o1js20.Bool)(true);
+      this.balance.addInPlace(amount);
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canPause(collection, nft) {
+      this.ensureOwnerSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canResume(collection, nft) {
+      this.ensureOwnerSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canChangeVerificationKey(collection, nft, vk) {
+      this.ensureOwnerSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+    async canApproveAddress(collection, nft, approved) {
+      this.ensureOwnerSignature();
+      return (0, import_o1js20.Bool)(true);
+    }
+  }
+  (0, import_tslib10.__decorate)([
+    (0, import_o1js20.state)(NFTSharesDataPacked),
+    (0, import_tslib10.__metadata)("design:type", Object)
+  ], NFTSharesOwner.prototype, "data", void 0);
+  (0, import_tslib10.__decorate)([
+    (0, import_o1js20.state)(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Object)
+  ], NFTSharesOwner.prototype, "subscriptionOpen", void 0);
+  (0, import_tslib10.__decorate)([
+    (0, import_o1js20.state)(import_o1js20.UInt64),
+    (0, import_tslib10.__metadata)("design:type", Object)
+  ], NFTSharesOwner.prototype, "sharesOutstanding", void 0);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.AccountUpdate]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "canMint", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method,
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.UInt64]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "withdraw", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method,
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", []),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "closeSubscription", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method,
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.UInt64]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "bid", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [TransferExtendedParams]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "canTransfer", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.PublicKey, import_o1js20.PublicKey]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "canPause", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [import_o1js20.PublicKey, import_o1js20.PublicKey]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "canResume", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [
+      import_o1js20.PublicKey,
+      import_o1js20.PublicKey,
+      import_o1js20.VerificationKey
+    ]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "canChangeVerificationKey", null);
+  (0, import_tslib10.__decorate)([
+    import_o1js20.method.returns(import_o1js20.Bool),
+    (0, import_tslib10.__metadata)("design:type", Function),
+    (0, import_tslib10.__metadata)("design:paramtypes", [
+      import_o1js20.PublicKey,
+      import_o1js20.PublicKey,
+      import_o1js20.PublicKey
+    ]),
+    (0, import_tslib10.__metadata)("design:returntype", Promise)
+  ], NFTSharesOwner.prototype, "canApproveAddress", null);
+  return {
+    NFTSharesAdmin,
+    NFTSharesOwner,
+    FungibleToken
+  };
 }
 
 // dist/node/contracts.js
@@ -4377,6 +4851,7 @@ var { Collection: AdvancedCollection, Approval: AdvancedApproval, Owner: Advance
   AuctionBidEvent,
   AuctionFactory,
   AuctionPacked,
+  AuctionState,
   Bid,
   BidEvent,
   BidFactory,
@@ -4407,6 +4882,9 @@ var { Collection: AdvancedCollection, Approval: AdvancedApproval, Owner: Advance
   NFTImmutableState,
   NFTOraclePreconditions,
   NFTProgram,
+  NFTSharesData,
+  NFTSharesDataPacked,
+  NFTSharesFactory,
   NFTStandardApproval,
   NFTStandardOwner,
   NFTState,
