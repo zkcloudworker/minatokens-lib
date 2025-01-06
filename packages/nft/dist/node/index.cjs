@@ -4657,7 +4657,7 @@ function NFTSharesFactory(params) {
       this.subscriptionOpen.set((0, import_o1js20.Bool)(false));
     }
     async bid(price) {
-      const data = this.ensureOwnerSignature();
+      const data = NFTSharesData.unpack(this.data.getAndRequireEquals());
       const maxBuyPrice = data.maxBuyPrice;
       price.assertLessThanOrEqual(maxBuyPrice, "Price is too high");
       this.account.balance.requireBetween(price, import_o1js20.UInt64.MAXINT());
@@ -4669,11 +4669,8 @@ function NFTSharesFactory(params) {
       const tokenId = import_o1js20.TokenId.derive(data.owner);
       const tokenUpdate = import_o1js20.AccountUpdate.create(sender, tokenId);
       const tokenBalance = tokenUpdate.account.balance.getAndRequireEquals();
-      import_o1js20.Provable.log("owner", data.owner);
-      import_o1js20.Provable.log("sender", sender);
-      import_o1js20.Provable.log("tokenId", tokenId);
-      import_o1js20.Provable.log("tokenBalance", tokenBalance);
-      import_o1js20.Provable.log("sharesOutstanding", sharesOutstanding);
+      const token = new FungibleToken(data.owner);
+      await token.approveAccountUpdate(tokenUpdate);
       tokenBalance.mul(4).assertGreaterThanOrEqual(sharesOutstanding, "Not enough shares to bid, minimum is 25% of the shares outstanding");
       senderUpdate.balance.addInPlace(price);
       this.balance.subInPlace(price);

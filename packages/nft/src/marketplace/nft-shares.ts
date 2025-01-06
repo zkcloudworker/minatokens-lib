@@ -304,7 +304,7 @@ export function NFTSharesFactory(params: {
 
     @method
     async bid(price: UInt64) {
-      const data = this.ensureOwnerSignature();
+      const data = NFTSharesData.unpack(this.data.getAndRequireEquals());
       const maxBuyPrice = data.maxBuyPrice;
       price.assertLessThanOrEqual(maxBuyPrice, "Price is too high");
       this.account.balance.requireBetween(price, UInt64.MAXINT());
@@ -316,11 +316,9 @@ export function NFTSharesFactory(params: {
       const tokenId = TokenId.derive(data.owner);
       const tokenUpdate = AccountUpdate.create(sender, tokenId);
       const tokenBalance = tokenUpdate.account.balance.getAndRequireEquals();
-      Provable.log("owner", data.owner);
-      Provable.log("sender", sender);
-      Provable.log("tokenId", tokenId);
-      Provable.log("tokenBalance", tokenBalance);
-      Provable.log("sharesOutstanding", sharesOutstanding);
+      const token = new FungibleToken(data.owner);
+      await token.approveAccountUpdate(tokenUpdate);
+
       tokenBalance
         .mul(4)
         .assertGreaterThanOrEqual(
