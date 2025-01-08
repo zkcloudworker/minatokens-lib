@@ -3,7 +3,7 @@ title: TokenInfo
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenInfo
-order: 87
+order: 97
 ---
 
 # Type Alias: TokenInfo
@@ -25,6 +25,8 @@ type TokenInfo = {
   website: string;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:400](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L400)
 
 ## Type declaration
 
@@ -131,7 +133,3 @@ optional website: string;
 ```
 
 Optional. Official website of the token.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:377](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L377)

@@ -3,7 +3,7 @@ title: ProveTokenTransactions
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.ProveTokenTransactions
-order: 76
+order: 86
 ---
 
 # Type Alias: ProveTokenTransactions
@@ -18,6 +18,8 @@ type ProveTokenTransactions = {
 };
 ```
 
+Defined in: [packages/api/src/client/types.gen.ts:315](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L315)
+
 ## Type declaration
 
 ### txs
@@ -27,7 +29,3 @@ txs: ProveTokenTransaction[];
 ```
 
 Array of transactions to be proved.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:292](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L292)

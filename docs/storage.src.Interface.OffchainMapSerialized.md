@@ -3,10 +3,12 @@ title: OffchainMapSerialized
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Interface.OffchainMapSerialized
-order: 240
+order: 298
 ---
 
 # Interface: OffchainMapSerialized
+
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:17](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L17)
 
 ## Extends
 
@@ -14,11 +16,13 @@ order: 240
 
 ## Indexable
 
- \[`key`: `string`\]: \{
-  `data`: `object`;
-  `list`: \{
-     `key`: `string`;
-     `value`: `string`;
-    \}[];
-  `map`: [`IndexedMapSerialized`](storagesrcinterfaceindexedmapserialized);
- \}
+```ts
+[key: string]: {
+  data: object;
+  list: {
+     key: string;
+     value: string;
+    }[];
+  map: IndexedMapSerialized;
+}
+```

@@ -3,14 +3,20 @@ title: Storage
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Class.Storage
-order: 234
+order: 292
 ---
 
 # Class: Storage
 
 ## Properties overview
 
+- Overrides: Struct({
+  url: Provable.Array(Field, 2),
+}).constructor [↗](#overrides)
 - url:  Field[]; [↗](#url)
+- Overrides: Struct({
+  url: Provable.Array(Field, 2),
+}).empty [↗](#overrides)
 
 ## Methods overview
 
@@ -20,6 +26,8 @@ order: 234
 - empty() [↗](#empty)
 - equals() [↗](#equals)
 - fromString() [↗](#fromstring)
+
+Defined in: [packages/storage/src/storage/storage.ts:8](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L8)
 
 Represents the off-chain storage information,
 such as an IPFS hash.
@@ -40,13 +48,15 @@ new Storage(value: {
  }): Storage
 ```
 
+Defined in: [packages/storage/src/storage/storage.ts:11](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L11)
+
 #### Parameters
 
 ##### value
 
 ###### url
 
-[`Field`, `Field`]
+\[`Field`, `Field`\]
 
 #### Returns
 
@@ -54,13 +64,11 @@ new Storage(value: {
 
 #### Overrides
 
-`Struct({
+```ts
+Struct({
   url: Provable.Array(Field, 2),
-}).constructor`
-
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:11](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L11)
+}).constructor
+```
 
 ## Properties
 
@@ -70,15 +78,15 @@ new Storage(value: {
 url: Field[];
 ```
 
+Defined in: [packages/storage/src/storage/storage.ts:9](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L9)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   url: Provable.Array(Field, 2),
-}).url`
-
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:9](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L9)
+}).url
+```
 
 ## Methods
 
@@ -88,13 +96,11 @@ url: Field[];
 isEmpty(): Bool
 ```
 
+Defined in: [packages/storage/src/storage/storage.ts:62](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L62)
+
 #### Returns
 
 `Bool`
-
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:62](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L62)
 
 ***
 
@@ -104,6 +110,8 @@ isEmpty(): Bool
 toString(): string
 ```
 
+Defined in: [packages/storage/src/storage/storage.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L51)
+
 Converts the Storage instance to a string.
 
 #### Returns
@@ -112,10 +120,6 @@ Converts the Storage instance to a string.
 
 The string representation of the storage URL.
 
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L51)
-
 ***
 
 ### assertEquals()
@@ -123,6 +127,8 @@ The string representation of the storage URL.
 ```ts
 static assertEquals(a: Storage, b: Storage): void
 ```
+
+Defined in: [packages/storage/src/storage/storage.ts:20](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L20)
 
 Asserts that two Storage instances are equal.
 
@@ -144,10 +150,6 @@ The second Storage instance.
 
 `void`
 
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:20](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L20)
-
 ***
 
 ### empty()
@@ -156,19 +158,19 @@ The second Storage instance.
 static empty(): Storage
 ```
 
+Defined in: [packages/storage/src/storage/storage.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L58)
+
 #### Returns
 
 [`Storage`](storagesrcclassstorage)
 
 #### Overrides
 
-`Struct({
+```ts
+Struct({
   url: Provable.Array(Field, 2),
-}).empty`
-
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L58)
+}).empty
+```
 
 ***
 
@@ -177,6 +179,8 @@ static empty(): Storage
 ```ts
 static equals(a: Storage, b: Storage): Bool
 ```
+
+Defined in: [packages/storage/src/storage/storage.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L31)
 
 Checks if two Storage instances are equal.
 
@@ -200,10 +204,6 @@ The second Storage instance.
 
 A Bool indicating whether the two instances are equal.
 
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L31)
-
 ***
 
 ### fromString()
@@ -211,6 +211,8 @@ A Bool indicating whether the two instances are equal.
 ```ts
 static fromString(url: string): Storage
 ```
+
+Defined in: [packages/storage/src/storage/storage.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L40)
 
 Creates a Storage instance from a string.
 
@@ -227,7 +229,3 @@ The string representing the storage URL.
 [`Storage`](storagesrcclassstorage)
 
 A new Storage instance.
-
-#### Defined in
-
-[packages/storage/src/storage/storage.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/storage.ts#L40)

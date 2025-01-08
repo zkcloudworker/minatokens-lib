@@ -18,7 +18,6 @@ import {
   NFTAdmin,
   NFTAdvancedAdmin,
   Approval,
-  NonFungibleTokenBidContract,
 } from "@minatokens/nft";
 import {
   tokenVerificationKeys,
@@ -65,11 +64,6 @@ const contracts: {
   {
     name: "NonFungibleTokenOfferContract",
     contract: Approval as unknown as CompilableInternal,
-    type: "user",
-  },
-  {
-    name: "NonFungibleTokenBidContract",
-    contract: NonFungibleTokenBidContract,
     type: "user",
   },
   { name: "NFTAdmin", contract: NFTAdmin, type: "admin" },

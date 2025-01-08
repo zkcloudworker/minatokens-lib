@@ -3,7 +3,7 @@ title: CollectionErrors
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Variable.CollectionErrors
-order: 216
+order: 268
 ---
 
 # Variable: CollectionErrors
@@ -16,10 +16,8 @@ order: 216
 - cannotUpgradeVerificationKey:  string = "Cannot upgrade verification key"; [↗](#cannotupgradeverificationkey)
 - collectionNotPaused:  string = "Collection is not paused"; [↗](#collectionnotpaused)
 - collectionPaused:  string = "Collection is currently paused"; [↗](#collectionpaused)
-- creatorSignatureRequiredToUpgradeCollection:  string = "Creator signature is required to upgrade collection"; [↗](#creatorsignaturerequiredtoupgradecollection)
-- creatorSignatureRequiredToUpgradeNFT:  string = "Creator signature is required to upgrade NFT"; [↗](#creatorsignaturerequiredtoupgradenft)
-- mintApprovalNotRequired:  string = "Mint approval is not required"; [↗](#mintapprovalnotrequired)
-- mintApprovalRequired:  string = "Mint approval is required"; [↗](#mintapprovalrequired)
+- invalidOracleAddress:  string = "Oracle address is invalid"; [↗](#invalidoracleaddress)
+- invalidRoyaltyFee:  string = "Royalty fee is too high, cannot be more than 100%"; [↗](#invalidroyaltyfee)
 - noPermissionToChangeBaseUri:  string = "Not allowed to change collection base URI"; [↗](#nopermissiontochangebaseuri)
 - noPermissionToChangeCreator:  string = "Not allowed to change collection creator"; [↗](#nopermissiontochangecreator)
 - noPermissionToChangeName:  string = "Not allowed to change collection name"; [↗](#nopermissiontochangename)
@@ -28,11 +26,9 @@ order: 216
 - noPermissionToPause:  string = "Not allowed to pause collection"; [↗](#nopermissiontopause)
 - noPermissionToResume:  string = "Not allowed to resume collection"; [↗](#nopermissiontoresume)
 - noPermissionToSetAdmin:  string = "Not allowed to set admin contract"; [↗](#nopermissiontosetadmin)
-- transferApprovalNotRequired:  string = "Transfer approval is not required"; [↗](#transferapprovalnotrequired)
+- onlyOwnerCanUpgradeVerificationKey:  string = "Only owner can upgrade verification key"; [↗](#onlyownercanupgradeverificationkey)
 - transferApprovalRequired:  string = "Transfer approval is required"; [↗](#transferapprovalrequired)
 - transferNotAllowed:  string = "Transfers of tokens are not allowed, change the owner instead"; [↗](#transfernotallowed)
-- updateApprovalNotRequired:  string = "Update approval is not required"; [↗](#updateapprovalnotrequired)
-- updateApprovalRequired:  string = "Update approval is required"; [↗](#updateapprovalrequired)
 - upgradeContractAddressNotSet:  string = "Upgrade contract address is not set"; [↗](#upgradecontractaddressnotset)
 - wrongMasterNFTaddress:  string = "Master NFT address should be the same as the collection address"; [↗](#wrongmasternftaddress)
 
@@ -44,10 +40,8 @@ const CollectionErrors: {
   cannotUpgradeVerificationKey: string;
   collectionNotPaused: string;
   collectionPaused: string;
-  creatorSignatureRequiredToUpgradeCollection: string;
-  creatorSignatureRequiredToUpgradeNFT: string;
-  mintApprovalNotRequired: string;
-  mintApprovalRequired: string;
+  invalidOracleAddress: string;
+  invalidRoyaltyFee: string;
   noPermissionToChangeBaseUri: string;
   noPermissionToChangeCreator: string;
   noPermissionToChangeName: string;
@@ -56,15 +50,15 @@ const CollectionErrors: {
   noPermissionToPause: string;
   noPermissionToResume: string;
   noPermissionToSetAdmin: string;
-  transferApprovalNotRequired: string;
+  onlyOwnerCanUpgradeVerificationKey: string;
   transferApprovalRequired: string;
   transferNotAllowed: string;
-  updateApprovalNotRequired: string;
-  updateApprovalRequired: string;
   upgradeContractAddressNotSet: string;
   wrongMasterNFTaddress: string;
 };
 ```
+
+Defined in: [packages/nft/src/contracts/collection.ts:63](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L63)
 
 ## Type declaration
 
@@ -104,28 +98,16 @@ collectionNotPaused: string = "Collection is not paused";
 collectionPaused: string = "Collection is currently paused";
 ```
 
-### creatorSignatureRequiredToUpgradeCollection
+### invalidOracleAddress
 
 ```ts
-creatorSignatureRequiredToUpgradeCollection: string = "Creator signature is required to upgrade collection";
+invalidOracleAddress: string = "Oracle address is invalid";
 ```
 
-### creatorSignatureRequiredToUpgradeNFT
+### invalidRoyaltyFee
 
 ```ts
-creatorSignatureRequiredToUpgradeNFT: string = "Creator signature is required to upgrade NFT";
-```
-
-### mintApprovalNotRequired
-
-```ts
-mintApprovalNotRequired: string = "Mint approval is not required";
-```
-
-### mintApprovalRequired
-
-```ts
-mintApprovalRequired: string = "Mint approval is required";
+invalidRoyaltyFee: string = "Royalty fee is too high, cannot be more than 100%";
 ```
 
 ### noPermissionToChangeBaseUri
@@ -176,10 +158,10 @@ noPermissionToResume: string = "Not allowed to resume collection";
 noPermissionToSetAdmin: string = "Not allowed to set admin contract";
 ```
 
-### transferApprovalNotRequired
+### onlyOwnerCanUpgradeVerificationKey
 
 ```ts
-transferApprovalNotRequired: string = "Transfer approval is not required";
+onlyOwnerCanUpgradeVerificationKey: string = "Only owner can upgrade verification key";
 ```
 
 ### transferApprovalRequired
@@ -194,18 +176,6 @@ transferApprovalRequired: string = "Transfer approval is required";
 transferNotAllowed: string = "Transfers of tokens are not allowed, change the owner instead";
 ```
 
-### updateApprovalNotRequired
-
-```ts
-updateApprovalNotRequired: string = "Update approval is not required";
-```
-
-### updateApprovalRequired
-
-```ts
-updateApprovalRequired: string = "Update approval is required";
-```
-
 ### upgradeContractAddressNotSet
 
 ```ts
@@ -217,7 +187,3 @@ upgradeContractAddressNotSet: string = "Upgrade contract address is not set";
 ```ts
 wrongMasterNFTaddress: string = "Master NFT address should be the same as the collection address";
 ```
-
-## Defined in
-
-[packages/nft/src/contracts/collection.ts:65](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L65)

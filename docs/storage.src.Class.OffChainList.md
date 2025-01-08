@@ -3,7 +3,7 @@ title: OffChainList
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Class.OffChainList
-order: 230
+order: 288
 ---
 
 # Class: OffChainList
@@ -12,6 +12,12 @@ order: 230
 
 - root:  Field = Field; [↗](#root)
 - storage:  Storage = Storage; [↗](#storage)
+- Overrides: Struct({
+  / The root hash of the Merkle tree representing the whitelist. /
+  root: Field,
+  / Off-chain storage information, typically an IPFS hash pointing to the whitelist data. /
+  storage: Storage,
+}).empty [↗](#overrides)
 
 ## Methods overview
 
@@ -23,6 +29,8 @@ order: 230
 - create() [↗](#create)
 - empty() [↗](#empty)
 - fromString() [↗](#fromstring)
+
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:177](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L177)
 
 ## Extends
 
@@ -41,6 +49,8 @@ new OffChainList(value: {
   storage: Storage;
  }): OffChainList
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -64,16 +74,14 @@ Off-chain storage information, typically an IPFS hash pointing to the whitelist 
 
 #### Inherited from
 
-`Struct({
-  /** The root hash of the Merkle tree representing the whitelist. */
+```ts
+Struct({
+  / The root hash of the Merkle tree representing the whitelist. /
   root: Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
+  / Off-chain storage information, typically an IPFS hash pointing to the whitelist data. /
   storage: Storage,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -83,20 +91,20 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 root: Field = Field;
 ```
 
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:179](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L179)
+
 The root hash of the Merkle tree representing the whitelist.
 
 #### Inherited from
 
-`Struct({
-  /** The root hash of the Merkle tree representing the whitelist. */
+```ts
+Struct({
+  / The root hash of the Merkle tree representing the whitelist. /
   root: Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
+  / Off-chain storage information, typically an IPFS hash pointing to the whitelist data. /
   storage: Storage,
-}).root`
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:179](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L179)
+}).root
+```
 
 ***
 
@@ -106,20 +114,20 @@ The root hash of the Merkle tree representing the whitelist.
 storage: Storage = Storage;
 ```
 
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:181](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L181)
+
 Off-chain storage information, typically an IPFS hash pointing to the whitelist data.
 
 #### Inherited from
 
-`Struct({
-  /** The root hash of the Merkle tree representing the whitelist. */
+```ts
+Struct({
+  / The root hash of the Merkle tree representing the whitelist. /
   root: Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
+  / Off-chain storage information, typically an IPFS hash pointing to the whitelist data. /
   storage: Storage,
-}).storage`
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:181](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L181)
+}).storage
+```
 
 ## Methods
 
@@ -128,6 +136,8 @@ Off-chain storage information, typically an IPFS hash pointing to the whitelist 
 ```ts
 getValue(key: Field, name: undefined | string): Promise<FieldOption>
 ```
+
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:228](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L228)
 
 The function fetches a whitelisted amount associated with a given key using a map and returns it
 as a FieldOption.
@@ -156,10 +166,6 @@ The value is not present if the list is NOT empty and the key is NOT in the map.
 The value is present if the list IS empty or the key IS in the map.
 The value is present and equals to Field(0) if the list IS empty.
 
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:228](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L228)
-
 ***
 
 ### isNone()
@@ -168,13 +174,11 @@ The value is present and equals to Field(0) if the list IS empty.
 isNone(): Bool
 ```
 
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:183](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L183)
+
 #### Returns
 
 `Bool`
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:183](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L183)
 
 ***
 
@@ -184,13 +188,11 @@ isNone(): Bool
 isSome(): Bool
 ```
 
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:187](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L187)
+
 #### Returns
 
 `Bool`
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:187](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L187)
 
 ***
 
@@ -199,6 +201,8 @@ isSome(): Bool
 ```ts
 load(name: undefined | string): Promise<OffchainMapOption>
 ```
+
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:191](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L191)
 
 #### Parameters
 
@@ -210,10 +214,6 @@ load(name: undefined | string): Promise<OffchainMapOption>
 
 `Promise`\<[`OffchainMapOption`](storagesrcclassoffchainmapoption)\>
 
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:191](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L191)
-
 ***
 
 ### toString()
@@ -222,15 +222,13 @@ load(name: undefined | string): Promise<OffchainMapOption>
 toString(): string
 ```
 
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:326](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L326)
+
 Returns a string representation of an object.
 
 #### Returns
 
 `string`
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:326](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L326)
 
 ***
 
@@ -257,6 +255,8 @@ static create(params: {
   list: OffChainList;
 }>
 ```
+
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:256](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L256)
 
 Creates a new OffchainList
 and pins it to IPFS.
@@ -324,10 +324,6 @@ The list of entries to be added to the map.
 
 A new `OffChainList` instance.
 
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:256](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L256)
-
 ***
 
 ### empty()
@@ -336,22 +332,22 @@ A new `OffChainList` instance.
 static empty(): OffChainList
 ```
 
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:241](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L241)
+
 #### Returns
 
 [`OffChainList`](storagesrcclassoffchainlist)
 
 #### Overrides
 
-`Struct({
-  /** The root hash of the Merkle tree representing the whitelist. */
+```ts
+Struct({
+  / The root hash of the Merkle tree representing the whitelist. /
   root: Field,
-  /** Off-chain storage information, typically an IPFS hash pointing to the whitelist data. */
+  / Off-chain storage information, typically an IPFS hash pointing to the whitelist data. /
   storage: Storage,
-}).empty`
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:241](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L241)
+}).empty
+```
 
 ***
 
@@ -360,6 +356,8 @@ static empty(): OffChainList
 ```ts
 static fromString(str: string): OffChainList
 ```
+
+Defined in: [packages/storage/src/whitelist/offchain-map.ts:334](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L334)
 
 #### Parameters
 
@@ -370,7 +368,3 @@ static fromString(str: string): OffChainList
 #### Returns
 
 [`OffChainList`](storagesrcclassoffchainlist)
-
-#### Defined in
-
-[packages/storage/src/whitelist/offchain-map.ts:334](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/offchain-map.ts#L334)

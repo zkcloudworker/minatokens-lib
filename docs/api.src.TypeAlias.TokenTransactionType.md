@@ -3,7 +3,7 @@ title: TokenTransactionType
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenTransactionType
-order: 101
+order: 111
 ---
 
 # Type Alias: TokenTransactionType
@@ -25,6 +25,4 @@ type TokenTransactionType =
   | "token:admin:whitelist";
 ```
 
-## Defined in
-
-[packages/api/src/client/types.gen.ts:644](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L644)
+Defined in: [packages/api/src/client/types.gen.ts:667](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L667)

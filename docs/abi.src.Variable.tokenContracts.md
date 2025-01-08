@@ -12,6 +12,4 @@ order: 17
 const tokenContracts: Record<string, Compilable>;
 ```
 
-## Defined in
-
-[packages/abi/src/token/contracts.ts:21](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/contracts.ts#L21)
+Defined in: [packages/abi/src/token/contracts.ts:21](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/contracts.ts#L21)

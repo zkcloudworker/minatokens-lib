@@ -3,7 +3,7 @@ title: MetadataFieldTypeValues
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Variable.MetadataFieldTypeValues
-order: 218
+order: 270
 ---
 
 # Variable: MetadataFieldTypeValues
@@ -85,6 +85,8 @@ const MetadataFieldTypeValues: {
     };
 };
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:595](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L595)
 
 Mapping of metadata field types to their code values and associated types.
 
@@ -285,7 +287,3 @@ readonly inputType: "string" = "string";
 ```ts
 readonly storedType: typeof Text = Text;
 ```
-
-## Defined in
-
-[packages/nft/src/metadata/metadata.ts:595](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L595)

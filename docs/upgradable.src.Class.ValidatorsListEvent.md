@@ -3,7 +3,7 @@ title: ValidatorsListEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsListEvent
-order: 295
+order: 353
 ---
 
 # Class: ValidatorsListEvent
@@ -12,6 +12,8 @@ order: 295
 
 - storage:  Storage = Storage; [↗](#storage)
 - validators:  ValidatorsState = ValidatorsState; [↗](#validators)
+
+Defined in: [packages/upgradable/src/upgrade.ts:57](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L57)
 
 Event emitted when the validators list is updated.
 
@@ -33,6 +35,8 @@ new ValidatorsListEvent(value: {
  }): ValidatorsListEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -51,14 +55,12 @@ new ValidatorsListEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   validators: ValidatorsState,
   storage: Storage,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -68,16 +70,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 storage: Storage = Storage;
 ```
 
+Defined in: [packages/upgradable/src/upgrade.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L59)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   validators: ValidatorsState,
   storage: Storage,
-}).storage`
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L59)
+}).storage
+```
 
 ***
 
@@ -87,13 +89,13 @@ storage: Storage = Storage;
 validators: ValidatorsState = ValidatorsState;
 ```
 
+Defined in: [packages/upgradable/src/upgrade.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L58)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   validators: ValidatorsState,
   storage: Storage,
-}).validators`
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L58)
+}).validators
+```

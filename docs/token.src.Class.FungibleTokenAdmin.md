@@ -3,10 +3,14 @@ title: FungibleTokenAdmin
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenAdmin
-order: 266
+order: 324
 ---
 
 # Class: FungibleTokenAdmin
+
+## Properties overview
+
+- Overrides: SmartContract.deploy [↗](#overrides)
 
 ## Methods overview
 
@@ -17,6 +21,8 @@ order: 266
 - canResume() [↗](#canresume)
 - deploy() [↗](#deploy)
 - updateVerificationKey() [↗](#updateverificationkey)
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L30)
 
 A contract that grants permissions for administrative actions on a token.
 
@@ -42,6 +48,8 @@ can integrate against the unchanged token contract.
 new FungibleTokenAdmin(address: PublicKey, tokenId?: Field): FungibleTokenAdmin
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+
 #### Parameters
 
 ##### address
@@ -58,11 +66,9 @@ new FungibleTokenAdmin(address: PublicKey, tokenId?: Field): FungibleTokenAdmin
 
 #### Inherited from
 
-`SmartContract.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+```ts
+SmartContract.constructor
+```
 
 ## Methods
 
@@ -71,6 +77,8 @@ node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
 ```ts
 canChangeAdmin(_admin: PublicKey): Promise<Bool>
 ```
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:73](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L73)
 
 #### Parameters
 
@@ -84,11 +92,9 @@ canChangeAdmin(_admin: PublicKey): Promise<Bool>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canChangeAdmin`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:73](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L73)
+```ts
+FungibleTokenAdminBase.canChangeAdmin
+```
 
 ***
 
@@ -97,6 +103,8 @@ canChangeAdmin(_admin: PublicKey): Promise<Bool>
 ```ts
 canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>
 ```
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L91)
 
 #### Parameters
 
@@ -110,11 +118,9 @@ canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canChangeVerificationKey`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L91)
+```ts
+FungibleTokenAdminBase.canChangeVerificationKey
+```
 
 ***
 
@@ -123,6 +129,8 @@ canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>
 ```ts
 canMint(_accountUpdate: AccountUpdate): Promise<Bool>
 ```
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:67](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L67)
 
 #### Parameters
 
@@ -136,11 +144,9 @@ canMint(_accountUpdate: AccountUpdate): Promise<Bool>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canMint`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:67](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L67)
+```ts
+FungibleTokenAdminBase.canMint
+```
 
 ***
 
@@ -150,17 +156,17 @@ canMint(_accountUpdate: AccountUpdate): Promise<Bool>
 canPause(): Promise<Bool>
 ```
 
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:79](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L79)
+
 #### Returns
 
 `Promise`\<`Bool`\>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canPause`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:79](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L79)
+```ts
+FungibleTokenAdminBase.canPause
+```
 
 ***
 
@@ -170,17 +176,17 @@ canPause(): Promise<Bool>
 canResume(): Promise<Bool>
 ```
 
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:85](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L85)
+
 #### Returns
 
 `Promise`\<`Bool`\>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canResume`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:85](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L85)
+```ts
+FungibleTokenAdminBase.canResume
+```
 
 ***
 
@@ -189,6 +195,8 @@ canResume(): Promise<Bool>
 ```ts
 deploy(props: FungibleTokenAdminDeployProps): Promise<void>
 ```
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:37](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L37)
 
 Deploys a SmartContract.
 
@@ -212,15 +220,15 @@ tx.sign([senderKey, zkAppKey]);
 
 #### Implementation of
 
-`FungibleTokenAdminBase.deploy`
+```ts
+FungibleTokenAdminBase.deploy
+```
 
 #### Overrides
 
-`SmartContract.deploy`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:37](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L37)
+```ts
+SmartContract.deploy
+```
 
 ***
 
@@ -229,6 +237,8 @@ tx.sign([senderKey, zkAppKey]);
 ```ts
 updateVerificationKey(vk: VerificationKey): Promise<void>
 ```
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L52)
 
 Update the verification key.
 Note that because we have set the permissions for setting the verification key to `impossibleDuringCurrentVersion()`, this will only be possible in case of a protocol update that requires an update.
@@ -242,7 +252,3 @@ Note that because we have set the permissions for setting the verification key t
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L52)

@@ -3,7 +3,7 @@ title: GetProofData
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.GetProofData
-order: 47
+order: 57
 ---
 
 # Type Alias: GetProofData
@@ -18,6 +18,8 @@ type GetProofData = {
 };
 ```
 
+Defined in: [packages/api/src/client/types.gen.ts:1025](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1025)
+
 ## Type declaration
 
 ### body
@@ -25,7 +27,3 @@ type GetProofData = {
 ```ts
 body: JobId;
 ```
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:994](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L994)

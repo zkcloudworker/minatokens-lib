@@ -3,7 +3,7 @@ title: TokenBuyTransactionParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenBuyTransactionParams
-order: 86
+order: 96
 ---
 
 # Type Alias: TokenBuyTransactionParams
@@ -20,6 +20,8 @@ type TokenBuyTransactionParams = DeployedTokenTransactionBaseParams & {
   txType: "token:offer:buy";
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:380](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L380)
 
 ## Type declaration
 
@@ -46,7 +48,3 @@ optional txType: "token:offer:buy";
 ```
 
 Must be "token:offer:buy"
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:357](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L357)

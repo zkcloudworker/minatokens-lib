@@ -19,6 +19,8 @@ type Compilable = {
 };
 ```
 
+Defined in: [packages/abi/src/token/contracts.ts:12](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/contracts.ts#L12)
+
 ## Type declaration
 
 ### compile()
@@ -39,7 +41,3 @@ type Compilable = {
      `hash`: `Field`;
     \};
  \}\>
-
-## Defined in
-
-[packages/abi/src/token/contracts.ts:12](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/contracts.ts#L12)

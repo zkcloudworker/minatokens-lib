@@ -3,7 +3,7 @@ title: ValidatorsState
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsState
-order: 296
+order: 354
 ---
 
 # Class: ValidatorsState
@@ -13,12 +13,22 @@ order: 296
 - chainId:  Field = Field; [↗](#chainid)
 - count:  UInt32 = UInt32; [↗](#count)
 - root:  Field = Field; [↗](#root)
+- Overrides: Struct({
+  / Chain ID (e.g., 'mina:mainnet') /
+  chainId: Field,
+  / Merkle root of the ValidatorsList /
+  root: Field,
+  / Number of validators /
+  count: UInt32,
+}).empty [↗](#overrides)
 
 ## Methods overview
 
 - hash() [↗](#hash)
 - assertEquals() [↗](#assertequals)
 - empty() [↗](#empty)
+
+Defined in: [packages/upgradable/src/validators.ts:79](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L79)
 
 Represents the state of the validators.
 
@@ -41,6 +51,8 @@ new ValidatorsState(value: {
   root: Field;
  }): ValidatorsState
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -70,18 +82,16 @@ Merkle root of the ValidatorsList
 
 #### Inherited from
 
-`Struct({
-  /** Chain ID (e.g., 'mina:mainnet') */
+```ts
+Struct({
+  / Chain ID (e.g., 'mina:mainnet') /
   chainId: Field,
-  /** Merkle root of the ValidatorsList */
+  / Merkle root of the ValidatorsList /
   root: Field,
-  /** Number of validators */
+  / Number of validators /
   count: UInt32,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -91,22 +101,22 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 chainId: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:81](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L81)
+
 Chain ID (e.g., 'mina:mainnet')
 
 #### Inherited from
 
-`Struct({
-  /** Chain ID (e.g., 'mina:mainnet') */
+```ts
+Struct({
+  / Chain ID (e.g., 'mina:mainnet') /
   chainId: Field,
-  /** Merkle root of the ValidatorsList */
+  / Merkle root of the ValidatorsList /
   root: Field,
-  /** Number of validators */
+  / Number of validators /
   count: UInt32,
-}).chainId`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:81](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L81)
+}).chainId
+```
 
 ***
 
@@ -116,22 +126,22 @@ Chain ID (e.g., 'mina:mainnet')
 count: UInt32 = UInt32;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:85](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L85)
+
 Number of validators
 
 #### Inherited from
 
-`Struct({
-  /** Chain ID (e.g., 'mina:mainnet') */
+```ts
+Struct({
+  / Chain ID (e.g., 'mina:mainnet') /
   chainId: Field,
-  /** Merkle root of the ValidatorsList */
+  / Merkle root of the ValidatorsList /
   root: Field,
-  /** Number of validators */
+  / Number of validators /
   count: UInt32,
-}).count`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:85](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L85)
+}).count
+```
 
 ***
 
@@ -141,22 +151,22 @@ Number of validators
 root: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:83](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L83)
+
 Merkle root of the ValidatorsList
 
 #### Inherited from
 
-`Struct({
-  /** Chain ID (e.g., 'mina:mainnet') */
+```ts
+Struct({
+  / Chain ID (e.g., 'mina:mainnet') /
   chainId: Field,
-  /** Merkle root of the ValidatorsList */
+  / Merkle root of the ValidatorsList /
   root: Field,
-  /** Number of validators */
+  / Number of validators /
   count: UInt32,
-}).root`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:83](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L83)
+}).root
+```
 
 ## Methods
 
@@ -166,6 +176,8 @@ Merkle root of the ValidatorsList
 hash(): Field
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:102](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L102)
+
 Computes the hash of the validators state.
 
 #### Returns
@@ -174,10 +186,6 @@ Computes the hash of the validators state.
 
 Hash of the current state.
 
-#### Defined in
-
-[packages/upgradable/src/validators.ts:102](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L102)
-
 ***
 
 ### assertEquals()
@@ -185,6 +193,8 @@ Hash of the current state.
 ```ts
 static assertEquals(a: ValidatorsState, b: ValidatorsState): void
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:92](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L92)
 
 Asserts that two `ValidatorsState` instances are equal.
 
@@ -206,10 +216,6 @@ Second `ValidatorsState` instance.
 
 `void`
 
-#### Defined in
-
-[packages/upgradable/src/validators.ts:92](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L92)
-
 ***
 
 ### empty()
@@ -217,6 +223,8 @@ Second `ValidatorsState` instance.
 ```ts
 static empty(): ValidatorsState
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:110](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L110)
 
 Returns an empty `ValidatorsState`.
 
@@ -228,15 +236,13 @@ An empty `ValidatorsState` instance.
 
 #### Overrides
 
-`Struct({
-  /** Chain ID (e.g., 'mina:mainnet') */
+```ts
+Struct({
+  / Chain ID (e.g., 'mina:mainnet') /
   chainId: Field,
-  /** Merkle root of the ValidatorsList */
+  / Merkle root of the ValidatorsList /
   root: Field,
-  /** Number of validators */
+  / Number of validators /
   count: UInt32,
-}).empty`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:110](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L110)
+}).empty
+```

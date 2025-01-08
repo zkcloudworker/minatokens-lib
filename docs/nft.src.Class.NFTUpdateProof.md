@@ -3,7 +3,7 @@ title: NFTUpdateProof
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.NFTUpdateProof
-order: 192
+order: 216
 ---
 
 # Class: NFTUpdateProof
@@ -11,9 +11,15 @@ order: 192
 ## Properties overview
 
 - featureFlags: static featureFlags: {} = FeatureFlags.allMaybe; [↗](#featureflags)
+- Overrides: DynamicProof.featureFlags [↗](#overrides)
 - maxProofsVerified: static maxProofsVerified: 2; [↗](#maxproofsverified)
+- Overrides: DynamicProof.maxProofsVerified [↗](#overrides)
 - publicInputType: static publicInputType: typeof NFTState = NFTState; [↗](#publicinputtype)
+- Overrides: DynamicProof.publicInputType [↗](#overrides)
 - publicOutputType: static publicOutputType: typeof NFTState = NFTState; [↗](#publicoutputtype)
+- Overrides: DynamicProof.publicOutputType [↗](#overrides)
+
+Defined in: [packages/nft/src/interfaces/types.ts:269](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L269)
 
 Represents a dynamic proof used for updating the state of an NFT.
 
@@ -29,6 +35,8 @@ Represents a dynamic proof used for updating the state of an NFT.
 new NFTUpdateProof(__namedParameters: {}): NFTUpdateProof
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/proof-system/proof.d.ts:23
+
 #### Parameters
 
 ##### \_\_namedParameters
@@ -39,11 +47,9 @@ new NFTUpdateProof(__namedParameters: {}): NFTUpdateProof
 
 #### Inherited from
 
-`DynamicProof<NFTState, NFTState>.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/proof-system/proof.d.ts:23
+```ts
+DynamicProof<NFTState, NFTState>.constructor
+```
 
 ## Properties
 
@@ -52,6 +58,8 @@ node\_modules/o1js/dist/node/lib/proof-system/proof.d.ts:23
 ```ts
 static featureFlags: {} = FeatureFlags.allMaybe;
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:273](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L273)
 
 As the name indicates, feature flags are features of the proof system.
 
@@ -68,11 +76,9 @@ Alternatively, you can use FeatureFlags.fromZkProgram to compute the set of feat
 
 #### Overrides
 
-`DynamicProof.featureFlags`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:287](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L287)
+```ts
+DynamicProof.featureFlags
+```
 
 ***
 
@@ -82,13 +88,13 @@ Alternatively, you can use FeatureFlags.fromZkProgram to compute the set of feat
 static maxProofsVerified: 2;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:272](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L272)
+
 #### Overrides
 
-`DynamicProof.maxProofsVerified`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:286](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L286)
+```ts
+DynamicProof.maxProofsVerified
+```
 
 ***
 
@@ -98,13 +104,13 @@ static maxProofsVerified: 2;
 static publicInputType: typeof NFTState = NFTState;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:270](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L270)
+
 #### Overrides
 
-`DynamicProof.publicInputType`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:284](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L284)
+```ts
+DynamicProof.publicInputType
+```
 
 ***
 
@@ -114,10 +120,10 @@ static publicInputType: typeof NFTState = NFTState;
 static publicOutputType: typeof NFTState = NFTState;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:271](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L271)
+
 #### Overrides
 
-`DynamicProof.publicOutputType`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:285](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L285)
+```ts
+DynamicProof.publicOutputType
+```

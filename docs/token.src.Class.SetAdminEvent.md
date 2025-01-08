@@ -3,7 +3,7 @@ title: SetAdminEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.SetAdminEvent
-order: 274
+order: 332
 ---
 
 # Class: SetAdminEvent
@@ -11,6 +11,8 @@ order: 274
 ## Properties overview
 
 - adminKey:  PublicKey = PublicKey; [↗](#adminkey)
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:316](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L316)
 
 ## Extends
 
@@ -28,6 +30,8 @@ new SetAdminEvent(value: {
  }): SetAdminEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -42,13 +46,11 @@ new SetAdminEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   adminKey: PublicKey,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -58,12 +60,12 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 adminKey: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:317](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L317)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   adminKey: PublicKey,
-}).adminKey`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:317](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L317)
+}).adminKey
+```

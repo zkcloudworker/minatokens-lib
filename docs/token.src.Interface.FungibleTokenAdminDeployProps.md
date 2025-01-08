@@ -3,7 +3,7 @@ title: FungibleTokenAdminDeployProps
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Interface.FungibleTokenAdminDeployProps
-order: 275
+order: 333
 ---
 
 # Interface: FungibleTokenAdminDeployProps
@@ -11,6 +11,8 @@ order: 275
 ## Properties overview
 
 - adminPublicKey:  PublicKey; [↗](#adminpublickey)
+
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:17](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L17)
 
 ## Extends
 
@@ -24,6 +26,4 @@ order: 275
 adminPublicKey: PublicKey;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenStandardAdmin.ts:19](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L19)
+Defined in: [packages/token/src/FungibleTokenStandardAdmin.ts:19](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenStandardAdmin.ts#L19)

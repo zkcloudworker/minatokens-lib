@@ -3,7 +3,7 @@ title: config
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.Function.config
-order: 150
+order: 160
 ---
 
 # Function: config()
@@ -15,6 +15,8 @@ function config(__namedParameters: {
   throwOnError: boolean;
  }): void
 ```
+
+Defined in: [packages/api/src/config.ts:3](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/config.ts#L3)
 
 ## Parameters
 
@@ -35,7 +37,3 @@ function config(__namedParameters: {
 ## Returns
 
 `void`
-
-## Defined in
-
-[packages/api/src/config.ts:3](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/config.ts#L3)

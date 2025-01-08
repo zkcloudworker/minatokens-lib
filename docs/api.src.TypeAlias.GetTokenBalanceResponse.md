@@ -3,7 +3,7 @@ title: GetTokenBalanceResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.GetTokenBalanceResponse
-order: 52
+order: 62
 ---
 
 # Type Alias: GetTokenBalanceResponse
@@ -12,6 +12,4 @@ order: 52
 type GetTokenBalanceResponse = BalanceResponse;
 ```
 
-## Defined in
-
-[packages/api/src/client/types.gen.ts:982](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L982)
+Defined in: [packages/api/src/client/types.gen.ts:1013](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1013)

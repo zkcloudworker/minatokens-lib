@@ -1,7 +1,8 @@
 import { PublicKey, TokenContract } from "o1js";
-import { TransferParams, UInt64Option } from "./types.js";
+import { TransferParams, NFTStateStruct } from "./types.js";
 import { NFTOwnerContractConstructor } from "./owner.js";
 import { NFTApprovalContractConstructor } from "./approval.js";
+import { NFTUpdateContractConstructor } from "./update.js";
 import { NFTAdminContractConstructor } from "./admin.js";
 export {
   NFTCollectionBase,
@@ -17,42 +18,36 @@ type NFTCollectionBase = TokenContract & {
   /**
    * Transfers ownership of an NFT from contract without admin approval using a proof.
    *
-   * @param address - The address of the NFT.
-   * @param to - The recipient's public key.
+   * @param params - The transfer details.
    */
   transferByProof(params: TransferParams): Promise<void>;
   /**
    * Transfers ownership of an NFT from contract without admin approval.
    *
-   * @param address - The address of the NFT.
-   * @param to - The recipient's public key.
-   * @param price - The price of the NFT.
+   * @param params - The transfer details.
    */
-  transferBySignature(
-    address: PublicKey,
-    to: PublicKey,
-    price: UInt64Option
-  ): Promise<void>;
+  transferBySignature(params: TransferParams): Promise<void>;
 
   /**
    * Transfers ownership of an NFT from contract without admin approval using a proof.
    *
-   * @param address - The address of the NFT.
-   * @param to - The recipient's public key.
+   * @param params - The transfer details.
    */
   approvedTransferByProof(params: TransferParams): Promise<void>;
   /**
    * Transfers ownership of an NFT from contract without admin approval.
    *
-   * @param address - The address of the NFT.
-   * @param to - The recipient's public key.
-   * @param price - The price of the NFT.
+   * @param params - The transfer details.
    */
-  approvedTransferBySignature(
-    address: PublicKey,
-    to: PublicKey,
-    price: UInt64Option
-  ): Promise<void>;
+  approvedTransferBySignature(params: TransferParams): Promise<void>;
+
+  /**
+   * Returns the state of an NFT.
+   *
+   * @param address - The address of the NFT.
+   * @returns The state of the NFT.
+   */
+  getNFTState(address: PublicKey): Promise<NFTStateStruct>;
 };
 
 /**
@@ -69,4 +64,5 @@ type DefineCollectionFactory = (params: {
   adminContract: () => NFTAdminContractConstructor;
   ownerContract: () => NFTOwnerContractConstructor;
   approvalContract: () => NFTApprovalContractConstructor;
+  updateContract: () => NFTUpdateContractConstructor;
 }) => NFTCollectionContractConstructor;

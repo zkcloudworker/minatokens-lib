@@ -3,7 +3,7 @@ title: PauseEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.PauseEvent
-order: 197
+order: 218
 ---
 
 # Class: PauseEvent
@@ -11,6 +11,8 @@ order: 197
 ## Properties overview
 
 - isPaused:  Bool = Bool; [↗](#ispaused)
+
+Defined in: [packages/nft/src/interfaces/pausable.ts:36](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/pausable.ts#L36)
 
 The **PauseEvent** class represents an event emitted whenever the contract is paused or resumed.
 This event contains the `isPaused` boolean field, indicating the current state of the contract.
@@ -31,6 +33,8 @@ new PauseEvent(value: {
  }): PauseEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -47,16 +51,14 @@ Indicates whether the contract is currently paused.
 
 #### Inherited from
 
-`Struct({
-  /**
-   * Indicates whether the contract is currently paused.
-   */
+```ts
+Struct({
+  /
+    Indicates whether the contract is currently paused.
+   /
   isPaused: Bool,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -66,17 +68,17 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 isPaused: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/pausable.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/pausable.ts#L40)
+
 Indicates whether the contract is currently paused.
 
 #### Inherited from
 
-`Struct({
-  /**
-   * Indicates whether the contract is currently paused.
-   */
+```ts
+Struct({
+  /
+    Indicates whether the contract is currently paused.
+   /
   isPaused: Bool,
-}).isPaused`
-
-#### Defined in
-
-[packages/nft/src/contracts/pausable.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/pausable.ts#L40)
+}).isPaused
+```

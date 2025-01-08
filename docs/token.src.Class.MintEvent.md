@@ -3,7 +3,7 @@ title: MintEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.MintEvent
-order: 271
+order: 329
 ---
 
 # Class: MintEvent
@@ -12,6 +12,8 @@ order: 271
 
 - amount:  UInt64 = UInt64; [↗](#amount)
 - recipient:  PublicKey = PublicKey; [↗](#recipient)
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:324](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L324)
 
 ## Extends
 
@@ -31,6 +33,8 @@ new MintEvent(value: {
  }): MintEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -49,14 +53,12 @@ new MintEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   recipient: PublicKey,
   amount: UInt64,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -66,16 +68,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 amount: UInt64 = UInt64;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:326](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L326)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   recipient: PublicKey,
   amount: UInt64,
-}).amount`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:326](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L326)
+}).amount
+```
 
 ***
 
@@ -85,13 +87,13 @@ amount: UInt64 = UInt64;
 recipient: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:325](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L325)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   recipient: PublicKey,
   amount: UInt64,
-}).recipient`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:325](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L325)
+}).recipient
+```

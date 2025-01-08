@@ -3,7 +3,7 @@ title: TokenBidTransactionParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenBidTransactionParams
-order: 85
+order: 95
 ---
 
 # Type Alias: TokenBidTransactionParams
@@ -23,6 +23,8 @@ type TokenBidTransactionParams = DeployedTokenTransactionBaseParams & {
   whitelist: Whitelist;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:351](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L351)
 
 ## Type declaration
 
@@ -71,7 +73,3 @@ Must be "token:bid:create"
 ```ts
 optional whitelist: Whitelist;
 ```
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:328](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L328)

@@ -3,7 +3,7 @@ title: ValidatorsVoting
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Variable.ValidatorsVoting
-order: 311
+order: 367
 ---
 
 # Variable: ValidatorsVoting
@@ -21,6 +21,8 @@ const ValidatorsVoting: {} & {
   vote: (publicInput: ValidatorsDecisionState, ...args: TupleToInstances<[typeof ValidatorsDecision, typeof Nullifier, typeof ValidatorsList, typeof ValidatorsList, typeof Bool & (x: boolean | Bool | FieldVar) => Bool, typeof Bool & (x: boolean | Bool | FieldVar) => Bool, typeof Bool & (x: boolean | Bool | FieldVar) => Bool, typeof Signature]>) => Promise<{}>;
 };
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:380](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L380)
 
 The `ValidatorsVoting` ZkProgram implements the voting logic for validators.
 
@@ -42,7 +44,7 @@ Merges two `ValidatorsDecisionState` proofs.
 
 ##### args
 
-...`TupleToInstances`\<[*typeof* `SelfProof`, *typeof* `SelfProof`]\>
+...`TupleToInstances`\<\[*typeof* `SelfProof`, *typeof* `SelfProof`\]\>
 
 #### Returns
 
@@ -64,7 +66,7 @@ Starts the voting process for a decision.
 
 ##### args
 
-...`TupleToInstances`\<[*typeof* [`ValidatorsDecision`](upgradablesrcclassvalidatorsdecision)]\>
+...`TupleToInstances`\<\[*typeof* [`ValidatorsDecision`](upgradablesrcclassvalidatorsdecision)\]\>
 
 #### Returns
 
@@ -86,12 +88,8 @@ Records a vote
 
 ##### args
 
-...`TupleToInstances`\<[*typeof* [`ValidatorsDecision`](upgradablesrcclassvalidatorsdecision), *typeof* `Nullifier`, *typeof* [`ValidatorsList`](upgradablesrcclassvalidatorslist), *typeof* [`ValidatorsList`](upgradablesrcclassvalidatorslist), *typeof* `Bool` & (`x`: `boolean` \| `Bool` \| `FieldVar`) => `Bool`, *typeof* `Bool` & (`x`: `boolean` \| `Bool` \| `FieldVar`) => `Bool`, *typeof* `Bool` & (`x`: `boolean` \| `Bool` \| `FieldVar`) => `Bool`, *typeof* `Signature`]\>
+...`TupleToInstances`\<\[*typeof* [`ValidatorsDecision`](upgradablesrcclassvalidatorsdecision), *typeof* `Nullifier`, *typeof* [`ValidatorsList`](upgradablesrcclassvalidatorslist), *typeof* [`ValidatorsList`](upgradablesrcclassvalidatorslist), *typeof* `Bool` & (`x`: `boolean` \| `Bool` \| `FieldVar`) => `Bool`, *typeof* `Bool` & (`x`: `boolean` \| `Bool` \| `FieldVar`) => `Bool`, *typeof* `Bool` & (`x`: `boolean` \| `Bool` \| `FieldVar`) => `Bool`, *typeof* `Signature`\]\>
 
 #### Returns
 
 `Promise`\<\{\}\>
-
-## Defined in
-
-[packages/upgradable/src/validators.ts:380](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L380)

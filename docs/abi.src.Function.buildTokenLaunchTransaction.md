@@ -23,6 +23,8 @@ function buildTokenLaunchTransaction(params: {
 }>
 ```
 
+Defined in: [packages/abi/src/token/build.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/build.ts#L32)
+
 ## Parameters
 
 ### params
@@ -55,7 +57,3 @@ function buildTokenLaunchTransaction(params: {
   `tx`: `Transaction`\<`false`, `false`\>;
   `verificationKeyHashes`: `string`[];
  \}\>
-
-## Defined in
-
-[packages/abi/src/token/build.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/build.ts#L32)

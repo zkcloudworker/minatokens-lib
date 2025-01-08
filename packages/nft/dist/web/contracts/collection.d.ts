@@ -6,7 +6,7 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UInt64Option, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase } from "../interfaces/index.js";
+import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, NFTStateStruct, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase, NFTUpdateContractConstructor, NFTUpdateBase, TransferExtendedParams } from "../interfaces/index.js";
 export { CollectionDeployProps, CollectionFactory, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
@@ -29,6 +29,7 @@ declare const CollectionErrors: {
     adminContractAddressNotSet: string;
     onlyOwnerCanUpgradeVerificationKey: string;
     invalidRoyaltyFee: string;
+    invalidOracleAddress: string;
 };
 interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
     collectionName: Field;
@@ -48,6 +49,7 @@ declare function CollectionFactory(params: {
     adminContract: () => NFTAdminContractConstructor;
     ownerContract: () => NFTOwnerContractConstructor;
     approvalContract: () => NFTApprovalContractConstructor;
+    updateContract: () => NFTUpdateContractConstructor;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -123,6 +125,12 @@ declare function CollectionFactory(params: {
          */
         getApprovalContract(address: PublicKey): NFTApprovalBase;
         /**
+         * Retrieves the NFT Update Contract instance.
+         *
+         * @returns The Update Contract instance implementing NFTUpdateBase.
+         */
+        getUpdateContract(address: PublicKey): NFTUpdateBase;
+        /**
          * Ensures that the transaction is authorized by the creator.
          *
          * @returns The AccountUpdate of the creator.
@@ -177,6 +185,20 @@ declare function CollectionFactory(params: {
          */
         update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
         /**
+         * Updates the NFT with admin approval and oracle approval.
+         *
+         * @param proof - The proof of the NFT update.
+         * @param vk - The verification key.
+         */
+        updateWithOracle(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
+        /**
+         * Updates the NFT with admin approval - internal method.
+         *
+         * @param proof - The proof of the NFT update.
+         * @param vk - The verification key.
+         */
+        _update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
+        /**
          * Approves an address to transfer an NFT.
          *
          * @param nftAddress - The address of the NFT.
@@ -199,7 +221,7 @@ declare function CollectionFactory(params: {
          * @param to - The recipient's public key.
          * @param price - The price of the NFT (optional).
          */
-        transferBySignature(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        transferBySignature(params: TransferParams): Promise<void>;
         /**
          * Transfers ownership of an NFT using a proof in case the owner is a contract
          * Can be called by the owner or approved that should be a contracts
@@ -223,7 +245,7 @@ declare function CollectionFactory(params: {
          * @param to - The recipient's public key.
          * @param price - The price of the NFT (optional).
          */
-        approvedTransferBySignature(address: PublicKey, to: PublicKey, price: UInt64Option): Promise<void>;
+        approvedTransferBySignature(params: TransferParams): Promise<void>;
         /**
          * Internal method to transfer an NFT.
          *
@@ -233,10 +255,10 @@ declare function CollectionFactory(params: {
          * @returns The TransferEvent emitted.
          */
         _transfer(params: {
-            transferEventDraft: TransferEvent;
+            transferEventDraft: TransferExtendedParams;
             transferFee: UInt64;
             royaltyFee: UInt32;
-        }): Promise<TransferEvent>;
+        }): Promise<TransferExtendedParams>;
         /**
          * Upgrades the verification key of a specific NFT.
          *
@@ -346,6 +368,7 @@ declare function CollectionFactory(params: {
          * @returns The public key of the old owner.
          */
         transferOwnership(to: PublicKey): Promise<PublicKey>;
+        getNFTState(address: PublicKey): Promise<NFTStateStruct>;
         deriveTokenId(): import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
         readonly internal: {
             mint({ address, amount, }: {
@@ -494,9 +517,7 @@ declare function CollectionFactory(params: {
             sizeInFields(): number;
             check: (value: import("o1js").Proof<any, any>) => void;
             toValue: (x: import("o1js").Proof<any, any>) => import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>;
-            fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js" /**
-             * Defines the events emitted by the contract.
-             */).ProofValue<any, any>) => import("o1js").Proof<any, any>;
+            fromValue: (x: import("o1js").Proof<any, any> | import("node_modules/o1js/dist/node/lib/proof-system/proof.js").ProofValue<any, any>) => import("o1js").Proof<any, any>;
             toCanonical?: ((x: import("o1js").Proof<any, any>) => import("o1js").Proof<any, any>) | undefined;
         };
         publicFields(value: import("o1js").ProofBase<any, any>): {

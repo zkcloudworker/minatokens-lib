@@ -4,7 +4,41 @@
 
 The MinaNFT project is an innovative Non-Fungible Token (NFT) platform that integrates the unique privacy features of the Mina blockchain. It is designed to redefine the NFT space by offering a range of functionalities that go beyond traditional NFT capabilities.
 
-# NEW : Non-Fungible Token (NFT) Standard on Mina Protocol
+## Contracts Code
+
+### NFT Standard Contracts
+
+Main contracts: packages/nft/src/contracts/
+
+Interfaces: packages/nft/src/interfaces/
+
+### Examples of NFT Standard usage (not part of the standard)
+
+Marketplace: packages/nft/src/marketplace/
+
+Metadata: packages/nft/src/metadata/
+
+ZkPrograms: packages/nft/src/zkprogram-example/
+
+Admin: packages/nft/src/admin/
+
+### Dependencies
+
+#### Storage class used by the NFT Standard
+
+Storage: packages/storage/src/storage/storage.ts
+
+#### Whitelist class used by the NFT Advanced Admin Example and Marketplace
+
+Whitelist: packages/nft/src/whitelist/whitelist.ts
+
+#### Upgrade Authority class used by the NFT Advanced Admin Example
+
+UpgradeAuthority: packages/upgradable
+
+### Tests
+
+Test are available at https://github.com/dfstio/nft-standard-worker/tree/audit
 
 ## Project Background
 
@@ -40,306 +74,380 @@ The NFT standard on Mina Protocol consists of several contracts working together
 
 - **NFT Collection Contract** (`collection.ts`)
 - **NFT Contract** (`nft.ts`)
-- **Admin Contracts** (`admin.ts`, `whitelisted.ts`)
-- **Upgrade Contract and ZkProgram** (`upgrade.ts`, `validators.ts`)
-- **Helper Types, Events and Interfaces** (`types.ts`, `events.ts`, `ownable.ts`, `pausable.ts`, `upgradable.ts`, `standard.ts`,`metadata.ts`, `text.ts`, `tree.ts`)
+- **Admin Contract** (`admin.ts`)
 
 Below is a detailed description of each contract, including their methods and functionalities.
 
 ### NFT Collection Contract
 
-The **NFT Collection Contract** is responsible for managing a collection of NFTs. It handles minting new NFTs, transferring ownership, buying, selling, and interfacing with Admin Contracts for additional functionalities.
+The **NFT Collection Contract** manages a collection of NFTs on the Mina Protocol. It handles minting, transferring, buying, selling, and integrates with admin, approval, and owner contracts for fine-grained control. Below is an overview of its latest features and methods, along with the relevant flags and events that govern its behavior.
 
-#### Key Features
+---
 
-- **Minting NFTs**: Allows creators and authorized users to mint new NFTs in the collection.
-- **Transferring Ownership**: Enables the transfer of NFTs between users, with or without approval.
-- **Buying and Selling**: Facilitates the listing and purchasing of NFTs, including royalty payments to creators.
-- **Contract Upgrades**: Supports upgrading the verification keys for both the collection and individual NFTs.
-- **Administrative Functions**: Integrates with Admin Contracts for additional checks like KYC/AML compliance.
-- **Pausing and Resuming**: Provides mechanisms to pause and resume the collection or individual NFTs.
+## Key Features
 
-#### State Variables
+1. **Minting NFTs**  
+   • Allows creators and authorized users to mint new NFTs in the collection.  
+   • Supports both direct creator minting (mintByCreator) and admin-approved minting (mint).
 
-- `collectionName`: The name of the NFT collection (`Field`).
-- `creator`: The public key of the creator of the collection, used for royalty payments (`PublicKey`).
-- `admin`: The public key of the Admin Contract (`PublicKey`).
-- `baseURL`: The base URL for the metadata of the NFTs in the collection (`Field`).
-- `packedData`: A packed data field containing additional collection parameters, such as flags and fee configurations (`CollectionDataPacked`).
+2. **Transferring Ownership**  
+   • Enables transferring NFTs with or without admin approval.  
+   • Offers different methods for transfer:  
+    – By signature.  
+    – By proof.  
+   • Optionally enforces transfer fees and royalty fees.
 
-#### Key Methods
+3. **Buying and Selling**  
+   • Facilitates listing and purchasing of NFTs, optionally requiring admin approval.  
+   • Handles ownership checks, transfer fees, and royalty fees to creators.
 
-```typescript
-class NFTCollectionContract
-  extends TokenContract
-  implements UpgradableContract, OwnableContract, PausableContract
-{
-  @state(Field) collectionName = State<Field>();
-  @state(PublicKey) creator = State<PublicKey>();
-  @state(PublicKey) admin = State<PublicKey>();
-  @state(Field) baseURL = State<Field>();
-  @state(CollectionDataPacked) packedData = State<CollectionDataPacked>();
+4. **Updating NFTs**  
+   • Provides methods to update NFT metadata with zero-knowledge proofs.  
+   • Supports both standard updates (update) and oracle-based updates (updateWithOracle).  
+   • Integrates with admin and update contracts to enforce custom policies or off-chain logic.
 
-  async deploy(props: CollectionDeployProps): Promise<void> {
-    // Deploy the contract with initial settings
-  }
+5. **Pausing and Resuming**  
+   • Offers the ability to pause the entire collection (pause, resume).  
+   • Also supports pausing or resuming individual NFTs.  
+   • Pausing actions can be secured by owner signature (pauseNFTBySignature, resumeNFT) or by proof-based ownership (pauseNFTByProof, resumeNFTByProof).
 
-  @method
-  async initialize(masterNFT: MintParams, collectionData: CollectionData) {
-    // Initialize the collection with a master NFT and initial data
-  }
+6. **Contract Upgrades**  
+   • Supports upgrading the verification key of the collection (upgradeVerificationKey).  
+   • Allows upgrading individual NFT verification keys (upgradeNFTVerificationKey).
 
-  @method
-  async mintByCreator(params: MintParams): Promise<void> {
-    // Creator mints a new NFT in the collection
-  }
+7. **Administrative and Ownership Controls**  
+   • Interacts with Admin, Owner, Approval, and Update contracts for advanced workflows like KYC/AML compliance or flexible approval policies.  
+   • Provides specialized methods to set collection parameters such as collection name, base URL, admin address, and royalty fee.  
+   • Allows transferring overall ownership of the collection (transferOwnership).
 
-  @method
-  async mint(mintRequest: MintRequest): Promise<void> {
-    // Mint a new NFT with approval
-  }
+8. **Mint Limitation & Configuration Updates**  
+   • Offers a limitMinting method to permanently stop further minting.  
+   • Additional configuration updates are available through specialized methods (e.g., setName, setBaseURL, setAdmin, setRoyaltyFee).
 
-  @method
-  async update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void> {
-    // Update the NFT without approval
-  }
+---
 
-  @method
-  async updateWithApproval(
-    proof: NFTUpdateProof,
-    vk: VerificationKey
-  ): Promise<void> {
-    // Update the NFT with admin approval
-  }
+## State Variables
 
-  @method
-  async sell(address: PublicKey, price: UInt64): Promise<void> {
-    // List an NFT for sale without approval
-  }
+• collectionName (Field)  
+ The name of the NFT collection stored on-chain.  
+• creator (PublicKey)  
+ The creator’s public key, used for collecting royalty fees and for certain ownership checks.  
+• admin (PublicKey)  
+ The Admin Contract’s public key, controlling approval-based actions.  
+• baseURL (Field)  
+ The base URL for the collection, used as a reference for off-chain metadata.  
+• packedData (CollectionDataPacked)  
+ Stores flags and configuration (e.g., paused status, transfer-approval requirement, royalty fee, etc.).
 
-  @method
-  async sellWithApproval(address: PublicKey, price: UInt64): Promise<void> {
-    // List an NFT for sale with admin approval
-  }
+---
 
-  @method
-  async buy(address: PublicKey, price: UInt64): Promise<void> {
-    // Purchase an NFT without approval
-  }
+## Core Methods
 
-  @method
-  async buyWithApproval(address: PublicKey, price: UInt64): Promise<void> {
-    // Purchase an NFT with admin approval
-  }
+Below is a summary of major methods in the Collection Contract. Several are decorated with “@method”, indicating they are part of the on-chain zkApp logic.
 
-  @method
-  async transfer(address: PublicKey, to: PublicKey): Promise<void> {
-    // Transfer ownership of an NFT without approval
-  }
+• deploy(props: CollectionDeployProps): Promise<void>  
+ Deploys the contract with initial settings (name, admin, royalty fee, etc.).
 
-  @method
-  async transferWithApproval(address: PublicKey, to: PublicKey): Promise<void> {
-    // Transfer ownership of an NFT with admin approval
-  }
+• initialize(masterNFT: MintParams, collectionData: CollectionData): Promise<void>  
+ Initializes the collection with a “master” NFT and any initial parameters (name, base URL, flags).
 
-  @method
-  async upgradeNFTVerificationKey(
-    address: PublicKey,
-    vk: VerificationKey
-  ): Promise<void> {
-    // Upgrade the verification key of a specific NFT
-  }
+• mintByCreator(params: MintParams): Promise<void>  
+ Allows the creator to mint a new NFT in the collection directly.
 
-  @method
-  async upgradeVerificationKey(vk: VerificationKey): Promise<void> {
-    // Upgrade the verification key of the collection contract
-  }
+• mint(mintRequest: MintRequest): Promise<void>  
+ Mints a new NFT via an admin approval flow.  
+ (The Admin Contract checks whether minting is authorized.)
 
-  @method
-  async limitMinting(): Promise<void> {
-    // Limit further minting of NFTs in the collection
-  }
+• update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>  
+ Updates the NFT’s metadata or state using a zero-knowledge proof.
 
-  @method
-  async pause(): Promise<void> {
-    // Pause the collection, disabling certain actions
-  }
+• updateWithOracle(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>  
+ Similar to update, but enforces an additional oracle-based approval step.
 
-  @method
-  async resume(): Promise<void> {
-    // Resume the collection, re-enabling actions
-  }
+• sell / sellWithApproval / buy / buyWithApproval: Promise<void>  
+ Enable listing and buying NFTs, optionally requiring admin approval.
 
-  @method
-  async pauseNFT(address: PublicKey): Promise<void> {
-    // Pause a specific NFT, disabling its actions
-  }
+• transfer / transferWithApproval: Promise<void>  
+ Transfer an NFT to a new owner with or without admin approval.
 
-  @method
-  async resumeNFT(address: PublicKey): Promise<void> {
-    // Resume a specific NFT, re-enabling its actions
-  }
+• pause / resume(): Promise<void>  
+ Pauses or resumes the entire collection. When paused, certain actions are disallowed.
 
-  @method
-  async updateConfiguration(
-    configuration: CollectionConfigurationUpdate
-  ): Promise<void> {
-    // Update the collection's configuration (e.g., name, base URL, fees)
-  }
+• pauseNFTBySignature(address: PublicKey): Promise<void>  
+ Pauses an individual NFT’s contract logic, requiring the NFT owner’s signature.
 
-  @method
-  async transferOwnership(newOwner: PublicKey): Promise<PublicKey> {
-    // Transfer ownership of the collection to a new owner
-  }
+• pauseNFTByProof(address: PublicKey): Promise<void>  
+ Pauses an individual NFT’s contract logic using a zero-knowledge proof of ownership.
 
-  // ... Additional helper and internal methods
-}
-```
+• resumeNFT(address: PublicKey): Promise<void>  
+ Resumes an NFT’s logic, requiring the NFT owner’s signature.
 
-#### Events
+• resumeNFTByProof(address: PublicKey): Promise<void>  
+ Resumes an NFT’s logic via a proof-based check of ownership.
 
-- `mint`: Emitted when a new NFT is minted.
-- `update`: Emitted when an NFT is updated.
-- `transfer`: Emitted when an NFT is transferred.
-- `sell`: Emitted when an NFT is listed for sale.
-- `buy`: Emitted when an NFT is purchased.
-- `approveMint`: Emitted when an admin approves minting.
-- `approveUpdate`: Emitted when an admin approves an update.
-- `approveSell`: Emitted when an admin approves a sale.
-- `approveBuy`: Emitted when an admin approves a purchase.
-- `upgradeNFTVerificationKey`: Emitted when an NFT verification key is upgraded.
-- `upgradeVerificationKey`: Emitted when the collection verification key is upgraded.
-- `limitMinting`: Emitted when minting is limited.
-- `pause`: Emitted when the collection is paused.
-- `resume`: Emitted when the collection is resumed.
-- `pauseNFT`: Emitted when an NFT is paused.
-- `resumeNFT`: Emitted when an NFT is resumed.
-- `ownershipChange`: Emitted when ownership of the collection changes.
+• upgradeNFTVerificationKey(address: PublicKey, vk: VerificationKey): Promise<void>  
+ Upgrades the verification key for an individual NFT.
 
-#### Flags
+• upgradeVerificationKey(vk: VerificationKey): Promise<void>  
+ Upgrades the verification key of the overall collection contract.
 
-The **Collection Data Flags** control various aspects of the NFT collection's behavior and permissions. Below is a description of each flag:
+• limitMinting(): Promise<void>  
+ Permanently shuts off new NFT minting in the collection.
 
-- **requireTransferApproval** (`Bool`): If `true`, transferring NFTs within this collection requires approval from the admin contract.
-- **requireUpdateApproval** (`Bool`): If `true`, updating NFTs (such as changing metadata) requires approval from the admin contract.
-- **requireSaleApproval** (`Bool`): If `true`, listing NFTs for sale requires approval from the admin contract.
-- **requireBuyApproval** (`Bool`): If `true`, purchasing NFTs requires approval from the admin contract.
-- **requireCreatorSignatureToUpgradeCollection** (`Bool`): If `true`, upgrading the collection's verification key requires the creator's signature.
-- **requireCreatorSignatureToUpgradeNFT** (`Bool`): If `true`, upgrading an NFT's verification key requires the creator's signature.
-- **canMint** (`Bool`): If `true`, new NFTs can be minted in this collection.
-- **canPause** (`Bool`): If `true`, the collection can be paused and resumed by authorized parties.
-- **canChangeName** (`Bool`): If `true`, the name of the collection can be changed.
-- **canChangeCreator** (`Bool`): If `true`, the creator of the collection can be changed.
-- **canChangeBaseUri** (`Bool`): If `true`, the base URI for the collection's metadata can be changed.
-- **canChangeRoyalty** (`Bool`): If `true`, the royalty fee configuration can be changed.
-- **canChangeTransferFee** (`Bool`): If `true`, the transfer fee configuration can be changed.
-- **canSetAdmin** (`Bool`): If `true`, the admin contract associated with the collection can be changed.
-- **isPaused** (`Bool`): If `true`, the collection is currently paused, and certain actions are disabled.
+• setName(name: Field): Promise<void>  
+ Updates the collection’s on-chain name (requires admin check and “not paused” status).
 
-These flags enable fine-grained control over the collection's behavior, allowing creators and administrators to enforce custom policies and permissions as needed.
+• setBaseURL(baseURL: Field): Promise<void>  
+ Updates the collection’s base metadata URL (requires admin check and “not paused” status).
 
-#### Notes
+• setAdmin(admin: PublicKey): Promise<void>  
+ Sets a new admin contract address (requires admin check and “not paused” status).
 
-- The contract interacts with Admin Contracts and Upgrade Authority Contracts to manage permissions and upgrades.
-- The contract handles both approval-required and approval-free operations, depending on the collection's configuration.
-- The `packedData` state variable contains flags and configurations that control the behavior of the contract.
+• setRoyaltyFee(royaltyFee: UInt32): Promise<void>  
+ Adjusts the royalty fee percentage for future NFT transactions (requires admin check and “not paused” status).
+
+• transferOwnership(newOwner: PublicKey): Promise<PublicKey>  
+ Transfers ownership from the current creator to a new public key (e.g., for contract handover).
+
+• getNFTState(address: PublicKey): Promise<NFTStateStruct>  
+ Returns the complete on-chain state (owner, metadata, paused flag, etc.) of a particular NFT in this collection.
+
+---
+
+## Events
+
+The contract emits the following events during its lifecycle and interactions:
+
+• mint  
+ Emitted when a new NFT is successfully minted.
+
+• update  
+ Emitted when an NFT’s state or metadata is updated.
+
+• transfer  
+ Emitted when an NFT is transferred from one owner to another.
+
+• approve  
+ Emitted when an approved address is added or removed.
+
+• upgradeNFTVerificationKey  
+ Emitted when an individual NFT’s verification key is upgraded.
+
+• upgradeVerificationKey  
+ Emitted when the entire collection’s verification key is upgraded.
+
+• limitMinting  
+ Emitted when new NFT minting is permanently disabled within the collection.
+
+• pause  
+ Emitted when the entire collection is paused.
+
+• resume  
+ Emitted when the entire collection is resumed.
+
+• pauseNFT  
+ Emitted when an individual NFT is paused.
+
+• resumeNFT  
+ Emitted when an individual NFT is resumed.
+
+• ownershipChange  
+ Emitted when overall ownership of the collection contract is transferred.
+
+• setName  
+ Emitted when the collection name is changed.
+
+• setBaseURL  
+ Emitted when the base URL is updated.
+
+• setRoyaltyFee  
+ Emitted when the royalty fee is updated.
+
+• setTransferFee  
+ Emitted when the transfer fee is updated.
+
+• setAdmin  
+ Emitted when a new admin is set for the collection.
+
+---
+
+## Flags
+
+These flags are stored in the contract’s packed data (packedData) and can be accessed or updated through various methods or admin contract checks:
+
+• isPaused (Bool)  
+ True if the collection is paused (certain features disabled).
+
+• mintingIsLimited (Bool)  
+ If true, no further NFTs can be minted.
+
+• requireTransferApproval (Bool)  
+ If true, NFT transfers must be approved by the Admin Contract.
+
+• Additional flags or configuration fields may exist depending on how the CollectionData struct is extended (e.g., requireSaleApproval, requireUpdateApproval, royaltyFee, transferFee, etc.).
+
+---
+
+## Notes and References
+
+• The contract extensively integrates with Admin, Owner, Approval, and Update contracts for additional checks and off-chain logic.  
+• The underlying methods rely on zero-knowledge proofs (ZKPs) for certain workflows, e.g., updateWithOracle or pauseNFTByProof.  
+• The “packedData” field bundles essential flags and numeric values (like royaltyFee, transferFee) into a single Field for efficient on-chain storage.  
+• Refer to @types.ts for definitions of NFTUpdateProof, NFTStateStruct, CollectionData, and other data structures, and @events.ts for event struct definitions.  
+• The “CollectionFactory” function programmatically generates the Collection class, injecting references to custom admin, owner, approval, and update contracts, allowing custom logic to be easily composed.
+
+This updated description reflects the latest version of the Collection Contract, as seen in @collection.ts, @types.ts, and @events.ts. It includes support for oracle-driven updates, flexible NFT pausing/resuming, refined administrative checks, and extended event emissions.
 
 ### NFT Contract
 
-The **NFT Contract** represents an individual NFT within a collection. It manages the state and behavior of a single NFT, including ownership, metadata, storage, pricing, and permissions. The contract provides functionality for updating NFT properties with proofs and permissions, transferring ownership, selling and buying NFTs, upgrading the verification key, and pausing or resuming the NFT.
+The NFT Contract represents an individual NFT within a collection and defines both its on-chain state and permissible actions. It manages ownership, metadata, off-chain storage references, pricing, and various permission flags. It includes functionality to update an NFT’s data with proofs, transfer ownership, approve a delegate address, pause or resume the NFT, and upgrade the verification key, maintaining a packed structure for efficient on-chain storage.
+
+Below is an overview of its latest features, state variables, methods, and events, as reflected in the current implementation at:
+• packages/nft/src/contracts/nft.ts  
+• packages/nft/src/interfaces/types.ts  
+• packages/nft/src/interfaces/events.ts
+
+---
 
 #### State Variables
 
-- `name`: The name of the NFT (`Field`).
-- `metadata`: The metadata associated with the NFT (`Field`).
-- `owner`: The current owner of the NFT (`PublicKey`).
-- `storage`: Holds off-chain storage information, e.g., IPFS hash (`Storage`).
-- `packedData`: A packed field containing additional NFT data and flags (`Field`).
-- `metadataVerificationKeyHash`: The hash of the verification key used for metadata proofs (`Field`).
+• name (Field)  
+ – The on-chain name of the NFT.
+
+• metadata (Field)  
+ – A Field representing the NFT’s current metadata or metadata hash.
+
+• storage (Storage)  
+ – A reference to off-chain storage (e.g., IPFS hash or other storage root).
+
+• packedData (NFTDataPacked)  
+ – A packed Field containing key information and flags (e.g., owner, approved address, permission bits, and pause state).
+
+• metadataVerificationKeyHash (Field)  
+ – The hash of the verification key used for zero-knowledge proofs when updating or verifying the NFT’s metadata.
+
+---
 
 #### Key Methods
 
-```typescript
-class NFT extends SmartContract implements PausableContract {
-  @method.returns(Field)
-  async update(
-    input: NFTState,
-    output: NFTState,
-    creator: PublicKey
-  ): Promise<Field> {
-    // Update the NFT's state with provided proofs and permissions
-  }
+```typescript:packages/nft/src/contracts/nft.ts
+class NFT extends SmartContract {
+    …
 
-  @method.returns(SellEvent)
-  async sell(price: UInt64, seller: PublicKey): Promise<SellEvent> {
-    // List the NFT for sale at a specified price
-  }
+    @method.returns(NFTStateStruct)
+    async getState(): Promise<NFTStateStruct> {
+        // Retrieves and returns the entire on-chain state of the NFT
+    }
 
-  @method.returns(BuyEvent)
-  async buy(price: UInt64, buyer: PublicKey): Promise<BuyEvent> {
-    // Purchase the NFT, transferring ownership and handling payment
-  }
+    @method.returns(Field)
+    async update(
+        input: NFTState,
+        output: NFTState,
+        creator: PublicKey
+    ): Promise<Field> {
+        // Updates the NFT’s state with provided proofs and permission checks,
+        // enforcing all read-only and mutable flag constraints
+    }
 
-  @method.returns(PublicKey)
-  async transfer(from: PublicKey, to: PublicKey): Promise<PublicKey> {
-    // Transfer ownership of the NFT from one user to another
-  }
+    @method.returns(TransferExtendedParams)
+    async transfer(params: TransferExtendedParams): Promise<TransferExtendedParams> {
+        // Transfers ownership of the NFT to a new address,
+        // honoring permissions and pause states
+    }
 
-  @method.returns(UpgradeVerificationKeyEvent)
-  async upgradeVerificationKey(
-    vk: VerificationKey,
-    sender: PublicKey
-  ): Promise<UpgradeVerificationKeyEvent> {
-    // Upgrade the verification key used by the NFT contract
-  }
+    @method.returns(PublicKey)
+    async approveAddress(approved: PublicKey): Promise<PublicKey> {
+        // Sets or changes the NFT’s approved address for delegated actions
+    }
 
-  @method
-  async pause(): Promise<void> {
-    // Pause the NFT, disabling certain actions
-  }
+    @method.returns(UpgradeVerificationKeyData)
+    async upgradeVerificationKey(
+        vk: VerificationKey
+    ): Promise<UpgradeVerificationKeyData> {
+        // Upgrades the contract's verification key if permission flags allow it,
+        // returning data indicating whether the owner’s authorization is required
+    }
 
-  @method
-  async resume(): Promise<void> {
-    // Resume the NFT, re-enabling actions
-  }
+    @method.returns(PublicKey)
+    async pause(): Promise<PublicKey> {
+        // Pauses the NFT if allowed (isPaused=true), disabling certain actions
+    }
 
-  // ... Additional methods and helper functions
+    @method.returns(PublicKey)
+    async resume(): Promise<PublicKey> {
+        // Resumes the NFT if it is currently paused, restoring normal functionality
+    }
+
+    …
 }
 ```
 
+• getState(): Retrieves the full NFT state as an NFTStateStruct, including name, metadata, storage, packed data, and verification key hash.
+
+• update(input, output, creator): Applies changes to the NFT state by comparing the “input” and “output” states, verifying that only permitted fields are modified (e.g., canChangeMetadata must be true to change metadata). Enforces that read-only flags (like canChangeName, canPause) are respected.
+
+• transfer(params): Transfers ownership from the current owner (or approved address) to a new owner, incrementing version and clearing the approved address. Requires that canTransfer = true and isPaused = false.
+
+• approveAddress(approved): Sets a new approved address, enabling delegated transfers or updates without requiring the owner to sign.
+
+• upgradeVerificationKey(vk): Upgrades the NFT’s verification key. This method returns an UpgradeVerificationKeyData object containing (owner, isOwnerApprovalRequired). If the NFT’s flags enforce owner authorization, the collection contract can further validate the call.
+
+• pause() / resume(): Pauses or resumes the NFT if canPause = true. A paused NFT cannot be transferred or updated until resumed.
+
+---
+
 #### Events
 
-- `update`: Emitted when the NFT's state is updated.
-- `ownershipChange`: Emitted when the ownership of the NFT changes.
-- `transfer`: Emitted when the NFT is transferred.
-- `sell`: Emitted when the NFT is listed for sale.
-- `buy`: Emitted when the NFT is purchased.
-- `upgradeVerificationKey`: Emitted when the NFT's verification key is upgraded.
-- `pause`: Emitted when the NFT is paused or resumed.
+• update  
+ – Emitted when the NFT’s name, metadata, storage, owner, or related data fields are changed and version is incremented.
 
-#### Flags
+• transfer  
+ – Emitted whenever ownership changes, providing the old and new owner addresses.
 
-The **NFT Data Flags** control various aspects of the NFT's behavior and permissions. Below is a description of each flag:
+• approve  
+ – Emitted when an approved address is set or changed.
 
-- **canChangeOwnerByProof** (Bool, readonly): Determines whether the NFT's ownership can be changed via a zero-knowledge proof.
+• upgradeVerificationKey  
+ – Emitted when a new verification key is successfully applied to the NFT.
 
-- **canChangeOwnerBySignature** (Bool, readonly): Specifies if the NFT's ownership can be transferred through the owner's signature.
+• pause / resume  
+ – Emitted when the NFT is paused or resumed (respectively).
 
-- **canChangeMetadata** (Bool, readonly): Indicates whether the NFT's metadata can be updated.
+---
 
-- **canChangePrice** (Bool, readonly): Indicates if the price of the NFT can be modified.
+#### Flags (Immutable / Mutable Fields in packedData)
 
-- **canChangeStorage** (Bool, readonly): Determines whether the storage associated with the NFT can be altered.
+The NFT maintains various read-only flags to restrict or allow certain actions. These include:  
+• canChangeOwnerByProof: Whether ownership can be changed by a zero-knowledge proof.  
+• canTransfer: Whether ownership can be transferred (via signature or an approved address).  
+• canApprove: Whether the approved address can be changed.  
+• canChangeMetadata: Whether the NFT’s metadata can be updated.  
+• canChangeStorage: Whether the NFT’s off-chain storage reference can be changed.  
+• canChangeName: Whether the NFT’s name can be changed.  
+• canChangeMetadataVerificationKeyHash: Whether the metadata verification key hash can be changed.  
+• canPause: Whether the NFT can be paused, disabling its functionality.  
+• requireOwnerAuthorizationToUpgrade: Whether the owner’s signature is required for a verification key upgrade.
 
-- **canChangeName** (Bool, readonly): Specifies if the name of the NFT can be changed.
+Additionally, the mutable flags tracked are:  
+• isPaused: A boolean indicating if the NFT is currently paused.  
+• version: An incrementing version number for the NFT state.
 
-- **canChangeMetadataVerificationKeyHash** (Bool, readonly): Indicates whether the verification key hash for the metadata can be changed.
+All these flags, along with ownership and approval addresses, are packed into a compact field structure for on-chain efficiency.
 
-- **canPause** (Bool, readonly): Specifies if the NFT contract can be paused, preventing certain operations.
+---
 
-- **isPaused** (Bool): Indicates whether the NFT contract is currently paused.
+#### Error Handling
 
-- **requireOwnerSignatureToUpgrade** (Bool, readonly): Determines whether the owner's signature is required to upgrade the NFT's verification key.
+The NFT contract enforces permission checks and immutability guarantees through custom errors, including:  
+• cannotChangeOwner  
+• cannotChangeMetadata  
+• cannotChangePauseState  
+• nftIsPaused / nftIsNotPaused / nftAlreadyPaused  
+• cannotChangeMetadataVerificationKeyHash
+
+These errors are thrown when a user attempts an action that the NFT’s flags or state disallow.
+
+---
 
 ### Admin Contracts
 
@@ -355,17 +463,19 @@ The `NFTAdminBase` interface defines the administrative functionalities required
 type NFTAdminBase = SmartContract & {
   canMint(nft: MintRequest): Promise<MintParamsOption>;
   canUpdate(input: NFTState, output: NFTState): Promise<Bool>;
-  canTransfer(
+  canTransfer(transferEvent: TransferEvent): Promise<Bool>;
+  canChangeName(name: Field): Promise<Bool>;
+  canChangeCreator(creator: PublicKey): Promise<Bool>;
+  canChangeBaseUri(baseUri: Field): Promise<Bool>;
+  canChangeRoyalty(royaltyFee: UInt32): Promise<Bool>;
+  canChangeTransferFee(transferFee: UInt64): Promise<Bool>;
+  canSetAdmin(admin: PublicKey): Promise<Bool>;
+  canPause(): Promise<Bool>;
+  canResume(): Promise<Bool>;
+  canChangeVerificationKey(
+    vk: VerificationKey,
     address: PublicKey,
-    from: PublicKey,
-    to: PublicKey
-  ): Promise<Bool>;
-  canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<Bool>;
-  canBuy(
-    address: PublicKey,
-    seller: PublicKey,
-    buyer: PublicKey,
-    price: UInt64
+    tokenId: Field
   ): Promise<Bool>;
 };
 ```
@@ -382,19 +492,54 @@ type NFTAdminBase = SmartContract & {
   - **Description**: Checks if an NFT can be updated from its current state (`input`) to a new state (`output`).
   - **Returns**: A `Promise` resolving to a `Bool` indicating whether the update is permitted.
 
-- `canTransfer(address: PublicKey, from: PublicKey, to: PublicKey): Promise<Bool>`
+- `canTransfer(transferEvent: TransferEvent): Promise<Bool>`
 
-  - **Description**: Determines if an NFT can be transferred from one owner (`from`) to another (`to`) for a specific NFT contract address.
+  - **Description**: Determines if an NFT can be transferred based on the provided transfer event details.
   - **Returns**: A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
 
-- `canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<Bool>`
+- `canChangeName(name: Field): Promise<Bool>`
 
-  - **Description**: Validates if an NFT can be listed for sale by a seller at a specified price.
-  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the sale is permissible.
+  - **Description**: Determines if the collection name can be changed to the provided value.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the name change is allowed.
 
-- `canBuy(address: PublicKey, seller: PublicKey, buyer: PublicKey, price: UInt64): Promise<Bool>`
-  - **Description**: Checks whether a buyer is allowed to purchase an NFT from a seller at a given price.
-  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the purchase is allowed.
+- `canChangeCreator(creator: PublicKey): Promise<Bool>`
+
+  - **Description**: Determines if the collection creator can be changed to the provided address.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the creator change is allowed.
+
+- `canChangeBaseUri(baseUri: Field): Promise<Bool>`
+
+  - **Description**: Determines if the collection's base URI can be changed to the provided value.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the base URI change is allowed.
+
+- `canChangeRoyalty(royaltyFee: UInt32): Promise<Bool>`
+
+  - **Description**: Determines if the collection's royalty fee can be changed to the provided value.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the royalty fee change is allowed.
+
+- `canChangeTransferFee(transferFee: UInt64): Promise<Bool>`
+
+  - **Description**: Determines if the collection's transfer fee can be changed to the provided value.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the transfer fee change is allowed.
+
+- `canSetAdmin(admin: PublicKey): Promise<Bool>`
+
+  - **Description**: Determines if the collection's admin contract can be changed to the provided address.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the admin change is allowed.
+
+- `canPause(): Promise<Bool>`
+
+  - **Description**: Determines if the collection can be paused.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether pausing is allowed.
+
+- `canResume(): Promise<Bool>`
+
+  - **Description**: Determines if the collection can be resumed from a paused state.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether resuming is allowed.
+
+- `canChangeVerificationKey(vk: VerificationKey, address: PublicKey, tokenId: Field): Promise<Bool>`
+  - **Description**: Determines if the verification key can be changed for a specific NFT contract address and token ID.
+  - **Returns**: A `Promise` resolving to a `Bool` indicating whether the verification key change is allowed.
 
 **Purpose:**
 
@@ -403,220 +548,273 @@ Implementing the `NFTAdminBase` interface ensures that an administrative contrac
 **Constructor Type:**
 
 ```typescript
-type NFTAdminContractConstructor = new (admin: PublicKey) => NFTAdminBase;
+type NFTAdminContractConstructor = new (address: PublicKey) => NFTAdminBase;
 ```
 
-- **Description**: Defines a constructor for contracts implementing `NFTAdminBase`, accepting an `admin` public key and returning an instance of `NFTAdminBase`.
+- **Description**: Defines a constructor for contracts implementing `NFTAdminBase`, accepting an `address` public key and returning an instance of `NFTAdminBase`.
 
 #### Standard Admin Contract
 
-The **Standard Admin Contract** serves as the foundational administrative layer for NFT collections on the Mina Protocol. It provides essential functionalities such as contract upgrades, pausing and resuming operations, and ownership management. This contract can be extended by custom admin contracts to implement specific administrative logic, ensuring flexibility while maintaining a standardized interface.
+#### Admin Contract
+
+The NFTAdmin contract serves as a foundational administrative layer for Mina-based NFT collections. It implements the NFTAdminBase, PausableContract, and OwnableContract interfaces, providing crucial administrative flows such as contract deployment, pausing/resuming, ownership management, and selective allowance for changing fees or royalty parameters. It is designed to be extensible; more specialized admin contracts can inherit from it to add extra logic (e.g., whitelisting, KYC checks).
 
 ##### Key Features
 
-- **Upgrade Mechanism**: Allows for upgrading the contract's verification key, enabling updates to the contract's logic and functionality while maintaining security and integrity.
+• Deployment and Configuration  
+ – Deploys with initial admin and on-chain settings (URI).  
+ – Optionally can be paused from the start or disallow future pausing altogether.  
+ – Can enable/disable the ability to change royalty fees and transfer fees.
 
-- **Pause and Resume Functionality**: Implements mechanisms to pause and resume the contract's operations, providing control over the contract's availability and the ability to respond to unforeseen events.
+• Pausing and Resuming  
+ – Lets the admin pause the contract if canBePaused is true.  
+ – When paused, certain actions are restricted, and contract methods can check isPaused to decide if they proceed.  
+ – Supports resuming the contract if it’s paused.
 
-- **Ownership Management**: Supports transferring ownership of the contract, allowing the current admin to delegate administrative responsibilities to another account.
+• Ownership Management  
+ – Ensures only the current owner can perform restricted operations via ensureOwnerSignature().  
+ – Ownership can be transferred to a new admin, but only if the contract is paused.
 
-- **Administrative Controls**: Provides methods to enforce administrative rules for minting, updating, transferring, selling, and buying NFTs, ensuring that only authorized actions are permitted.
+• Verification Key Upgrade  
+ – Allows an admin-signed upgrade of the contract’s verification key (upgradeVerificationKey), letting the contract evolve without redeployment.
+
+• Permission Checks (NFTAdminBase)  
+ – Defines canMint, canUpdate, and canTransfer methods, typically returning bool or structured data indicating if an action is allowed.  
+ – Methods like canChangeRoyalty, canChangeTransferFee, canChangeName, etc. define fine-grained checks for a collection’s policy.
 
 ##### State Variables
 
-- `admin`: The public key of the contract's administrator (`PublicKey`). This account has the authority to perform administrative actions such as pausing the contract or upgrading the verification key.
+• admin (PublicKey)  
+ – Public key of the contract’s administrator. Must sign to authorize critical actions like pausing or upgrading the contract.
 
-- `upgradeAuthority`: The public key of the upgrade authority contract (`PublicKey`). This is the contract responsible for validating and authorizing upgrades to the verification key.
+• isPaused (Bool)  
+ – Indicates if the contract is currently paused. If true, many operations can be disallowed or require extra checks.
 
-- `isPaused`: A boolean flag indicating whether the contract is currently paused (`Bool`). When `true`, certain operations are disabled.
+• canBePaused (Bool)  
+ – Determines if the pause feature is permitted at all (true = pausing/resuming enabled, false = never paused).
 
-- `canPause`: A boolean flag indicating whether the contract has the ability to be paused (`Bool`). This allows for disabling the pause functionality if desired.
+• allowChangeRoyalty (Bool)  
+ – If true, the admin can modify a collection’s royalty fee by calling canChangeRoyalty.
+
+• allowChangeTransferFee (Bool)  
+ – If true, the admin can modify a collection’s transfer fee by calling canChangeTransferFee.
 
 ##### Key Methods
 
-```typescript
+```typescript:packages/nft/src/contracts/admin.ts
 class NFTAdmin
   extends SmartContract
-  implements
-    NFTAdminBase,
-    UpgradableContract,
-    PausableContract,
-    OwnableContract
+  implements NFTAdminBase, PausableContract, OwnableContract
 {
-  @state(PublicKey) admin = State<PublicKey>();
-  @state(PublicKey) upgradeAuthority = State<PublicKey>();
-  @state(Bool) isPaused = State<Bool>();
-  @state(Bool) canPause = State<Bool>();
-
+  // -------------------------
+  //     Deployment
+  // -------------------------
   async deploy(props: NFTAdminDeployProps) {
-    // Deploy the contract with initial settings
+    // Deploys the contract with the given admin, zkApp URI, and pause-related flags
   }
 
+  // -------------------------
+  //      Permissioned
+  // -------------------------
   @method
   async upgradeVerificationKey(vk: VerificationKey) {
-    // Upgrades the contract's verification key after validating with the upgrade authority
+    // Upgrades the contract’s verification key after ensuring the admin signature
   }
 
   @method.returns(MintParamsOption)
   async canMint(mintRequest: MintRequest): Promise<MintParamsOption> {
-    // Determines whether minting is allowed for the given request
-    // Returns mint parameters if allowed, or none if not allowed
+    // Default implementation: returns none(), meaning minting is not permitted unless overridden
   }
 
   @method.returns(Bool)
   async canUpdate(input: NFTState, output: NFTState): Promise<Bool> {
-    // Checks whether the NFT state can be updated
-    // Typically returns true if the contract is not paused
+    // Default implementation: returns true (e.g., always allow updates)
   }
 
   @method.returns(Bool)
-  async canTransfer(
-    address: PublicKey,
-    from: PublicKey,
-    to: PublicKey
-  ): Promise<Bool> {
-    // Determines whether a transfer between the specified addresses is permitted
-  }
-
-  @method.returns(Bool)
-  async canSell(
-    address: PublicKey,
-    seller: PublicKey,
-    price: UInt64
-  ): Promise<Bool> {
-    // Determines whether the NFT can be listed for sale at the given price
-  }
-
-  @method.returns(Bool)
-  async canBuy(
-    address: PublicKey,
-    seller: PublicKey,
-    buyer: PublicKey,
-    price: UInt64
-  ): Promise<Bool> {
-    // Determines whether the NFT can be purchased by the buyer from the seller at the given price
+  async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
+    // Default implementation: returns true (e.g., always allow transfers)
   }
 
   @method
   async pause(): Promise<void> {
-    // Pauses the contract, disabling certain administrative actions
+    // Pauses the contract if canBePaused is true and the caller is the admin
   }
 
   @method
   async resume(): Promise<void> {
-    // Resumes the contract, re-enabling administrative actions
+    // Resumes the contract if canBePaused is true and the caller is the admin
   }
 
   @method.returns(PublicKey)
   async transferOwnership(newOwner: PublicKey): Promise<PublicKey> {
-    // Transfers ownership of the contract to a new admin
-    // Returns the old owner's public key
+    // Transfers contract ownership to a new admin only if the contract is paused
   }
 
-  // ... Additional methods and helper functions
+  // -------------------------
+  //   Fine-grained checks
+  // -------------------------
+  @method.returns(Bool)
+  async canChangeRoyalty(royaltyFee: UInt32): Promise<Bool> {
+    // Returns true if allowChangeRoyalty is true and the admin has signed
+  }
+
+  @method.returns(Bool)
+  async canChangeTransferFee(transferFee: UInt64): Promise<Bool> {
+    // Returns true if allowChangeTransferFee is true and the admin has signed
+  }
+
+  @method.returns(Bool)
+  async canChangeVerificationKey(
+    vk: VerificationKey,
+    address: PublicKey,
+    tokenId: Field
+  ): Promise<Bool> {
+    // Allows verifying or restricting verification key changes for specific addresses/tokens
+    // The default here checks admin signature
+  }
+
+  // Additional checks like canChangeName, canChangeBaseUri, etc. default to returning false or requiring admin signature
 }
 ```
 
-#### Whitelisted Admin Contract
+• ensureOwnerSignature()  
+ – Internal helper that creates a signed AccountUpdate restricted to the admin’s signature, preventing unauthorized calls and improper fee usage.
 
-The **Whitelisted Admin Contract** (`whitelisted.ts`) is an implementation of an admin contract that uses a whitelist to control access to certain actions within the NFT ecosystem. This contract ensures that only whitelisted addresses can perform specific actions such as minting, updating, transferring, buying, or selling NFTs. It also introduces functionality for pausing and resuming the contract, upgrading the contract's verification key, and transferring ownership.
+Overall, NFTAdmin provides a baseline set of administrative operations for an NFT collection. More specialized admin contracts can extend NFTAdmin to override methods like canMint or canTransfer with more advanced logic, such as whitelisting or KYC rules.
 
-#### State Variables
+#### Advanced Admin Contract
 
-- `admin`: The public key of the admin or owner of the contract (`PublicKey`).
-- `upgradeAuthority`: The public key of the Upgrade Authority Contract (`PublicKey`).
-- `whitelistRoot`: The root hash of the Merkle tree representing the whitelist (`Field`).
-- `storage`: Off-chain storage information, typically an IPFS hash pointing to the whitelist data (`Storage`).
-- `pauseData`: A packed field containing pause-related flags (`Field`).
+The **Advanced Admin Contract** (`advanced.ts`) is a sophisticated implementation of an admin contract that provides comprehensive control over NFT operations through whitelisting and configurable permissions. It implements multiple interfaces including `NFTAdminBase`, `UpgradableContract`, `PausableContract`, and `OwnableContract`.
 
-#### Key Methods
+##### Key Features
 
-```typescript:src/admin/whitelisted.ts
-class NFTWhitelistedAdmin extends SmartContract
-  implements NFTAdminBase, UpgradableContract, PausableContract, OwnableContract {
+- **Whitelist-Based Access Control**: Uses a Merkle tree-based whitelist system to control who can interact with NFTs
+- **Configurable Permissions**: Fine-grained control over various administrative actions through `AdminData`
+- **Pause Mechanism**: Ability to pause/resume contract operations
+- **Upgrade Support**: Secure verification key upgrade system through an Upgrade Authority Contract
+- **Ownership Management**: Secure ownership transfer with proper authorization checks
 
-  @method.returns(MintParamsOption)
-  async canMint(mintRequest: MintRequest): Promise<MintParamsOption> {
-    // Determines if the minting request can proceed by checking if the owner and sender are whitelisted
-  }
+##### State Variables
 
-  @method.returns(Bool)
-  async canUpdate(input: NFTState, output: NFTState): Promise<Bool> {
-    // Checks whether the NFT's state can be updated, ensuring the new owner is whitelisted
-  }
-
-  @method.returns(Bool)
-  async canTransfer(address: PublicKey, from: PublicKey, to: PublicKey): Promise<Bool> {
-    // Verifies if the transfer between 'from' and 'to' addresses is allowed based on whitelist status
-  }
-
-  @method.returns(Bool)
-  async canSell(address: PublicKey, seller: PublicKey, price: UInt64): Promise<Bool> {
-    // Determines if the seller is permitted to list the NFT for sale at the specified price
-  }
-
-  @method.returns(Bool)
-  async canBuy(address: PublicKey, seller: PublicKey, buyer: PublicKey, price: UInt64): Promise<Bool> {
-    // Determines if the buyer and seller are allowed to perform the transaction at the specified price
-  }
-
-  @method
-  async pause(): Promise<void> {
-    // Pauses the contract, preventing certain administrative actions from being performed
-  }
-
-  @method
-  async resume(): Promise<void> {
-    // Resumes the contract, allowing administrative actions to be performed again
-  }
-
-  @method.returns(PublicKey)
-  async transferOwnership(newOwner: PublicKey): Promise<PublicKey> {
-    // Transfers ownership of the contract to a new admin and returns the old owner's public key
-  }
-
-  @method
-  async upgradeVerificationKey(vk: VerificationKey): Promise<void> {
-    // Upgrades the contract's verification key using the Upgrade Authority Contract
-  }
-
-  @method
-  async updateMerkleMapRoot(whitelistRoot: Field, storage: Storage): Promise<void> {
-    // Updates the whitelist's Merkle root and the associated off-chain storage reference
-  }
-
-  // ... Additional methods and helper functions
+```typescript:src/admin/advanced.ts
+class NFTAdvancedAdmin extends SmartContract {
+  @state(PublicKey) admin: State<PublicKey>;
+  @state(PublicKey) upgradeAuthority: State<PublicKey>;
+  @state(Field) data: State<Field>;  // Packed AdminData
+  @state(Whitelist) whitelist: State<Whitelist>;
 }
 ```
 
-#### Key Features
+##### Key Methods
 
-- **Whitelist Enforcement**: Ensures that only addresses included in the whitelist can mint, update, transfer, sell, or buy NFTs. The whitelist is stored as a Merkle tree for efficient verification.
-- **Pause and Resume Functionality**: Allows the admin to pause and resume the contract, controlling the ability to perform certain actions.
-- **Ownership Transfer**: Supports transferring contract ownership to a new admin securely.
-- **Upgrade Mechanism**: Integrates with an Upgrade Authority Contract to manage verification key upgrades without altering the core contract.
-- **Merkle Tree Whitelist Management**: Provides methods to update the whitelist root and off-chain storage, allowing dynamic management of whitelisted addresses.
+###### Access Control Methods
 
-#### Events
+```typescript:src/admin/advanced.ts
+@method.returns(MintParamsOption)
+async canMint(mintRequest: MintRequest): Promise<MintParamsOption> {
+  // Verifies both owner and sender are whitelisted
+  // Checks contract isn't paused
+  // Returns none() by default (can be extended for custom minting logic)
+}
 
-- `upgradeVerificationKey`: Emitted when the contract's verification key is upgraded.
-- `pause`: Emitted when the contract is paused.
-- `resume`: Emitted when the contract is resumed.
-- `ownershipChange`: Emitted when ownership of the contract changes.
+@method.returns(Bool)
+async canUpdate(input: NFTState, output: NFTState): Promise<Bool> {
+  // Ensures contract isn't paused
+  // Verifies both current and new owners are whitelisted
+}
 
-#### Notes
+@method.returns(Bool)
+async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
+  // Verifies both sender and receiver are whitelisted
+  // Checks if their whitelisted amounts are sufficient for the transfer price
+  // Ensures contract isn't paused
+}
+```
 
-- The contract interacts closely with the **Upgrade Authority Contract** to handle verification key upgrades securely.
-- Off-chain storage (e.g., IPFS) is used to store the full whitelist data, with only the root hash stored on-chain to optimize performance.
-- The **PauseData** struct is used to manage pause-related states, efficiently packed into a single `Field`.
-- The contract ensures compliance and access control, making it suitable for use cases requiring KYC/AML verification or restricted participation.
+###### Administrative Methods
 
-#### Usage Example
+```typescript:src/admin/advanced.ts
+@method
+async updateWhitelist(whitelist: Whitelist) {
+  // Updates the whitelist Merkle root and storage
+  // Requires owner signature and unpaused contract
+}
 
-This admin contract is ideal for scenarios such as:
+@method
+async pause(): Promise<void> {
+  // Pauses the contract if canPause is true
+  // Requires owner signature
+}
 
-- **KYC/AML-Enabled NFTs**: Only users who have passed KYC/AML checks and are included in the whitelist can mint, transfer, buy, or sell NFTs.
-- **Exclusive NFT Collections**: Creators can restrict NFT interactions to a specific group of users by managing the whitelist.
+@method
+async resume(): Promise<void> {
+  // Resumes the contract if canPause is true
+  // Requires owner signature
+}
+
+@method.returns(PublicKey)
+async transferOwnership(to: PublicKey): Promise<PublicKey> {
+  // Transfers contract ownership
+  // Requires owner signature and unpaused contract
+}
+```
+
+###### Configuration Methods
+
+```typescript:src/admin/advanced.ts
+@method.returns(Bool)
+async canChangeVerificationKey(
+  vk: VerificationKey,
+  address: PublicKey,
+  tokenId: Field
+): Promise<Bool>
+
+@method.returns(Bool)
+async canChangeName(name: Field): Promise<Bool>
+
+@method.returns(Bool)
+async canChangeCreator(creator: PublicKey): Promise<Bool>
+
+@method.returns(Bool)
+async canChangeBaseUri(baseUri: Field): Promise<Bool>
+
+@method.returns(Bool)
+async canChangeRoyalty(royaltyFee: UInt32): Promise<Bool>
+
+@method.returns(Bool)
+async canChangeTransferFee(transferFee: UInt64): Promise<Bool>
+
+@method.returns(Bool)
+async canSetAdmin(admin: PublicKey): Promise<Bool>
+```
+
+###### Events
+
+- `updateWhitelist`: Emitted when the whitelist is updated
+- `pause`: Emitted when the contract is paused
+- `resume`: Emitted when the contract is resumed
+- `ownershipChange`: Emitted when contract ownership changes
+- `upgradeVerificationKey`: Emitted when verification key is upgraded
+
+###### Usage
+
+The Advanced Admin Contract is ideal for:
+
+1. **Regulated NFT Collections**: Where participation requires KYC/AML verification
+2. **Tiered Access Systems**: Where different addresses have different transaction limits
+3. **Managed Marketplaces**: Where transfers and trades need administrative oversight
+4. **Upgradeable Collections**: Supporting secure contract upgrades through verification key management
+
+###### Security Features
+
+- All administrative actions require owner signature verification
+- Pause mechanism prevents operations during maintenance or emergencies
+- Whitelist-based access control with amount restrictions
+- Merkle tree implementation for efficient and secure whitelist verification
+- Integration with Upgrade Authority Contract for secure verification key management
+
+This contract provides a robust foundation for building regulated and controlled NFT ecosystems while maintaining flexibility for custom business logic implementation.
 
 ### Upgrade Authority Contract
 
@@ -1163,45 +1361,7 @@ const { proof, publicOutput, auxiliaryOutput } = await NFTProgram.prove(
 
 By integrating the NFT Program into your NFT contracts, you can leverage advanced features of the Mina Protocol to build secure, private, and efficient NFT applications.
 
-### Number of Constraints
-
-The Mina blockchain imposes a maximum constraint limit of 65,536 rows for zk-SNARK proofs generated by smart contracts. It is essential to be aware of the number of constraints used by each contract to ensure they are within acceptable limits and to optimize performance.
-
-Below is a summary of the constraints used by each key contract in the MinaNFT standard:
-
-| **Contract**      | **Constraints (rows)** | **Percentage of Max Constraints** |
-| ----------------- | ---------------------- | --------------------------------- |
-| Collection        | 30,771                 | 46.95%                            |
-| NFT               | 6,237                  | 9.52%                             |
-| Standard Admin    | 5,108                  | 7.79%                             |
-| Whitelisted Admin | 11,162                 | 17.03%                            |
-| Upgrade Authority | 2,714                  | 4.14%                             |
-| NFTProgram        | 1,800                  | 2.75%                             |
-
-- **Collection Contract** (`collection.ts`): The most constraint-heavy contract with 30,771 constraints (46.95%). It manages the collection of NFTs, including minting, transferring, and interfacing with admin contracts.
-- **NFT Contract** (`nft.ts`): Uses 6,237 constraints, which is 9.52% of the maximum allowed. This contract handles individual NFT logic, including ownership and metadata management.
-- **Standard Admin Contract** (`admin.ts`): With 5,108 constraints (7.79%), this contract manages administrative functions such as controlling minting permissions and verifying transactions.
-- **Whitelisted Admin Contract** (`whitelisted.ts`): At 11,162 constraints (17.03%), this contract adds functionality for whitelist management, ensuring only approved addresses can interact with certain features.
-- **UpgradeAuthority Contract** (`upgrade.ts`): Uses 2,714 constraints (4.14%), allowing for the upgrading of contracts and verification keys securely.
-- **NFTProgram** (`nftProgram.ts`): Utilizes 1,800 constraints (2.75%), representing ZK programs that interact with the NFTs for advanced features like metadata proofs.
-
 By keeping the constraint usage well below the maximum limit, we ensure that the contracts are efficient and maintain optimal performance on the Mina network.
-
-### Test Coverage
-
-```sh
-yarn coverage
-```
-
-The test statements coverage is summarized below:
-
-| **Contract**      | **Test Statements Coverage** |
-| ----------------- | ---------------------------- |
-| NFT               | 100%                         |
-| Collection        | 98.6%                        |
-| Standard Admin    | 97.33%                       |
-| Whitelisted Admin | 86.6%                        |
-| Upgrade Authority | 100%                         |
 
 ## Gap Analysis in Comparison with ERC721
 
@@ -1209,14 +1369,13 @@ The test statements coverage is summarized below:
 
 In comparison to the ERC-721 standard, the MinaNFT standard intentionally omits or modifies certain features to align with the Mina Protocol's design and objectives.
 
-| **Feature**                                      | **Recommendation**                          | **Reasoning**                                                                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **balanceOf**                                    | Skip (Implementable off-chain)              | Implementing `balanceOf` on-chain would introduce significant overhead without much benefit. For NFTs, this feature is not critical, as NFTs represent unique assets rather than balances. For those requiring this functionality, it can be computed off-chain using tools like the Blockberry API, avoiding contract modifications.                                     |
-| **tokenOfOwnerByIndex**                          | Skip (Implementable off-chain)              | On-chain implementation of this feature is infeasible, and off-chain solutions would be cumbersome with notable overhead. Since it’s not a crucial function for most NFT use cases, skipping it is recommended. Users needing this feature can calculate it off-chain via the Blockberry API without changing the contract.                                               |
-| **approval: approve, setApprovalForAll**         | Skip (Anti-feature)                         | The approval functionality is often considered unsafe, as it has led to token theft in ERC-721 implementations. Furthermore, it was introduced to save gas on Ethereum, which is not a concern on Mina. Given its potential risks and limited relevance, it’s best to skip this feature in the Mina implementation.                                                       |
-| **safeTransferFrom**                             | Skip (Near-equivalent functionality exists) | While `safeTransferFrom` ensures that NFTs are only transferred to valid addresses, similar protection is already built into MinaNFT’s buy/sell mechanism, where the receiver must sign for payment. Although a transfer could still occur to an invalid address, an off-chain check is already available in the frontend, making an on-chain implementation unnecessary. |
-| **burn**                                         | Skip or Maybe Implement                     | Implementing a burn function is feasible, but its utility is limited unless account deletion and the recovery of the 1 MINA account creation fee are supported. As such, this feature can be deferred unless future developments make it more useful.                                                                                                                     |
-| **Composability with 3rd Party Smart Contracts** | Defer to next version                       | Composability is currently limited in Mina. Introducing a `caller` field or loosening restrictions on `AccountUpdate`s would greatly enhance this. For now, composability can be postponed for a future version (v2) of the library.                                                                                                                                      |
+| **Feature**             | **Recommendation**                          | **Reasoning**                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **balanceOf**           | Skip (Implementable off-chain)              | Implementing `balanceOf` on-chain would introduce significant overhead without much benefit. For NFTs, this feature is not critical, as NFTs represent unique assets rather than balances. For those requiring this functionality, it can be computed off-chain using tools like the Blockberry API, avoiding contract modifications.                                     |
+| **tokenOfOwnerByIndex** | Skip (Implementable off-chain)              | On-chain implementation of this feature is infeasible, and off-chain solutions would be cumbersome with notable overhead. Since it’s not a crucial function for most NFT use cases, skipping it is recommended. Users needing this feature can calculate it off-chain via the Blockberry API without changing the contract.                                               |
+| **safeTransferFrom**    | Skip (Near-equivalent functionality exists) | While `safeTransferFrom` ensures that NFTs are only transferred to valid addresses, similar protection is already built into MinaNFT’s buy/sell mechanism, where the receiver must sign for payment. Although a transfer could still occur to an invalid address, an off-chain check is already available in the frontend, making an on-chain implementation unnecessary. |
+| **burn**                | Skip or Maybe Implement                     | Implementing a burn function is feasible, but its utility is limited unless account deletion and the recovery of the 1 MINA account creation fee are supported. As such, this feature can be deferred unless future developments make it more useful.                                                                                                                     |
+|                         |
 
 ### Advantages of MinaNFT Over ERC-721
 

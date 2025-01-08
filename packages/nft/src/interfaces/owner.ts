@@ -10,8 +10,8 @@ import {
   Permissions,
   VerificationKey,
 } from "o1js";
-import { TransferEvent } from "./events.js";
 import { NFTCollectionContractConstructor } from "./collection.js";
+import { TransferExtendedParams } from "./types.js";
 export {
   NFTOwnerBase,
   NFTOwnerContractConstructor,
@@ -31,12 +31,10 @@ type NFTOwnerBase = SmartContract & {
   /**
    * Determines if an NFT can be transferred from one owner (`from`) to another (`to`) for a specific NFT contract address.
    *
-   * @param collectionAddress - The public key of the NFT collection address.
-   * @param nftAddress - The public key of the NFT.
-   * @param to - The public key of the intended new owner.
+   * @param params - The transfer event details.
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
-  canTransfer(transferEvent: TransferEvent): Promise<Bool>;
+  canTransfer(params: TransferExtendedParams): Promise<Bool>;
 
   canApproveAddress(
     collection: PublicKey,
@@ -69,10 +67,8 @@ interface NFTOwnerDeployProps extends Exclude<DeployArgs, undefined> {
 }
 
 /**
- * The **NFTStandardOwner** contract serves as the foundational owner layer for NFT collections on the Mina Protocol.
- * It provides essential functionalities such as contract upgrades, pausing and resuming operations, and ownership management.
- * This contract can be extended by custom admin contracts to implement specific administrative logic,
- * ensuring flexibility while maintaining a standardized interface.
+ * The **NFTStandardOwner** contract is the default implementation of the `NFTOwnerBase` interface.
+
  */
 class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
   /**
@@ -91,10 +87,7 @@ class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
     this.account.zkappUri.set(props.uri);
     this.account.permissions.set({
       ...Permissions.default(),
-      // Allow the upgrade authority to set the verification key even without a protocol upgrade,
-      // enabling upgrades in case of o1js breaking changes.
-      setVerificationKey:
-        Permissions.VerificationKey.proofDuringCurrentVersion(),
+      setVerificationKey: Permissions.VerificationKey.signature(),
       setPermissions: Permissions.impossible(),
     });
   }
@@ -111,7 +104,7 @@ class NFTStandardOwner extends SmartContract implements NFTOwnerBase {
   }
 
   @method.returns(Bool)
-  async canTransfer(transferEvent: TransferEvent): Promise<Bool> {
+  async canTransfer(params: TransferExtendedParams): Promise<Bool> {
     await this.ensureOwnerSignature();
     return Bool(true);
   }

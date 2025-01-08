@@ -167,10 +167,7 @@ class NFTAdmin
 
   /**
    * Determines whether a transfer between the specified addresses is permitted.
-   * @param address - The NFT contract address.
-   * @param from - The sender's public key.
-   * @param to - The recipient's public key.
-   * @param price - The price of the NFT, optional.
+   * @param transferEvent - The transfer event details.
    * @returns A `Bool` indicating whether the transfer is allowed.
    */
   @method.returns(Bool)

@@ -3,15 +3,16 @@ title: OwnableContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Interface.OwnableContract
-order: 208
+order: 241
 ---
 
 # Interface: OwnableContract
 
 ## Methods overview
 
-- ensureOwnerSignature() [↗](#ensureownersignature)
 - transferOwnership() [↗](#transferownership)
+
+Defined in: [packages/nft/src/interfaces/ownable.ts:14](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/ownable.ts#L14)
 
 Interface representing ownable functionality for smart contracts.
 
@@ -23,38 +24,19 @@ mechanism for ownership management.
 
 ## Methods
 
-### ensureOwnerSignature()
-
-```ts
-ensureOwnerSignature(): Promise<AccountUpdate>
-```
-
-Ensures that the transaction is authorized by the contract owner.
-Typically used to restrict access to sensitive functions.
-
-#### Returns
-
-`Promise`\<`AccountUpdate`\>
-
-A promise that resolves to an `AccountUpdate`, representing the action of ensuring the owner's signature.
-
-#### Defined in
-
-[packages/nft/src/contracts/ownable.ts:28](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/ownable.ts#L28)
-
-***
-
 ### transferOwnership()
 
 ```ts
-transferOwnership(newOwner: PublicKey): Promise<PublicKey>
+transferOwnership(to: PublicKey): Promise<PublicKey>
 ```
+
+Defined in: [packages/nft/src/interfaces/ownable.ts:21](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/ownable.ts#L21)
 
 Transfers ownership of the contract to a new owner.
 
 #### Parameters
 
-##### newOwner
+##### to
 
 `PublicKey`
 
@@ -65,7 +47,3 @@ The public key of the new owner.
 `Promise`\<`PublicKey`\>
 
 A promise that resolves to the public key of the old owner.
-
-#### Defined in
-
-[packages/nft/src/contracts/ownable.ts:36](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/ownable.ts#L36)

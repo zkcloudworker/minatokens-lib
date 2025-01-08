@@ -3,7 +3,7 @@ title: FungibleTokenErrors
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Variable.FungibleTokenErrors
-order: 285
+order: 343
 ---
 
 # Variable: FungibleTokenErrors
@@ -35,6 +35,8 @@ const FungibleTokenErrors: {
   unbalancedTransaction: string;
 };
 ```
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:48](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L48)
 
 ## Type declaration
 
@@ -97,7 +99,3 @@ tokenPaused: string = "Token is currently paused";
 ```ts
 unbalancedTransaction: string = "Transaction is unbalanced";
 ```
-
-## Defined in
-
-[packages/token/src/FungibleTokenContract.ts:48](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L48)

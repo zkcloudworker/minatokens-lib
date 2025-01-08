@@ -3,7 +3,7 @@ title: ValidatorsDecisionState
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsDecisionState
-order: 293
+order: 351
 ---
 
 # Class: ValidatorsDecisionState
@@ -21,6 +21,8 @@ order: 293
 - vote() [↗](#vote)
 - assertEquals() [↗](#assertequals)
 - startVoting() [↗](#startvoting)
+
+Defined in: [packages/upgradable/src/validators.ts:280](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L280)
 
 Represents the state of a validators decision during the voting process.
 
@@ -47,6 +49,8 @@ new ValidatorsDecisionState(value: {
   yesVotes: UInt32;
  }): ValidatorsDecisionState
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -88,22 +92,20 @@ Number of votes in favor of the decision
 
 #### Inherited from
 
-`Struct({
-  /** The validators' decision */
+```ts
+Struct({
+  / The validators' decision /
   decision: ValidatorsDecision,
-  /** Indexed Merkle Map root of the validators who have voted */
+  / Indexed Merkle Map root of the validators who have voted /
   alreadyVoted: Field,
-  /** Number of votes in favor of the decision */
+  / Number of votes in favor of the decision /
   yesVotes: UInt32,
-  /** Number of votes against the decision */
+  / Number of votes against the decision /
   noVotes: UInt32,
-  /** Number of votes of abstention */
+  / Number of votes of abstention /
   abstainVotes: UInt32,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -113,26 +115,26 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 abstainVotes: UInt32 = UInt32;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:290](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L290)
+
 Number of votes of abstention
 
 #### Inherited from
 
-`Struct({
-  /** The validators' decision */
+```ts
+Struct({
+  / The validators' decision /
   decision: ValidatorsDecision,
-  /** Indexed Merkle Map root of the validators who have voted */
+  / Indexed Merkle Map root of the validators who have voted /
   alreadyVoted: Field,
-  /** Number of votes in favor of the decision */
+  / Number of votes in favor of the decision /
   yesVotes: UInt32,
-  /** Number of votes against the decision */
+  / Number of votes against the decision /
   noVotes: UInt32,
-  /** Number of votes of abstention */
+  / Number of votes of abstention /
   abstainVotes: UInt32,
-}).abstainVotes`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:290](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L290)
+}).abstainVotes
+```
 
 ***
 
@@ -142,26 +144,26 @@ Number of votes of abstention
 alreadyVoted: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:284](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L284)
+
 Indexed Merkle Map root of the validators who have voted
 
 #### Inherited from
 
-`Struct({
-  /** The validators' decision */
+```ts
+Struct({
+  / The validators' decision /
   decision: ValidatorsDecision,
-  /** Indexed Merkle Map root of the validators who have voted */
+  / Indexed Merkle Map root of the validators who have voted /
   alreadyVoted: Field,
-  /** Number of votes in favor of the decision */
+  / Number of votes in favor of the decision /
   yesVotes: UInt32,
-  /** Number of votes against the decision */
+  / Number of votes against the decision /
   noVotes: UInt32,
-  /** Number of votes of abstention */
+  / Number of votes of abstention /
   abstainVotes: UInt32,
-}).alreadyVoted`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:284](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L284)
+}).alreadyVoted
+```
 
 ***
 
@@ -171,26 +173,26 @@ Indexed Merkle Map root of the validators who have voted
 decision: ValidatorsDecision = ValidatorsDecision;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:282](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L282)
+
 The validators' decision
 
 #### Inherited from
 
-`Struct({
-  /** The validators' decision */
+```ts
+Struct({
+  / The validators' decision /
   decision: ValidatorsDecision,
-  /** Indexed Merkle Map root of the validators who have voted */
+  / Indexed Merkle Map root of the validators who have voted /
   alreadyVoted: Field,
-  /** Number of votes in favor of the decision */
+  / Number of votes in favor of the decision /
   yesVotes: UInt32,
-  /** Number of votes against the decision */
+  / Number of votes against the decision /
   noVotes: UInt32,
-  /** Number of votes of abstention */
+  / Number of votes of abstention /
   abstainVotes: UInt32,
-}).decision`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:282](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L282)
+}).decision
+```
 
 ***
 
@@ -200,26 +202,26 @@ The validators' decision
 noVotes: UInt32 = UInt32;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:288](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L288)
+
 Number of votes against the decision
 
 #### Inherited from
 
-`Struct({
-  /** The validators' decision */
+```ts
+Struct({
+  / The validators' decision /
   decision: ValidatorsDecision,
-  /** Indexed Merkle Map root of the validators who have voted */
+  / Indexed Merkle Map root of the validators who have voted /
   alreadyVoted: Field,
-  /** Number of votes in favor of the decision */
+  / Number of votes in favor of the decision /
   yesVotes: UInt32,
-  /** Number of votes against the decision */
+  / Number of votes against the decision /
   noVotes: UInt32,
-  /** Number of votes of abstention */
+  / Number of votes of abstention /
   abstainVotes: UInt32,
-}).noVotes`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:288](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L288)
+}).noVotes
+```
 
 ***
 
@@ -229,26 +231,26 @@ Number of votes against the decision
 yesVotes: UInt32 = UInt32;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:286](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L286)
+
 Number of votes in favor of the decision
 
 #### Inherited from
 
-`Struct({
-  /** The validators' decision */
+```ts
+Struct({
+  / The validators' decision /
   decision: ValidatorsDecision,
-  /** Indexed Merkle Map root of the validators who have voted */
+  / Indexed Merkle Map root of the validators who have voted /
   alreadyVoted: Field,
-  /** Number of votes in favor of the decision */
+  / Number of votes in favor of the decision /
   yesVotes: UInt32,
-  /** Number of votes against the decision */
+  / Number of votes against the decision /
   noVotes: UInt32,
-  /** Number of votes of abstention */
+  / Number of votes of abstention /
   abstainVotes: UInt32,
-}).yesVotes`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:286](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L286)
+}).yesVotes
+```
 
 ## Methods
 
@@ -264,6 +266,8 @@ vote(
    abstain: Bool, 
    signature: Signature): ValidatorsDecisionState
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:312](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L312)
 
 Records a vote
 
@@ -317,10 +321,6 @@ The signature of the validator.
 
 A new `ValidatorsDecisionState` reflecting the vote.
 
-#### Defined in
-
-[packages/upgradable/src/validators.ts:312](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L312)
-
 ***
 
 ### assertEquals()
@@ -328,6 +328,8 @@ A new `ValidatorsDecisionState` reflecting the vote.
 ```ts
 static assertEquals(a: ValidatorsDecisionState, b: ValidatorsDecisionState): void
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:368](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L368)
 
 Asserts that two `ValidatorsDecisionState` instances are equal.
 
@@ -349,10 +351,6 @@ Second `ValidatorsDecisionState` instance.
 
 `void`
 
-#### Defined in
-
-[packages/upgradable/src/validators.ts:368](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L368)
-
 ***
 
 ### startVoting()
@@ -360,6 +358,8 @@ Second `ValidatorsDecisionState` instance.
 ```ts
 static startVoting(decision: ValidatorsDecision): ValidatorsDecisionState
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:292](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L292)
 
 #### Parameters
 
@@ -370,7 +370,3 @@ static startVoting(decision: ValidatorsDecision): ValidatorsDecisionState
 #### Returns
 
 [`ValidatorsDecisionState`](upgradablesrcclassvalidatorsdecisionstate)
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:292](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L292)

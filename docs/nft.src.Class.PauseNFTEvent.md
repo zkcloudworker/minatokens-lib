@@ -3,7 +3,7 @@ title: PauseNFTEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.PauseNFTEvent
-order: 198
+order: 219
 ---
 
 # Class: PauseNFTEvent
@@ -12,6 +12,8 @@ order: 198
 
 - address:  PublicKey = PublicKey; [↗](#address)
 - isPaused:  Bool = Bool; [↗](#ispaused)
+
+Defined in: [packages/nft/src/interfaces/events.ts:83](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/events.ts#L83)
 
 Emitted when an NFT is paused or resumed.
 
@@ -32,6 +34,8 @@ new PauseNFTEvent(value: {
   isPaused: Bool;
  }): PauseNFTEvent
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -55,16 +59,14 @@ Indicates whether the NFT is paused (`true`) or resumed (`false`).
 
 #### Inherited from
 
-Struct(\{
-  /\*\* The public key address of the NFT. \*/
+```ts
+Struct({
+  / The public key address of the NFT. /
   address: PublicKey,
-  /\*\* Indicates whether the NFT is paused (\`true\`) or resumed (\`false\`). \*/
+  / Indicates whether the NFT is paused (true) or resumed (false). /
   isPaused: Bool,
-\}).constructor
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -74,20 +76,20 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/interfaces/events.ts:85](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/events.ts#L85)
+
 The public key address of the NFT.
 
 #### Inherited from
 
-Struct(\{
-  /\*\* The public key address of the NFT. \*/
+```ts
+Struct({
+  / The public key address of the NFT. /
   address: PublicKey,
-  /\*\* Indicates whether the NFT is paused (\`true\`) or resumed (\`false\`). \*/
+  / Indicates whether the NFT is paused (true) or resumed (false). /
   isPaused: Bool,
-\}).address
-
-#### Defined in
-
-[packages/nft/src/contracts/events.ts:66](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/events.ts#L66)
+}).address
+```
 
 ***
 
@@ -97,17 +99,17 @@ Struct(\{
 isPaused: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/events.ts:87](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/events.ts#L87)
+
 Indicates whether the NFT is paused (`true`) or resumed (`false`).
 
 #### Inherited from
 
-Struct(\{
-  /\*\* The public key address of the NFT. \*/
+```ts
+Struct({
+  / The public key address of the NFT. /
   address: PublicKey,
-  /\*\* Indicates whether the NFT is paused (\`true\`) or resumed (\`false\`). \*/
+  / Indicates whether the NFT is paused (true) or resumed (false). /
   isPaused: Bool,
-\}).isPaused
-
-#### Defined in
-
-[packages/nft/src/contracts/events.ts:68](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/events.ts#L68)
+}).isPaused
+```

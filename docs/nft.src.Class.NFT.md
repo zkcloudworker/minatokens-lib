@@ -3,7 +3,7 @@ title: NFT
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.NFT
-order: 186
+order: 202
 ---
 
 # Class: NFT
@@ -11,40 +11,37 @@ order: 186
 ## Properties overview
 
 - events:  {
-  buy: typeof BuyEvent;
-  offer: typeof OfferEvent;
-  ownershipChange: typeof OwnershipChangeEvent;
+  approve: typeof PublicKey;
   pause: typeof PauseEvent;
   resume: typeof PauseEvent;
-  transfer: typeof TransferEvent;
+  transfer: typeof OwnershipChangeEvent;
   update: typeof UpdateEvent;
   upgradeVerificationKey: typeof UpgradeVerificationKeyEvent;
 }; [↗](#events)
-- buy:  typeof BuyEvent = BuyEvent; [↗](#buy)
-- offer:  typeof OfferEvent = OfferEvent; [↗](#offer)
-- ownershipChange:  typeof OwnershipChangeEvent = OwnershipChangeEvent; [↗](#ownershipchange)
+- approve:  typeof PublicKey = PublicKey; [↗](#approve)
 - pause:  typeof PauseEvent = PauseEvent; [↗](#pause)
 - resume:  typeof PauseEvent = PauseEvent; [↗](#resume)
-- transfer:  typeof TransferEvent = TransferEvent; [↗](#transfer)
+- transfer:  typeof OwnershipChangeEvent = OwnershipChangeEvent; [↗](#transfer)
 - update:  typeof UpdateEvent = UpdateEvent; [↗](#update)
 - upgradeVerificationKey:  typeof UpgradeVerificationKeyEvent = UpgradeVerificationKeyEvent; [↗](#upgradeverificationkey)
+- Overrides: SmartContract.events [↗](#overrides)
 - metadata:  State<Field>; [↗](#metadata)
 - metadataVerificationKeyHash:  State<Field>; [↗](#metadataverificationkeyhash)
 - name:  State<Field>; [↗](#name)
-- owner:  State<PublicKey>; [↗](#owner)
-- packedData:  State<Field>; [↗](#packeddata)
+- packedData:  State<NFTDataPacked>; [↗](#packeddata)
 - storage:  State<Storage>; [↗](#storage)
 
 ## Methods overview
 
-- buy() [↗](#buy)
-- ensureOwnerSignature() [↗](#ensureownersignature)
-- offer() [↗](#offer)
+- approveAddress() [↗](#approveaddress)
+- getState() [↗](#getstate)
 - pause() [↗](#pause)
 - resume() [↗](#resume)
 - transfer() [↗](#transfer)
 - update() [↗](#update)
 - upgradeVerificationKey() [↗](#upgradeverificationkey)
+
+Defined in: [packages/nft/src/contracts/nft.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L52)
 
 The NFT Contract represents an individual NFT within a collection.
 
@@ -57,10 +54,6 @@ upgrading the verification key, and pausing or resuming the NFT.
 
 - `SmartContract`
 
-## Implements
-
-- [`PausableContract`](nftsrctypealiaspausablecontract)
-
 ## Constructors
 
 ### new NFT()
@@ -68,6 +61,8 @@ upgrading the verification key, and pausing or resuming the NFT.
 ```ts
 new NFT(address: PublicKey, tokenId?: Field): NFT
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
 
 #### Parameters
 
@@ -85,11 +80,9 @@ new NFT(address: PublicKey, tokenId?: Field): NFT
 
 #### Inherited from
 
-`SmartContract.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+```ts
+SmartContract.constructor
+```
 
 ## Properties
 
@@ -97,35 +90,23 @@ node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
 
 ```ts
 events: {
-  buy: typeof BuyEvent;
-  offer: typeof OfferEvent;
-  ownershipChange: typeof OwnershipChangeEvent;
+  approve: typeof PublicKey;
   pause: typeof PauseEvent;
   resume: typeof PauseEvent;
-  transfer: typeof TransferEvent;
+  transfer: typeof OwnershipChangeEvent;
   update: typeof UpdateEvent;
   upgradeVerificationKey: typeof UpgradeVerificationKeyEvent;
 };
 ```
 
+Defined in: [packages/nft/src/contracts/nft.ts:69](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L69)
+
 Events emitted by the NFT contract.
 
-#### buy
+#### approve
 
 ```ts
-buy: typeof BuyEvent = BuyEvent;
-```
-
-#### offer
-
-```ts
-offer: typeof OfferEvent = OfferEvent;
-```
-
-#### ownershipChange
-
-```ts
-ownershipChange: typeof OwnershipChangeEvent = OwnershipChangeEvent;
+approve: typeof PublicKey = PublicKey;
 ```
 
 #### pause
@@ -143,7 +124,7 @@ resume: typeof PauseEvent = PauseEvent;
 #### transfer
 
 ```ts
-transfer: typeof TransferEvent = TransferEvent;
+transfer: typeof OwnershipChangeEvent = OwnershipChangeEvent;
 ```
 
 #### update
@@ -158,17 +139,11 @@ update: typeof UpdateEvent = UpdateEvent;
 upgradeVerificationKey: typeof UpgradeVerificationKeyEvent = UpgradeVerificationKeyEvent;
 ```
 
-#### Implementation of
-
-`PausableContract.events`
-
 #### Overrides
 
-`SmartContract.events`
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:74](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L74)
+```ts
+SmartContract.events
+```
 
 ***
 
@@ -178,11 +153,9 @@ upgradeVerificationKey: typeof UpgradeVerificationKeyEvent = UpgradeVerification
 metadata: State<Field>;
 ```
 
+Defined in: [packages/nft/src/contracts/nft.ts:57](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L57)
+
 The metadata associated with the NFT (`Field`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L59)
 
 ***
 
@@ -192,11 +165,9 @@ The metadata associated with the NFT (`Field`).
 metadataVerificationKeyHash: State<Field>;
 ```
 
+Defined in: [packages/nft/src/contracts/nft.ts:66](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L66)
+
 The hash of the verification key used for metadata proofs (`Field`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:71](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L71)
 
 ***
 
@@ -206,39 +177,21 @@ The hash of the verification key used for metadata proofs (`Field`).
 name: State<Field>;
 ```
 
+Defined in: [packages/nft/src/contracts/nft.ts:54](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L54)
+
 The name of the NFT (`Field`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:56](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L56)
-
-***
-
-### owner
-
-```ts
-owner: State<PublicKey>;
-```
-
-The current owner of the NFT (`PublicKey`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:62](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L62)
 
 ***
 
 ### packedData
 
 ```ts
-packedData: State<Field>;
+packedData: State<NFTDataPacked>;
 ```
 
+Defined in: [packages/nft/src/contracts/nft.ts:63](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L63)
+
 A packed field containing additional NFT data and flags (`Field`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:68](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L68)
 
 ***
 
@@ -248,181 +201,111 @@ A packed field containing additional NFT data and flags (`Field`).
 storage: State<Storage>;
 ```
 
+Defined in: [packages/nft/src/contracts/nft.ts:60](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L60)
+
 Holds off-chain storage information, e.g., IPFS hash (`Storage`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:65](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L65)
 
 ## Methods
 
-### buy()
+### approveAddress()
 
 ```ts
-buy(price: UInt64, buyer: PublicKey): Promise<BuyEvent>
+approveAddress(approved: PublicKey): Promise<PublicKey>
 ```
 
-Purchases the NFT, transferring ownership and handling payment.
+Defined in: [packages/nft/src/contracts/nft.ts:282](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L282)
+
+Transfers ownership of the NFT from one user to another.
 
 #### Parameters
 
-##### price
-
-`UInt64`
-
-The price at which to buy the NFT (`UInt64`).
-
-##### buyer
+##### approved
 
 `PublicKey`
 
-The public key of the buyer (`PublicKey`).
+The public key of the approved address (`PublicKey`).
 
 #### Returns
 
-`Promise`\<[`BuyEvent`](nftsrcclassbuyevent)\>
+`Promise`\<`PublicKey`\>
 
-An event emitted after the NFT is purchased (`BuyEvent`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:264](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L264)
+The public key of the owner (`PublicKey`).
 
 ***
 
-### ensureOwnerSignature()
+### getState()
 
 ```ts
-ensureOwnerSignature(): Promise<AccountUpdate>
+getState(): Promise<NFTStateStruct>
 ```
 
-Ensures that the transaction is authorized by the current owner.
+Defined in: [packages/nft/src/contracts/nft.ts:79](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L79)
 
 #### Returns
 
-`Promise`\<`AccountUpdate`\>
-
-A signed account update for the owner.
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L90)
-
-***
-
-### offer()
-
-```ts
-offer(price: UInt64, seller: PublicKey): Promise<OfferEvent>
-```
-
-Lists the NFT for sale at a specified price.
-
-#### Parameters
-
-##### price
-
-`UInt64`
-
-The price at which to sell the NFT (`UInt64`).
-
-##### seller
-
-`PublicKey`
-
-The public key of the seller (`PublicKey`).
-
-#### Returns
-
-`Promise`\<[`OfferEvent`](nftsrcclassofferevent)\>
-
-An event emitted after the NFT is listed for sale (`SellEvent`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:236](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L236)
+`Promise`\<[`NFTStateStruct`](nftsrcclassnftstatestruct)\>
 
 ***
 
 ### pause()
 
 ```ts
-pause(): Promise<void>
+pause(): Promise<PublicKey>
 ```
+
+Defined in: [packages/nft/src/contracts/nft.ts:319](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L319)
 
 Pauses the NFT, disabling certain actions.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`\<`PublicKey`\>
 
-A promise that resolves when the NFT is paused.
-
-#### Implementation of
-
-`PausableContract.pause`
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:361](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L361)
+An owner public key to be checked by the Collection contract
 
 ***
 
 ### resume()
 
 ```ts
-resume(): Promise<void>
+resume(): Promise<PublicKey>
 ```
+
+Defined in: [packages/nft/src/contracts/nft.ts:335](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L335)
 
 Resumes the NFT, re-enabling actions.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`\<`PublicKey`\>
 
-A promise that resolves when the NFT is resumed.
-
-#### Implementation of
-
-`PausableContract.resume`
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:377](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L377)
+An owner public key to be checked by the Collection contract
 
 ***
 
 ### transfer()
 
 ```ts
-transfer(from: PublicKey, to: PublicKey): Promise<PublicKey>
+transfer(params: TransferExtendedParams): Promise<TransferExtendedParams>
 ```
+
+Defined in: [packages/nft/src/contracts/nft.ts:239](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L239)
 
 Transfers ownership of the NFT from one user to another.
 
 #### Parameters
 
-##### from
+##### params
 
-`PublicKey`
+[`TransferExtendedParams`](nftsrcclasstransferextendedparams)
 
-The public key of the current owner (`PublicKey`).
-
-##### to
-
-`PublicKey`
-
-The public key of the new owner (`PublicKey`).
+The parameters for the transfer (`TransferExtendedParams`).
 
 #### Returns
 
-`Promise`\<`PublicKey`\>
+`Promise`\<[`TransferExtendedParams`](nftsrcclasstransferextendedparams)\>
 
 The public key of the old owner (`PublicKey`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:303](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L303)
 
 ***
 
@@ -434,6 +317,8 @@ update(
    output: NFTState, 
 creator: PublicKey): Promise<Field>
 ```
+
+Defined in: [packages/nft/src/contracts/nft.ts:104](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L104)
 
 Updates the NFT's state with provided proofs and permissions.
 
@@ -463,17 +348,15 @@ The public key of the creator (`PublicKey`).
 
 The hash of the metadata verification key (`Field`).
 
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:108](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L108)
-
 ***
 
 ### upgradeVerificationKey()
 
 ```ts
-upgradeVerificationKey(vk: VerificationKey, sender: PublicKey): Promise<UpgradeVerificationKeyEvent>
+upgradeVerificationKey(vk: VerificationKey): Promise<UpgradeVerificationKeyData>
 ```
+
+Defined in: [packages/nft/src/contracts/nft.ts:298](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L298)
 
 Upgrades the verification key used by the NFT contract.
 
@@ -485,18 +368,8 @@ Upgrades the verification key used by the NFT contract.
 
 The new verification key (`VerificationKey`).
 
-##### sender
-
-`PublicKey`
-
-The public key of the sender (`PublicKey`).
-
 #### Returns
 
-`Promise`\<[`UpgradeVerificationKeyEvent`](nftsrcclassupgradeverificationkeyevent)\>
+`Promise`\<[`UpgradeVerificationKeyData`](nftsrcclassupgradeverificationkeydata)\>
 
-An event emitted after the verification key is upgraded (`UpgradeVerificationKeyEvent`).
-
-#### Defined in
-
-[packages/nft/src/contracts/nft.ts:329](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/nft.ts#L329)
+An owner public key to be checked by the Collection contract and the Boolean flag indicating if the owner's authorization is required

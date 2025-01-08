@@ -14,7 +14,7 @@ order: 10
 - vk:  Record<string, {
   data: string;
   hash: string;
-  type: "token" | "admin" | "upgrade" | "user";
+  type: "token" | "admin" | "upgrade" | "user" | "nft" | "collection";
 }>; [↗](#vk)
 
 ```ts
@@ -23,10 +23,12 @@ type ChainVerificationKeysList = {
   vk: Record<string, {
      data: string;
      hash: string;
-     type: "token" | "admin" | "upgrade" | "user";
+     type: "token" | "admin" | "upgrade" | "user" | "nft" | "collection";
     }>;
 };
 ```
+
+Defined in: [packages/abi/src/vk/types.ts:1](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/types.ts#L1)
 
 ## Type declaration
 
@@ -42,10 +44,6 @@ o1js: string;
 vk: Record<string, {
   data: string;
   hash: string;
-  type: "token" | "admin" | "upgrade" | "user";
+  type: "token" | "admin" | "upgrade" | "user" | "nft" | "collection";
 }>;
 ```
-
-## Defined in
-
-[packages/abi/src/vk/types.ts:1](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/types.ts#L1)

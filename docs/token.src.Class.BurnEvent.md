@@ -3,7 +3,7 @@ title: BurnEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.BurnEvent
-order: 265
+order: 323
 ---
 
 # Class: BurnEvent
@@ -12,6 +12,8 @@ order: 265
 
 - amount:  UInt64 = UInt64; [↗](#amount)
 - from:  PublicKey = PublicKey; [↗](#from)
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:329](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L329)
 
 ## Extends
 
@@ -31,6 +33,8 @@ new BurnEvent(value: {
  }): BurnEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -49,14 +53,12 @@ new BurnEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   from: PublicKey,
   amount: UInt64,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -66,16 +68,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 amount: UInt64 = UInt64;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:331](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L331)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   from: PublicKey,
   amount: UInt64,
-}).amount`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:331](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L331)
+}).amount
+```
 
 ***
 
@@ -85,13 +87,13 @@ amount: UInt64 = UInt64;
 from: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:330](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L330)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   from: PublicKey,
   amount: UInt64,
-}).from`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:330](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L330)
+}).from
+```

@@ -3,7 +3,7 @@ title: ValidatorDecisionType
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Variable.ValidatorDecisionType
-order: 310
+order: 366
 ---
 
 # Variable: ValidatorDecisionType
@@ -20,6 +20,8 @@ const ValidatorDecisionType: {
 };
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:70](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L70)
+
 Validator decision types for upgrade proposals.
 
 ## Type declaration
@@ -35,7 +37,3 @@ readonly updateDatabase: Field;
 ```ts
 readonly updateValidatorsList: Field;
 ```
-
-## Defined in
-
-[packages/upgradable/src/validators.ts:70](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L70)

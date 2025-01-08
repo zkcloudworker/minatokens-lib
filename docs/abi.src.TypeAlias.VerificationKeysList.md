@@ -12,6 +12,4 @@ order: 13
 type VerificationKeysList = Record<"mainnet" | "devnet", ChainVerificationKeysList>;
 ```
 
-## Defined in
-
-[packages/abi/src/vk/types.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/types.ts#L13)
+Defined in: [packages/abi/src/vk/types.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/types.ts#L13)

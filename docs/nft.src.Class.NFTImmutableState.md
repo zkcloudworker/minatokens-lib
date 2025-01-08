@@ -3,7 +3,7 @@ title: NFTImmutableState
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.NFTImmutableState
-order: 189
+order: 207
 ---
 
 # Class: NFTImmutableState
@@ -11,22 +11,23 @@ order: 189
 ## Properties overview
 
 - address:  PublicKey = PublicKey; [↗](#address)
+- canApprove:  Bool = Bool; [↗](#canapprove)
 - canChangeMetadata:  Bool = Bool; [↗](#canchangemetadata)
 - canChangeMetadataVerificationKeyHash:  Bool = Bool; [↗](#canchangemetadataverificationkeyhash)
 - canChangeName:  Bool = Bool; [↗](#canchangename)
 - canChangeOwnerByProof:  Bool = Bool; [↗](#canchangeownerbyproof)
-- canChangeOwnerBySignature:  Bool = Bool; [↗](#canchangeownerbysignature)
-- canChangePrice:  Bool = Bool; [↗](#canchangeprice)
 - canChangeStorage:  Bool = Bool; [↗](#canchangestorage)
 - canPause:  Bool = Bool; [↗](#canpause)
-- creator:  PublicKey = PublicKey; [↗](#creator)
-- id:  UInt32 = UInt32; [↗](#id)
+- canTransfer:  Bool = Bool; [↗](#cantransfer)
+- id:  UInt64 = UInt64; [↗](#id)
 - tokenId:  Field = Field; [↗](#tokenid)
 
 ## Methods overview
 
 - assertEqual() [↗](#assertequal)
 - fromNFTData() [↗](#fromnftdata)
+
+Defined in: [packages/nft/src/interfaces/types.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L91)
 
 Represents the immutable state of an NFT, containing read-only properties
 and flags that determine the NFT's behavior and permissions.
@@ -35,16 +36,15 @@ and flags that determine the NFT's behavior and permissions.
 
 - \{
   `address`: `PublicKey`;
+  `canApprove`: `Bool`;
   `canChangeMetadata`: `Bool`;
   `canChangeMetadataVerificationKeyHash`: `Bool`;
   `canChangeName`: `Bool`;
   `canChangeOwnerByProof`: `Bool`;
-  `canChangeOwnerBySignature`: `Bool`;
-  `canChangePrice`: `Bool`;
   `canChangeStorage`: `Bool`;
   `canPause`: `Bool`;
-  `creator`: `PublicKey`;
-  `id`: `UInt32`;
+  `canTransfer`: `Bool`;
+  `id`: `UInt64`;
   `tokenId`: `Field`;
  \}
 
@@ -55,19 +55,20 @@ and flags that determine the NFT's behavior and permissions.
 ```ts
 new NFTImmutableState(value: {
   address: PublicKey;
+  canApprove: Bool;
   canChangeMetadata: Bool;
   canChangeMetadataVerificationKeyHash: Bool;
   canChangeName: Bool;
   canChangeOwnerByProof: Bool;
-  canChangeOwnerBySignature: Bool;
-  canChangePrice: Bool;
   canChangeStorage: Bool;
   canPause: Bool;
-  creator: PublicKey;
-  id: UInt32;
+  canTransfer: Bool;
+  id: UInt64;
   tokenId: Field;
  }): NFTImmutableState
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -78,6 +79,12 @@ new NFTImmutableState(value: {
 `PublicKey` = `PublicKey`
 
 The address of the NFT contract (readonly).
+
+###### canApprove
+
+`Bool` = `Bool`
+
+Specifies if the NFT's approved address can be changed (readonly).
 
 ###### canChangeMetadata
 
@@ -103,18 +110,6 @@ Specifies if the name of the NFT can be changed (readonly).
 
 Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly).
 
-###### canChangeOwnerBySignature
-
-`Bool` = `Bool`
-
-Specifies if the NFT's ownership can be transferred through the owner's signature (readonly).
-
-###### canChangePrice
-
-`Bool` = `Bool`
-
-Indicates if the price of the NFT can be modified (readonly).
-
 ###### canChangeStorage
 
 `Bool` = `Bool`
@@ -127,15 +122,15 @@ Determines whether the storage associated with the NFT can be altered (readonly)
 
 Specifies if the NFT contract can be paused, preventing certain operations (readonly).
 
-###### creator
+###### canTransfer
 
-`PublicKey` = `PublicKey`
+`Bool` = `Bool`
 
-The public key of the creator of the NFT (readonly).
+Specifies if the NFT's ownership can be transferred (readonly).
 
 ###### id
 
-`UInt32` = `UInt32`
+`UInt64` = `UInt64`
 
 The unique identifier of the NFT within the collection (readonly).
 
@@ -151,36 +146,32 @@ The token ID associated with the NFT (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).constructor
+```
 
 ## Properties
 
@@ -190,40 +181,79 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:109](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L109)
+
 The address of the NFT contract (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).address`
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).address
+```
 
-#### Defined in
+***
 
-[packages/nft/src/contracts/types.ts:149](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L149)
+### canApprove
+
+```ts
+canApprove: Bool = Bool;
+```
+
+Defined in: [packages/nft/src/interfaces/types.ts:97](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L97)
+
+Specifies if the NFT's approved address can be changed (readonly).
+
+#### Inherited from
+
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
+  canChangeOwnerByProof: Bool, // readonly
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
+  canChangeMetadata: Bool, // readonly
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
+  canChangeStorage: Bool, // readonly
+  / Specifies if the name of the NFT can be changed (readonly). /
+  canChangeName: Bool, // readonly
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
+  canChangeMetadataVerificationKeyHash: Bool, // readonly
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
+  canPause: Bool, // readonly
+  / The address of the NFT contract (readonly). /
+  address: PublicKey, // readonly
+  / The token ID associated with the NFT (readonly). /
+  tokenId: Field, // readonly
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canApprove
+```
 
 ***
 
@@ -233,40 +263,38 @@ The address of the NFT contract (readonly).
 canChangeMetadata: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:99](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L99)
+
 Indicates whether the NFT's metadata can be updated (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangeMetadata`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:137](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L137)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canChangeMetadata
+```
 
 ***
 
@@ -276,40 +304,38 @@ Indicates whether the NFT's metadata can be updated (readonly).
 canChangeMetadataVerificationKeyHash: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:105](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L105)
+
 Indicates whether the verification key hash for the metadata can be changed (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangeMetadataVerificationKeyHash`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:145](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L145)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canChangeMetadataVerificationKeyHash
+```
 
 ***
 
@@ -319,40 +345,38 @@ Indicates whether the verification key hash for the metadata can be changed (rea
 canChangeName: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:103](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L103)
+
 Specifies if the name of the NFT can be changed (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangeName`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:143](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L143)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canChangeName
+```
 
 ***
 
@@ -362,126 +386,38 @@ Specifies if the name of the NFT can be changed (readonly).
 canChangeOwnerByProof: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:93](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L93)
+
 Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
-  canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
-  canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
-  canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
-  canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
-  canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
-  canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
-  address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
-  tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangeOwnerByProof`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:133](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L133)
-
-***
-
-### canChangeOwnerBySignature
-
 ```ts
-canChangeOwnerBySignature: Bool = Bool;
-```
-
-Specifies if the NFT's ownership can be transferred through the owner's signature (readonly).
-
-#### Inherited from
-
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangeOwnerBySignature`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:135](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L135)
-
-***
-
-### canChangePrice
-
-```ts
-canChangePrice: Bool = Bool;
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canChangeOwnerByProof
 ```
-
-Indicates if the price of the NFT can be modified (readonly).
-
-#### Inherited from
-
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
-  canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
-  canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
-  canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
-  canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
-  canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
-  canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
-  address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
-  tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangePrice`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:139](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L139)
 
 ***
 
@@ -491,40 +427,38 @@ Indicates if the price of the NFT can be modified (readonly).
 canChangeStorage: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:101](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L101)
+
 Determines whether the storage associated with the NFT can be altered (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canChangeStorage`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:141](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L141)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canChangeStorage
+```
 
 ***
 
@@ -534,126 +468,120 @@ Determines whether the storage associated with the NFT can be altered (readonly)
 canPause: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:107](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L107)
+
 Specifies if the NFT contract can be paused, preventing certain operations (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).canPause`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:147](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L147)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canPause
+```
 
 ***
 
-### creator
+### canTransfer
 
 ```ts
-creator: PublicKey = PublicKey;
+canTransfer: Bool = Bool;
 ```
 
-The public key of the creator of the NFT (readonly).
+Defined in: [packages/nft/src/interfaces/types.ts:95](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L95)
+
+Specifies if the NFT's ownership can be transferred (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).creator`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:131](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L131)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).canTransfer
+```
 
 ***
 
 ### id
 
 ```ts
-id: UInt32 = UInt32;
+id: UInt64 = UInt64;
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:113](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L113)
 
 The unique identifier of the NFT within the collection (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).id`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:153](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L153)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).id
+```
 
 ***
 
@@ -663,40 +591,38 @@ The unique identifier of the NFT within the collection (readonly).
 tokenId: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:111](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L111)
+
 The token ID associated with the NFT (readonly).
 
 #### Inherited from
 
-`Struct({
-  /** The public key of the creator of the NFT (readonly). */
-  creator: PublicKey, // readonly
-  /** Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). */
+```ts
+Struct({
+  / Determines if the NFT's ownership can be changed via a zero-knowledge proof (readonly). /
   canChangeOwnerByProof: Bool, // readonly
-  /** Specifies if the NFT's ownership can be transferred through the owner's signature (readonly). */
-  canChangeOwnerBySignature: Bool, // readonly
-  /** Indicates whether the NFT's metadata can be updated (readonly). */
+  / Specifies if the NFT's ownership can be transferred (readonly). /
+  canTransfer: Bool, // readonly
+  / Specifies if the NFT's approved address can be changed (readonly). /
+  canApprove: Bool, // readonly
+  / Indicates whether the NFT's metadata can be updated (readonly). /
   canChangeMetadata: Bool, // readonly
-  /** Indicates if the price of the NFT can be modified (readonly). */
-  canChangePrice: Bool, // readonly
-  /** Determines whether the storage associated with the NFT can be altered (readonly). */
+  / Determines whether the storage associated with the NFT can be altered (readonly). /
   canChangeStorage: Bool, // readonly
-  /** Specifies if the name of the NFT can be changed (readonly). */
+  / Specifies if the name of the NFT can be changed (readonly). /
   canChangeName: Bool, // readonly
-  /** Indicates whether the verification key hash for the metadata can be changed (readonly). */
+  / Indicates whether the verification key hash for the metadata can be changed (readonly). /
   canChangeMetadataVerificationKeyHash: Bool, // readonly
-  /** Specifies if the NFT contract can be paused, preventing certain operations (readonly). */
+  / Specifies if the NFT contract can be paused, preventing certain operations (readonly). /
   canPause: Bool, // readonly
-  /** The address of the NFT contract (readonly). */
+  / The address of the NFT contract (readonly). /
   address: PublicKey, // readonly
-  /** The token ID associated with the NFT (readonly). */
+  / The token ID associated with the NFT (readonly). /
   tokenId: Field, // readonly
-  /** The unique identifier of the NFT within the collection (readonly). */
-  id: UInt32, // readonly
-}).tokenId`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:151](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L151)
+  / The unique identifier of the NFT within the collection (readonly). /
+  id: UInt64, // readonly
+}).tokenId
+```
 
 ## Methods
 
@@ -705,6 +631,8 @@ The token ID associated with the NFT (readonly).
 ```ts
 static assertEqual(a: NFTImmutableState, b: NFTImmutableState): void
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:120](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L120)
 
 Asserts that two NFTImmutableState instances are equal.
 
@@ -726,10 +654,6 @@ The second NFTImmutableState instance.
 
 `void`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:160](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L160)
-
 ***
 
 ### fromNFTData()
@@ -737,11 +661,12 @@ The second NFTImmutableState instance.
 ```ts
 static fromNFTData(params: {
   address: PublicKey;
-  creator: PublicKey;
   nftData: NFTData;
   tokenId: Field;
  }): NFTImmutableState
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:141](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L141)
 
 Creates a new NFTImmutableState from NFTData and other parameters.
 
@@ -752,10 +677,6 @@ Creates a new NFTImmutableState from NFTData and other parameters.
 The parameters including nftData, creator, address, and tokenId.
 
 ###### address
-
-`PublicKey`
-
-###### creator
 
 `PublicKey`
 
@@ -772,7 +693,3 @@ The parameters including nftData, creator, address, and tokenId.
 [`NFTImmutableState`](nftsrcclassnftimmutablestate)
 
 A new NFTImmutableState instance.
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:182](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L182)

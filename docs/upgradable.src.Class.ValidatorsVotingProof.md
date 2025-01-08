@@ -3,7 +3,7 @@ title: ValidatorsVotingProof
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsVotingProof
-order: 298
+order: 356
 ---
 
 # Class: ValidatorsVotingProof
@@ -11,9 +11,15 @@ order: 298
 ## Properties overview
 
 - featureFlags: static featureFlags: {} = FeatureFlags.allMaybe; [↗](#featureflags)
+- Overrides: DynamicProof.featureFlags [↗](#overrides)
 - maxProofsVerified: static maxProofsVerified: 2; [↗](#maxproofsverified)
+- Overrides: DynamicProof.maxProofsVerified [↗](#overrides)
 - publicInputType: static publicInputType: typeof ValidatorsDecisionState = ValidatorsDecisionState; [↗](#publicinputtype)
+- Overrides: DynamicProof.publicInputType [↗](#overrides)
 - publicOutputType: static publicOutputType: typeof ValidatorsDecisionState = ValidatorsDecisionState; [↗](#publicoutputtype)
+- Overrides: DynamicProof.publicOutputType [↗](#overrides)
+
+Defined in: [packages/upgradable/src/validators.ts:466](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L466)
 
 ## Extends
 
@@ -27,6 +33,8 @@ order: 298
 new ValidatorsVotingProof(__namedParameters: {}): ValidatorsVotingProof
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/proof-system/proof.d.ts:23
+
 #### Parameters
 
 ##### \_\_namedParameters
@@ -37,14 +45,12 @@ new ValidatorsVotingProof(__namedParameters: {}): ValidatorsVotingProof
 
 #### Inherited from
 
-`DynamicProof<
+```ts
+DynamicProof<
   ValidatorsDecisionState,
   ValidatorsDecisionState
->.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/proof-system/proof.d.ts:23
+>.constructor
+```
 
 ## Properties
 
@@ -53,6 +59,8 @@ node\_modules/o1js/dist/node/lib/proof-system/proof.d.ts:23
 ```ts
 static featureFlags: {} = FeatureFlags.allMaybe;
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:473](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L473)
 
 As the name indicates, feature flags are features of the proof system.
 
@@ -69,11 +77,9 @@ Alternatively, you can use FeatureFlags.fromZkProgram to compute the set of feat
 
 #### Overrides
 
-`DynamicProof.featureFlags`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:473](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L473)
+```ts
+DynamicProof.featureFlags
+```
 
 ***
 
@@ -83,13 +89,13 @@ Alternatively, you can use FeatureFlags.fromZkProgram to compute the set of feat
 static maxProofsVerified: 2;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:472](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L472)
+
 #### Overrides
 
-`DynamicProof.maxProofsVerified`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:472](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L472)
+```ts
+DynamicProof.maxProofsVerified
+```
 
 ***
 
@@ -99,13 +105,13 @@ static maxProofsVerified: 2;
 static publicInputType: typeof ValidatorsDecisionState = ValidatorsDecisionState;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:470](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L470)
+
 #### Overrides
 
-`DynamicProof.publicInputType`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:470](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L470)
+```ts
+DynamicProof.publicInputType
+```
 
 ***
 
@@ -115,10 +121,10 @@ static publicInputType: typeof ValidatorsDecisionState = ValidatorsDecisionState
 static publicOutputType: typeof ValidatorsDecisionState = ValidatorsDecisionState;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:471](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L471)
+
 #### Overrides
 
-`DynamicProof.publicOutputType`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:471](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L471)
+```ts
+DynamicProof.publicOutputType
+```

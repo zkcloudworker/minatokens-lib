@@ -3,7 +3,7 @@ title: fetchMinaAccount
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: abi.src.Function.fetchMinaAccount
-order: 22
+order: 23
 ---
 
 # Function: fetchMinaAccount()
@@ -15,6 +15,8 @@ function fetchMinaAccount(params: {
   tokenId: string | Field;
 }): Promise<Account | undefined>
 ```
+
+Defined in: [packages/abi/src/fetch.ts:11](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/fetch.ts#L11)
 
 Fetches the Mina account for a given public key with error handling
 
@@ -47,7 +49,3 @@ the token id of the account
 `Promise`\<`Account` \| `undefined`\>
 
 the account object
-
-## Defined in
-
-[packages/abi/src/fetch.ts:11](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/fetch.ts#L11)

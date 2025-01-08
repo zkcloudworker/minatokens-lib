@@ -23,11 +23,11 @@ export {
   NFTImmutableState,
   NFTUpdateProof,
   NFTStateStruct,
-  NFTOraclePreconditions,
-  StateElementPrecondition,
   UInt64Option,
   TransferParams,
   MAX_ROYALTY_FEE,
+  NFTTransactionContext,
+  TransferExtendedParams,
 };
 
 class UInt64Option extends Option(UInt64) {}
@@ -161,85 +161,17 @@ class NFTImmutableState extends Struct({
   }
 }
 
-class StateElementPrecondition extends Struct({
-  isSome: Bool,
-  value: Field,
-}) {}
-
-class NFTOraclePreconditions extends Struct({
-  /** The lower slot of the validity of the NFT update proof. */
-  lowerSlot: UInt32,
-  /** The upper slot of the validity of the NFT update proof. */
-  upperSlot: UInt32,
-  /** The public key of the Oracle. */
-  publicKey: PublicKey,
-  /** The token Id of the Oracle. */
-  tokenId: Field,
-  /** The lower balance of the Oracle. */
-  balanceLower: UInt64,
-  /** The upper balance of the Oracle. */
-  balanceUpper: UInt64,
-  /** The lower nonce of the Oracle. */
-  nonceLower: UInt32,
-  /** The upper nonce of the Oracle. */
-  nonceUpper: UInt32,
-  /** The action state of the Oracle. */
-  actionState: StateElementPrecondition,
-  /** The state of the Oracle. */
-  state: Provable.Array(StateElementPrecondition, 8),
+class NFTTransactionContext extends Struct({
+  /** Custom context that can be interpreted by the owner or approved contract.
+   * Can hold Storage and root or two PublicKeys and UInt64
+   * In case of holding Storage and root, the contracts can fetch using witnessAsync any off-chain data with unlimited size
+   * and verify it using the root.
+   */
+  custom: Provable.Array(Field, 3),
 }) {
-  static new(
-    params: {
-      lowerSlot?: UInt32;
-      upperSlot?: UInt32;
-      publicKey?: PublicKey;
-      tokenId?: Field;
-      balanceLower?: UInt64;
-      balanceUpper?: UInt64;
-      nonceLower?: UInt32;
-      nonceUpper?: UInt32;
-      actionState?: StateElementPrecondition;
-      state?: StateElementPrecondition[];
-    } = {}
-  ) {
-    return new NFTOraclePreconditions({
-      lowerSlot: params.lowerSlot ?? UInt32.zero,
-      upperSlot: params.upperSlot ?? UInt32.MAXINT(),
-      publicKey: params.publicKey ?? PublicKey.empty(),
-      tokenId: params.tokenId ?? Field(1),
-      balanceLower: params.balanceLower ?? UInt64.zero,
-      balanceUpper: params.balanceUpper ?? UInt64.MAXINT(),
-      nonceLower: params.nonceLower ?? UInt32.zero,
-      nonceUpper: params.nonceUpper ?? UInt32.MAXINT(),
-      actionState:
-        params.actionState ??
-        new StateElementPrecondition({ isSome: Bool(false), value: Field(0) }),
-      state:
-        params.state ??
-        [...Array(8)].map(
-          (_, i) =>
-            new StateElementPrecondition({
-              isSome: Bool(false),
-              value: Field(0),
-            })
-        ),
-    });
-  }
-
-  static assertEqual(a: NFTOraclePreconditions, b: NFTOraclePreconditions) {
-    a.lowerSlot.assertEquals(b.lowerSlot);
-    a.upperSlot.assertEquals(b.upperSlot);
-    a.publicKey.assertEquals(b.publicKey);
-    a.tokenId.assertEquals(b.tokenId);
-    a.balanceLower.assertEquals(b.balanceLower);
-    a.balanceUpper.assertEquals(b.balanceUpper);
-    a.nonceLower.assertEquals(b.nonceLower);
-    a.nonceUpper.assertEquals(b.nonceUpper);
-    a.actionState.isSome.assertEquals(b.actionState.isSome);
-    a.actionState.value.assertEquals(b.actionState.value);
-    for (let i = 0; i < 8; i++) {
-      a.state[i].isSome.assertEquals(b.state[i].isSome);
-      a.state[i].value.assertEquals(b.state[i].value);
+  static assertEqual(a: NFTTransactionContext, b: NFTTransactionContext) {
+    for (let i = 0; i < 3; i++) {
+      a.custom[i].assertEquals(b.custom[i]);
     }
   }
 }
@@ -269,8 +201,10 @@ class NFTState extends Struct({
 
   /** The public key of the creator of the NFT (readonly). */
   creator: PublicKey, // readonly
-  /** The state of the owner of the NFT - 8 Fields (readonly). */
-  oracle: NFTOraclePreconditions, // readonly
+  /** The transaction context of the NFT. */
+  context: NFTTransactionContext, // readonly
+  /** The oracle address to link the NFT update with the network and accounts state */
+  oracleAddress: PublicKey, // readonly
 }) {
   /**
    * Asserts that two NFTState instances are equal.
@@ -288,7 +222,7 @@ class NFTState extends Struct({
     a.isPaused.assertEquals(b.isPaused);
     a.metadataVerificationKeyHash.assertEquals(b.metadataVerificationKeyHash);
     a.creator.assertEquals(b.creator);
-    NFTOraclePreconditions.assertEqual(a.oracle, b.oracle);
+    NFTTransactionContext.assertEqual(a.context, b.context);
   }
 
   /**
@@ -301,9 +235,11 @@ class NFTState extends Struct({
     creator: PublicKey;
     address: PublicKey;
     tokenId: Field;
-    oracle: NFTOraclePreconditions;
+    context?: NFTTransactionContext;
+    oracleAddress?: PublicKey;
   }) {
-    const { nftState, creator, address, tokenId, oracle } = params;
+    const { nftState, creator, address, tokenId, context, oracleAddress } =
+      params;
     const nftData = NFTData.unpack(nftState.packedData);
     const immutableState = NFTImmutableState.fromNFTData({
       nftData,
@@ -321,7 +257,8 @@ class NFTState extends Struct({
       isPaused: nftData.isPaused,
       metadataVerificationKeyHash: nftState.metadataVerificationKeyHash,
       creator,
-      oracle,
+      context: context ?? NFTTransactionContext.empty(),
+      oracleAddress: oracleAddress ?? PublicKey.empty(),
     });
   }
 }
@@ -645,11 +582,7 @@ class MintRequest extends Struct({
   /** The owner of the new NFT (can be different from the sender). */
   owner: PublicKey, // can be different from the sender
   /** A custom value that can be interpreted by the admin contract. */
-  customId1: Field, // should be interpreted by the admin contract
-  /** A custom value that can be interpreted by the admin contract. */
-  customId2: Field, // should be interpreted by the admin contract, can form PublicKey or Storage together with customId1
-  /** A custom value that can be interpreted by the admin contract. */
-  customId3: Field, // should be interpreted by the admin contract, can serve as root of the merkle tree for the storage or store two PublicKeys together with customId1 and customId2
+  context: NFTTransactionContext, // should be interpreted by the admin contract
 }) {}
 
 /**
@@ -664,4 +597,27 @@ class TransferParams extends Struct({
   to: PublicKey,
   /** Optional price for the transfer. */
   price: UInt64Option,
+  /** Custom value that can be interpreted by the owner or approved contract. */
+  context: NFTTransactionContext,
+}) {}
+
+class TransferExtendedParams extends Struct({
+  /** The public key of the sender (current owner) before the transfer. */
+  from: PublicKey,
+  /** The public key of the recipient (new owner) after the transfer. */
+  to: PublicKey,
+  /** The public key of the collection. */
+  collection: PublicKey,
+  /** The public key address of the NFT being transferred. */
+  nft: PublicKey,
+  /** The fee paid for the transfer. */
+  fee: UInt64Option,
+  /** The price of the NFT being transferred. */
+  price: UInt64Option,
+  /** Indicates whether the transfer is by owner or by approved address. */
+  transferByOwner: Bool,
+  /** The public key of the approved address. */
+  approved: PublicKey,
+  /** Custom value that can be interpreted by the owner or approved contract. */
+  context: NFTTransactionContext,
 }) {}

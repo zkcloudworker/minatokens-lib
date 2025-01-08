@@ -12,6 +12,4 @@ order: 12
 type CompileDependencies = Record<string, string[]>;
 ```
 
-## Defined in
-
-[packages/abi/src/token/contracts.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/contracts.ts#L31)
+Defined in: [packages/abi/src/token/contracts.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/contracts.ts#L31)

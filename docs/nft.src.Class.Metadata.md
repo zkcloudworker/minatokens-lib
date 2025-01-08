@@ -3,7 +3,7 @@ title: Metadata
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.Metadata
-order: 178
+order: 194
 ---
 
 # Class: Metadata
@@ -50,6 +50,8 @@ order: 178
 - toJSON() [↗](#tojson)
 - fromJSON() [↗](#fromjson)
 
+Defined in: [packages/nft/src/metadata/metadata.ts:243](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L243)
+
 Represents the metadata for an NFT, including traits and associated data.
 
 ## Constructors
@@ -65,6 +67,8 @@ new Metadata(params: {
   plugins: MetadataPlugin[];
  }): Metadata
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:283](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L283)
 
 Creates a new Metadata instance.
 
@@ -98,10 +102,6 @@ The parameters for the metadata, including name, image, description, banner, and
 
 [`Metadata`](nftsrcclassmetadata)
 
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:283](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L283)
-
 ## Properties
 
 ### banner?
@@ -110,11 +110,9 @@ The parameters for the metadata, including name, image, description, banner, and
 optional banner: string;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:259](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L259)
+
 Optional banner image for the NFT.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:259](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L259)
 
 ***
 
@@ -124,11 +122,9 @@ Optional banner image for the NFT.
 optional description: string;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:263](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L263)
+
 Optional description of the NFT.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:263](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L263)
 
 ***
 
@@ -138,11 +134,9 @@ Optional description of the NFT.
 image: string;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:255](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L255)
+
 The image associated with the NFT.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:255](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L255)
 
 ***
 
@@ -152,11 +146,9 @@ The image associated with the NFT.
 readonly map: MetadataMap;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:247](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L247)
+
 The underlying map storing the metadata key-value pairs.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:247](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L247)
 
 ***
 
@@ -166,11 +158,9 @@ The underlying map storing the metadata key-value pairs.
 readonly name: string;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:251](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L251)
+
 The name of the NFT.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:251](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L251)
 
 ***
 
@@ -180,11 +170,9 @@ The name of the NFT.
 plugins: MetadataPlugin[];
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:267](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L267)
+
 Array of metadata plugins used for custom traits.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:267](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L267)
 
 ***
 
@@ -194,19 +182,19 @@ Array of metadata plugins used for custom traits.
 traits: {} = {};
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:271](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L271)
+
 Object containing the traits of the NFT.
 
 #### Index Signature
 
- \[`key`: `string`\]: \{
-  `isPrivate`: `boolean`;
-  `type`: `string`;
-  `value`: `unknown`;
- \}
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:271](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L271)
+```ts
+[key: string]: {
+  isPrivate: boolean;
+  type: string;
+  value: unknown;
+}
+```
 
 ## Methods
 
@@ -223,6 +211,8 @@ addTrait(params: {
   value: MetadataValue;
 }
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:328](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L328)
 
 Adds a trait to the metadata.
 
@@ -271,10 +261,6 @@ key: Field;
 value: MetadataValue;
 ```
 
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:328](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L328)
-
 ***
 
 ### toJSON()
@@ -294,6 +280,8 @@ toJSON(includePrivateTraits: boolean): {
     }[];
 }
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:397](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L397)
 
 Converts the metadata to a JSON representation.
 
@@ -366,10 +354,6 @@ traits: {
  }[];
 ```
 
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:397](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L397)
-
 ***
 
 ### fromJSON()
@@ -393,6 +377,8 @@ static fromJSON(params: {
   plugins: MetadataPlugin[];
  }): Metadata
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:466](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L466)
 
 Constructs a Metadata instance from JSON data.
 
@@ -460,7 +446,3 @@ The parameters including json data, checkRoot flag, and plugins.
 [`Metadata`](nftsrcclassmetadata)
 
 A new Metadata instance.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:466](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L466)

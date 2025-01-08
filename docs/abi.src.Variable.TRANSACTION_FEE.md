@@ -12,6 +12,4 @@ order: 19
 const TRANSACTION_FEE: 100000000 = 1e8;
 ```
 
-## Defined in
-
-[packages/abi/src/fee.ts:2](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/fee.ts#L2)
+Defined in: [packages/abi/src/fee.ts:2](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/fee.ts#L2)

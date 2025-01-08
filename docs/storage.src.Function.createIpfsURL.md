@@ -3,7 +3,7 @@ title: createIpfsURL
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Function.createIpfsURL
-order: 248
+order: 306
 ---
 
 # Function: createIpfsURL()
@@ -15,6 +15,8 @@ function createIpfsURL(params: {
   hash: string;
  }): string
 ```
+
+Defined in: [packages/storage/src/storage/ipfs.ts:1](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/ipfs.ts#L1)
 
 ## Parameters
 
@@ -35,7 +37,3 @@ function createIpfsURL(params: {
 ## Returns
 
 `string`
-
-## Defined in
-
-[packages/storage/src/storage/ipfs.ts:1](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/storage/ipfs.ts#L1)

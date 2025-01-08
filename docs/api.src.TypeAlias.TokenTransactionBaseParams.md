@@ -3,7 +3,7 @@ title: TokenTransactionBaseParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenTransactionBaseParams
-order: 98
+order: 108
 ---
 
 # Type Alias: TokenTransactionBaseParams
@@ -23,6 +23,8 @@ type TokenTransactionBaseParams = {
   txType: string;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:627](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L627)
 
 ## Type declaration
 
@@ -81,7 +83,3 @@ optional txType: string;
 ```
 
 Type of the token transaction.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:604](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L604)

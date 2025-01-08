@@ -3,7 +3,7 @@ title: LaunchTokenAdvancedAdminParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.LaunchTokenAdvancedAdminParams
-order: 60
+order: 70
 ---
 
 # Type Alias: LaunchTokenAdvancedAdminParams
@@ -22,6 +22,8 @@ type LaunchTokenAdvancedAdminParams = LaunchTokenTransactionBaseParams & {
   whitelist: Whitelist;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:157](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L157)
 
 ## Type declaration
 
@@ -64,7 +66,3 @@ optional whitelist: Whitelist;
 ```
 
 Optional. List of whitelisted addresses with optional amounts, or a string.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:134](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L134)

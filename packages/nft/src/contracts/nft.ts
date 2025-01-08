@@ -7,7 +7,6 @@ import {
   state,
   State,
   VerificationKey,
-  AccountUpdate,
 } from "o1js";
 import { Storage } from "@minatokens/storage";
 import {
@@ -16,12 +15,13 @@ import {
   NFTState,
   NFTImmutableState,
   UpdateEvent,
-  TransferEvent,
+  TransferExtendedParams,
   UpgradeVerificationKeyEvent,
   PauseEvent,
-  NFTOraclePreconditions,
   OwnershipChangeEvent,
   UpgradeVerificationKeyData,
+  NFTStateStruct,
+  NFTTransactionContext,
 } from "../interfaces/index.js";
 
 export { NFT };
@@ -70,12 +70,27 @@ class NFT extends SmartContract {
     update: UpdateEvent,
     transfer: OwnershipChangeEvent,
     approve: PublicKey,
-    // offer: OfferEvent,
-    // buy: BuyEvent,
     upgradeVerificationKey: UpgradeVerificationKeyEvent,
     pause: PauseEvent,
     resume: PauseEvent,
   };
+
+  @method.returns(NFTStateStruct)
+  async getState(): Promise<NFTStateStruct> {
+    const name = this.name.getAndRequireEquals();
+    const metadata = this.metadata.getAndRequireEquals();
+    const storage = this.storage.getAndRequireEquals();
+    const packedData = this.packedData.getAndRequireEquals();
+    const metadataVerificationKeyHash =
+      this.metadataVerificationKeyHash.getAndRequireEquals();
+    return new NFTStateStruct({
+      name,
+      metadata,
+      storage,
+      packedData,
+      metadataVerificationKeyHash,
+    });
+  }
 
   /**
    * Updates the NFT's state with provided proofs and permissions.
@@ -95,31 +110,6 @@ class NFT extends SmartContract {
     const metadata = this.metadata.getAndRequireEquals();
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     const owner = data.owner;
-
-    // Oracle preconditions
-    const oracleUpdate = AccountUpdate.create(
-      input.oracle.publicKey, // in case publicKey is empty, this AccountUpdate will NOT be created
-      input.oracle.tokenId
-    );
-    oracleUpdate.body.preconditions.account.state = input.oracle.state;
-    oracleUpdate.body.preconditions.account.balance.isSome = Bool(true);
-    oracleUpdate.body.preconditions.account.balance.value.lower =
-      input.oracle.balanceLower;
-    oracleUpdate.body.preconditions.account.balance.value.upper =
-      input.oracle.balanceUpper;
-    oracleUpdate.body.preconditions.account.nonce.isSome = Bool(true);
-    oracleUpdate.body.preconditions.account.nonce.value.lower =
-      input.oracle.nonceLower;
-    oracleUpdate.body.preconditions.account.nonce.value.upper =
-      input.oracle.nonceUpper;
-    oracleUpdate.body.preconditions.account.actionState =
-      input.oracle.actionState;
-
-    // it is not part of the oracleUpdate, it is always checked
-    this.network.globalSlotSinceGenesis.requireBetween(
-      input.oracle.lowerSlot,
-      input.oracle.upperSlot
-    );
 
     const storage = this.storage.getAndRequireEquals();
     const metadataVerificationKeyHash =
@@ -161,14 +151,15 @@ class NFT extends SmartContract {
         isPaused: data.isPaused,
         metadataVerificationKeyHash,
         creator,
-        oracle: input.oracle,
+        context: input.context,
+        oracleAddress: input.oracleAddress,
       })
     );
 
     // assert that the read-only fields are not changed
     input.creator.assertEquals(output.creator);
-    NFTOraclePreconditions.assertEqual(input.oracle, output.oracle);
-
+    NFTTransactionContext.assertEqual(input.context, output.context);
+    input.oracleAddress.assertEquals(output.oracleAddress);
     // Check permissions and set new state
     name
       .equals(output.name)
@@ -241,43 +232,44 @@ class NFT extends SmartContract {
   /**
    * Transfers ownership of the NFT from one user to another.
    *
-   * @param from - The public key of the current owner (`PublicKey`) or approved address.
-   * @param to - The public key of the new owner (`PublicKey`).
+   * @param params - The parameters for the transfer (`TransferExtendedParams`).
    * @returns The public key of the old owner (`PublicKey`).
    */
-  @method.returns(TransferEvent)
-  async transfer(transferEvent: TransferEvent): Promise<TransferEvent> {
+  @method.returns(TransferExtendedParams)
+  async transfer(
+    params: TransferExtendedParams
+  ): Promise<TransferExtendedParams> {
     const data = NFTData.unpack(this.packedData.getAndRequireEquals());
     data.canTransfer.assertTrue(NftErrors.cannotChangeOwner);
     data.isPaused.assertFalse(NftErrors.nftIsPaused);
     const owner = data.owner;
     const approved = data.approved;
-    transferEvent.transferByOwner = owner.equals(transferEvent.from);
+    params.transferByOwner = owner.equals(params.from);
 
     owner
-      .equals(transferEvent.from)
+      .equals(params.from)
       .or(
         approved
-          .equals(transferEvent.from)
+          .equals(params.from)
           .and(approved.equals(PublicKey.empty()).not())
       )
       .assertTrue(NftErrors.cannotChangeOwner);
-    transferEvent.from = owner;
-    transferEvent.approved = approved;
+    params.from = owner;
+    params.approved = approved;
     const version = data.version.add(1);
     data.version = version;
     data.approved = PublicKey.empty();
-    data.owner = transferEvent.to;
+    data.owner = params.to;
     this.packedData.set(data.pack());
     this.emitEvent(
       "transfer",
       new OwnershipChangeEvent({
         from: owner,
-        to: transferEvent.to,
+        to: params.to,
       })
     );
 
-    return transferEvent;
+    return params;
   }
 
   /**

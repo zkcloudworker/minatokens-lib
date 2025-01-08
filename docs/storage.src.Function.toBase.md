@@ -3,7 +3,7 @@ title: toBase
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Function.toBase
-order: 261
+order: 319
 ---
 
 # Function: toBase()
@@ -11,6 +11,8 @@ order: 261
 ```ts
 function toBase(x: bigint, base: bigint): bigint[]
 ```
+
+Defined in: [packages/storage/src/base64/bigint.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/base64/bigint.ts#L59)
 
 ## Parameters
 
@@ -25,7 +27,3 @@ function toBase(x: bigint, base: bigint): bigint[]
 ## Returns
 
 `bigint`[]
-
-## Defined in
-
-[packages/storage/src/base64/bigint.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/base64/bigint.ts#L59)

@@ -3,7 +3,7 @@ title: FungibleTokenAdminConstructor
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.TypeAlias.FungibleTokenAdminConstructor
-order: 282
+order: 340
 ---
 
 # Type Alias: FungibleTokenAdminConstructor()
@@ -11,6 +11,8 @@ order: 282
 ```ts
 type FungibleTokenAdminConstructor = (adminPublicKey: PublicKey) => FungibleTokenAdminBase;
 ```
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L32)
 
 ## Parameters
 
@@ -21,7 +23,3 @@ type FungibleTokenAdminConstructor = (adminPublicKey: PublicKey) => FungibleToke
 ## Returns
 
 [`FungibleTokenAdminBase`](tokensrctypealiasfungibletokenadminbase)
-
-## Defined in
-
-[packages/token/src/FungibleTokenContract.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L32)

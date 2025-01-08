@@ -3,7 +3,7 @@ title: UpdateTokenOfferWhitelistData
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.UpdateTokenOfferWhitelistData
-order: 137
+order: 147
 ---
 
 # Type Alias: UpdateTokenOfferWhitelistData
@@ -18,6 +18,8 @@ type UpdateTokenOfferWhitelistData = {
 };
 ```
 
+Defined in: [packages/api/src/client/types.gen.ts:1121](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1121)
+
 ## Type declaration
 
 ### body
@@ -25,7 +27,3 @@ type UpdateTokenOfferWhitelistData = {
 ```ts
 body: TokenUpdateOfferWhitelistTransactionParams;
 ```
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:1090](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1090)

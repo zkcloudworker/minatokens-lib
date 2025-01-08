@@ -12,6 +12,4 @@ order: 18
 const tokenVerificationKeys: VerificationKeysList;
 ```
 
-## Defined in
-
-[packages/abi/src/vk/vk.ts:5](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/vk.ts#L5)
+Defined in: [packages/abi/src/vk/vk.ts:5](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/vk.ts#L5)

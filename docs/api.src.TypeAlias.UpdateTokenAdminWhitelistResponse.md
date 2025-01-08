@@ -3,7 +3,7 @@ title: UpdateTokenAdminWhitelistResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.UpdateTokenAdminWhitelistResponse
-order: 133
+order: 143
 ---
 
 # Type Alias: UpdateTokenAdminWhitelistResponse
@@ -12,6 +12,4 @@ order: 133
 type UpdateTokenAdminWhitelistResponse = TokenTransaction;
 ```
 
-## Defined in
-
-[packages/api/src/client/types.gen.ts:1102](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1102)
+Defined in: [packages/api/src/client/types.gen.ts:1133](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1133)

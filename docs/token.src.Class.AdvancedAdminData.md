@@ -3,7 +3,7 @@ title: AdvancedAdminData
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.AdvancedAdminData
-order: 262
+order: 320
 ---
 
 # Class: AdvancedAdminData
@@ -19,6 +19,8 @@ order: 262
 - pack() [↗](#pack)
 - new() [↗](#new)
 - unpack() [↗](#unpack)
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L22)
 
 ## Extends
 
@@ -39,6 +41,8 @@ new AdvancedAdminData(value: {
   totalSupply: UInt64;
  }): AdvancedAdminData
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -62,15 +66,13 @@ new AdvancedAdminData(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   totalSupply: UInt64,
   requireAdminSignatureForMint: Bool,
   anyoneCanMint: Bool,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -80,17 +82,17 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 anyoneCanMint: Bool = Bool;
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L25)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   totalSupply: UInt64,
   requireAdminSignatureForMint: Bool,
   anyoneCanMint: Bool,
-}).anyoneCanMint`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L25)
+}).anyoneCanMint
+```
 
 ***
 
@@ -100,17 +102,17 @@ anyoneCanMint: Bool = Bool;
 requireAdminSignatureForMint: Bool = Bool;
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L24)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   totalSupply: UInt64,
   requireAdminSignatureForMint: Bool,
   anyoneCanMint: Bool,
-}).requireAdminSignatureForMint`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L24)
+}).requireAdminSignatureForMint
+```
 
 ***
 
@@ -120,17 +122,17 @@ requireAdminSignatureForMint: Bool = Bool;
 totalSupply: UInt64 = UInt64;
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:23](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L23)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   totalSupply: UInt64,
   requireAdminSignatureForMint: Bool,
   anyoneCanMint: Bool,
-}).totalSupply`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:23](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L23)
+}).totalSupply
+```
 
 ## Methods
 
@@ -140,13 +142,11 @@ totalSupply: UInt64 = UInt64;
 pack(): Field
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L42)
+
 #### Returns
 
 `Field`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L42)
 
 ***
 
@@ -159,6 +159,8 @@ static new(params: {
   totalSupply: number;
  }): AdvancedAdminData
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:27](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L27)
 
 #### Parameters
 
@@ -180,10 +182,6 @@ static new(params: {
 
 [`AdvancedAdminData`](tokensrcclassadvancedadmindata)
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:27](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L27)
-
 ***
 
 ### unpack()
@@ -191,6 +189,8 @@ static new(params: {
 ```ts
 static unpack(packed: Field): AdvancedAdminData
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L51)
 
 #### Parameters
 
@@ -201,7 +201,3 @@ static unpack(packed: Field): AdvancedAdminData
 #### Returns
 
 [`AdvancedAdminData`](tokensrcclassadvancedadmindata)
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L51)

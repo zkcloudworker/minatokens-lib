@@ -3,7 +3,7 @@ title: MetadataTree
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.MetadataTree
-order: 180
+order: 196
 ---
 
 # Class: MetadataTree
@@ -38,6 +38,8 @@ order: 180
 - toJSON() [↗](#tojson)
 - fromJSON() [↗](#fromjson)
 
+Defined in: [packages/nft/src/metadata/tree.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L13)
+
 Represents a metadata tree using a Merkle tree structure.
 
 The `MetadataTree` class is used to manage a set of key-value pairs representing metadata,
@@ -57,6 +59,8 @@ new MetadataTree(height: number, values: {
   value: Field;
  }[]): MetadataTree
 ```
+
+Defined in: [packages/nft/src/metadata/tree.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L42)
 
 Constructs a new `MetadataTree` with the specified height and key-value pairs.
 
@@ -89,10 +93,6 @@ Will throw an error if the number of values exceeds the maximum capacity of the 
 
 Will throw an error if any key is out of bounds for the tree height.
 
-#### Defined in
-
-[packages/nft/src/metadata/tree.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L42)
-
 ## Properties
 
 ### height
@@ -101,12 +101,10 @@ Will throw an error if any key is out of bounds for the tree height.
 readonly height: number;
 ```
 
+Defined in: [packages/nft/src/metadata/tree.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L25)
+
 The height of the Merkle tree.
 Determines the maximum number of elements the tree can hold.
-
-#### Defined in
-
-[packages/nft/src/metadata/tree.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L25)
 
 ***
 
@@ -116,12 +114,10 @@ Determines the maximum number of elements the tree can hold.
 readonly root: Field;
 ```
 
+Defined in: [packages/nft/src/metadata/tree.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L31)
+
 The root of the Merkle tree.
 Used for verifying the integrity of the tree and its contents.
-
-#### Defined in
-
-[packages/nft/src/metadata/tree.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L31)
 
 ***
 
@@ -133,6 +129,8 @@ readonly values: {
   value: Field;
  }[];
 ```
+
+Defined in: [packages/nft/src/metadata/tree.ts:19](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L19)
 
 The list of key-value pairs stored in the tree.
 Each key is a `bigint` representing the index in the Merkle tree,
@@ -150,10 +148,6 @@ key: bigint;
 value: Field;
 ```
 
-#### Defined in
-
-[packages/nft/src/metadata/tree.ts:19](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L19)
-
 ## Methods
 
 ### toJSON()
@@ -168,6 +162,8 @@ toJSON(): {
     }[];
 }
 ```
+
+Defined in: [packages/nft/src/metadata/tree.ts:71](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L71)
 
 Serializes the `MetadataTree` to a JSON object.
 
@@ -207,10 +203,6 @@ values: {
  }[];
 ```
 
-#### Defined in
-
-[packages/nft/src/metadata/tree.ts:71](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L71)
-
 ***
 
 ### fromJSON()
@@ -225,6 +217,8 @@ static fromJSON(json: {
     }[];
  }): MetadataTree
 ```
+
+Defined in: [packages/nft/src/metadata/tree.ts:95](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L95)
 
 Deserializes a JSON object into a `MetadataTree` instance.
 
@@ -258,7 +252,3 @@ A new `MetadataTree` instance constructed from the JSON data.
 #### Throws
 
 Will throw an error if the JSON data is invalid or inconsistent.
-
-#### Defined in
-
-[packages/nft/src/metadata/tree.ts:95](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/tree.ts#L95)

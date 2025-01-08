@@ -3,7 +3,7 @@ title: PauseEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.PauseEvent
-order: 273
+order: 331
 ---
 
 # Class: PauseEvent
@@ -11,6 +11,8 @@ order: 273
 ## Properties overview
 
 - isPaused:  Bool = Bool; [↗](#ispaused)
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:320](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L320)
 
 ## Extends
 
@@ -28,6 +30,8 @@ new PauseEvent(value: {
  }): PauseEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -42,13 +46,11 @@ new PauseEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   isPaused: Bool,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -58,12 +60,12 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 isPaused: Bool = Bool;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:321](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L321)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   isPaused: Bool,
-}).isPaused`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:321](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L321)
+}).isPaused
+```

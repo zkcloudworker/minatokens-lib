@@ -222,8 +222,8 @@ function NFTAdvancedAdminContract(params: {
         setPermissions: Permissions.impossible(),
         access: Permissions.proof(),
         send: Permissions.proof(),
-        setZkappUri: Permissions.none(),
-        setTokenSymbol: Permissions.none(),
+        setZkappUri: Permissions.impossible(),
+        setTokenSymbol: Permissions.impossible(),
       });
     }
 
@@ -375,17 +375,18 @@ function NFTAdvancedAdminContract(params: {
         NFTAdvancedAdminContractErrors.contractIsPaused
       );
       const { to, from, price } = transferEvent;
+
       const whitelist = this.whitelist.getAndRequireEquals();
       const toAmount = await whitelist.getWhitelistedAmount(to);
       const fromAmount = await whitelist.getWhitelistedAmount(from);
 
       const toAmountAllowed = toAmount
         .orElse(UInt64.from(0))
-        .lessThanOrEqual(price.orElse(UInt64.MAXINT()));
+        .greaterThanOrEqual(price.orElse(UInt64.zero));
 
       const fromAmountAllowed = fromAmount
         .orElse(UInt64.from(0))
-        .lessThanOrEqual(price.orElse(UInt64.MAXINT()));
+        .greaterThanOrEqual(price.orElse(UInt64.zero));
 
       return toAmountAllowed
         .and(fromAmountAllowed)

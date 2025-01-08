@@ -3,7 +3,7 @@ title: FungibleTokenClaimContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenClaimContract
-order: 269
+order: 327
 ---
 
 # Class: FungibleTokenClaimContract
@@ -20,9 +20,12 @@ order: 269
 - offer:  typeof ClaimEvent = ClaimEvent; [↗](#offer)
 - updateWhitelist:  typeof Whitelist = Whitelist; [↗](#updatewhitelist)
 - withdraw:  typeof ClaimEvent = ClaimEvent; [↗](#withdraw)
+- Overrides: SmartContract.events [↗](#overrides)
+- maxAmount:  State<UInt64>; [↗](#maxamount)
 - owner:  State<PublicKey>; [↗](#owner)
 - token:  State<PublicKey>; [↗](#token)
 - whitelist:  State<Whitelist>; [↗](#whitelist)
+- Overrides: SmartContract.deploy [↗](#overrides)
 
 ## Methods overview
 
@@ -32,6 +35,8 @@ order: 269
 - offer() [↗](#offer)
 - updateWhitelist() [↗](#updatewhitelist)
 - withdraw() [↗](#withdraw)
+
+Defined in: [packages/token/src/claim.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L31)
 
 ## Extends
 
@@ -44,6 +49,8 @@ order: 269
 ```ts
 new FungibleTokenClaimContract(address: PublicKey, tokenId?: Field): FungibleTokenClaimContract
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
 
 #### Parameters
 
@@ -61,11 +68,9 @@ new FungibleTokenClaimContract(address: PublicKey, tokenId?: Field): FungibleTok
 
 #### Inherited from
 
-`SmartContract.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+```ts
+SmartContract.constructor
+```
 
 ## Properties
 
@@ -79,6 +84,8 @@ events: {
   withdraw: typeof ClaimEvent;
 };
 ```
+
+Defined in: [packages/token/src/claim.ts:50](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L50)
 
 A list of event types that can be emitted using this.emitEvent()`.
 
@@ -108,11 +115,19 @@ withdraw: typeof ClaimEvent = ClaimEvent;
 
 #### Overrides
 
-`SmartContract.events`
+```ts
+SmartContract.events
+```
 
-#### Defined in
+***
 
-[packages/token/src/claim.ts:45](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L45)
+### maxAmount
+
+```ts
+maxAmount: State<UInt64>;
+```
+
+Defined in: [packages/token/src/claim.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L35)
 
 ***
 
@@ -122,9 +137,7 @@ withdraw: typeof ClaimEvent = ClaimEvent;
 owner: State<PublicKey>;
 ```
 
-#### Defined in
-
-[packages/token/src/claim.ts:29](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L29)
+Defined in: [packages/token/src/claim.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L32)
 
 ***
 
@@ -134,9 +147,7 @@ owner: State<PublicKey>;
 token: State<PublicKey>;
 ```
 
-#### Defined in
-
-[packages/token/src/claim.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L30)
+Defined in: [packages/token/src/claim.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L33)
 
 ***
 
@@ -146,25 +157,27 @@ token: State<PublicKey>;
 whitelist: State<Whitelist>;
 ```
 
-#### Defined in
-
-[packages/token/src/claim.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L31)
+Defined in: [packages/token/src/claim.ts:34](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L34)
 
 ## Methods
 
 ### claim()
 
 ```ts
-claim(): Promise<void>
+claim(amount: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/claim.ts:110](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L110)
+
+#### Parameters
+
+##### amount
+
+`UInt64`
 
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Defined in
-
-[packages/token/src/claim.ts:107](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L107)
 
 ***
 
@@ -173,6 +186,8 @@ claim(): Promise<void>
 ```ts
 deploy(args: FungibleTokenClaimContractDeployProps): Promise<void>
 ```
+
+Defined in: [packages/token/src/claim.ts:37](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L37)
 
 Deploys a SmartContract.
 
@@ -196,11 +211,9 @@ tx.sign([senderKey, zkAppKey]);
 
 #### Overrides
 
-`SmartContract.deploy`
-
-#### Defined in
-
-[packages/token/src/claim.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L33)
+```ts
+SmartContract.deploy
+```
 
 ***
 
@@ -212,6 +225,8 @@ initialize(
    token: PublicKey, 
 amount: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/claim.ts:57](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L57)
 
 #### Parameters
 
@@ -231,10 +246,6 @@ amount: UInt64): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/claim.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L52)
-
 ***
 
 ### offer()
@@ -242,6 +253,8 @@ amount: UInt64): Promise<void>
 ```ts
 offer(amount: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/claim.ts:73](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L73)
 
 #### Parameters
 
@@ -253,10 +266,6 @@ offer(amount: UInt64): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/claim.ts:68](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L68)
-
 ***
 
 ### updateWhitelist()
@@ -264,6 +273,8 @@ offer(amount: UInt64): Promise<void>
 ```ts
 updateWhitelist(whitelist: Whitelist): Promise<void>
 ```
+
+Defined in: [packages/token/src/claim.ts:141](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L141)
 
 #### Parameters
 
@@ -275,10 +286,6 @@ updateWhitelist(whitelist: Whitelist): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/claim.ts:131](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L131)
-
 ***
 
 ### withdraw()
@@ -286,6 +293,8 @@ updateWhitelist(whitelist: Whitelist): Promise<void>
 ```ts
 withdraw(amount: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/claim.ts:89](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L89)
 
 #### Parameters
 
@@ -296,7 +305,3 @@ withdraw(amount: UInt64): Promise<void>
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Defined in
-
-[packages/token/src/claim.ts:86](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/claim.ts#L86)
