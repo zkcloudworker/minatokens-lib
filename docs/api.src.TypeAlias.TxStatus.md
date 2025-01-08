@@ -3,7 +3,7 @@ title: TxStatus
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TxStatus
-order: 114
+order: 124
 ---
 
 # Type Alias: TxStatus
@@ -18,6 +18,8 @@ type TxStatus = {
   txStatus: string;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:928](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L928)
 
 ## Type declaration
 
@@ -68,7 +70,3 @@ optional txStatus: string;
 ```
 
 The status of the transaction in the block.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:905](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L905)

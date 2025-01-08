@@ -3,7 +3,7 @@ title: FungibleTokenOfferContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenOfferContract
-order: 270
+order: 328
 ---
 
 # Class: FungibleTokenOfferContract
@@ -20,10 +20,12 @@ order: 270
 - offer:  typeof OfferEvent = OfferEvent; [↗](#offer)
 - updateWhitelist:  typeof Whitelist = Whitelist; [↗](#updatewhitelist)
 - withdraw:  typeof OfferEvent = OfferEvent; [↗](#withdraw)
+- Overrides: SmartContract.events [↗](#overrides)
 - price:  State<UInt64>; [↗](#price)
 - seller:  State<PublicKey>; [↗](#seller)
 - token:  State<PublicKey>; [↗](#token)
 - whitelist:  State<Whitelist>; [↗](#whitelist)
+- Overrides: SmartContract.deploy [↗](#overrides)
 
 ## Methods overview
 
@@ -33,6 +35,8 @@ order: 270
 - offer() [↗](#offer)
 - updateWhitelist() [↗](#updatewhitelist)
 - withdraw() [↗](#withdraw)
+
+Defined in: [packages/token/src/offer.ts:29](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L29)
 
 ## Extends
 
@@ -45,6 +49,8 @@ order: 270
 ```ts
 new FungibleTokenOfferContract(address: PublicKey, tokenId?: Field): FungibleTokenOfferContract
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
 
 #### Parameters
 
@@ -62,11 +68,9 @@ new FungibleTokenOfferContract(address: PublicKey, tokenId?: Field): FungibleTok
 
 #### Inherited from
 
-`SmartContract.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+```ts
+SmartContract.constructor
+```
 
 ## Properties
 
@@ -80,6 +84,8 @@ events: {
   withdraw: typeof OfferEvent;
 };
 ```
+
+Defined in: [packages/token/src/offer.ts:47](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L47)
 
 A list of event types that can be emitted using this.emitEvent()`.
 
@@ -109,11 +115,9 @@ withdraw: typeof OfferEvent = OfferEvent;
 
 #### Overrides
 
-`SmartContract.events`
-
-#### Defined in
-
-[packages/token/src/offer.ts:47](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L47)
+```ts
+SmartContract.events
+```
 
 ***
 
@@ -123,9 +127,7 @@ withdraw: typeof OfferEvent = OfferEvent;
 price: State<UInt64>;
 ```
 
-#### Defined in
-
-[packages/token/src/offer.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L30)
+Defined in: [packages/token/src/offer.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L30)
 
 ***
 
@@ -135,9 +137,7 @@ price: State<UInt64>;
 seller: State<PublicKey>;
 ```
 
-#### Defined in
-
-[packages/token/src/offer.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L31)
+Defined in: [packages/token/src/offer.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L31)
 
 ***
 
@@ -147,9 +147,7 @@ seller: State<PublicKey>;
 token: State<PublicKey>;
 ```
 
-#### Defined in
-
-[packages/token/src/offer.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L32)
+Defined in: [packages/token/src/offer.ts:32](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L32)
 
 ***
 
@@ -159,9 +157,7 @@ token: State<PublicKey>;
 whitelist: State<Whitelist>;
 ```
 
-#### Defined in
-
-[packages/token/src/offer.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L33)
+Defined in: [packages/token/src/offer.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L33)
 
 ## Methods
 
@@ -170,6 +166,8 @@ whitelist: State<Whitelist>;
 ```ts
 buy(amount: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/offer.ts:118](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L118)
 
 #### Parameters
 
@@ -181,10 +179,6 @@ buy(amount: UInt64): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/offer.ts:118](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L118)
-
 ***
 
 ### deploy()
@@ -192,6 +186,8 @@ buy(amount: UInt64): Promise<void>
 ```ts
 deploy(args: FungibleTokenOfferContractDeployProps): Promise<void>
 ```
+
+Defined in: [packages/token/src/offer.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L35)
 
 Deploys a SmartContract.
 
@@ -215,11 +211,9 @@ tx.sign([senderKey, zkAppKey]);
 
 #### Overrides
 
-`SmartContract.deploy`
-
-#### Defined in
-
-[packages/token/src/offer.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L35)
+```ts
+SmartContract.deploy
+```
 
 ***
 
@@ -232,6 +226,8 @@ initialize(
    amount: UInt64, 
 price: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/offer.ts:54](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L54)
 
 #### Parameters
 
@@ -255,10 +251,6 @@ price: UInt64): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/offer.ts:54](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L54)
-
 ***
 
 ### offer()
@@ -266,6 +258,8 @@ price: UInt64): Promise<void>
 ```ts
 offer(amount: UInt64, price: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/offer.ts:72](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L72)
 
 #### Parameters
 
@@ -281,10 +275,6 @@ offer(amount: UInt64, price: UInt64): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/offer.ts:72](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L72)
-
 ***
 
 ### updateWhitelist()
@@ -292,6 +282,8 @@ offer(amount: UInt64, price: UInt64): Promise<void>
 ```ts
 updateWhitelist(whitelist: Whitelist): Promise<void>
 ```
+
+Defined in: [packages/token/src/offer.ts:154](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L154)
 
 #### Parameters
 
@@ -303,10 +295,6 @@ updateWhitelist(whitelist: Whitelist): Promise<void>
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/offer.ts:154](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L154)
-
 ***
 
 ### withdraw()
@@ -314,6 +302,8 @@ updateWhitelist(whitelist: Whitelist): Promise<void>
 ```ts
 withdraw(amount: UInt64): Promise<void>
 ```
+
+Defined in: [packages/token/src/offer.ts:97](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L97)
 
 #### Parameters
 
@@ -324,7 +314,3 @@ withdraw(amount: UInt64): Promise<void>
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Defined in
-
-[packages/token/src/offer.ts:97](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/offer.ts#L97)

@@ -222,8 +222,8 @@ function NFTAdvancedAdminContract(params: {
         setPermissions: Permissions.impossible(),
         access: Permissions.proof(),
         send: Permissions.proof(),
-        setZkappUri: Permissions.none(),
-        setTokenSymbol: Permissions.none(),
+        setZkappUri: Permissions.impossible(),
+        setTokenSymbol: Permissions.impossible(),
       });
     }
 

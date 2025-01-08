@@ -32,6 +32,7 @@ const CollectionErrors = {
     adminContractAddressNotSet: "Admin contract address is not set",
     onlyOwnerCanUpgradeVerificationKey: "Only owner can upgrade verification key",
     invalidRoyaltyFee: "Royalty fee is too high, cannot be more than 100%",
+    invalidOracleAddress: "Oracle address is invalid",
 };
 /**
  * Creates a new NFT Collection Contract class.
@@ -40,7 +41,7 @@ const CollectionErrors = {
  * @returns The Collection class extending TokenContract and implementing required interfaces.
  */
 function CollectionFactory(params) {
-    const { adminContract, ownerContract, approvalContract } = params;
+    const { adminContract, ownerContract, approvalContract, updateContract } = params;
     /**
      * The NFT Collection Contract manages a collection of NFTs.
      * It handles minting, transferring, buying, selling, and integrates with Admin Contracts.
@@ -103,8 +104,6 @@ function CollectionFactory(params) {
             this.account.tokenSymbol.set(props.symbol);
             this.account.permissions.set({
                 ...Permissions.default(),
-                // Allow the upgrade authority to set the verification key
-                // even when there is no protocol upgrade
                 setVerificationKey: Permissions.VerificationKey.proofDuringCurrentVersion(),
                 setPermissions: Permissions.impossible(),
                 access: Permissions.proof(),
@@ -163,6 +162,15 @@ function CollectionFactory(params) {
         getApprovalContract(address) {
             const ApprovalContract = approvalContract();
             return new ApprovalContract(address);
+        }
+        /**
+         * Retrieves the NFT Update Contract instance.
+         *
+         * @returns The Update Contract instance implementing NFTUpdateBase.
+         */
+        getUpdateContract(address) {
+            const UpdateContract = updateContract();
+            return new UpdateContract(address);
         }
         /**
          * Ensures that the transaction is authorized by the creator.
@@ -290,14 +298,14 @@ function CollectionFactory(params) {
                 value: {
                     ...Permissions.default(),
                     // NFT cannot be sent to other accounts, only owner can be changed
-                    send: Permissions.none(),
+                    send: Permissions.impossible(),
                     // Allow the upgrade authority to set the verification key
                     // even when there is no protocol upgrade
                     setVerificationKey: Permissions.VerificationKey.proofDuringCurrentVersion(),
                     setPermissions: Permissions.impossible(),
                     access: Permissions.proof(),
-                    setZkappUri: Permissions.none(),
-                    setTokenSymbol: Permissions.none(),
+                    setZkappUri: Permissions.impossible(),
+                    setTokenSymbol: Permissions.impossible(),
                 },
             };
             const initialState = new NFTStateStruct({
@@ -325,11 +333,39 @@ function CollectionFactory(params) {
          * @param vk - The verification key.
          */
         async update(proof, vk) {
+            await this._update(proof, vk);
+        }
+        /**
+         * Updates the NFT with admin approval and oracle approval.
+         *
+         * @param proof - The proof of the NFT update.
+         * @param vk - The verification key.
+         */
+        async updateWithOracle(proof, vk) {
+            // The oracle address is optional and can be empty, NFT ZkProgram can verify the address
+            // as it can be different for different NFTs
+            const oracleAddress = proof.publicInput.oracleAddress;
+            oracleAddress
+                .equals(PublicKey.empty())
+                .assertFalse(CollectionErrors.invalidOracleAddress);
+            const oracle = this.getUpdateContract(oracleAddress);
+            const canUpdate = await oracle.canUpdate(this.address, proof.publicInput.immutableState.address, proof.publicInput, proof.publicOutput);
+            canUpdate.assertTrue();
+            await this._update(proof, vk);
+        }
+        /**
+         * Updates the NFT with admin approval - internal method.
+         *
+         * @param proof - The proof of the NFT update.
+         * @param vk - The verification key.
+         */
+        async _update(proof, vk) {
             await this.ensureNotPaused();
             const adminContract = this.getAdminContract();
             const canUpdate = await adminContract.canUpdate(proof.publicInput, proof.publicOutput);
             canUpdate.assertTrue();
             const creator = this.creator.getAndRequireEquals();
+            creator.assertEquals(proof.publicInput.creator);
             const tokenId = this.deriveTokenId();
             tokenId.assertEquals(proof.publicInput.immutableState.tokenId);
             const nft = new NFT(proof.publicInput.immutableState.address, tokenId);
@@ -859,6 +895,13 @@ function CollectionFactory(params) {
             VerificationKey]),
         __metadata("design:returntype", Promise)
     ], Collection.prototype, "update", null);
+    __decorate([
+        method,
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [NFTUpdateProof,
+            VerificationKey]),
+        __metadata("design:returntype", Promise)
+    ], Collection.prototype, "updateWithOracle", null);
     __decorate([
         method,
         __metadata("design:type", Function),

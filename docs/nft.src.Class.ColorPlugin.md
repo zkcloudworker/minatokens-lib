@@ -3,7 +3,7 @@ title: ColorPlugin
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.ColorPlugin
-order: 176
+order: 191
 ---
 
 # Class: ColorPlugin
@@ -11,6 +11,8 @@ order: 176
 ## Properties overview
 
 - name: readonly name: "color" = "color"; [↗](#name)
+- Overrides: MetadataPlugin.name [↗](#overrides)
+- Overrides: MetadataPlugin.fromJSON [↗](#overrides)
 - Returns: {
   canonicalRepresentation: number;
   key: Field;
@@ -19,6 +21,8 @@ order: 176
 - canonicalRepresentation:  number; [↗](#canonicalrepresentation)
 - key:  Field; [↗](#key)
 - value:  MetadataValue; [↗](#value)
+- Overrides: MetadataPlugin.getTrait [↗](#overrides)
+- Overrides: MetadataPlugin.toJSON [↗](#overrides)
 
 ## Methods overview
 
@@ -26,6 +30,8 @@ order: 176
 - getColor() [↗](#getcolor)
 - getTrait() [↗](#gettrait)
 - toJSON() [↗](#tojson)
+
+Defined in: [packages/nft/src/metadata/metadata.ts:154](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L154)
 
 A plugin for handling color metadata.
 
@@ -47,7 +53,9 @@ new ColorPlugin(): ColorPlugin
 
 #### Inherited from
 
-`MetadataPlugin.constructor`
+```ts
+MetadataPlugin.constructor
+```
 
 ## Properties
 
@@ -57,15 +65,15 @@ new ColorPlugin(): ColorPlugin
 readonly name: "color" = "color";
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:158](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L158)
+
 The name of the plugin.
 
 #### Overrides
 
-`MetadataPlugin.name`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:158](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L158)
+```ts
+MetadataPlugin.name
+```
 
 ## Methods
 
@@ -74,6 +82,8 @@ The name of the plugin.
 ```ts
 fromJSON(value: string | object): number
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:234](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L234)
 
 Parses the color value from a JSON string or object.
 
@@ -93,11 +103,9 @@ The numeric representation of the color.
 
 #### Overrides
 
-`MetadataPlugin.fromJSON`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:234](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L234)
+```ts
+MetadataPlugin.fromJSON
+```
 
 ***
 
@@ -106,6 +114,8 @@ The numeric representation of the color.
 ```ts
 getColor(value: string | number): number
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:165](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L165)
 
 Converts a color name or value into its numeric representation.
 
@@ -123,10 +133,6 @@ The color value (name, string, or number).
 
 The numeric representation of the color.
 
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:165](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L165)
-
 ***
 
 ### getTrait()
@@ -142,6 +148,8 @@ getTrait(params: {
   value: MetadataValue;
 }
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:199](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L199)
 
 Retrieves the trait representation of the color value.
 
@@ -195,11 +203,9 @@ value: MetadataValue;
 
 #### Overrides
 
-`MetadataPlugin.getTrait`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:199](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L199)
+```ts
+MetadataPlugin.getTrait
+```
 
 ***
 
@@ -208,6 +214,8 @@ value: MetadataValue;
 ```ts
 toJSON(value: string | number): string
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:226](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L226)
 
 Converts the color value to a JSON string.
 
@@ -227,8 +235,6 @@ The JSON string representation.
 
 #### Overrides
 
-`MetadataPlugin.toJSON`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:226](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L226)
+```ts
+MetadataPlugin.toJSON
+```

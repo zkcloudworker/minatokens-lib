@@ -3,7 +3,7 @@ title: VerificationKeyUpgradeData
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.VerificationKeyUpgradeData
-order: 300
+order: 358
 ---
 
 # Class: VerificationKeyUpgradeData
@@ -18,6 +18,8 @@ order: 300
 ## Methods overview
 
 - hash() [↗](#hash)
+
+Defined in: [packages/upgradable/src/upgradable.ts:27](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L27)
 
 Represents the data required to upgrade a contract's verification key.
 It includes the contract's address, token ID, previous verification key hash,
@@ -45,6 +47,8 @@ new VerificationKeyUpgradeData(value: {
   tokenId: Field;
  }): VerificationKeyUpgradeData
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -80,20 +84,18 @@ The token ID associated with the contract.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the contract to be upgraded. */
+```ts
+Struct({
+  / The address of the contract to be upgraded. /
   address: PublicKey,
-  /** The token ID associated with the contract. */
+  / The token ID associated with the contract. /
   tokenId: Field,
-  /** The hash of the previous verification key. */
+  / The hash of the previous verification key. /
   previousVerificationKeyHash: Field,
-  /** The hash of the new verification key. */
+  / The hash of the new verification key. /
   newVerificationKeyHash: Field,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -103,24 +105,24 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/upgradable/src/upgradable.ts:29](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L29)
+
 The address of the contract to be upgraded.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the contract to be upgraded. */
+```ts
+Struct({
+  / The address of the contract to be upgraded. /
   address: PublicKey,
-  /** The token ID associated with the contract. */
+  / The token ID associated with the contract. /
   tokenId: Field,
-  /** The hash of the previous verification key. */
+  / The hash of the previous verification key. /
   previousVerificationKeyHash: Field,
-  /** The hash of the new verification key. */
+  / The hash of the new verification key. /
   newVerificationKeyHash: Field,
-}).address`
-
-#### Defined in
-
-[packages/upgradable/src/upgradable.ts:29](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L29)
+}).address
+```
 
 ***
 
@@ -130,24 +132,24 @@ The address of the contract to be upgraded.
 newVerificationKeyHash: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/upgradable.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L35)
+
 The hash of the new verification key.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the contract to be upgraded. */
+```ts
+Struct({
+  / The address of the contract to be upgraded. /
   address: PublicKey,
-  /** The token ID associated with the contract. */
+  / The token ID associated with the contract. /
   tokenId: Field,
-  /** The hash of the previous verification key. */
+  / The hash of the previous verification key. /
   previousVerificationKeyHash: Field,
-  /** The hash of the new verification key. */
+  / The hash of the new verification key. /
   newVerificationKeyHash: Field,
-}).newVerificationKeyHash`
-
-#### Defined in
-
-[packages/upgradable/src/upgradable.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L35)
+}).newVerificationKeyHash
+```
 
 ***
 
@@ -157,24 +159,24 @@ The hash of the new verification key.
 previousVerificationKeyHash: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/upgradable.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L33)
+
 The hash of the previous verification key.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the contract to be upgraded. */
+```ts
+Struct({
+  / The address of the contract to be upgraded. /
   address: PublicKey,
-  /** The token ID associated with the contract. */
+  / The token ID associated with the contract. /
   tokenId: Field,
-  /** The hash of the previous verification key. */
+  / The hash of the previous verification key. /
   previousVerificationKeyHash: Field,
-  /** The hash of the new verification key. */
+  / The hash of the new verification key. /
   newVerificationKeyHash: Field,
-}).previousVerificationKeyHash`
-
-#### Defined in
-
-[packages/upgradable/src/upgradable.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L33)
+}).previousVerificationKeyHash
+```
 
 ***
 
@@ -184,24 +186,24 @@ The hash of the previous verification key.
 tokenId: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/upgradable.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L31)
+
 The token ID associated with the contract.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the contract to be upgraded. */
+```ts
+Struct({
+  / The address of the contract to be upgraded. /
   address: PublicKey,
-  /** The token ID associated with the contract. */
+  / The token ID associated with the contract. /
   tokenId: Field,
-  /** The hash of the previous verification key. */
+  / The hash of the previous verification key. /
   previousVerificationKeyHash: Field,
-  /** The hash of the new verification key. */
+  / The hash of the new verification key. /
   newVerificationKeyHash: Field,
-}).tokenId`
-
-#### Defined in
-
-[packages/upgradable/src/upgradable.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L31)
+}).tokenId
+```
 
 ## Methods
 
@@ -211,6 +213,8 @@ The token ID associated with the contract.
 hash(): Field
 ```
 
+Defined in: [packages/upgradable/src/upgradable.ts:41](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L41)
+
 Generates a unique hash for the upgrade data using the Poseidon hash function.
 
 #### Returns
@@ -218,7 +222,3 @@ Generates a unique hash for the upgrade data using the Poseidon hash function.
 `Field`
 
 The hash representing the upgrade data.
-
-#### Defined in
-
-[packages/upgradable/src/upgradable.ts:41](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L41)

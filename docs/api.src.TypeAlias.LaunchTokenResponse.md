@@ -3,7 +3,7 @@ title: LaunchTokenResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.LaunchTokenResponse
-order: 63
+order: 73
 ---
 
 # Type Alias: LaunchTokenResponse
@@ -12,6 +12,4 @@ order: 63
 type LaunchTokenResponse = TokenTransaction;
 ```
 
-## Defined in
-
-[packages/api/src/client/types.gen.ts:950](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L950)
+Defined in: [packages/api/src/client/types.gen.ts:973](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L973)

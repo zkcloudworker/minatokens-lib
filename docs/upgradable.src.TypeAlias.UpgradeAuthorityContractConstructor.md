@@ -3,7 +3,7 @@ title: UpgradeAuthorityContractConstructor
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.TypeAlias.UpgradeAuthorityContractConstructor
-order: 306
+order: 363
 ---
 
 # Type Alias: UpgradeAuthorityContractConstructor()
@@ -11,6 +11,8 @@ order: 306
 ```ts
 type UpgradeAuthorityContractConstructor = (upgradeAuthority: PublicKey) => UpgradeAuthorityBase;
 ```
+
+Defined in: [packages/upgradable/src/upgradable.ts:113](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L113)
 
 Defines a constructor for contracts implementing `UpgradeAuthorityBase`,
 accepting an `upgradeAuthority` public key and returning an instance of `UpgradeAuthorityBase`.
@@ -24,7 +26,3 @@ accepting an `upgradeAuthority` public key and returning an instance of `Upgrade
 ## Returns
 
 [`UpgradeAuthorityBase`](upgradablesrctypealiasupgradeauthoritybase)
-
-## Defined in
-
-[packages/upgradable/src/upgradable.ts:113](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgradable.ts#L113)

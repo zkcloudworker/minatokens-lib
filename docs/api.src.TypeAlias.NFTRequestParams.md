@@ -3,7 +3,7 @@ title: NFTRequestParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.NFTRequestParams
-order: 70
+order: 80
 ---
 
 # Type Alias: NFTRequestParams
@@ -19,6 +19,8 @@ type NFTRequestParams = {
   nftAddress: string;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:274](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L274)
 
 ## Type declaration
 
@@ -37,7 +39,3 @@ nftAddress: string;
 ```
 
 The unique NFT address.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:251](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L251)

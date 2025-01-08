@@ -9,9 +9,7 @@ order: 4
 
 # API
 
-## Index
-
-### Type Aliases
+## Type Aliases
 
 - [adminContract](apisrctypealiasadmincontract)
 - [adminContract2](apisrctypealiasadmincontract2)
@@ -26,6 +24,10 @@ order: 4
 - [BuyTokensError](apisrctypealiasbuytokenserror)
 - [BuyTokensResponse](apisrctypealiasbuytokensresponse)
 - [canMint](apisrctypealiascanmint)
+- [ContractInfo](apisrctypealiascontractinfo)
+- [ContractInfoRequest](apisrctypealiascontractinforequest)
+- [ContractProperty](apisrctypealiascontractproperty)
+- [ContractPropertyType](apisrctypealiascontractpropertytype)
 - [DeployedTokenTransactionBaseParams](apisrctypealiasdeployedtokentransactionbaseparams)
 - [ErrorResponse](apisrctypealiaserrorresponse)
 - [FaucetData](apisrctypealiasfaucetdata)
@@ -33,6 +35,9 @@ order: 4
 - [FaucetParams](apisrctypealiasfaucetparams)
 - [FaucetResponse](apisrctypealiasfaucetresponse)
 - [FaucetResponse2](apisrctypealiasfaucetresponse2)
+- [GetContractInfoData](apisrctypealiasgetcontractinfodata)
+- [GetContractInfoError](apisrctypealiasgetcontractinfoerror)
+- [GetContractInfoResponse](apisrctypealiasgetcontractinforesponse)
 - [GetNftV2InfoData](apisrctypealiasgetnftv2infodata)
 - [GetNftV2InfoError](apisrctypealiasgetnftv2infoerror)
 - [GetNftV2InfoResponse](apisrctypealiasgetnftv2inforesponse)
@@ -137,16 +142,17 @@ order: 4
 - [WithdrawTokenOfferError](apisrctypealiaswithdrawtokenoffererror)
 - [WithdrawTokenOfferResponse](apisrctypealiaswithdrawtokenofferresponse)
 
-### Variables
+## Variables
 
 - [client](apisrcvariableclient)
 
-### Functions
+## Functions
 
 - [airdropTokens](apisrcfunctionairdroptokens)
 - [buyTokens](apisrcfunctionbuytokens)
 - [config](apisrcfunctionconfig)
 - [faucet](apisrcfunctionfaucet)
+- [getContractInfo](apisrcfunctiongetcontractinfo)
 - [getNftV2Info](apisrcfunctiongetnftv2info)
 - [getProof](apisrcfunctiongetproof)
 - [getTokenBalance](apisrcfunctiongettokenbalance)

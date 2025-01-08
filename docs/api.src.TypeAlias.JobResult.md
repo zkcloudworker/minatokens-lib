@@ -3,7 +3,7 @@ title: JobResult
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.JobResult
-order: 57
+order: 67
 ---
 
 # Type Alias: JobResult
@@ -21,6 +21,8 @@ type JobResult = {
   tx: string;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:110](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L110)
 
 ## Type declaration
 
@@ -63,7 +65,3 @@ optional tx: string;
 ```
 
 The transaction data.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:87](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L87)

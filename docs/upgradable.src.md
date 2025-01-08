@@ -9,9 +9,7 @@ order: 8
 
 # UPGRADABLE
 
-## Index
-
-### Classes
+## Classes
 
 - [PublicKeyOption](upgradablesrcclasspublickeyoption)
 - [UpgradeAuthorityAnswer](upgradablesrcclassupgradeauthorityanswer)
@@ -28,22 +26,20 @@ order: 8
 - [VerificationKeyUpgradeAuthority](upgradablesrcclassverificationkeyupgradeauthority)
 - [VerificationKeyUpgradeData](upgradablesrcclassverificationkeyupgradedata)
 
-### Interfaces
+## Interfaces
 
 - [ValidatorsListData](upgradablesrcinterfacevalidatorslistdata)
 
-### Type Aliases
+## Type Aliases
 
 - [ChainId](upgradablesrctypealiaschainid)
-- [SupportedNetworkId](upgradablesrctypealiassupportednetworkid)
 - [UpgradableContract](upgradablesrctypealiasupgradablecontract)
 - [UpgradeAuthorityBase](upgradablesrctypealiasupgradeauthoritybase)
 - [UpgradeAuthorityContractConstructor](upgradablesrctypealiasupgradeauthoritycontractconstructor)
 - [ValidatorDecisionType](upgradablesrctypealiasvalidatordecisiontype)
 
-### Variables
+## Variables
 
 - [ChainId](upgradablesrcvariablechainid)
-- [nftVerificationKeys](upgradablesrcvariablenftverificationkeys)
 - [ValidatorDecisionType](upgradablesrcvariablevalidatordecisiontype)
 - [ValidatorsVoting](upgradablesrcvariablevalidatorsvoting)

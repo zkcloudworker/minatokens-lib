@@ -9,9 +9,7 @@ order: 7
 
 # TOKEN
 
-## Index
-
-### Classes
+## Classes
 
 - [AdvancedAdminData](tokensrcclassadvancedadmindata)
 - [BalanceChangeEvent](tokensrcclassbalancechangeevent)
@@ -27,7 +25,7 @@ order: 7
 - [PauseEvent](tokensrcclasspauseevent)
 - [SetAdminEvent](tokensrcclasssetadminevent)
 
-### Interfaces
+## Interfaces
 
 - [FungibleTokenAdminDeployProps](tokensrcinterfacefungibletokenadmindeployprops)
 - [FungibleTokenBidContractDeployProps](tokensrcinterfacefungibletokenbidcontractdeployprops)
@@ -36,17 +34,17 @@ order: 7
 - [FungibleTokenOfferContractDeployProps](tokensrcinterfacefungibletokenoffercontractdeployprops)
 - [FungibleTokenWhitelistedAdminDeployProps](tokensrcinterfacefungibletokenwhitelistedadmindeployprops)
 
-### Type Aliases
+## Type Aliases
 
 - [FungibleTokenAdminBase](tokensrctypealiasfungibletokenadminbase)
 - [FungibleTokenAdminConstructor](tokensrctypealiasfungibletokenadminconstructor)
 
-### Variables
+## Variables
 
 - [AdvancedFungibleToken](tokensrcvariableadvancedfungibletoken)
 - [FungibleToken](tokensrcvariablefungibletoken)
 - [FungibleTokenErrors](tokensrcvariablefungibletokenerrors)
 
-### Functions
+## Functions
 
 - [FungibleTokenContract](tokensrcfunctionfungibletokencontract)

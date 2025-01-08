@@ -3,7 +3,7 @@ title: TokenUpdateBidWhitelistTransactionParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenUpdateBidWhitelistTransactionParams
-order: 104
+order: 114
 ---
 
 # Type Alias: TokenUpdateBidWhitelistTransactionParams
@@ -20,6 +20,8 @@ type TokenUpdateBidWhitelistTransactionParams = DeployedTokenTransactionBasePara
   whitelist: Whitelist;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:709](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L709)
 
 ## Type declaration
 
@@ -46,7 +48,3 @@ whitelist: Whitelist;
 ```
 
 Either a list of whitelisted addresses with optional amounts, or a string representing a whitelist contract address
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:686](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L686)

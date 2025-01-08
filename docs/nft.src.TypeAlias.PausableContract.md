@@ -3,7 +3,7 @@ title: PausableContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.TypeAlias.PausableContract
-order: 212
+order: 259
 ---
 
 # Type Alias: PausableContract
@@ -14,6 +14,8 @@ type PausableContract = SmartContract & {
   resume: Promise<void>;
 };
 ```
+
+Defined in: [packages/nft/src/interfaces/pausable.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/pausable.ts#L13)
 
 The **PausableContract** interface provides a mechanism to dynamically enable or disable
 certain functionalities within smart contracts. It extends the `SmartContract` class
@@ -47,7 +49,3 @@ the contract to its normal working state, allowing all functionalities to be acc
 `Promise`\<`void`\>
 
 A promise that resolves when the contract has been successfully resumed.
-
-## Defined in
-
-[packages/nft/src/contracts/pausable.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/pausable.ts#L13)

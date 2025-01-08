@@ -3,7 +3,7 @@ title: BalanceChangeEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.BalanceChangeEvent
-order: 263
+order: 321
 ---
 
 # Class: BalanceChangeEvent
@@ -12,6 +12,8 @@ order: 263
 
 - address:  PublicKey = PublicKey; [↗](#address)
 - amount:  Int64 = Int64; [↗](#amount)
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:334](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L334)
 
 ## Extends
 
@@ -31,6 +33,8 @@ new BalanceChangeEvent(value: {
  }): BalanceChangeEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -49,14 +53,12 @@ new BalanceChangeEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   address: PublicKey,
   amount: Int64,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -66,16 +68,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:335](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L335)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   address: PublicKey,
   amount: Int64,
-}).address`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:335](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L335)
+}).address
+```
 
 ***
 
@@ -85,13 +87,13 @@ address: PublicKey = PublicKey;
 amount: Int64 = Int64;
 ```
 
+Defined in: [packages/token/src/FungibleTokenContract.ts:336](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L336)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   address: PublicKey,
   amount: Int64,
-}).amount`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenContract.ts:336](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L336)
+}).amount
+```

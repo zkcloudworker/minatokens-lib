@@ -3,7 +3,7 @@ title: ValidatorsListData
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Interface.ValidatorsListData
-order: 301
+order: 359
 ---
 
 # Interface: ValidatorsListData
@@ -20,6 +20,8 @@ order: 301
 - publicKey:  string; [↗](#publickey)
 - validatorsCount:  number; [↗](#validatorscount)
 
+Defined in: [packages/upgradable/src/upgrade.ts:44](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L44)
+
 Interface representing the data for a list of validators.
 
 ## Properties
@@ -30,9 +32,7 @@ Interface representing the data for a list of validators.
 map: IndexedMapSerialized;
 ```
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L51)
+Defined in: [packages/upgradable/src/upgrade.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L51)
 
 ***
 
@@ -42,9 +42,7 @@ map: IndexedMapSerialized;
 root: string;
 ```
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:50](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L50)
+Defined in: [packages/upgradable/src/upgrade.ts:50](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L50)
 
 ***
 
@@ -56,6 +54,8 @@ validators: {
   publicKey: string;
  }[];
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:45](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L45)
 
 #### authorizedToVote
 
@@ -69,10 +69,6 @@ authorizedToVote: boolean;
 publicKey: string;
 ```
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:45](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L45)
-
 ***
 
 ### validatorsCount
@@ -81,6 +77,4 @@ publicKey: string;
 validatorsCount: number;
 ```
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:49](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L49)
+Defined in: [packages/upgradable/src/upgrade.ts:49](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L49)

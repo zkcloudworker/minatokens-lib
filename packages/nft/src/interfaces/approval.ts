@@ -23,26 +23,23 @@ type DefineApprovalFactory = (params: {
 }) => NFTApprovalContractConstructor;
 
 /**
- * The `NFTAdminBase` interface defines the administrative functionalities required for managing an NFT collection on the Mina Protocol.
- * It extends the `SmartContract` class and specifies methods that enforce permissions and validations for various NFT operations.
+ * The `NFTApprovalBase` interface defines the administrative functionalities required for managing an NFT transfer approval on the Mina Protocol.
  */
 type NFTApprovalBase = SmartContract & {
   /**
    * Determines if an NFT can be transferred from one owner (`from`) to another (`to`) for a specific NFT contract address.
    *
-   * @param collectionAddress - The public key of the NFT collection address.
-   * @param nftAddress - The public key of the NFT.
-   * @param to - The public key of the intended new owner.
+   * @param params - The transfer details.
    * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
    */
   canTransfer(params: TransferExtendedParams): Promise<Bool>;
 };
 
 /**
- * Defines a constructor for contracts implementing `NFTOwnerBase`, accepting an `address` public key and returning an instance of `NFTOwnerBase`.
+ * Defines a constructor for contracts implementing `NFTApprovalBase`, accepting an `address` public key and returning an instance of `NFTApprovalBase`.
  *
  * @param address - The public key of the contract's owner.
- * @returns An instance of `NFTOwnerBase`.
+ * @returns An instance of `NFTApprovalBase`.
  */
 type NFTApprovalContractConstructor = new (
   address: PublicKey
@@ -54,10 +51,7 @@ interface NFTApprovalDeployProps extends Exclude<DeployArgs, undefined> {
 }
 
 /**
- * The **NFTStandardOwner** contract serves as the foundational owner layer for NFT collections on the Mina Protocol.
- * It provides essential functionalities such as contract upgrades, pausing and resuming operations, and ownership management.
- * This contract can be extended by custom admin contracts to implement specific administrative logic,
- * ensuring flexibility while maintaining a standardized interface.
+ * The **NFTStandardApproval** contract is the default implementation of the `NFTApprovalBase` interface.
  */
 class NFTStandardApproval extends SmartContract implements NFTApprovalBase {
   /**
@@ -76,10 +70,7 @@ class NFTStandardApproval extends SmartContract implements NFTApprovalBase {
     this.account.zkappUri.set(props.uri);
     this.account.permissions.set({
       ...Permissions.default(),
-      // Allow the upgrade authority to set the verification key even without a protocol upgrade,
-      // enabling upgrades in case of o1js breaking changes.
-      setVerificationKey:
-        Permissions.VerificationKey.proofDuringCurrentVersion(),
+      setVerificationKey: Permissions.VerificationKey.signature(),
       setPermissions: Permissions.impossible(),
     });
   }
@@ -94,7 +85,12 @@ class NFTStandardApproval extends SmartContract implements NFTApprovalBase {
     adminUpdate.body.useFullCommitment = Bool(true); // Prevent memo and fee change
     return adminUpdate;
   }
-
+  /**
+   * Determines if an NFT can be transferred.
+   *
+   * @param params - The transfer details.
+   * @returns A `Promise` resolving to a `Bool` indicating whether the transfer is allowed.
+   */
   @method.returns(Bool)
   async canTransfer(params: TransferExtendedParams): Promise<Bool> {
     await this.ensureOwnerSignature();

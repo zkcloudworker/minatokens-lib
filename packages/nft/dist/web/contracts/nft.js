@@ -1,7 +1,7 @@
 import { __decorate, __metadata } from "tslib";
-import { Field, PublicKey, Bool, SmartContract, method, state, State, VerificationKey, AccountUpdate, } from "o1js";
+import { Field, PublicKey, Bool, SmartContract, method, state, State, VerificationKey, } from "o1js";
 import { Storage } from "@minatokens/storage";
-import { NFTData, NFTDataPacked, NFTState, NFTImmutableState, UpdateEvent, TransferExtendedParams, UpgradeVerificationKeyEvent, PauseEvent, NFTOraclePreconditions, OwnershipChangeEvent, UpgradeVerificationKeyData, NFTStateStruct, } from "../interfaces/index.js";
+import { NFTData, NFTDataPacked, NFTState, NFTImmutableState, UpdateEvent, TransferExtendedParams, UpgradeVerificationKeyEvent, PauseEvent, OwnershipChangeEvent, UpgradeVerificationKeyData, NFTStateStruct, NFTTransactionContext, } from "../interfaces/index.js";
 export { NFT };
 const NftErrors = {
     cannotChangeMetadataVerificationKeyHash: "Cannot change metadata verification key hash",
@@ -42,8 +42,6 @@ class NFT extends SmartContract {
             update: UpdateEvent,
             transfer: OwnershipChangeEvent,
             approve: PublicKey,
-            // offer: OfferEvent,
-            // buy: BuyEvent,
             upgradeVerificationKey: UpgradeVerificationKeyEvent,
             pause: PauseEvent,
             resume: PauseEvent,
@@ -76,24 +74,6 @@ class NFT extends SmartContract {
         const metadata = this.metadata.getAndRequireEquals();
         const data = NFTData.unpack(this.packedData.getAndRequireEquals());
         const owner = data.owner;
-        // Oracle preconditions
-        const oracleUpdate = AccountUpdate.create(input.oracle.publicKey, // in case publicKey is empty, this AccountUpdate will NOT be created
-        input.oracle.tokenId);
-        oracleUpdate.body.preconditions.account.state = input.oracle.state;
-        oracleUpdate.body.preconditions.account.balance.isSome = Bool(true);
-        oracleUpdate.body.preconditions.account.balance.value.lower =
-            input.oracle.balanceLower;
-        oracleUpdate.body.preconditions.account.balance.value.upper =
-            input.oracle.balanceUpper;
-        oracleUpdate.body.preconditions.account.nonce.isSome = Bool(true);
-        oracleUpdate.body.preconditions.account.nonce.value.lower =
-            input.oracle.nonceLower;
-        oracleUpdate.body.preconditions.account.nonce.value.upper =
-            input.oracle.nonceUpper;
-        oracleUpdate.body.preconditions.account.actionState =
-            input.oracle.actionState;
-        // it is not part of the oracleUpdate, it is always checked
-        this.network.globalSlotSinceGenesis.requireBetween(input.oracle.lowerSlot, input.oracle.upperSlot);
         const storage = this.storage.getAndRequireEquals();
         const metadataVerificationKeyHash = this.metadataVerificationKeyHash.getAndRequireEquals();
         // Check that the metadata verification key exists
@@ -125,11 +105,13 @@ class NFT extends SmartContract {
             isPaused: data.isPaused,
             metadataVerificationKeyHash,
             creator,
-            oracle: input.oracle,
+            context: input.context,
+            oracleAddress: input.oracleAddress,
         }));
         // assert that the read-only fields are not changed
         input.creator.assertEquals(output.creator);
-        NFTOraclePreconditions.assertEqual(input.oracle, output.oracle);
+        NFTTransactionContext.assertEqual(input.context, output.context);
+        input.oracleAddress.assertEquals(output.oracleAddress);
         // Check permissions and set new state
         name
             .equals(output.name)

@@ -3,7 +3,7 @@ title: NFTRequestAnswer
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.NFTRequestAnswer
-order: 69
+order: 79
 ---
 
 # Type Alias: NFTRequestAnswer
@@ -28,6 +28,8 @@ type NFTRequestAnswer = {
   version: number;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:251](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L251)
 
 ## Type declaration
 
@@ -123,7 +125,3 @@ optional tokenSymbol: string;
 ```ts
 optional version: number;
 ```
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:228](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L228)

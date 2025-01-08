@@ -3,7 +3,7 @@ title: GetProofResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.GetProofResponse
-order: 49
+order: 59
 ---
 
 # Type Alias: GetProofResponse
@@ -12,6 +12,4 @@ order: 49
 type GetProofResponse = JobResults;
 ```
 
-## Defined in
-
-[packages/api/src/client/types.gen.ts:998](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L998)
+Defined in: [packages/api/src/client/types.gen.ts:1029](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1029)

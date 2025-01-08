@@ -9,9 +9,7 @@ order: 6
 
 # STORAGE
 
-## Index
-
-### Classes
+## Classes
 
 - [FieldOption](storagesrcclassfieldoption)
 - [OffChainList](storagesrcclassoffchainlist)
@@ -23,19 +21,19 @@ order: 6
 - [Whitelist](storagesrcclasswhitelist)
 - [WhitelistedAddress](storagesrcclasswhitelistedaddress)
 
-### Interfaces
+## Interfaces
 
 - [IndexedMapSerialized](storagesrcinterfaceindexedmapserialized)
 - [OffChainMapEntry](storagesrcinterfaceoffchainmapentry)
 - [OffchainMapSerialized](storagesrcinterfaceoffchainmapserialized)
 
-### Type Aliases
+## Type Aliases
 
 - [IndexedMapSerializedJson](storagesrctypealiasindexedmapserializedjson)
 - [IpfsHash](storagesrctypealiasipfshash)
 - [OffChainMapEntries](storagesrctypealiasoffchainmapentries)
 
-### Functions
+## Functions
 
 - [bigintFromBase56](storagesrcfunctionbigintfrombase56)
 - [bigintFromBase64](storagesrcfunctionbigintfrombase64)

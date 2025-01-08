@@ -6,7 +6,7 @@
  * @module CollectionContract
  */
 import { Field, PublicKey, AccountUpdate, Bool, State, DeployArgs, AccountUpdateForest, VerificationKey, UInt32, UInt64, SmartContract } from "o1js";
-import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, NFTStateStruct, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase, TransferExtendedParams } from "../interfaces/index.js";
+import { MintParams, MintRequest, TransferParams, CollectionData, NFTUpdateProof, NFTStateStruct, MintEvent, TransferEvent, ApproveEvent, UpgradeVerificationKeyEvent, LimitMintingEvent, PauseNFTEvent, NFTAdminBase, NFTAdminContractConstructor, PauseEvent, OwnershipChangeEvent, NFTOwnerBase, NFTOwnerContractConstructor, UpgradeVerificationKeyData, NFTApprovalContractConstructor, NFTApprovalBase, NFTUpdateContractConstructor, NFTUpdateBase, TransferExtendedParams } from "../interfaces/index.js";
 export { CollectionDeployProps, CollectionFactory, CollectionErrors };
 declare const CollectionErrors: {
     wrongMasterNFTaddress: string;
@@ -29,6 +29,7 @@ declare const CollectionErrors: {
     adminContractAddressNotSet: string;
     onlyOwnerCanUpgradeVerificationKey: string;
     invalidRoyaltyFee: string;
+    invalidOracleAddress: string;
 };
 interface CollectionDeployProps extends Exclude<DeployArgs, undefined> {
     collectionName: Field;
@@ -48,6 +49,7 @@ declare function CollectionFactory(params: {
     adminContract: () => NFTAdminContractConstructor;
     ownerContract: () => NFTOwnerContractConstructor;
     approvalContract: () => NFTApprovalContractConstructor;
+    updateContract: () => NFTUpdateContractConstructor;
 }): {
     new (address: PublicKey, tokenId?: Field): {
         /** The name of the NFT collection. */
@@ -123,6 +125,12 @@ declare function CollectionFactory(params: {
          */
         getApprovalContract(address: PublicKey): NFTApprovalBase;
         /**
+         * Retrieves the NFT Update Contract instance.
+         *
+         * @returns The Update Contract instance implementing NFTUpdateBase.
+         */
+        getUpdateContract(address: PublicKey): NFTUpdateBase;
+        /**
          * Ensures that the transaction is authorized by the creator.
          *
          * @returns The AccountUpdate of the creator.
@@ -176,6 +184,20 @@ declare function CollectionFactory(params: {
          * @param vk - The verification key.
          */
         update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
+        /**
+         * Updates the NFT with admin approval and oracle approval.
+         *
+         * @param proof - The proof of the NFT update.
+         * @param vk - The verification key.
+         */
+        updateWithOracle(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
+        /**
+         * Updates the NFT with admin approval - internal method.
+         *
+         * @param proof - The proof of the NFT update.
+         * @param vk - The verification key.
+         */
+        _update(proof: NFTUpdateProof, vk: VerificationKey): Promise<void>;
         /**
          * Approves an address to transfer an NFT.
          *
@@ -453,17 +475,14 @@ declare function CollectionFactory(params: {
             accountUpdate: bigint;
             calls: bigint;
         }>, "fromFields"> & {
-            fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js" /** The public key of the creator of the collection. */).Field[]) => {
+            fromFields: (fields: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[]) => {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
                 calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             };
         } & {
             toInput: (x: {
                 accountUpdate: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
-                calls: import("node_modules/o1js/dist/node/lib/provable/field.js" /**
-                 * A packed data field containing additional collection parameters,
-                 * such as flags and fee configurations.
-                 */).Field;
+                calls: import("node_modules/o1js/dist/node/lib/provable/field.js").Field;
             }) => {
                 fields?: import("node_modules/o1js/dist/node/lib/provable/field.js").Field[] | undefined;
                 packed?: [import("node_modules/o1js/dist/node/lib/provable/field.js").Field, number][] | undefined;

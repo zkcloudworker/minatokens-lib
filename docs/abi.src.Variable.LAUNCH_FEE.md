@@ -12,6 +12,4 @@ order: 15
 const LAUNCH_FEE: 1000000000 = 1e9;
 ```
 
-## Defined in
-
-[packages/abi/src/fee.ts:1](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/fee.ts#L1)
+Defined in: [packages/abi/src/fee.ts:1](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/fee.ts#L1)

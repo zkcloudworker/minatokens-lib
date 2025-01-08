@@ -3,7 +3,7 @@ title: NFTAddress
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.NFTAddress
-order: 187
+order: 203
 ---
 
 # Class: NFTAddress
@@ -12,6 +12,8 @@ order: 187
 
 - collection:  PublicKey = PublicKey; [↗](#collection)
 - nft:  PublicKey = PublicKey; [↗](#nft)
+
+Defined in: [packages/nft/src/marketplace/types.ts:6](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/types.ts#L6)
 
 ## Extends
 
@@ -31,6 +33,8 @@ new NFTAddress(value: {
  }): NFTAddress
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -49,14 +53,12 @@ new NFTAddress(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   collection: PublicKey,
   nft: PublicKey,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -66,16 +68,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 collection: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/marketplace/types.ts:7](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/types.ts#L7)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   collection: PublicKey,
   nft: PublicKey,
-}).collection`
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:21](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L21)
+}).collection
+```
 
 ***
 
@@ -85,13 +87,13 @@ collection: PublicKey = PublicKey;
 nft: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/marketplace/types.ts:8](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/types.ts#L8)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   collection: PublicKey,
   nft: PublicKey,
-}).nft`
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L22)
+}).nft
+```

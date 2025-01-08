@@ -12,8 +12,6 @@ order: 9
 type blockchain = "local" | "devnet" | "lightnet" | "mainnet" | "zeko";
 ```
 
+Defined in: [packages/abi/src/types.ts:4](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/types.ts#L4)
+
 blockchain is the type for the chain ID.
-
-## Defined in
-
-[packages/abi/src/types.ts:4](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/types.ts#L4)

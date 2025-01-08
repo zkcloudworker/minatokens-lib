@@ -3,7 +3,7 @@ title: Bid
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.Bid
-order: 171
+order: 188
 ---
 
 # Class: Bid
@@ -17,6 +17,8 @@ order: 171
 
 - pack() [↗](#pack)
 - unpack() [↗](#unpack)
+
+Defined in: [packages/nft/src/marketplace/bid.ts:33](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L33)
 
 ## Extends
 
@@ -36,6 +38,8 @@ new Bid(value: {
  }): Bid
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -54,14 +58,12 @@ new Bid(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   price: UInt64,
   points: UInt64,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -71,16 +73,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 points: UInt64 = UInt64;
 ```
 
+Defined in: [packages/nft/src/marketplace/bid.ts:35](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L35)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   price: UInt64,
   points: UInt64,
-}).points`
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L51)
+}).points
+```
 
 ***
 
@@ -90,16 +92,16 @@ points: UInt64 = UInt64;
 price: UInt64 = UInt64;
 ```
 
+Defined in: [packages/nft/src/marketplace/bid.ts:34](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L34)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   price: UInt64,
   points: UInt64,
-}).price`
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:50](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L50)
+}).price
+```
 
 ## Methods
 
@@ -109,13 +111,11 @@ price: UInt64 = UInt64;
 pack(): Field
 ```
 
+Defined in: [packages/nft/src/marketplace/bid.ts:37](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L37)
+
 #### Returns
 
 `Field`
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:53](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L53)
 
 ***
 
@@ -124,6 +124,8 @@ pack(): Field
 ```ts
 static unpack(field: Field): Bid
 ```
+
+Defined in: [packages/nft/src/marketplace/bid.ts:43](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L43)
 
 #### Parameters
 
@@ -134,7 +136,3 @@ static unpack(field: Field): Bid
 #### Returns
 
 [`Bid`](nftsrcclassbid)
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L59)

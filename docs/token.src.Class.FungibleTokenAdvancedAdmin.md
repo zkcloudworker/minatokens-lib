@@ -3,7 +3,7 @@ title: FungibleTokenAdvancedAdmin
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenAdvancedAdmin
-order: 267
+order: 325
 ---
 
 # Class: FungibleTokenAdvancedAdmin
@@ -16,8 +16,11 @@ order: 267
   updateWhitelist: typeof Whitelist;
 }; [↗](#events)
 - updateWhitelist:  typeof Whitelist = Whitelist; [↗](#updatewhitelist)
+- Overrides: TokenContract.events [↗](#overrides)
 - tokenContract:  State<PublicKey>; [↗](#tokencontract)
 - whitelist:  State<Whitelist>; [↗](#whitelist)
+- Overrides: TokenContract.approveBase [↗](#overrides)
+- Overrides: TokenContract.deploy [↗](#overrides)
 
 ## Methods overview
 
@@ -30,6 +33,8 @@ order: 267
 - deploy() [↗](#deploy)
 - updateVerificationKey() [↗](#updateverificationkey)
 - updateWhitelist() [↗](#updatewhitelist)
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:84](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L84)
 
 A contract that grants permissions for administrative actions on a token.
 
@@ -55,6 +60,8 @@ can integrate against the unchanged token contract.
 new FungibleTokenAdvancedAdmin(address: PublicKey, tokenId?: Field): FungibleTokenAdvancedAdmin
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+
 #### Parameters
 
 ##### address
@@ -71,11 +78,9 @@ new FungibleTokenAdvancedAdmin(address: PublicKey, tokenId?: Field): FungibleTok
 
 #### Inherited from
 
-`TokenContract.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+```ts
+TokenContract.constructor
+```
 
 ## Properties
 
@@ -85,9 +90,7 @@ node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
 adminData: State<Field>;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L91)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L91)
 
 ***
 
@@ -97,9 +100,7 @@ adminData: State<Field>;
 adminPublicKey: State<PublicKey>;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:88](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L88)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:88](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L88)
 
 ***
 
@@ -111,6 +112,8 @@ events: {
 };
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:122](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L122)
+
 A list of event types that can be emitted using this.emitEvent()`.
 
 #### updateWhitelist
@@ -121,15 +124,15 @@ updateWhitelist: typeof Whitelist = Whitelist;
 
 #### Implementation of
 
-`FungibleTokenAdminBase.events`
+```ts
+FungibleTokenAdminBase.events
+```
 
 #### Overrides
 
-`TokenContract.events`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:122](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L122)
+```ts
+TokenContract.events
+```
 
 ***
 
@@ -139,9 +142,7 @@ updateWhitelist: typeof Whitelist = Whitelist;
 tokenContract: State<PublicKey>;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:89](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L89)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:89](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L89)
 
 ***
 
@@ -151,9 +152,7 @@ tokenContract: State<PublicKey>;
 whitelist: State<Whitelist>;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L90)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L90)
 
 ## Methods
 
@@ -162,6 +161,8 @@ whitelist: State<Whitelist>;
 ```ts
 approveBase(forest: AccountUpdateForest): Promise<void>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:98](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L98)
 
 Overrides the approveBase method to prevent transfers of tokens.
 
@@ -179,11 +180,9 @@ The account update forest.
 
 #### Overrides
 
-`TokenContract.approveBase`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:98](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L98)
+```ts
+TokenContract.approveBase
+```
 
 ***
 
@@ -192,6 +191,8 @@ The account update forest.
 ```ts
 canChangeAdmin(_admin: PublicKey): Promise<Bool>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:227](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L227)
 
 #### Parameters
 
@@ -205,11 +206,9 @@ canChangeAdmin(_admin: PublicKey): Promise<Bool>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canChangeAdmin`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:226](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L226)
+```ts
+FungibleTokenAdminBase.canChangeAdmin
+```
 
 ***
 
@@ -218,6 +217,8 @@ canChangeAdmin(_admin: PublicKey): Promise<Bool>
 ```ts
 canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:256](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L256)
 
 #### Parameters
 
@@ -231,11 +232,9 @@ canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canChangeVerificationKey`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:255](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L255)
+```ts
+FungibleTokenAdminBase.canChangeVerificationKey
+```
 
 ***
 
@@ -244,6 +243,8 @@ canChangeVerificationKey(_vk: VerificationKey): Promise<Bool>
 ```ts
 canMint(_accountUpdate: AccountUpdate): Promise<Bool>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:145](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L145)
 
 #### Parameters
 
@@ -257,11 +258,9 @@ canMint(_accountUpdate: AccountUpdate): Promise<Bool>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canMint`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:144](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L144)
+```ts
+FungibleTokenAdminBase.canMint
+```
 
 ***
 
@@ -271,17 +270,17 @@ canMint(_accountUpdate: AccountUpdate): Promise<Bool>
 canPause(): Promise<Bool>
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:233](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L233)
+
 #### Returns
 
 `Promise`\<`Bool`\>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canPause`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:232](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L232)
+```ts
+FungibleTokenAdminBase.canPause
+```
 
 ***
 
@@ -291,17 +290,17 @@ canPause(): Promise<Bool>
 canResume(): Promise<Bool>
 ```
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:239](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L239)
+
 #### Returns
 
 `Promise`\<`Bool`\>
 
 #### Implementation of
 
-`FungibleTokenAdminBase.canResume`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:238](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L238)
+```ts
+FungibleTokenAdminBase.canResume
+```
 
 ***
 
@@ -310,6 +309,8 @@ canResume(): Promise<Bool>
 ```ts
 deploy(props: FungibleTokenWhitelistedAdminDeployProps): Promise<void>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:102](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L102)
 
 Deploys a TokenContract.
 
@@ -343,15 +344,15 @@ async deploy() {
 
 #### Implementation of
 
-`FungibleTokenAdminBase.deploy`
+```ts
+FungibleTokenAdminBase.deploy
+```
 
 #### Overrides
 
-`TokenContract.deploy`
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:102](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L102)
+```ts
+TokenContract.deploy
+```
 
 ***
 
@@ -360,6 +361,8 @@ async deploy() {
 ```ts
 updateVerificationKey(vk: VerificationKey): Promise<void>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:130](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L130)
 
 Update the verification key.
 Note that because we have set the permissions for setting
@@ -376,10 +379,6 @@ this will only be possible in case of a protocol update that requires an update.
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:130](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L130)
-
 ***
 
 ### updateWhitelist()
@@ -387,6 +386,8 @@ this will only be possible in case of a protocol update that requires an update.
 ```ts
 updateWhitelist(whitelist: Whitelist): Promise<void>
 ```
+
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:244](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L244)
 
 #### Parameters
 
@@ -397,7 +398,3 @@ updateWhitelist(whitelist: Whitelist): Promise<void>
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:243](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L243)

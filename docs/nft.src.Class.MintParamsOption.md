@@ -3,10 +3,12 @@ title: MintParamsOption
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.MintParamsOption
-order: 184
+order: 200
 ---
 
 # Class: MintParamsOption
+
+Defined in: [packages/nft/src/interfaces/types.ts:574](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L574)
 
 Represents an optional MintParams, used in scenarios where minting may or may not be allowed.
 
@@ -15,18 +17,19 @@ Represents an optional MintParams, used in scenarios where minting may or may no
 - `Option`\<[`MintParams`](nftsrcclassmintparams), \{
   `address`: \{\};
   `data`: \{
+     `approved`: \{\};
+     `canApprove`: `boolean`;
      `canChangeMetadata`: `boolean`;
      `canChangeMetadataVerificationKeyHash`: `boolean`;
      `canChangeName`: `boolean`;
      `canChangeOwnerByProof`: `boolean`;
-     `canChangeOwnerBySignature`: `boolean`;
-     `canChangePrice`: `boolean`;
      `canChangeStorage`: `boolean`;
      `canPause`: `boolean`;
+     `canTransfer`: `boolean`;
      `id`: `bigint`;
      `isPaused`: `boolean`;
-     `price`: `bigint`;
-     `requireOwnerSignatureToUpgrade`: `boolean`;
+     `owner`: \{\};
+     `requireOwnerAuthorizationToUpgrade`: `boolean`;
      `version`: `bigint`;
     \};
   `expiry`: `bigint`;
@@ -34,7 +37,6 @@ Represents an optional MintParams, used in scenarios where minting may or may no
   `metadata`: `bigint`;
   `metadataVerificationKeyHash`: `bigint`;
   `name`: `bigint`;
-  `owner`: \{\};
   `storage`: \{\};
   `tokenId`: `bigint`;
  \}\>
@@ -47,6 +49,8 @@ Represents an optional MintParams, used in scenarios where minting may or may no
 new MintParamsOption(option: {}): MintParamsOption
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/option.d.ts:35
+
 #### Parameters
 
 ##### option
@@ -57,8 +61,6 @@ new MintParamsOption(option: {}): MintParamsOption
 
 #### Inherited from
 
-`Option(MintParams).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/option.d.ts:35
+```ts
+Option(MintParams).constructor
+```

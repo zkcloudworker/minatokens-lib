@@ -3,7 +3,7 @@ title: DeployedTokenTransactionBaseParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.DeployedTokenTransactionBaseParams
-order: 37
+order: 44
 ---
 
 # Type Alias: DeployedTokenTransactionBaseParams
@@ -18,6 +18,8 @@ type DeployedTokenTransactionBaseParams = TokenTransactionBaseParams & {
 };
 ```
 
+Defined in: [packages/api/src/client/types.gen.ts:67](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L67)
+
 ## Type declaration
 
 ### tokenAddress
@@ -27,7 +29,3 @@ tokenAddress: string;
 ```
 
 The address of the token contract.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:44](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L44)

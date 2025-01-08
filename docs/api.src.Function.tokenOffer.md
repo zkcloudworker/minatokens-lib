@@ -3,14 +3,16 @@ title: tokenOffer
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.Function.tokenOffer
-order: 161
+order: 172
 ---
 
 # Function: tokenOffer()
 
 ```ts
-function tokenOffer<ThrowOnError>(options: OmitKeys<RequestOptions<ThrowOnError, string>, "body" | "url"> & TokenOfferData & Pick<RequestOptions<ThrowOnError, string>, "headers">): RequestResult<TokenTransaction, ErrorResponse, ThrowOnError>
+function tokenOffer<ThrowOnError>(options: OmitKeys<RequestOptions<ThrowOnError>, "body" | "url"> & TokenOfferData & Pick<RequestOptions<ThrowOnError>, "headers">): RequestResult<TokenTransaction, ErrorResponse, ThrowOnError>
 ```
+
+Defined in: [packages/api/src/client/sdk.gen.ts:174](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/sdk.gen.ts#L174)
 
 Create an offer to sell tokens at a specified price.
 Allows users to create an offer to sell a specified amount of tokens at a given price.
@@ -23,12 +25,8 @@ Allows users to create an offer to sell a specified amount of tokens at a given 
 
 ### options
 
-`OmitKeys`\<`RequestOptions`\<`ThrowOnError`, `string`\>, `"body"` \| `"url"`\> & [`TokenOfferData`](apisrctypealiastokenofferdata) & `Pick`\<`RequestOptions`\<`ThrowOnError`, `string`\>, `"headers"`\>
+`OmitKeys`\<`RequestOptions`\<`ThrowOnError`\>, `"body"` \| `"url"`\> & [`TokenOfferData`](apisrctypealiastokenofferdata) & `Pick`\<`RequestOptions`\<`ThrowOnError`\>, `"headers"`\>
 
 ## Returns
 
 `RequestResult`\<[`TokenTransaction`](apisrctypealiastokentransaction), [`ErrorResponse`](apisrctypealiaserrorresponse), `ThrowOnError`\>
-
-## Defined in
-
-[packages/api/src/client/sdk.gen.ts:163](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/sdk.gen.ts#L163)

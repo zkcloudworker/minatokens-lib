@@ -3,61 +3,154 @@ title: NFTAdminBase
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.TypeAlias.NFTAdminBase
-order: 210
+order: 248
 ---
 
 # Type Alias: NFTAdminBase
 
 ```ts
 type NFTAdminBase = SmartContract & {
-  canBuy: Promise<Bool>;
+  canChangeBaseUri: Promise<Bool>;
+  canChangeCreator: Promise<Bool>;
+  canChangeName: Promise<Bool>;
+  canChangeRoyalty: Promise<Bool>;
+  canChangeTransferFee: Promise<Bool>;
+  canChangeVerificationKey: Promise<Bool>;
   canMint: Promise<MintParamsOption>;
-  canSell: Promise<Bool>;
+  canPause: Promise<Bool>;
+  canResume: Promise<Bool>;
+  canSetAdmin: Promise<Bool>;
   canTransfer: Promise<Bool>;
   canUpdate: Promise<Bool>;
 };
 ```
+
+Defined in: [packages/nft/src/interfaces/admin.ts:18](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/admin.ts#L18)
 
 The `NFTAdminBase` interface defines the administrative functionalities required for managing an NFT collection on the Mina Protocol.
 It extends the `SmartContract` class and specifies methods that enforce permissions and validations for various NFT operations.
 
 ## Type declaration
 
-### canBuy()
+### canChangeBaseUri()
 
-Checks whether a buyer is allowed to purchase an NFT from a seller at a given price.
+Determines if the base URI can be changed for a Collection.
 
 #### Parameters
 
-##### address
+##### baseUri
 
-`PublicKey`
+`Field`
 
-The public key of the NFT contract address.
-
-##### seller
-
-`PublicKey`
-
-The public key of the seller.
-
-##### buyer
-
-`PublicKey`
-
-The public key of the buyer.
-
-##### price
-
-`UInt64`
-
-The price at which the NFT is being bought.
+The new base URI for the Collection.
 
 #### Returns
 
 `Promise`\<`Bool`\>
 
-A `Promise` resolving to a `Bool` indicating whether the purchase is allowed.
+A `Promise` resolving to a `Bool` indicating whether the base URI change is allowed.
+
+### canChangeCreator()
+
+Determines if the creator can be changed for a Collection.
+
+#### Parameters
+
+##### creator
+
+`PublicKey`
+
+The new creator for the Collection.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the creator change is allowed.
+
+### canChangeName()
+
+Determines if the name can be changed for a Collection.
+
+#### Parameters
+
+##### name
+
+`Field`
+
+The new name for the Collection.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the name change is allowed.
+
+### canChangeRoyalty()
+
+Determines if the royalty fee can be changed for a Collection.
+
+#### Parameters
+
+##### royaltyFee
+
+`UInt32`
+
+The new royalty fee for the Collection.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the royalty fee change is allowed.
+
+### canChangeTransferFee()
+
+Determines if the transfer fee can be changed for a Collection.
+
+#### Parameters
+
+##### transferFee
+
+`UInt64`
+
+The new transfer fee for the Collection.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the transfer fee change is allowed.
+
+### canChangeVerificationKey()
+
+Determines if the verification key can be changed for a specific NFT contract address and token ID.
+
+#### Parameters
+
+##### vk
+
+`VerificationKey`
+
+The verification key to be changed.
+
+##### address
+
+`PublicKey`
+
+The public key of the NFT contract address or CollectionContract address.
+
+##### tokenId
+
+`Field`
+
+The token ID of the NFT.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the verification key change is allowed.
 
 ### canMint()
 
@@ -77,35 +170,43 @@ The mint request containing details of the NFT to be minted.
 
 A `Promise` resolving to `MintParamsOption`, containing mint parameters if minting is allowed, or an empty option if not.
 
-### canSell()
+### canPause()
 
-Validates if an NFT can be listed for sale by a seller at a specified price.
-
-#### Parameters
-
-##### address
-
-`PublicKey`
-
-The public key of the NFT contract address.
-
-##### seller
-
-`PublicKey`
-
-The public key of the seller.
-
-##### price
-
-`UInt64`
-
-The price at which the NFT is to be sold.
+Determines if the collection can be paused.
 
 #### Returns
 
 `Promise`\<`Bool`\>
 
-A `Promise` resolving to a `Bool` indicating whether the sale is permissible.
+A `Promise` resolving to a `Bool` indicating whether the collection can be paused.
+
+### canResume()
+
+Determines if the collection can be resumed.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the collection can be resumed.
+
+### canSetAdmin()
+
+Determines if the admin contract can be changed for a Collection.
+
+#### Parameters
+
+##### admin
+
+`PublicKey`
+
+The new admin for the Collection.
+
+#### Returns
+
+`Promise`\<`Bool`\>
+
+A `Promise` resolving to a `Bool` indicating whether the admin contract change is allowed.
 
 ### canTransfer()
 
@@ -113,23 +214,11 @@ Determines if an NFT can be transferred from one owner (`from`) to another (`to`
 
 #### Parameters
 
-##### address
+##### transferEvent
 
-`PublicKey`
+[`TransferEvent`](nftsrcclasstransferevent)
 
-The public key of the NFT contract address.
-
-##### from
-
-`PublicKey`
-
-The public key of the current owner.
-
-##### to
-
-`PublicKey`
-
-The public key of the intended new owner.
+The transfer event containing details of the transfer.
 
 #### Returns
 
@@ -160,7 +249,3 @@ The desired new state of the NFT.
 `Promise`\<`Bool`\>
 
 A `Promise` resolving to a `Bool` indicating whether the update is permitted.
-
-## Defined in
-
-[packages/nft/src/contracts/admin.ts:9](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/admin.ts#L9)

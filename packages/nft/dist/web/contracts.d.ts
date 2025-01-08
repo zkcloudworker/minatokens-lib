@@ -1,5 +1,5 @@
 import { CollectionFactory } from "./contracts/index.js";
-import { NFTOwnerContractConstructor, NFTAdminContractConstructor, NFTApprovalContractConstructor, DefineApprovalFactory, DefineOwnerFactory } from "./interfaces/index.js";
+import { NFTOwnerContractConstructor, NFTAdminContractConstructor, NFTApprovalContractConstructor, DefineApprovalFactory, DefineOwnerFactory, DefineUpdateFactory, NFTUpdateContractConstructor } from "./interfaces/index.js";
 export declare const NFTAdvancedAdmin: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
         admin: import("o1js").State<import("o1js").PublicKey>;
@@ -197,11 +197,13 @@ export type NonFungibleTokenContracts = {
     Approval: NFTApprovalContractConstructor;
     Owner: NFTOwnerContractConstructor;
     Admin: NFTAdminContractConstructor;
+    Update: NFTUpdateContractConstructor;
 };
 export declare function NonFungibleTokenContractsFactory(params: {
     adminContract?: NFTAdminContractConstructor;
     approvalFactory?: DefineApprovalFactory;
     ownerFactory?: DefineOwnerFactory;
+    updateFactory?: DefineUpdateFactory;
 }): NonFungibleTokenContracts;
 export declare const Collection: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
@@ -235,6 +237,7 @@ export declare const Collection: {
         getAdminContract(): import("./interfaces/admin.js").NFTAdminBase;
         getOwnerContract(address: import("o1js").PublicKey): import("./interfaces/owner.js").NFTOwnerBase;
         getApprovalContract(address: import("o1js").PublicKey): import("./interfaces/approval.js").NFTApprovalBase;
+        getUpdateContract(address: import("o1js").PublicKey): import("./interfaces/update.js").NFTUpdateBase;
         ensureCreatorSignature(): Promise<import("o1js").AccountUpdate>;
         ensureOwnerSignature(owner: import("o1js").PublicKey): Promise<import("o1js").AccountUpdate>;
         ensureNotPaused(): Promise<void>;
@@ -242,6 +245,8 @@ export declare const Collection: {
         mint(mintRequest: import("./interfaces/types.js").MintRequest): Promise<void>;
         _mint(params: import("./interfaces/types.js").MintParams): Promise<import("./interfaces/events.js").MintEvent>;
         update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
+        updateWithOracle(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
+        _update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
         approveAddress(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         approveAddressByProof(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         transferBySignature(params: import("./interfaces/types.js").TransferParams): Promise<void>;
@@ -450,7 +455,7 @@ export declare const Collection: {
         digest: string;
         gates: import("node_modules/o1js/dist/node/snarky.js").Gate[];
     }>>;
-}, Approval: NFTApprovalContractConstructor, Owner: NFTOwnerContractConstructor, Admin: NFTAdminContractConstructor;
+}, Approval: NFTApprovalContractConstructor, Owner: NFTOwnerContractConstructor, Admin: NFTAdminContractConstructor, Update: NFTUpdateContractConstructor;
 export declare const AdvancedCollection: {
     new (address: import("o1js").PublicKey, tokenId?: import("o1js").Field): {
         collectionName: import("o1js").State<import("node_modules/o1js/dist/node/lib/provable/field.js").Field>;
@@ -483,6 +488,7 @@ export declare const AdvancedCollection: {
         getAdminContract(): import("./interfaces/admin.js").NFTAdminBase;
         getOwnerContract(address: import("o1js").PublicKey): import("./interfaces/owner.js").NFTOwnerBase;
         getApprovalContract(address: import("o1js").PublicKey): import("./interfaces/approval.js").NFTApprovalBase;
+        getUpdateContract(address: import("o1js").PublicKey): import("./interfaces/update.js").NFTUpdateBase;
         ensureCreatorSignature(): Promise<import("o1js").AccountUpdate>;
         ensureOwnerSignature(owner: import("o1js").PublicKey): Promise<import("o1js").AccountUpdate>;
         ensureNotPaused(): Promise<void>;
@@ -490,6 +496,8 @@ export declare const AdvancedCollection: {
         mint(mintRequest: import("./interfaces/types.js").MintRequest): Promise<void>;
         _mint(params: import("./interfaces/types.js").MintParams): Promise<import("./interfaces/events.js").MintEvent>;
         update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
+        updateWithOracle(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
+        _update(proof: import("./interfaces/types.js").NFTUpdateProof, vk: import("o1js").VerificationKey): Promise<void>;
         approveAddress(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         approveAddressByProof(nftAddress: import("o1js").PublicKey, approved: import("o1js").PublicKey): Promise<void>;
         transferBySignature(params: import("./interfaces/types.js").TransferParams): Promise<void>;

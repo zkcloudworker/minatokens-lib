@@ -3,7 +3,7 @@ title: saveIndexedMerkleMap
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Function.saveIndexedMerkleMap
-order: 258
+order: 316
 ---
 
 # Function: saveIndexedMerkleMap()
@@ -20,6 +20,8 @@ function saveIndexedMerkleMap(params: {
   name: string;
 }): Promise<string | undefined>
 ```
+
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:63](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L63)
 
 ## Parameters
 
@@ -51,7 +53,3 @@ function saveIndexedMerkleMap(params: {
 ## Returns
 
 `Promise`\<`string` \| `undefined`\>
-
-## Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:63](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L63)

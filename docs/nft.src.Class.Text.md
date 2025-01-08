@@ -3,7 +3,7 @@ title: Text
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.Text
-order: 200
+order: 221
 ---
 
 # Class: Text
@@ -19,6 +19,8 @@ order: 200
 
 - toString() [↗](#tostring)
 
+Defined in: [packages/nft/src/metadata/text.ts:14](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L14)
+
 The `Text` class represents textual data in the form of a Merkle tree. Each character of the text is converted to its
 ASCII code and stored as a leaf in the Merkle tree. The root of the tree can be used as a compact representation
 of the text data in cryptographic proofs.
@@ -30,6 +32,8 @@ of the text data in cryptographic proofs.
 ```ts
 new Text(text: string, height: number): Text
 ```
+
+Defined in: [packages/nft/src/metadata/text.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L40)
 
 Constructs a new `Text` instance by creating a Merkle tree from the given text string.
 Each character in the text is converted to its ASCII code and stored as a leaf in the tree.
@@ -56,10 +60,6 @@ The height of the Merkle tree. Defaults to `TEXT_TREE_HEIGHT`.
 
 Will throw an error if the text length exceeds the number of leaves in the Merkle tree.
 
-#### Defined in
-
-[packages/nft/src/metadata/text.ts:40](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L40)
-
 ## Properties
 
 ### height
@@ -68,11 +68,9 @@ Will throw an error if the text length exceeds the number of leaves in the Merkl
 readonly height: number;
 ```
 
+Defined in: [packages/nft/src/metadata/text.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L30)
+
 The height of the Merkle tree.
-
-#### Defined in
-
-[packages/nft/src/metadata/text.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L30)
 
 ***
 
@@ -82,11 +80,9 @@ The height of the Merkle tree.
 readonly root: Field;
 ```
 
+Defined in: [packages/nft/src/metadata/text.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L26)
+
 The root of the Merkle tree representing the text data.
-
-#### Defined in
-
-[packages/nft/src/metadata/text.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L26)
 
 ***
 
@@ -96,11 +92,9 @@ The root of the Merkle tree representing the text data.
 readonly size: number;
 ```
 
+Defined in: [packages/nft/src/metadata/text.ts:18](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L18)
+
 The length of the text.
-
-#### Defined in
-
-[packages/nft/src/metadata/text.ts:18](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L18)
 
 ***
 
@@ -110,11 +104,9 @@ The length of the text.
 readonly text: string;
 ```
 
+Defined in: [packages/nft/src/metadata/text.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L22)
+
 The original text string.
-
-#### Defined in
-
-[packages/nft/src/metadata/text.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L22)
 
 ## Methods
 
@@ -124,6 +116,8 @@ The original text string.
 toString(): string
 ```
 
+Defined in: [packages/nft/src/metadata/text.ts:57](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L57)
+
 Returns the original text string.
 
 #### Returns
@@ -131,7 +125,3 @@ Returns the original text string.
 `string`
 
 The text string.
-
-#### Defined in
-
-[packages/nft/src/metadata/text.ts:57](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/text.ts#L57)

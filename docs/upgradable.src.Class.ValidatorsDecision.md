@@ -3,7 +3,7 @@ title: ValidatorsDecision
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsDecision
-order: 292
+order: 350
 ---
 
 # Class: ValidatorsDecision
@@ -24,6 +24,8 @@ order: 292
 - createJsonNullifier() [↗](#createjsonnullifier)
 - createNullifierMessage() [↗](#createnullifiermessage)
 - assertEquals() [↗](#assertequals)
+
+Defined in: [packages/upgradable/src/validators.ts:225](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L225)
 
 Represents a decision made by the validators.
 
@@ -56,6 +58,8 @@ new ValidatorsDecision(value: {
   validators: ValidatorsState;
  }): ValidatorsDecision
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -115,28 +119,26 @@ Current validators state
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -146,32 +148,32 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 chainId: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:233](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L233)
+
 Chain ID
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).chainId`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:233](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L233)
+}).chainId
+```
 
 ***
 
@@ -181,32 +183,32 @@ Chain ID
 contractAddress: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:231](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L231)
+
 UpgradeAuthority contract address
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).contractAddress`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:231](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L231)
+}).contractAddress
+```
 
 ***
 
@@ -216,32 +218,32 @@ UpgradeAuthority contract address
 decisionType: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:229](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L229)
+
 Type of decision (e.g., 'updateDatabase')
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).decisionType`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:229](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L229)
+}).decisionType
+```
 
 ***
 
@@ -251,32 +253,32 @@ Type of decision (e.g., 'updateDatabase')
 expiry: UInt32 = UInt32;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:241](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L241)
+
 Slot when decision expires
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).expiry`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:241](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L241)
+}).expiry
+```
 
 ***
 
@@ -286,32 +288,32 @@ Slot when decision expires
 message: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:227](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L227)
+
 Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).message`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:227](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L227)
+}).message
+```
 
 ***
 
@@ -321,32 +323,32 @@ Message to be signed when producing the nullifier, also serves as the nonce to p
 updateValidatorsList: ValidatorsState = ValidatorsState;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:239](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L239)
+
 Proposed update to validators state
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).updateValidatorsList`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:239](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L239)
+}).updateValidatorsList
+```
 
 ***
 
@@ -356,32 +358,32 @@ Proposed update to validators state
 upgradeDatabase: UpgradeDatabaseState = UpgradeDatabaseState;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:237](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L237)
+
 Current upgrade database state
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).upgradeDatabase`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:237](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L237)
+}).upgradeDatabase
+```
 
 ***
 
@@ -391,32 +393,32 @@ Current upgrade database state
 validators: ValidatorsState = ValidatorsState;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:235](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L235)
+
 Current validators state
 
 #### Inherited from
 
-`Struct({
-  /** Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks */
+```ts
+Struct({
+  / Message to be signed when producing the nullifier, also serves as the nonce to prevent replay attacks /
   message: Field,
-  /** Type of decision (e.g., 'updateDatabase') */
+  / Type of decision (e.g., 'updateDatabase') /
   decisionType: Field,
-  /** UpgradeAuthority contract address */
+  / UpgradeAuthority contract address /
   contractAddress: PublicKey,
-  /** Chain ID */
+  / Chain ID /
   chainId: Field,
-  /** Current validators state */
+  / Current validators state /
   validators: ValidatorsState,
-  /** Current upgrade database state */
+  / Current upgrade database state /
   upgradeDatabase: UpgradeDatabaseState,
-  /** Proposed update to validators state */
+  / Proposed update to validators state /
   updateValidatorsList: ValidatorsState,
-  /** Slot when decision expires */
+  / Slot when decision expires /
   expiry: UInt32,
-}).validators`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:235](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L235)
+}).validators
+```
 
 ## Methods
 
@@ -428,6 +430,8 @@ createJsonNullifier(params: {
   privateKey: PrivateKey;
  }): Nullifier
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:262](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L262)
 
 #### Parameters
 
@@ -445,10 +449,6 @@ createJsonNullifier(params: {
 
 `Nullifier`
 
-#### Defined in
-
-[packages/upgradable/src/validators.ts:262](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L262)
-
 ***
 
 ### createNullifierMessage()
@@ -457,13 +457,11 @@ createJsonNullifier(params: {
 createNullifierMessage(): Field[]
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:258](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L258)
+
 #### Returns
 
 `Field`[]
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:258](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L258)
 
 ***
 
@@ -472,6 +470,8 @@ createNullifierMessage(): Field[]
 ```ts
 static assertEquals(a: ValidatorsDecision, b: ValidatorsDecision): void
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:248](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L248)
 
 Asserts that two `ValidatorsDecision` instances are equal.
 
@@ -492,7 +492,3 @@ Second `ValidatorsDecision` instance.
 #### Returns
 
 `void`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:248](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L248)

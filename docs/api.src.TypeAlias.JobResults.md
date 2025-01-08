@@ -3,7 +3,7 @@ title: JobResults
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.JobResults
-order: 58
+order: 68
 ---
 
 # Type Alias: JobResults
@@ -16,6 +16,8 @@ type JobResults = {
   success: boolean;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:133](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L133)
 
 ## Type declaration
 
@@ -50,7 +52,3 @@ optional success: boolean;
 ```
 
 Indicates whether the job was successful.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:110](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L110)

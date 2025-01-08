@@ -3,7 +3,7 @@ title: fieldFromString
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Function.fieldFromString
-order: 225
+order: 281
 ---
 
 # Function: fieldFromString()
@@ -11,6 +11,8 @@ order: 225
 ```ts
 function fieldFromString(storage: string): Field
 ```
+
+Defined in: [packages/nft/src/interfaces/encoding.ts:28](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/encoding.ts#L28)
 
 Reconstructs a `Field` element from its string representation.
 This function is essential for deserializing strings back into `Field` elements,
@@ -33,7 +35,3 @@ The reconstructed `Field` element.
 ## Throws
 
 Will throw an error if the input string does not correspond to exactly one `Field`.
-
-## Defined in
-
-[packages/nft/src/contracts/encoding.ts:28](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/encoding.ts#L28)

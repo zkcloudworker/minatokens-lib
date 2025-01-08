@@ -3,7 +3,7 @@ title: MetadataValue
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.MetadataValue
-order: 181
+order: 197
 ---
 
 # Class: MetadataValue
@@ -19,6 +19,8 @@ order: 181
 
 - hash() [↗](#hash)
 - new() [↗](#new)
+
+Defined in: [packages/nft/src/metadata/metadata.ts:41](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L41)
 
 Represents a metadata value with its type and associated data.
 
@@ -43,6 +45,8 @@ new MetadataValue(value: {
   value: Field;
  }): MetadataValue
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -70,16 +74,14 @@ new MetadataValue(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   value: Field,
   type: Field,
   length: Field,
   height: Field,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -89,18 +91,18 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 height: Field = Field;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:45](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L45)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   value: Field,
   type: Field,
   length: Field,
   height: Field,
-}).height`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:45](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L45)
+}).height
+```
 
 ***
 
@@ -110,18 +112,18 @@ height: Field = Field;
 length: Field = Field;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:44](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L44)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   value: Field,
   type: Field,
   length: Field,
   height: Field,
-}).length`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:44](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L44)
+}).length
+```
 
 ***
 
@@ -131,18 +133,18 @@ length: Field = Field;
 type: Field = Field;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:43](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L43)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   value: Field,
   type: Field,
   length: Field,
   height: Field,
-}).type`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:43](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L43)
+}).type
+```
 
 ***
 
@@ -152,18 +154,18 @@ type: Field = Field;
 value: Field = Field;
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L42)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   value: Field,
   type: Field,
   length: Field,
   height: Field,
-}).value`
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L42)
+}).value
+```
 
 ## Methods
 
@@ -173,6 +175,8 @@ value: Field = Field;
 hash(): Field
 ```
 
+Defined in: [packages/nft/src/metadata/metadata.ts:105](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L105)
+
 Computes the Poseidon hash of the metadata value.
 
 #### Returns
@@ -180,10 +184,6 @@ Computes the Poseidon hash of the metadata value.
 `Field`
 
 The hash as a Field.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:105](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L105)
 
 ***
 
@@ -198,6 +198,8 @@ static new(params: {
      | Metadata;
  }): MetadataValue
 ```
+
+Defined in: [packages/nft/src/metadata/metadata.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L52)
 
 Creates a new MetadataValue instance.
 
@@ -223,7 +225,3 @@ The parameters including value and type.
 [`MetadataValue`](nftsrcclassmetadatavalue)
 
 A new MetadataValue.
-
-#### Defined in
-
-[packages/nft/src/metadata/metadata.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/metadata/metadata.ts#L52)

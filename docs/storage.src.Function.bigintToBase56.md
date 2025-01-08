@@ -3,7 +3,7 @@ title: bigintToBase56
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Function.bigintToBase56
-order: 246
+order: 304
 ---
 
 # Function: bigintToBase56()
@@ -11,6 +11,8 @@ order: 246
 ```ts
 function bigintToBase56(value: bigint): string
 ```
+
+Defined in: [packages/storage/src/base64/bigint.ts:5](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/base64/bigint.ts#L5)
 
 ## Parameters
 
@@ -21,7 +23,3 @@ function bigintToBase56(value: bigint): string
 ## Returns
 
 `string`
-
-## Defined in
-
-[packages/storage/src/base64/bigint.ts:5](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/base64/bigint.ts#L5)

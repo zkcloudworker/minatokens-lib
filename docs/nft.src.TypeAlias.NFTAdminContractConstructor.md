@@ -3,31 +3,29 @@ title: NFTAdminContractConstructor
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.TypeAlias.NFTAdminContractConstructor
-order: 211
+order: 249
 ---
 
 # Type Alias: NFTAdminContractConstructor()
 
 ```ts
-type NFTAdminContractConstructor = (admin: PublicKey) => NFTAdminBase;
+type NFTAdminContractConstructor = (address: PublicKey) => NFTAdminBase;
 ```
 
-Defines a constructor for contracts implementing `NFTAdminBase`, accepting an `admin` public key and returning an instance of `NFTAdminBase`.
+Defined in: [packages/nft/src/interfaces/admin.ts:127](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/admin.ts#L127)
+
+Defines a constructor for contracts implementing `NFTAdminBase`, accepting an `address` public key and returning an instance of `NFTAdminBase`.
 
 ## Parameters
 
-### admin
+### address
 
 `PublicKey`
 
-The public key of the contract's administrator.
+The contract's address.
 
 ## Returns
 
 [`NFTAdminBase`](nftsrctypealiasnftadminbase)
 
 An instance of `NFTAdminBase`.
-
-## Defined in
-
-[packages/nft/src/contracts/admin.ts:74](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/admin.ts#L74)

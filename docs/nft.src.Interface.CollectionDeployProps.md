@@ -3,7 +3,7 @@ title: CollectionDeployProps
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Interface.CollectionDeployProps
-order: 204
+order: 230
 ---
 
 # Interface: CollectionDeployProps
@@ -17,6 +17,8 @@ order: 204
 - symbol:  string; [↗](#symbol)
 - url:  string; [↗](#url)
 
+Defined in: [packages/nft/src/contracts/collection.ts:89](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L89)
+
 ## Extends
 
 - `Exclude`\<`DeployArgs`, `undefined`\>
@@ -29,9 +31,7 @@ order: 204
 admin: PublicKey;
 ```
 
-#### Defined in
-
-[packages/nft/src/contracts/collection.ts:100](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L100)
+Defined in: [packages/nft/src/contracts/collection.ts:92](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L92)
 
 ***
 
@@ -41,9 +41,7 @@ admin: PublicKey;
 baseURL: Field;
 ```
 
-#### Defined in
-
-[packages/nft/src/contracts/collection.ts:101](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L101)
+Defined in: [packages/nft/src/contracts/collection.ts:93](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L93)
 
 ***
 
@@ -53,9 +51,7 @@ baseURL: Field;
 collectionName: Field;
 ```
 
-#### Defined in
-
-[packages/nft/src/contracts/collection.ts:98](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L98)
+Defined in: [packages/nft/src/contracts/collection.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L90)
 
 ***
 
@@ -65,9 +61,7 @@ collectionName: Field;
 creator: PublicKey;
 ```
 
-#### Defined in
-
-[packages/nft/src/contracts/collection.ts:99](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L99)
+Defined in: [packages/nft/src/contracts/collection.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L91)
 
 ***
 
@@ -77,9 +71,7 @@ creator: PublicKey;
 symbol: string;
 ```
 
-#### Defined in
-
-[packages/nft/src/contracts/collection.ts:102](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L102)
+Defined in: [packages/nft/src/contracts/collection.ts:94](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L94)
 
 ***
 
@@ -89,6 +81,4 @@ symbol: string;
 url: string;
 ```
 
-#### Defined in
-
-[packages/nft/src/contracts/collection.ts:103](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L103)
+Defined in: [packages/nft/src/contracts/collection.ts:95](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/collection.ts#L95)

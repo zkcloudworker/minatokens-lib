@@ -3,7 +3,7 @@ title: getTokenSymbolAndAdmin
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: abi.src.Function.getTokenSymbolAndAdmin
-order: 23
+order: 25
 ---
 
 # Function: getTokenSymbolAndAdmin()
@@ -25,6 +25,8 @@ function getTokenSymbolAndAdmin(params: {
   verificationKeyHashes: string[];
 }>
 ```
+
+Defined in: [packages/abi/src/token/build.ts:714](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/build.ts#L714)
 
 ## Parameters
 
@@ -64,7 +66,3 @@ function getTokenSymbolAndAdmin(params: {
   `symbol`: `string`;
   `verificationKeyHashes`: `string`[];
  \}\>
-
-## Defined in
-
-[packages/abi/src/token/build.ts:658](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/token/build.ts#L658)

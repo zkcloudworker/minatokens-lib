@@ -3,7 +3,7 @@ title: BidEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.BidEvent
-order: 264
+order: 322
 ---
 
 # Class: BidEvent
@@ -12,6 +12,8 @@ order: 264
 
 - address:  PublicKey = PublicKey; [↗](#address)
 - amount:  UInt64 = UInt64; [↗](#amount)
+
+Defined in: [packages/token/src/bid.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/bid.ts#L24)
 
 ## Extends
 
@@ -31,6 +33,8 @@ new BidEvent(value: {
  }): BidEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -49,14 +53,12 @@ new BidEvent(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   amount: UInt64,
   address: PublicKey,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -66,16 +68,16 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/token/src/bid.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/bid.ts#L26)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   amount: UInt64,
   address: PublicKey,
-}).address`
-
-#### Defined in
-
-[packages/token/src/bid.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/bid.ts#L26)
+}).address
+```
 
 ***
 
@@ -85,13 +87,13 @@ address: PublicKey = PublicKey;
 amount: UInt64 = UInt64;
 ```
 
+Defined in: [packages/token/src/bid.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/bid.ts#L25)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   amount: UInt64,
   address: PublicKey,
-}).amount`
-
-#### Defined in
-
-[packages/token/src/bid.ts:25](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/bid.ts#L25)
+}).amount
+```

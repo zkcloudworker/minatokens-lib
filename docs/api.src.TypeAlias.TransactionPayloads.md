@@ -3,7 +3,7 @@ title: TransactionPayloads
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TransactionPayloads
-order: 108
+order: 118
 ---
 
 # Type Alias: TransactionPayloads
@@ -66,6 +66,8 @@ type TransactionPayloads = {
     };
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:789](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L789)
 
 ## Type declaration
 
@@ -260,7 +262,3 @@ optional transaction: string;
 ```
 
 The transaction data.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:766](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L766)

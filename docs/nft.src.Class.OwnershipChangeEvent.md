@@ -3,15 +3,17 @@ title: OwnershipChangeEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.OwnershipChangeEvent
-order: 195
+order: 217
 ---
 
 # Class: OwnershipChangeEvent
 
 ## Properties overview
 
-- newOwner:  PublicKey = PublicKey; [↗](#newowner)
-- oldOwner:  PublicKey = PublicKey; [↗](#oldowner)
+- from:  PublicKey = PublicKey; [↗](#from)
+- to:  PublicKey = PublicKey; [↗](#to)
+
+Defined in: [packages/nft/src/interfaces/ownable.ts:29](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/ownable.ts#L29)
 
 Event emitted when the ownership of the contract changes.
 
@@ -20,8 +22,8 @@ Contains the old owner's and new owner's public keys.
 ## Extends
 
 - \{
-  `newOwner`: `PublicKey`;
-  `oldOwner`: `PublicKey`;
+  `from`: `PublicKey`;
+  `to`: `PublicKey`;
  \}
 
 ## Constructors
@@ -30,20 +32,22 @@ Contains the old owner's and new owner's public keys.
 
 ```ts
 new OwnershipChangeEvent(value: {
-  newOwner: PublicKey;
-  oldOwner: PublicKey;
+  from: PublicKey;
+  to: PublicKey;
  }): OwnershipChangeEvent
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
 ##### value
 
-###### newOwner
+###### from
 
 `PublicKey` = `PublicKey`
 
-###### oldOwner
+###### to
 
 `PublicKey` = `PublicKey`
 
@@ -53,49 +57,47 @@ new OwnershipChangeEvent(value: {
 
 #### Inherited from
 
-`Struct({
-  oldOwner: PublicKey,
-  newOwner: PublicKey,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+```ts
+Struct({
+  from: PublicKey,
+  to: PublicKey,
+}).constructor
+```
 
 ## Properties
 
-### newOwner
+### from
 
 ```ts
-newOwner: PublicKey = PublicKey;
+from: PublicKey = PublicKey;
 ```
+
+Defined in: [packages/nft/src/interfaces/ownable.ts:30](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/ownable.ts#L30)
 
 #### Inherited from
 
-`Struct({
-  oldOwner: PublicKey,
-  newOwner: PublicKey,
-}).newOwner`
-
-#### Defined in
-
-[packages/nft/src/contracts/ownable.ts:46](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/ownable.ts#L46)
+```ts
+Struct({
+  from: PublicKey,
+  to: PublicKey,
+}).from
+```
 
 ***
 
-### oldOwner
+### to
 
 ```ts
-oldOwner: PublicKey = PublicKey;
+to: PublicKey = PublicKey;
 ```
+
+Defined in: [packages/nft/src/interfaces/ownable.ts:31](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/ownable.ts#L31)
 
 #### Inherited from
 
-`Struct({
-  oldOwner: PublicKey,
-  newOwner: PublicKey,
-}).oldOwner`
-
-#### Defined in
-
-[packages/nft/src/contracts/ownable.ts:45](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/ownable.ts#L45)
+```ts
+Struct({
+  from: PublicKey,
+  to: PublicKey,
+}).to
+```

@@ -3,7 +3,7 @@ title: FungibleTokenAdminBase
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.TypeAlias.FungibleTokenAdminBase
-order: 281
+order: 339
 ---
 
 # Type Alias: FungibleTokenAdminBase
@@ -17,6 +17,8 @@ type FungibleTokenAdminBase = SmartContract & {
   canResume: Promise<Bool>;
 };
 ```
+
+Defined in: [packages/token/src/FungibleTokenContract.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L24)
 
 ## Type declaration
 
@@ -67,7 +69,3 @@ type FungibleTokenAdminBase = SmartContract & {
 #### Returns
 
 `Promise`\<`Bool`\>
-
-## Defined in
-
-[packages/token/src/FungibleTokenContract.ts:24](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenContract.ts#L24)

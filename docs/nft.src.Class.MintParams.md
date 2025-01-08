@@ -3,7 +3,7 @@ title: MintParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.MintParams
-order: 183
+order: 199
 ---
 
 # Class: MintParams
@@ -17,9 +17,10 @@ order: 183
 - metadata:  Field = Field; [↗](#metadata)
 - metadataVerificationKeyHash:  Field = Field; [↗](#metadataverificationkeyhash)
 - name:  Field = Field; [↗](#name)
-- owner:  PublicKey = PublicKey; [↗](#owner)
 - storage:  Storage = Storage; [↗](#storage)
 - tokenId:  Field = Field; [↗](#tokenid)
+
+Defined in: [packages/nft/src/interfaces/types.ts:550](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L550)
 
 Represents the parameters required for minting a new NFT.
 
@@ -33,7 +34,6 @@ Represents the parameters required for minting a new NFT.
   `metadata`: `Field`;
   `metadataVerificationKeyHash`: `Field`;
   `name`: `Field`;
-  `owner`: `PublicKey`;
   `storage`: `Storage`;
   `tokenId`: `Field`;
  \}
@@ -51,11 +51,12 @@ new MintParams(value: {
   metadata: Field;
   metadataVerificationKeyHash: Field;
   name: Field;
-  owner: PublicKey;
   storage: Storage;
   tokenId: Field;
  }): MintParams
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -71,13 +72,13 @@ The address of the NFT contract.
 
 [`NFTData`](nftsrcclassnftdata) = `NFTData`
 
-The data associated with the NFT, including permissions and flags.
+The data associated with the NFT, including owner, approved, version, id, permissions and flags.
 
 ###### expiry
 
 `UInt32` = `UInt32`
 
-The expiry time for minting the NFT.
+The expiry time slot for minting the NFT.
 
 ###### fee
 
@@ -103,12 +104,6 @@ The hash of the verification key used for metadata proofs.
 
 The name of the NFT.
 
-###### owner
-
-`PublicKey` = `PublicKey`
-
-The owner of the NFT.
-
 ###### storage
 
 `Storage` = `Storage`
@@ -127,32 +122,28 @@ The token ID of the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -162,36 +153,34 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:554](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L554)
+
 The address of the NFT contract.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).address`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:655](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L655)
+}).address
+```
 
 ***
 
@@ -201,36 +190,34 @@ The address of the NFT contract.
 data: NFTData = NFTData;
 ```
 
-The data associated with the NFT, including permissions and flags.
+Defined in: [packages/nft/src/interfaces/types.ts:558](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L558)
+
+The data associated with the NFT, including owner, approved, version, id, permissions and flags.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).data`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:661](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L661)
+}).data
+```
 
 ***
 
@@ -240,36 +227,34 @@ The data associated with the NFT, including permissions and flags.
 expiry: UInt32 = UInt32;
 ```
 
-The expiry time for minting the NFT.
+Defined in: [packages/nft/src/interfaces/types.ts:568](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L568)
+
+The expiry time slot for minting the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).expiry`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:671](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L671)
+}).expiry
+```
 
 ***
 
@@ -279,36 +264,34 @@ The expiry time for minting the NFT.
 fee: UInt64 = UInt64;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:560](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L560)
+
 The fee associated with minting the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).fee`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:663](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L663)
+}).fee
+```
 
 ***
 
@@ -318,36 +301,34 @@ The fee associated with minting the NFT.
 metadata: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:562](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L562)
+
 The metadata associated with the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).metadata`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:665](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L665)
+}).metadata
+```
 
 ***
 
@@ -357,36 +338,34 @@ The metadata associated with the NFT.
 metadataVerificationKeyHash: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:566](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L566)
+
 The hash of the verification key used for metadata proofs.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).metadataVerificationKeyHash`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:669](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L669)
+}).metadataVerificationKeyHash
+```
 
 ***
 
@@ -396,75 +375,34 @@ The hash of the verification key used for metadata proofs.
 name: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:552](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L552)
+
 The name of the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
-  name: Field,
-  /** The address of the NFT contract. */
-  address: PublicKey,
-  /** The token ID of the NFT. */
-  tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
-  data: NFTData,
-  /** The fee associated with minting the NFT. */
-  fee: UInt64,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
-  metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
-  expiry: UInt32,
-}).name`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:653](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L653)
-
-***
-
-### owner
-
 ```ts
-owner: PublicKey = PublicKey;
-```
-
-The owner of the NFT.
-
-#### Inherited from
-
-`Struct({
-  /** The name of the NFT. */
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).owner`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:659](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L659)
+}).name
+```
 
 ***
 
@@ -474,36 +412,34 @@ The owner of the NFT.
 storage: Storage = Storage;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:564](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L564)
+
 The off-chain storage information (e.g., IPFS hash).
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).storage`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:667](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L667)
+}).storage
+```
 
 ***
 
@@ -513,33 +449,31 @@ The off-chain storage information (e.g., IPFS hash).
 tokenId: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:556](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L556)
+
 The token ID of the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The name of the NFT. */
+```ts
+Struct({
+  / The name of the NFT. /
   name: Field,
-  /** The address of the NFT contract. */
+  / The address of the NFT contract. /
   address: PublicKey,
-  /** The token ID of the NFT. */
+  / The token ID of the NFT. /
   tokenId: Field,
-  /** The owner of the NFT. */
-  owner: PublicKey,
-  /** The data associated with the NFT, including permissions and flags. */
+  / The data associated with the NFT, including owner, approved, version, id, permissions and flags. /
   data: NFTData,
-  /** The fee associated with minting the NFT. */
+  / The fee associated with minting the NFT. /
   fee: UInt64,
-  /** The metadata associated with the NFT. */
+  / The metadata associated with the NFT. /
   metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
+  / The off-chain storage information (e.g., IPFS hash). /
   storage: Storage,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-  /** The expiry time for minting the NFT. */
+  / The expiry time slot for minting the NFT. /
   expiry: UInt32,
-}).tokenId`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:657](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L657)
+}).tokenId
+```

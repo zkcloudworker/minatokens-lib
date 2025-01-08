@@ -3,7 +3,7 @@ title: IndexedMapSerialized
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Interface.IndexedMapSerialized
-order: 238
+order: 296
 ---
 
 # Interface: IndexedMapSerialized
@@ -16,6 +16,8 @@ order: 238
 - root:  string; [↗](#root)
 - sortedLeaves:  string; [↗](#sortedleaves)
 
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:9](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L9)
+
 ## Properties
 
 ### height
@@ -24,9 +26,7 @@ order: 238
 height: number;
 ```
 
-#### Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:10](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L10)
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:10](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L10)
 
 ***
 
@@ -36,9 +36,7 @@ height: number;
 length: string;
 ```
 
-#### Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:12](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L12)
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:12](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L12)
 
 ***
 
@@ -48,9 +46,7 @@ length: string;
 nodes: string;
 ```
 
-#### Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L13)
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:13](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L13)
 
 ***
 
@@ -60,9 +56,7 @@ nodes: string;
 root: string;
 ```
 
-#### Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:11](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L11)
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:11](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L11)
 
 ***
 
@@ -72,6 +66,4 @@ root: string;
 sortedLeaves: string;
 ```
 
-#### Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:14](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L14)
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:14](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L14)

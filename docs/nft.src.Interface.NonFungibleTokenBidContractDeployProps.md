@@ -3,7 +3,7 @@ title: NonFungibleTokenBidContractDeployProps
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Interface.NonFungibleTokenBidContractDeployProps
-order: 207
+order: 239
 ---
 
 # Interface: NonFungibleTokenBidContractDeployProps
@@ -13,6 +13,8 @@ order: 207
 - bids:  Field; [↗](#bids)
 - storage:  Storage; [↗](#storage)
 - whitelist:  Field; [↗](#whitelist)
+
+Defined in: [packages/nft/src/marketplace/bid.ts:56](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L56)
 
 ## Extends
 
@@ -26,11 +28,9 @@ order: 207
 bids: Field;
 ```
 
+Defined in: [packages/nft/src/marketplace/bid.ts:61](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L61)
+
 The offers.
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:77](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L77)
 
 ***
 
@@ -40,11 +40,9 @@ The offers.
 storage: Storage;
 ```
 
+Defined in: [packages/nft/src/marketplace/bid.ts:63](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L63)
+
 The storage.
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:79](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L79)
 
 ***
 
@@ -54,8 +52,6 @@ The storage.
 whitelist: Field;
 ```
 
+Defined in: [packages/nft/src/marketplace/bid.ts:59](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L59)
+
 The whitelist.
-
-#### Defined in
-
-[packages/nft/src/marketplace/bid.ts:75](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/marketplace/bid.ts#L75)

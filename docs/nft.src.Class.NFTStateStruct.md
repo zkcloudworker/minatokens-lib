@@ -3,7 +3,7 @@ title: NFTStateStruct
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.NFTStateStruct
-order: 191
+order: 214
 ---
 
 # Class: NFTStateStruct
@@ -13,28 +13,27 @@ order: 191
 - metadata:  Field = Field; [↗](#metadata)
 - metadataVerificationKeyHash:  Field = Field; [↗](#metadataverificationkeyhash)
 - name:  Field = Field; [↗](#name)
-- owner:  PublicKey = PublicKey; [↗](#owner)
-- packedData:  Field = Field; [↗](#packeddata)
+- packedData:  NFTDataPacked = NFTDataPacked; [↗](#packeddata)
 - storage:  Storage = Storage; [↗](#storage)
 - Returns: {
   metadata: Field;
   metadataVerificationKeyHash: Field;
   name: Field;
-  owner: PublicKey;
-  packedData: Field;
+  packedData: NFTDataPacked;
   storage: Storage;
 } [↗](#returns)
 - metadata:  Field = Field; [↗](#metadata)
 - metadataVerificationKeyHash:  Field = Field; [↗](#metadataverificationkeyhash)
 - name:  Field = Field; [↗](#name)
-- owner:  PublicKey = PublicKey; [↗](#owner)
-- packedData:  Field = Field; [↗](#packeddata)
+- packedData:  NFTDataPacked = NFTDataPacked; [↗](#packeddata)
 - storage:  Storage = Storage; [↗](#storage)
 
 ## Methods overview
 
 - assertEqual() [↗](#assertequal)
 - fromAccount() [↗](#fromaccount)
+
+Defined in: [packages/nft/src/interfaces/types.ts:51](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L51)
 
 Represents the on-chain state structure of an NFT.
 The order of the fields is important and should match the NFT SmartContract.
@@ -45,8 +44,7 @@ The order of the fields is important and should match the NFT SmartContract.
   `metadata`: `Field`;
   `metadataVerificationKeyHash`: `Field`;
   `name`: `Field`;
-  `owner`: `PublicKey`;
-  `packedData`: `Field`;
+  `packedData`: [`NFTDataPacked`](nftsrcclassnftdatapacked);
   `storage`: `Storage`;
  \}
 
@@ -59,11 +57,12 @@ new NFTStateStruct(value: {
   metadata: Field;
   metadataVerificationKeyHash: Field;
   name: Field;
-  owner: PublicKey;
-  packedData: Field;
+  packedData: NFTDataPacked;
   storage: Storage;
  }): NFTStateStruct
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -81,13 +80,9 @@ new NFTStateStruct(value: {
 
 `Field` = `Field`
 
-###### owner
-
-`PublicKey` = `PublicKey`
-
 ###### packedData
 
-`Field` = `Field`
+[`NFTDataPacked`](nftsrcclassnftdatapacked) = `NFTDataPacked`
 
 ###### storage
 
@@ -99,18 +94,15 @@ new NFTStateStruct(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -120,20 +112,19 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 metadata: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:53](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L53)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
-}).metadata`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:89](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L89)
+}).metadata
+```
 
 ***
 
@@ -143,20 +134,19 @@ metadata: Field = Field;
 metadataVerificationKeyHash: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:56](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L56)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
-}).metadataVerificationKeyHash`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:93](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L93)
+}).metadataVerificationKeyHash
+```
 
 ***
 
@@ -166,66 +156,41 @@ metadataVerificationKeyHash: Field = Field;
 name: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L52)
+
 #### Inherited from
-
-`Struct({
-  name: Field,
-  metadata: Field,
-  owner: PublicKey,
-  storage: Storage,
-  packedData: Field,
-  metadataVerificationKeyHash: Field,
-}).name`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:88](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L88)
-
-***
-
-### owner
 
 ```ts
-owner: PublicKey = PublicKey;
-```
-
-#### Inherited from
-
-`Struct({
+Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
-}).owner`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L90)
+}).name
+```
 
 ***
 
 ### packedData
 
 ```ts
-packedData: Field = Field;
+packedData: NFTDataPacked = NFTDataPacked;
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:55](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L55)
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
-}).packedData`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:92](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L92)
+}).packedData
+```
 
 ***
 
@@ -235,20 +200,19 @@ packedData: Field = Field;
 storage: Storage = Storage;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:54](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L54)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   name: Field,
   metadata: Field,
-  owner: PublicKey,
   storage: Storage,
-  packedData: Field,
+  packedData: NFTDataPacked,
   metadataVerificationKeyHash: Field,
-}).storage`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:91](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L91)
+}).storage
+```
 
 ## Methods
 
@@ -257,6 +221,8 @@ storage: Storage = Storage;
 ```ts
 static assertEqual(a: NFTStateStruct, b: NFTStateStruct): void
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:78](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L78)
 
 Asserts that two NFTStateStruct instances are equal.
 
@@ -278,10 +244,6 @@ The second NFTStateStruct instance.
 
 `void`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:115](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L115)
-
 ***
 
 ### fromAccount()
@@ -291,11 +253,12 @@ static fromAccount(account: Account): {
   metadata: Field;
   metadataVerificationKeyHash: Field;
   name: Field;
-  owner: PublicKey;
-  packedData: Field;
+  packedData: NFTDataPacked;
   storage: Storage;
 }
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:63](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L63)
 
 Creates an NFTStateStruct from an account's app state.
 
@@ -314,8 +277,7 @@ The account containing the zkApp state.
   metadata: Field;
   metadataVerificationKeyHash: Field;
   name: Field;
-  owner: PublicKey;
-  packedData: Field;
+  packedData: NFTDataPacked;
   storage: Storage;
 }
 ```
@@ -340,16 +302,10 @@ metadataVerificationKeyHash: Field = Field;
 name: Field = Field;
 ```
 
-##### owner
-
-```ts
-owner: PublicKey = PublicKey;
-```
-
 ##### packedData
 
 ```ts
-packedData: Field = Field;
+packedData: NFTDataPacked = NFTDataPacked;
 ```
 
 ##### storage
@@ -357,7 +313,3 @@ packedData: Field = Field;
 ```ts
 storage: Storage = Storage;
 ```
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:100](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L100)

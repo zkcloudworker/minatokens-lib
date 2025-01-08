@@ -3,7 +3,7 @@ title: Whitelist
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Class.Whitelist
-order: 236
+order: 294
 ---
 
 # Class: Whitelist
@@ -11,6 +11,9 @@ order: 236
 ## Properties overview
 
 - list:  OffChainList = OffChainList; [↗](#list)
+- Overrides: Struct({
+  list: OffChainList,
+}).empty [↗](#overrides)
 
 ## Methods overview
 
@@ -22,6 +25,8 @@ order: 236
 - create() [↗](#create)
 - empty() [↗](#empty)
 - fromString() [↗](#fromstring)
+
+Defined in: [packages/storage/src/whitelist/whitelist.ts:15](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L15)
 
 ## Extends
 
@@ -39,6 +44,8 @@ new Whitelist(value: {
  }): Whitelist
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -53,13 +60,11 @@ new Whitelist(value: {
 
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   list: OffChainList,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -69,15 +74,15 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 list: OffChainList = OffChainList;
 ```
 
+Defined in: [packages/storage/src/whitelist/whitelist.ts:16](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L16)
+
 #### Inherited from
 
-`Struct({
+```ts
+Struct({
   list: OffChainList,
-}).list`
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:16](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L16)
+}).list
+```
 
 ## Methods
 
@@ -86,6 +91,8 @@ list: OffChainList = OffChainList;
 ```ts
 getWhitelistedAmount(address: PublicKey, name: string): Promise<UInt64Option>
 ```
+
+Defined in: [packages/storage/src/whitelist/whitelist.ts:42](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L42)
 
 The function fetches a whitelisted amount associated with a given address using a map and returns it
 as a UInt64Option.
@@ -96,10 +103,8 @@ as a UInt64Option.
 
 `PublicKey`
 
-The `address` parameter is of type `PublicKey`, which represents a
-public key used in cryptography for various purposes such as encryption, digital signatures, and
-authentication. In the context of the `fetchWhitelistedAmount` function, the `address` parameter is
-used to retrieve a whitelisted amount
+The `address` parameter is of type `PublicKey`,
+used to retrieve a whitelisted amount for the given address.
 
 ##### name
 
@@ -116,10 +121,6 @@ The value is not present if the whitelist is NOT empty and the address is NOT wh
 The value is present if the whitelist is NOT empty or the address IS whitelisted.
 The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
 
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:44](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L44)
-
 ***
 
 ### isNone()
@@ -128,13 +129,11 @@ The value is present and equals to UInt64.MAXINT() if the whitelist IS empty.
 isNone(): Bool
 ```
 
+Defined in: [packages/storage/src/whitelist/whitelist.ts:18](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L18)
+
 #### Returns
 
 `Bool`
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:18](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L18)
 
 ***
 
@@ -144,13 +143,11 @@ isNone(): Bool
 isSome(): Bool
 ```
 
+Defined in: [packages/storage/src/whitelist/whitelist.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L22)
+
 #### Returns
 
 `Bool`
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:22](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L22)
 
 ***
 
@@ -160,13 +157,11 @@ isSome(): Bool
 load(): Promise<OffchainMapOption>
 ```
 
+Defined in: [packages/storage/src/whitelist/whitelist.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L26)
+
 #### Returns
 
 `Promise`\<[`OffchainMapOption`](storagesrcclassoffchainmapoption)\>
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:26](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L26)
 
 ***
 
@@ -176,15 +171,13 @@ load(): Promise<OffchainMapOption>
 toString(): string
 ```
 
+Defined in: [packages/storage/src/whitelist/whitelist.ts:132](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L132)
+
 Returns a string representation of an object.
 
 #### Returns
 
 `string`
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:134](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L134)
 
 ***
 
@@ -206,6 +199,8 @@ static create(params: {
   whitelist: Whitelist;
 }>
 ```
+
+Defined in: [packages/storage/src/whitelist/whitelist.ts:69](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L69)
 
 Creates a new whitelist and pins it to IPFS.
 
@@ -260,10 +255,6 @@ The parameters for creating the whitelist.
 
 A new `Whitelist` instance.
 
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:71](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L71)
-
 ***
 
 ### empty()
@@ -272,19 +263,19 @@ A new `Whitelist` instance.
 static empty(): Whitelist
 ```
 
+Defined in: [packages/storage/src/whitelist/whitelist.ts:58](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L58)
+
 #### Returns
 
 [`Whitelist`](storagesrcclasswhitelist)
 
 #### Overrides
 
-`Struct({
+```ts
+Struct({
   list: OffChainList,
-}).empty`
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:60](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L60)
+}).empty
+```
 
 ***
 
@@ -293,6 +284,8 @@ static empty(): Whitelist
 ```ts
 static fromString(str: string): Whitelist
 ```
+
+Defined in: [packages/storage/src/whitelist/whitelist.ts:136](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L136)
 
 #### Parameters
 
@@ -303,7 +296,3 @@ static fromString(str: string): Whitelist
 #### Returns
 
 [`Whitelist`](storagesrcclasswhitelist)
-
-#### Defined in
-
-[packages/storage/src/whitelist/whitelist.ts:138](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/whitelist/whitelist.ts#L138)

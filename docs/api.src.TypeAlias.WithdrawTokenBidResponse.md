@@ -3,7 +3,7 @@ title: WithdrawTokenBidResponse
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.WithdrawTokenBidResponse
-order: 143
+order: 153
 ---
 
 # Type Alias: WithdrawTokenBidResponse
@@ -12,6 +12,4 @@ order: 143
 type WithdrawTokenBidResponse = TokenTransaction;
 ```
 
-## Defined in
-
-[packages/api/src/client/types.gen.ts:1070](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1070)
+Defined in: [packages/api/src/client/types.gen.ts:1101](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L1101)

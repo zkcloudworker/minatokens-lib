@@ -3,7 +3,7 @@ title: MintRequest
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.MintRequest
-order: 185
+order: 201
 ---
 
 # Class: MintRequest
@@ -11,9 +11,10 @@ order: 185
 ## Properties overview
 
 - address:  PublicKey = PublicKey; [↗](#address)
-- customFlag:  Bool = Bool; [↗](#customflag)
-- customId:  Field = Field; [↗](#customid)
+- context:  NFTTransactionContext = NFTTransactionContext; [↗](#context)
 - owner:  PublicKey = PublicKey; [↗](#owner)
+
+Defined in: [packages/nft/src/interfaces/types.ts:579](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L579)
 
 Represents a request to mint a new NFT, used by the admin contract to determine if minting is allowed.
 
@@ -21,8 +22,7 @@ Represents a request to mint a new NFT, used by the admin contract to determine 
 
 - \{
   `address`: `PublicKey`;
-  `customFlag`: `Bool`;
-  `customId`: `Field`;
+  `context`: [`NFTTransactionContext`](nftsrcclassnfttransactioncontext);
   `owner`: `PublicKey`;
  \}
 
@@ -33,11 +33,12 @@ Represents a request to mint a new NFT, used by the admin contract to determine 
 ```ts
 new MintRequest(value: {
   address: PublicKey;
-  customFlag: Bool;
-  customId: Field;
+  context: NFTTransactionContext;
   owner: PublicKey;
  }): MintRequest
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -49,17 +50,11 @@ new MintRequest(value: {
 
 The address of the NFT contract where the NFT will be minted.
 
-###### customFlag
+###### context
 
-`Bool` = `Bool`
+[`NFTTransactionContext`](nftsrcclassnfttransactioncontext) = `NFTTransactionContext`
 
-A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId.
-
-###### customId
-
-`Field` = `Field`
-
-A custom identifier that can be interpreted by the admin contract.
+A custom value that can be interpreted by the admin contract.
 
 ###### owner
 
@@ -73,20 +68,16 @@ The owner of the new NFT (can be different from the sender).
 
 #### Inherited from
 
-`Struct({
-  /** The address of the NFT contract where the NFT will be minted. */
+```ts
+Struct({
+  / The address of the NFT contract where the NFT will be minted. /
   address: PublicKey,
-  /** The owner of the new NFT (can be different from the sender). */
+  / The owner of the new NFT (can be different from the sender). /
   owner: PublicKey, // can be different from the sender
-  /** A custom identifier that can be interpreted by the admin contract. */
-  customId: Field, // should be interpreted by the admin contract
-  /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
-  customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+  / A custom value that can be interpreted by the admin contract. /
+  context: NFTTransactionContext, // should be interpreted by the admin contract
+}).constructor
+```
 
 ## Properties
 
@@ -96,78 +87,47 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 address: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:581](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L581)
+
 The address of the NFT contract where the NFT will be minted.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the NFT contract where the NFT will be minted. */
+```ts
+Struct({
+  / The address of the NFT contract where the NFT will be minted. /
   address: PublicKey,
-  /** The owner of the new NFT (can be different from the sender). */
+  / The owner of the new NFT (can be different from the sender). /
   owner: PublicKey, // can be different from the sender
-  /** A custom identifier that can be interpreted by the admin contract. */
-  customId: Field, // should be interpreted by the admin contract
-  /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
-  customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
-}).address`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:684](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L684)
+  / A custom value that can be interpreted by the admin contract. /
+  context: NFTTransactionContext, // should be interpreted by the admin contract
+}).address
+```
 
 ***
 
-### customFlag
+### context
 
 ```ts
-customFlag: Bool = Bool;
+context: NFTTransactionContext = NFTTransactionContext;
 ```
 
-A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId.
+Defined in: [packages/nft/src/interfaces/types.ts:585](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L585)
+
+A custom value that can be interpreted by the admin contract.
 
 #### Inherited from
 
-`Struct({
-  /** The address of the NFT contract where the NFT will be minted. */
-  address: PublicKey,
-  /** The owner of the new NFT (can be different from the sender). */
-  owner: PublicKey, // can be different from the sender
-  /** A custom identifier that can be interpreted by the admin contract. */
-  customId: Field, // should be interpreted by the admin contract
-  /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
-  customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
-}).customFlag`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:690](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L690)
-
-***
-
-### customId
-
 ```ts
-customId: Field = Field;
-```
-
-A custom identifier that can be interpreted by the admin contract.
-
-#### Inherited from
-
-`Struct({
-  /** The address of the NFT contract where the NFT will be minted. */
+Struct({
+  / The address of the NFT contract where the NFT will be minted. /
   address: PublicKey,
-  /** The owner of the new NFT (can be different from the sender). */
+  / The owner of the new NFT (can be different from the sender). /
   owner: PublicKey, // can be different from the sender
-  /** A custom identifier that can be interpreted by the admin contract. */
-  customId: Field, // should be interpreted by the admin contract
-  /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
-  customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
-}).customId`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:688](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L688)
+  / A custom value that can be interpreted by the admin contract. /
+  context: NFTTransactionContext, // should be interpreted by the admin contract
+}).context
+```
 
 ***
 
@@ -177,21 +137,19 @@ A custom identifier that can be interpreted by the admin contract.
 owner: PublicKey = PublicKey;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:583](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L583)
+
 The owner of the new NFT (can be different from the sender).
 
 #### Inherited from
 
-`Struct({
-  /** The address of the NFT contract where the NFT will be minted. */
+```ts
+Struct({
+  / The address of the NFT contract where the NFT will be minted. /
   address: PublicKey,
-  /** The owner of the new NFT (can be different from the sender). */
+  / The owner of the new NFT (can be different from the sender). /
   owner: PublicKey, // can be different from the sender
-  /** A custom identifier that can be interpreted by the admin contract. */
-  customId: Field, // should be interpreted by the admin contract
-  /** A custom flag that can be interpreted by the admin contract, possibly forming a PublicKey with customId. */
-  customFlag: Bool, // should be interpreted by the admin contract, can form PublicKey together with customId
-}).owner`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:686](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L686)
+  / A custom value that can be interpreted by the admin contract. /
+  context: NFTTransactionContext, // should be interpreted by the admin contract
+}).owner
+```

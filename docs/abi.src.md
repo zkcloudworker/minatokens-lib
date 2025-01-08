@@ -9,9 +9,7 @@ order: 3
 
 # ABI
 
-## Index
-
-### Type Aliases
+## Type Aliases
 
 - [blockchain](abisrctypealiasblockchain)
 - [ChainVerificationKeysList](abisrctypealiaschainverificationkeyslist)
@@ -19,7 +17,7 @@ order: 3
 - [CompileDependencies](abisrctypealiascompiledependencies)
 - [VerificationKeysList](abisrctypealiasverificationkeyslist)
 
-### Variables
+## Variables
 
 - [devnet](abisrcvariabledevnet)
 - [LAUNCH\_FEE](abisrcvariablelaunch_fee)
@@ -28,9 +26,12 @@ order: 3
 - [tokenVerificationKeys](abisrcvariabletokenverificationkeys)
 - [TRANSACTION\_FEE](abisrcvariabletransaction_fee)
 
-### Functions
+## Functions
 
 - [buildTokenLaunchTransaction](abisrcfunctionbuildtokenlaunchtransaction)
 - [buildTokenTransaction](abisrcfunctionbuildtokentransaction)
+- [checkAddress](abisrcfunctioncheckaddress)
 - [fetchMinaAccount](abisrcfunctionfetchminaaccount)
+- [getContractInfo](abisrcfunctiongetcontractinfo)
 - [getTokenSymbolAndAdmin](abisrcfunctiongettokensymbolandadmin)
+- [tokenBalance](abisrcfunctiontokenbalance)

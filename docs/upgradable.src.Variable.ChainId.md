@@ -3,7 +3,7 @@ title: ChainId
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Variable.ChainId
-order: 308
+order: 365
 ---
 
 # Variable: ChainId
@@ -16,6 +16,8 @@ const ChainId: {
   zeko:mainnet: Field;
 };
 ```
+
+Defined in: [packages/upgradable/src/validators.ts:61](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L61)
 
 Chain IDs following Auro Wallet naming conventions.
 
@@ -44,7 +46,3 @@ zeko:devnet: Field;
 ```ts
 zeko:mainnet: Field;
 ```
-
-## Defined in
-
-[packages/upgradable/src/validators.ts:61](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L61)

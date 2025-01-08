@@ -3,7 +3,7 @@ title: JobId
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.JobId
-order: 56
+order: 66
 ---
 
 # Type Alias: JobId
@@ -18,6 +18,8 @@ type JobId = {
 };
 ```
 
+Defined in: [packages/api/src/client/types.gen.ts:103](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L103)
+
 ## Type declaration
 
 ### jobId
@@ -27,7 +29,3 @@ jobId: string;
 ```
 
 The job ID returned by the `/prove` endpoint.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:80](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L80)

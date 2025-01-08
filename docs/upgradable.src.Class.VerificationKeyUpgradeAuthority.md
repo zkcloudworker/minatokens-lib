@@ -3,7 +3,7 @@ title: VerificationKeyUpgradeAuthority
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.VerificationKeyUpgradeAuthority
-order: 299
+order: 357
 ---
 
 # Class: VerificationKeyUpgradeAuthority
@@ -16,9 +16,11 @@ order: 299
 }; [↗](#events)
 - updateDatabase:  typeof UpgradeDatabaseState = UpgradeDatabaseState; [↗](#updatedatabase)
 - validatorsList:  typeof ValidatorsListEvent = ValidatorsListEvent; [↗](#validatorslist)
+- Overrides: SmartContract.events [↗](#overrides)
 - upgradeDatabasePacked:  State<UpgradeDatabaseStatePacked>; [↗](#upgradedatabasepacked)
 - validators:  State<Field>; [↗](#validators)
 - verificationKeyHash:  State<Field>; [↗](#verificationkeyhash)
+- Overrides: SmartContract.deploy [↗](#overrides)
 
 ## Methods overview
 
@@ -29,6 +31,8 @@ order: 299
 - updateDatabase() [↗](#updatedatabase)
 - updateValidatorsList() [↗](#updatevalidatorslist)
 - verifyUpgradeData() [↗](#verifyupgradedata)
+
+Defined in: [packages/upgradable/src/upgrade.ts:82](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L82)
 
 **VerificationKeyUpgradeAuthority** is a smart contract that provides a secure mechanism
 for upgrading the verification keys of other contracts without requiring redeployment.
@@ -58,6 +62,8 @@ authorized upgrades are applied.
 new VerificationKeyUpgradeAuthority(address: PublicKey, tokenId?: Field): VerificationKeyUpgradeAuthority
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+
 #### Parameters
 
 ##### address
@@ -74,11 +80,9 @@ new VerificationKeyUpgradeAuthority(address: PublicKey, tokenId?: Field): Verifi
 
 #### Inherited from
 
-`SmartContract.constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/mina/zkapp.d.ts:148
+```ts
+SmartContract.constructor
+```
 
 ## Properties
 
@@ -90,6 +94,8 @@ events: {
   validatorsList: typeof ValidatorsListEvent;
 };
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:108](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L108)
 
 The events emitted by the VerificationKeyUpgradeAuthority contract.
 
@@ -107,15 +113,15 @@ validatorsList: typeof ValidatorsListEvent = ValidatorsListEvent;
 
 #### Implementation of
 
-`UpgradeAuthorityBase.events`
+```ts
+UpgradeAuthorityBase.events
+```
 
 #### Overrides
 
-`SmartContract.events`
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:108](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L108)
+```ts
+SmartContract.events
+```
 
 ***
 
@@ -125,11 +131,9 @@ validatorsList: typeof ValidatorsListEvent = ValidatorsListEvent;
 upgradeDatabasePacked: State<UpgradeDatabaseStatePacked>;
 ```
 
+Defined in: [packages/upgradable/src/upgrade.ts:103](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L103)
+
 Packed state containing the upgrade database information.
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:103](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L103)
 
 ***
 
@@ -139,11 +143,9 @@ Packed state containing the upgrade database information.
 validators: State<Field>;
 ```
 
+Defined in: [packages/upgradable/src/upgrade.ts:96](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L96)
+
 The hash representing the current state of the validators list.
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:96](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L96)
 
 ***
 
@@ -153,11 +155,9 @@ The hash representing the current state of the validators list.
 verificationKeyHash: State<Field>;
 ```
 
+Defined in: [packages/upgradable/src/upgrade.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L90)
+
 The hash of the verification key.
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:90](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L90)
 
 ## Methods
 
@@ -170,6 +170,8 @@ checkValidatorsDecision(
    decisionType: Field, 
 validatorsState: ValidatorsState): Promise<void>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:274](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L274)
 
 Checks the validators' decision by verifying the provided proof.
 
@@ -201,10 +203,6 @@ The type of decision being validated.
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:274](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L274)
-
 ***
 
 ### deploy()
@@ -212,6 +210,8 @@ The type of decision being validated.
 ```ts
 deploy(): Promise<void>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:116](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L116)
 
 Deploys the contract and sets the initial state.
 
@@ -221,15 +221,15 @@ Deploys the contract and sets the initial state.
 
 #### Implementation of
 
-`UpgradeAuthorityBase.deploy`
+```ts
+UpgradeAuthorityBase.deploy
+```
 
 #### Overrides
 
-`SmartContract.deploy`
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:116](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L116)
+```ts
+SmartContract.deploy
+```
 
 ***
 
@@ -241,6 +241,8 @@ initialize(
    storage: Storage, 
 verificationKeyHash: Field): Promise<void>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:136](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L136)
 
 Initializes the contract with validators and sets the verification key hash.
 
@@ -268,10 +270,6 @@ The hash of the verification key.
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:136](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L136)
-
 ***
 
 ### setValidatorsList()
@@ -279,6 +277,8 @@ The hash of the verification key.
 ```ts
 setValidatorsList(validators: ValidatorsState, storage: Storage): Promise<void>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:152](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L152)
 
 Sets the validators list and emits an event.
 
@@ -300,10 +300,6 @@ The storage associated with the validators list.
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:152](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L152)
-
 ***
 
 ### updateDatabase()
@@ -314,6 +310,8 @@ updateDatabase(
    vk: VerificationKey, 
 validators: ValidatorsState): Promise<void>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:208](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L208)
 
 Updates the upgrade database after validator consensus.
 
@@ -339,10 +337,6 @@ The verification key to validate the proof.
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:208](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L208)
-
 ***
 
 ### updateValidatorsList()
@@ -354,6 +348,8 @@ updateValidatorsList(
    proof: ValidatorsVotingProof, 
 vk: VerificationKey): Promise<void>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:252](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L252)
 
 Updates the validators list based on validator votes.
 
@@ -387,10 +383,6 @@ The verification key to validate the proof.
 
 `Promise`\<`void`\>
 
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:252](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L252)
-
 ***
 
 ### verifyUpgradeData()
@@ -398,6 +390,8 @@ The verification key to validate the proof.
 ```ts
 verifyUpgradeData(data: VerificationKeyUpgradeData): Promise<UpgradeAuthorityAnswer>
 ```
+
+Defined in: [packages/upgradable/src/upgrade.ts:167](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L167)
 
 Verifies the upgrade data provided by another contract.
 
@@ -417,8 +411,6 @@ The upgrade data to verify.
 
 #### Implementation of
 
-`UpgradeAuthorityBase.verifyUpgradeData`
-
-#### Defined in
-
-[packages/upgradable/src/upgrade.ts:167](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/upgrade.ts#L167)
+```ts
+UpgradeAuthorityBase.verifyUpgradeData
+```

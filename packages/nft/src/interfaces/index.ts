@@ -6,4 +6,5 @@ export * from "./pausable.js";
 export * from "./ownable.js";
 export * from "./owner.js";
 export * from "./approval.js";
+export * from "./update.js";
 export * from "./collection.js";

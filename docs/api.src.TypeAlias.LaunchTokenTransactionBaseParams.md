@@ -3,7 +3,7 @@ title: LaunchTokenTransactionBaseParams
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.LaunchTokenTransactionBaseParams
-order: 65
+order: 75
 ---
 
 # Type Alias: LaunchTokenTransactionBaseParams
@@ -27,6 +27,8 @@ type LaunchTokenTransactionBaseParams = TokenTransactionBaseParams & {
   uri: string | TokenInfo;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:202](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L202)
 
 ## Type declaration
 
@@ -101,7 +103,3 @@ uri: string | TokenInfo;
 ```
 
 URI or token info object containing metadata.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:179](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L179)

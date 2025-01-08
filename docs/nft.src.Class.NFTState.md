@@ -3,20 +3,23 @@ title: NFTState
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.NFTState
-order: 190
+order: 213
 ---
 
 # Class: NFTState
 
 ## Properties overview
 
+- approved:  PublicKey = PublicKey; [↗](#approved)
+- context:  NFTTransactionContext = NFTTransactionContext; [↗](#context)
+- creator:  PublicKey = PublicKey; [↗](#creator)
 - immutableState:  NFTImmutableState = NFTImmutableState; [↗](#immutablestate)
 - isPaused:  Bool = Bool; [↗](#ispaused)
 - metadata:  Field = Field; [↗](#metadata)
 - metadataVerificationKeyHash:  Field = Field; [↗](#metadataverificationkeyhash)
 - name:  Field = Field; [↗](#name)
+- oracleAddress:  PublicKey = PublicKey; [↗](#oracleaddress)
 - owner:  PublicKey = PublicKey; [↗](#owner)
-- price:  UInt64 = UInt64; [↗](#price)
 - storage:  Storage = Storage; [↗](#storage)
 - version:  UInt32 = UInt32; [↗](#version)
 
@@ -25,18 +28,23 @@ order: 190
 - assertEqual() [↗](#assertequal)
 - fromNFTState() [↗](#fromnftstate)
 
+Defined in: [packages/nft/src/interfaces/types.ts:182](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L182)
+
 Represents the full state of an NFT, including both immutable and mutable properties.
 
 ## Extends
 
 - \{
+  `approved`: `PublicKey`;
+  `context`: [`NFTTransactionContext`](nftsrcclassnfttransactioncontext);
+  `creator`: `PublicKey`;
   `immutableState`: [`NFTImmutableState`](nftsrcclassnftimmutablestate);
   `isPaused`: `Bool`;
   `metadata`: `Field`;
   `metadataVerificationKeyHash`: `Field`;
   `name`: `Field`;
+  `oracleAddress`: `PublicKey`;
   `owner`: `PublicKey`;
-  `price`: `UInt64`;
   `storage`: `Storage`;
   `version`: `UInt32`;
  \}
@@ -47,21 +55,44 @@ Represents the full state of an NFT, including both immutable and mutable proper
 
 ```ts
 new NFTState(value: {
+  approved: PublicKey;
+  context: NFTTransactionContext;
+  creator: PublicKey;
   immutableState: NFTImmutableState;
   isPaused: Bool;
   metadata: Field;
   metadataVerificationKeyHash: Field;
   name: Field;
+  oracleAddress: PublicKey;
   owner: PublicKey;
-  price: UInt64;
   storage: Storage;
   version: UInt32;
  }): NFTState
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
+
+###### approved
+
+`PublicKey` = `PublicKey`
+
+The approved address of the NFT.
+
+###### context
+
+[`NFTTransactionContext`](nftsrcclassnfttransactioncontext) = `NFTTransactionContext`
+
+The transaction context of the NFT.
+
+###### creator
+
+`PublicKey` = `PublicKey`
+
+The public key of the creator of the NFT (readonly).
 
 ###### immutableState
 
@@ -93,17 +124,17 @@ The hash of the verification key used for metadata proofs.
 
 The name of the NFT.
 
+###### oracleAddress
+
+`PublicKey` = `PublicKey`
+
+The oracle address to link the NFT update with the network and accounts state
+
 ###### owner
 
 `PublicKey` = `PublicKey`
 
-The current owner of the NFT.
-
-###### price
-
-`UInt64` = `UInt64`
-
-The price of the NFT.
+The owner of the NFT.
 
 ###### storage
 
@@ -123,32 +154,169 @@ The version number of the NFT state.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).constructor`
 
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).constructor
+```
 
 ## Properties
+
+### approved
+
+```ts
+approved: PublicKey = PublicKey;
+```
+
+Defined in: [packages/nft/src/interfaces/types.ts:190](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L190)
+
+The approved address of the NFT.
+
+#### Inherited from
+
+```ts
+Struct({
+  / The immutable state of the NFT. /
+  immutableState: NFTImmutableState,
+  / The name of the NFT. /
+  name: Field,
+  / The owner of the NFT. /
+  owner: PublicKey,
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
+  version: UInt32,
+  / Indicates whether the NFT contract is currently paused. /
+  isPaused: Bool,
+  / The hash of the verification key used for metadata proofs. /
+  metadataVerificationKeyHash: Field,
+
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).approved
+```
+
+***
+
+### context
+
+```ts
+context: NFTTransactionContext = NFTTransactionContext;
+```
+
+Defined in: [packages/nft/src/interfaces/types.ts:205](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L205)
+
+The transaction context of the NFT.
+
+#### Inherited from
+
+```ts
+Struct({
+  / The immutable state of the NFT. /
+  immutableState: NFTImmutableState,
+  / The name of the NFT. /
+  name: Field,
+  / The owner of the NFT. /
+  owner: PublicKey,
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
+  version: UInt32,
+  / Indicates whether the NFT contract is currently paused. /
+  isPaused: Bool,
+  / The hash of the verification key used for metadata proofs. /
+  metadataVerificationKeyHash: Field,
+
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).context
+```
+
+***
+
+### creator
+
+```ts
+creator: PublicKey = PublicKey;
+```
+
+Defined in: [packages/nft/src/interfaces/types.ts:203](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L203)
+
+The public key of the creator of the NFT (readonly).
+
+#### Inherited from
+
+```ts
+Struct({
+  / The immutable state of the NFT. /
+  immutableState: NFTImmutableState,
+  / The name of the NFT. /
+  name: Field,
+  / The owner of the NFT. /
+  owner: PublicKey,
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
+  version: UInt32,
+  / Indicates whether the NFT contract is currently paused. /
+  isPaused: Bool,
+  / The hash of the verification key used for metadata proofs. /
+  metadataVerificationKeyHash: Field,
+
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).creator
+```
+
+***
 
 ### immutableState
 
@@ -156,34 +324,41 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 immutableState: NFTImmutableState = NFTImmutableState;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:184](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L184)
+
 The immutable state of the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).immutableState`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:212](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L212)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).immutableState
+```
 
 ***
 
@@ -193,34 +368,41 @@ The immutable state of the NFT.
 isPaused: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:198](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L198)
+
 Indicates whether the NFT contract is currently paused.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).isPaused`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:226](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L226)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).isPaused
+```
 
 ***
 
@@ -230,34 +412,41 @@ Indicates whether the NFT contract is currently paused.
 metadata: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:192](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L192)
+
 The metadata associated with the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).metadata`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:216](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L216)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).metadata
+```
 
 ***
 
@@ -267,34 +456,41 @@ The metadata associated with the NFT.
 metadataVerificationKeyHash: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:200](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L200)
+
 The hash of the verification key used for metadata proofs.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).metadataVerificationKeyHash`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:228](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L228)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).metadataVerificationKeyHash
+```
 
 ***
 
@@ -304,34 +500,85 @@ The hash of the verification key used for metadata proofs.
 name: Field = Field;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:186](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L186)
+
 The name of the NFT.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).name`
 
-#### Defined in
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).name
+```
 
-[packages/nft/src/contracts/types.ts:214](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L214)
+***
+
+### oracleAddress
+
+```ts
+oracleAddress: PublicKey = PublicKey;
+```
+
+Defined in: [packages/nft/src/interfaces/types.ts:207](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L207)
+
+The oracle address to link the NFT update with the network and accounts state
+
+#### Inherited from
+
+```ts
+Struct({
+  / The immutable state of the NFT. /
+  immutableState: NFTImmutableState,
+  / The name of the NFT. /
+  name: Field,
+  / The owner of the NFT. /
+  owner: PublicKey,
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
+  version: UInt32,
+  / Indicates whether the NFT contract is currently paused. /
+  isPaused: Bool,
+  / The hash of the verification key used for metadata proofs. /
+  metadataVerificationKeyHash: Field,
+
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).oracleAddress
+```
 
 ***
 
@@ -341,71 +588,41 @@ The name of the NFT.
 owner: PublicKey = PublicKey;
 ```
 
-The current owner of the NFT.
+Defined in: [packages/nft/src/interfaces/types.ts:188](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L188)
+
+The owner of the NFT.
 
 #### Inherited from
-
-`Struct({
-  /** The immutable state of the NFT. */
-  immutableState: NFTImmutableState,
-  /** The name of the NFT. */
-  name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
-  owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
-  version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
-  isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
-  metadataVerificationKeyHash: Field,
-}).owner`
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:220](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L220)
-
-***
-
-### price
 
 ```ts
-price: UInt64 = UInt64;
-```
-
-The price of the NFT.
-
-#### Inherited from
-
-`Struct({
-  /** The immutable state of the NFT. */
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).price`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:222](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L222)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).owner
+```
 
 ***
 
@@ -415,34 +632,41 @@ The price of the NFT.
 storage: Storage = Storage;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:194](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L194)
+
 The off-chain storage information (e.g., IPFS hash).
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).storage`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:218](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L218)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).storage
+```
 
 ***
 
@@ -452,34 +676,41 @@ The off-chain storage information (e.g., IPFS hash).
 version: UInt32 = UInt32;
 ```
 
+Defined in: [packages/nft/src/interfaces/types.ts:196](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L196)
+
 The version number of the NFT state.
 
 #### Inherited from
 
-`Struct({
-  /** The immutable state of the NFT. */
+```ts
+Struct({
+  / The immutable state of the NFT. /
   immutableState: NFTImmutableState,
-  /** The name of the NFT. */
+  / The name of the NFT. /
   name: Field,
-  /** The metadata associated with the NFT. */
-  metadata: Field,
-  /** The off-chain storage information (e.g., IPFS hash). */
-  storage: Storage,
-  /** The current owner of the NFT. */
+  / The owner of the NFT. /
   owner: PublicKey,
-  /** The price of the NFT. */
-  price: UInt64,
-  /** The version number of the NFT state. */
+  / The approved address of the NFT. /
+  approved: PublicKey,
+  / The metadata associated with the NFT. /
+  metadata: Field,
+  / The off-chain storage information (e.g., IPFS hash). /
+  storage: Storage,
+  / The version number of the NFT state. /
   version: UInt32,
-  /** Indicates whether the NFT contract is currently paused. */
+  / Indicates whether the NFT contract is currently paused. /
   isPaused: Bool,
-  /** The hash of the verification key used for metadata proofs. */
+  / The hash of the verification key used for metadata proofs. /
   metadataVerificationKeyHash: Field,
-}).version`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:224](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L224)
+  / The public key of the creator of the NFT (readonly). /
+  creator: PublicKey, // readonly
+  / The transaction context of the NFT. /
+  context: NFTTransactionContext, // readonly
+  / The oracle address to link the NFT update with the network and accounts state /
+  oracleAddress: PublicKey, // readonly
+}).version
+```
 
 ## Methods
 
@@ -488,6 +719,8 @@ The version number of the NFT state.
 ```ts
 static assertEqual(a: NFTState, b: NFTState): void
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:214](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L214)
 
 Asserts that two NFTState instances are equal.
 
@@ -509,10 +742,6 @@ The second NFTState instance.
 
 `void`
 
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:235](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L235)
-
 ***
 
 ### fromNFTState()
@@ -520,11 +749,15 @@ The second NFTState instance.
 ```ts
 static fromNFTState(params: {
   address: PublicKey;
+  context: NFTTransactionContext;
   creator: PublicKey;
   nftState: NFTStateStruct;
+  oracleAddress: PublicKey;
   tokenId: Field;
  }): NFTState
 ```
+
+Defined in: [packages/nft/src/interfaces/types.ts:233](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/types.ts#L233)
 
 Creates a new NFTState from an NFTStateStruct and other parameters.
 
@@ -538,6 +771,10 @@ The parameters including nftState, creator, address, and tokenId.
 
 `PublicKey`
 
+###### context
+
+[`NFTTransactionContext`](nftsrcclassnfttransactioncontext)
+
 ###### creator
 
 `PublicKey`
@@ -545,6 +782,10 @@ The parameters including nftState, creator, address, and tokenId.
 ###### nftState
 
 [`NFTStateStruct`](nftsrcclassnftstatestruct)
+
+###### oracleAddress
+
+`PublicKey`
 
 ###### tokenId
 
@@ -555,7 +796,3 @@ The parameters including nftState, creator, address, and tokenId.
 [`NFTState`](nftsrcclassnftstate)
 
 A new NFTState instance.
-
-#### Defined in
-
-[packages/nft/src/contracts/types.ts:252](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/types.ts#L252)

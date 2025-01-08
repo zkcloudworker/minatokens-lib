@@ -3,7 +3,7 @@ title: LimitMintingEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: nft.src.Class.LimitMintingEvent
-order: 177
+order: 193
 ---
 
 # Class: LimitMintingEvent
@@ -11,6 +11,8 @@ order: 177
 ## Properties overview
 
 - mintingLimited:  Bool = Bool; [↗](#mintinglimited)
+
+Defined in: [packages/nft/src/interfaces/events.ts:112](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/events.ts#L112)
 
 Emitted when minting of new NFTs is limited in the collection.
 
@@ -30,6 +32,8 @@ new LimitMintingEvent(value: {
  }): LimitMintingEvent
 ```
 
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+
 #### Parameters
 
 ##### value
@@ -46,14 +50,12 @@ Indicates whether minting is limited (`true`) or not (`false`).
 
 #### Inherited from
 
-Struct(\{
-  /\*\* Indicates whether minting is limited (\`true\`) or not (\`false\`). \*/
+```ts
+Struct({
+  / Indicates whether minting is limited (true) or not (false). /
   mintingLimited: Bool,
-\}).constructor
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -63,15 +65,15 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 mintingLimited: Bool = Bool;
 ```
 
+Defined in: [packages/nft/src/interfaces/events.ts:114](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/events.ts#L114)
+
 Indicates whether minting is limited (`true`) or not (`false`).
 
 #### Inherited from
 
-Struct(\{
-  /\*\* Indicates whether minting is limited (\`true\`) or not (\`false\`). \*/
+```ts
+Struct({
+  / Indicates whether minting is limited (true) or not (false). /
   mintingLimited: Bool,
-\}).mintingLimited
-
-#### Defined in
-
-[packages/nft/src/contracts/events.ts:132](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/contracts/events.ts#L132)
+}).mintingLimited
+```

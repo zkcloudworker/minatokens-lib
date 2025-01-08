@@ -3,7 +3,7 @@ title: UpgradeDatabaseStatePacked
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.UpgradeDatabaseStatePacked
-order: 291
+order: 349
 ---
 
 # Class: UpgradeDatabaseStatePacked
@@ -14,6 +14,8 @@ order: 291
 - nextUpgradeAuthorityX:  Field = Field; [↗](#nextupgradeauthorityx)
 - root:  Field = Field; [↗](#root)
 - storage:  Storage = Storage; [↗](#storage)
+
+Defined in: [packages/upgradable/src/validators.ts:122](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L122)
 
 Represents the packed state of the upgrade database.
 
@@ -38,6 +40,8 @@ new UpgradeDatabaseStatePacked(value: {
   storage: Storage;
  }): UpgradeDatabaseStatePacked
 ```
+
+Defined in: node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 
 #### Parameters
 
@@ -73,20 +77,18 @@ Storage information (e.g., IPFS hash)
 
 #### Inherited from
 
-`Struct({
-  /** Root of the UpgradeAuthority database */
+```ts
+Struct({
+  / Root of the UpgradeAuthority database /
   root: Field,
-  /** Storage information (e.g., IPFS hash) */
+  / Storage information (e.g., IPFS hash) /
   storage: Storage,
-  /** X-coordinate of the next upgrade authority's public key */
+  / X-coordinate of the next upgrade authority's public key /
   nextUpgradeAuthorityX: Field,
-  /** Packed data containing version, validFrom, and flags */
+  / Packed data containing version, validFrom, and flags /
   data: Field,
-}).constructor`
-
-#### Defined in
-
-node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
+}).constructor
+```
 
 ## Properties
 
@@ -96,24 +98,24 @@ node\_modules/o1js/dist/node/lib/provable/types/struct.d.ts:103
 data: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:130](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L130)
+
 Packed data containing version, validFrom, and flags
 
 #### Inherited from
 
-`Struct({
-  /** Root of the UpgradeAuthority database */
+```ts
+Struct({
+  / Root of the UpgradeAuthority database /
   root: Field,
-  /** Storage information (e.g., IPFS hash) */
+  / Storage information (e.g., IPFS hash) /
   storage: Storage,
-  /** X-coordinate of the next upgrade authority's public key */
+  / X-coordinate of the next upgrade authority's public key /
   nextUpgradeAuthorityX: Field,
-  /** Packed data containing version, validFrom, and flags */
+  / Packed data containing version, validFrom, and flags /
   data: Field,
-}).data`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:130](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L130)
+}).data
+```
 
 ***
 
@@ -123,24 +125,24 @@ Packed data containing version, validFrom, and flags
 nextUpgradeAuthorityX: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:128](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L128)
+
 X-coordinate of the next upgrade authority's public key
 
 #### Inherited from
 
-`Struct({
-  /** Root of the UpgradeAuthority database */
+```ts
+Struct({
+  / Root of the UpgradeAuthority database /
   root: Field,
-  /** Storage information (e.g., IPFS hash) */
+  / Storage information (e.g., IPFS hash) /
   storage: Storage,
-  /** X-coordinate of the next upgrade authority's public key */
+  / X-coordinate of the next upgrade authority's public key /
   nextUpgradeAuthorityX: Field,
-  /** Packed data containing version, validFrom, and flags */
+  / Packed data containing version, validFrom, and flags /
   data: Field,
-}).nextUpgradeAuthorityX`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:128](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L128)
+}).nextUpgradeAuthorityX
+```
 
 ***
 
@@ -150,24 +152,24 @@ X-coordinate of the next upgrade authority's public key
 root: Field = Field;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:124](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L124)
+
 Root of the UpgradeAuthority database
 
 #### Inherited from
 
-`Struct({
-  /** Root of the UpgradeAuthority database */
+```ts
+Struct({
+  / Root of the UpgradeAuthority database /
   root: Field,
-  /** Storage information (e.g., IPFS hash) */
+  / Storage information (e.g., IPFS hash) /
   storage: Storage,
-  /** X-coordinate of the next upgrade authority's public key */
+  / X-coordinate of the next upgrade authority's public key /
   nextUpgradeAuthorityX: Field,
-  /** Packed data containing version, validFrom, and flags */
+  / Packed data containing version, validFrom, and flags /
   data: Field,
-}).root`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:124](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L124)
+}).root
+```
 
 ***
 
@@ -177,21 +179,21 @@ Root of the UpgradeAuthority database
 storage: Storage = Storage;
 ```
 
+Defined in: [packages/upgradable/src/validators.ts:126](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L126)
+
 Storage information (e.g., IPFS hash)
 
 #### Inherited from
 
-`Struct({
-  /** Root of the UpgradeAuthority database */
+```ts
+Struct({
+  / Root of the UpgradeAuthority database /
   root: Field,
-  /** Storage information (e.g., IPFS hash) */
+  / Storage information (e.g., IPFS hash) /
   storage: Storage,
-  /** X-coordinate of the next upgrade authority's public key */
+  / X-coordinate of the next upgrade authority's public key /
   nextUpgradeAuthorityX: Field,
-  /** Packed data containing version, validFrom, and flags */
+  / Packed data containing version, validFrom, and flags /
   data: Field,
-}).storage`
-
-#### Defined in
-
-[packages/upgradable/src/validators.ts:126](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/upgradable/src/validators.ts#L126)
+}).storage
+```

@@ -3,7 +3,7 @@ title: TokenSymbolAndAdmin
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: api.src.TypeAlias.TokenSymbolAndAdmin
-order: 96
+order: 106
 ---
 
 # Type Alias: TokenSymbolAndAdmin
@@ -23,6 +23,8 @@ type TokenSymbolAndAdmin = {
   tokenSymbol: string;
 };
 ```
+
+Defined in: [packages/api/src/client/types.gen.ts:595](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L595)
 
 ## Type declaration
 
@@ -57,7 +59,3 @@ tokenSymbol: string;
 ```
 
 The symbol of the token.
-
-## Defined in
-
-[packages/api/src/client/types.gen.ts:572](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/api/src/client/types.gen.ts#L572)

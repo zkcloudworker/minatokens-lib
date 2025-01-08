@@ -3,7 +3,7 @@ title: deserializeIndexedMerkleMap
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: storage.src.Function.deserializeIndexedMerkleMap
-order: 249
+order: 307
 ---
 
 # Function: deserializeIndexedMerkleMap()
@@ -16,6 +16,8 @@ function deserializeIndexedMerkleMap(params: {
   | InstanceType<ReturnType<typeof IndexedMerkleMap>>
   | undefined
 ```
+
+Defined in: [packages/storage/src/indexed-map/indexed-map.ts:111](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L111)
 
 ## Parameters
 
@@ -33,7 +35,3 @@ function deserializeIndexedMerkleMap(params: {
 
   \| `InstanceType`\<`ReturnType`\<*typeof* `IndexedMerkleMap`\>\>
   \| `undefined`
-
-## Defined in
-
-[packages/storage/src/indexed-map/indexed-map.ts:111](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/storage/src/indexed-map/indexed-map.ts#L111)

@@ -3,7 +3,7 @@ title: FungibleTokenWhitelistedAdminDeployProps
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Interface.FungibleTokenWhitelistedAdminDeployProps
-order: 280
+order: 338
 ---
 
 # Interface: FungibleTokenWhitelistedAdminDeployProps
@@ -17,6 +17,8 @@ order: 280
 - totalSupply:  UInt64; [↗](#totalsupply)
 - whitelist:  Whitelist; [↗](#whitelist)
 
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:66](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L66)
+
 ## Extends
 
 - `Exclude`\<`DeployArgs`, `undefined`\>
@@ -29,9 +31,7 @@ order: 280
 adminPublicKey: PublicKey;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:68](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L68)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:68](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L68)
 
 ***
 
@@ -41,9 +41,7 @@ adminPublicKey: PublicKey;
 anyoneCanMint: Bool;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:73](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L73)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:73](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L73)
 
 ***
 
@@ -53,9 +51,7 @@ anyoneCanMint: Bool;
 requireAdminSignatureForMint: Bool;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:72](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L72)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:72](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L72)
 
 ***
 
@@ -65,9 +61,7 @@ requireAdminSignatureForMint: Bool;
 tokenContract: PublicKey;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:69](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L69)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:69](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L69)
 
 ***
 
@@ -77,9 +71,7 @@ tokenContract: PublicKey;
 totalSupply: UInt64;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:70](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L70)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:70](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L70)
 
 ***
 
@@ -89,6 +81,4 @@ totalSupply: UInt64;
 whitelist: Whitelist;
 ```
 
-#### Defined in
-
-[packages/token/src/FungibleTokenAdvancedAdmin.ts:71](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L71)
+Defined in: [packages/token/src/FungibleTokenAdvancedAdmin.ts:71](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/token/src/FungibleTokenAdvancedAdmin.ts#L71)

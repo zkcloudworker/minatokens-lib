@@ -12,6 +12,4 @@ order: 14
 const devnet: ChainVerificationKeysList;
 ```
 
-## Defined in
-
-[packages/abi/src/vk/devnet.ts:4](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/devnet.ts#L4)
+Defined in: [packages/abi/src/vk/devnet.ts:4](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/abi/src/vk/devnet.ts#L4)
