@@ -551,7 +551,7 @@ export async function buildTokenTransaction(params) {
 export async function getTokenSymbolAndAdmin(params) {
     const { txType, tokenAddress, chain, to, offerAddress, bidAddress } = params;
     const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "devnet"].vk;
-    const verificationKeyHashes = [];
+    let verificationKeyHashes = [];
     if (bidAddress) {
         verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
     }
@@ -618,7 +618,11 @@ export async function getTokenSymbolAndAdmin(params) {
         isAdvanced = false;
     }
     else {
-        throw new Error("Unknown admin verification key");
+        console.error("Unknown admin verification key", {
+            hash: adminVerificationKey.hash.toJSON(),
+            symbol,
+            address: adminContractPublicKey.toBase58(),
+        });
     }
     let isToNewAccount = undefined;
     if (to) {
@@ -640,8 +644,10 @@ export async function getTokenSymbolAndAdmin(params) {
     const adminAddress = PublicKey.fromFields([adminAddress0, adminAddress1]);
     for (const hash of verificationKeyHashes) {
         const found = Object.values(vk).some((key) => key.hash === hash);
-        if (!found)
-            throw new Error(`Final check: unknown verification key hash: ${hash}`);
+        if (!found) {
+            console.error(`Final check: unknown verification key hash: ${hash}`);
+            verificationKeyHashes = verificationKeyHashes.filter((h) => h !== hash);
+        }
     }
     // Sort verification key hashes by type: upgrade -> admin -> token -> user
     verificationKeyHashes.sort((a, b) => {

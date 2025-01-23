@@ -675,7 +675,7 @@ async function buildTokenTransaction(params) {
 async function getTokenSymbolAndAdmin(params) {
   const { txType, tokenAddress, chain, to, offerAddress, bidAddress } = params;
   const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "devnet"].vk;
-  const verificationKeyHashes = [];
+  let verificationKeyHashes = [];
   if (bidAddress) {
     verificationKeyHashes.push(vk.FungibleTokenBidContract.hash);
   }
@@ -738,7 +738,11 @@ async function getTokenSymbolAndAdmin(params) {
   } else if (vk.FungibleTokenAdmin.hash === adminVerificationKey.hash.toJSON() && vk.FungibleTokenAdmin.data === adminVerificationKey.data) {
     isAdvanced = false;
   } else {
-    throw new Error("Unknown admin verification key");
+    console.error("Unknown admin verification key", {
+      hash: adminVerificationKey.hash.toJSON(),
+      symbol,
+      address: adminContractPublicKey.toBase58()
+    });
   }
   let isToNewAccount = void 0;
   if (to) {
@@ -760,8 +764,10 @@ async function getTokenSymbolAndAdmin(params) {
   const adminAddress = import_o1js2.PublicKey.fromFields([adminAddress0, adminAddress1]);
   for (const hash of verificationKeyHashes) {
     const found = Object.values(vk).some((key) => key.hash === hash);
-    if (!found)
-      throw new Error(`Final check: unknown verification key hash: ${hash}`);
+    if (!found) {
+      console.error(`Final check: unknown verification key hash: ${hash}`);
+      verificationKeyHashes = verificationKeyHashes.filter((h) => h !== hash);
+    }
   }
   verificationKeyHashes.sort((a, b) => {
     const typeA = Object.values(vk).find((key) => key.hash === a)?.type;
