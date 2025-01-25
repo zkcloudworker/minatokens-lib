@@ -10,6 +10,8 @@ import {
   FungibleTokenBidContract,
   FungibleTokenOfferContract,
   FungibleTokenClaimContract,
+  BondingCurveAdmin,
+  BondingCurveFungibleToken,
 } from "@minatokens/token";
 import {
   NFT,
@@ -81,6 +83,12 @@ const contracts: {
   },
 
   { name: "FungibleToken", contract: FungibleToken, type: "token" },
+  {
+    name: "BondingCurveFungibleToken",
+    contract: BondingCurveFungibleToken,
+    type: "token",
+  },
+  { name: "BondingCurveAdmin", contract: BondingCurveAdmin, type: "admin" },
   { name: "FungibleTokenAdmin", contract: FungibleTokenAdmin, type: "admin" },
   {
     name: "AdvancedFungibleToken",
@@ -182,12 +190,16 @@ export async function compileContracts(chain: string) {
       const { verificationKey } = await contract.contract.compile({ cache });
       verificationKeys.push({ name: contract.name, verificationKey });
       console.timeEnd(`compiled ${contract.name}`);
+      const rss = process.memoryUsage().rss;
+      if (rss > 1024 * 1024 * 6000)
+        console.log(`RSS memory: ${Math.round(rss / 1024 / 1024)} MB`);
     }
   });
 
   await it("should compare verification keys with MF versions", async () => {
     const sets = [
       { name: "FungibleToken", MF_name: "FungibleTokenMF" },
+      { name: "BondingCurveFungibleToken", MF_name: "FungibleTokenMF" },
       { name: "AdvancedFungibleToken", MF_name: "FungibleTokenMF" },
       { name: "FungibleTokenAdmin", MF_name: "FungibleTokenAdminMF" },
     ];

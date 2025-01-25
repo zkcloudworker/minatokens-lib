@@ -1,6 +1,5 @@
 import {
   AccountUpdate,
-  assert,
   Bool,
   DeployArgs,
   method,
@@ -17,6 +16,8 @@ import {
   AccountUpdateForest,
   Int64,
   UInt32,
+  fetchAccount,
+  Mina,
 } from "o1js";
 import {
   FungibleTokenAdminBase,
@@ -50,16 +51,18 @@ export class BondingCurveParams extends Struct({
   startPrice: UInt64,
   curveK: UInt64,
   fee: UInt32, // 1000 = 1%
+  mintingIsAllowed: Bool,
 }) {
   pack() {
     return Field.fromBits([
       ...this.startPrice.value.toBits(64),
       ...this.curveK.value.toBits(64),
       ...this.fee.value.toBits(32),
+      this.mintingIsAllowed,
     ]);
   }
   static unpack(field: Field): BondingCurveParams {
-    const bits = field.toBits(64 + 64 + 32);
+    const bits = field.toBits(64 + 64 + 32 + 1);
     const startPrice = UInt64.Unsafe.fromField(
       Field.fromBits(bits.slice(0, 64))
     );
@@ -69,15 +72,18 @@ export class BondingCurveParams extends Struct({
     const fee = UInt32.Unsafe.fromField(
       Field.fromBits(bits.slice(64 + 64, 64 + 64 + 32))
     );
+    const mintingIsAllowed = bits[64 + 64 + 32];
     return new BondingCurveParams({
       startPrice,
       curveK,
       fee,
+      mintingIsAllowed,
     });
   }
 }
 
 export class BondingMintEvent extends Struct({
+  to: PublicKey,
   amount: UInt64,
   price: UInt64,
   payment: UInt64,
@@ -85,6 +91,7 @@ export class BondingMintEvent extends Struct({
 }) {}
 
 export class BondingRedeemEvent extends Struct({
+  seller: PublicKey,
   amount: UInt64,
   payment: UInt64,
   minBalance: UInt64,
@@ -92,23 +99,23 @@ export class BondingRedeemEvent extends Struct({
   fee: UInt64,
 }) {}
 
-export interface BondingCurveAdminDeployProps
-  extends Exclude<DeployArgs, undefined> {
-  owner: PublicKey;
-  token: PublicKey;
-  feeMaster: PublicKey;
-  fee?: UInt32;
-  startPrice?: UInt64;
-  curveK?: UInt64;
-}
+export class BondingCurveAdminInitializeProps extends Struct({
+  tokenAddress: PublicKey,
+  startPrice: UInt64,
+  curveK: UInt64,
+  feeMaster: PublicKey,
+  fee: UInt32, // 1000 = 1%
+  launchFee: UInt64,
+  numberOfNewAccounts: UInt64,
+}) {}
 
 export class BondingCurveAdmin
   extends TokenContract
   implements FungibleTokenAdminBase
 {
-  @state(PublicKey) owner = State<PublicKey>();
-  @state(PublicKey) token = State<PublicKey>();
-  @state(PublicKey) feeMaster = State<PublicKey>();
+  @state(PublicKey) owner = State<PublicKey>(PublicKey.empty());
+  @state(PublicKey) token = State<PublicKey>(PublicKey.empty());
+  @state(PublicKey) feeMaster = State<PublicKey>(PublicKey.empty());
   @state(Field) curve = State<Field>();
   @state(Bool) insideMint = State<Bool>(Bool(false));
 
@@ -117,16 +124,14 @@ export class BondingCurveAdmin
     redeem: BondingRedeemEvent,
   };
 
-  async deploy(props: BondingCurveAdminDeployProps) {
+  async deploy(props: DeployArgs) {
     await super.deploy(props);
-    this.owner.set(props.owner);
-    this.token.set(props.token);
-    this.feeMaster.set(props.feeMaster);
     this.curve.set(
       new BondingCurveParams({
-        startPrice: props.startPrice ?? UInt64.from(10_000),
-        curveK: props.curveK ?? UInt64.from(10_000),
-        fee: props.fee ?? UInt32.from(1_000),
+        startPrice: UInt64.from(10_000),
+        curveK: UInt64.from(10_000),
+        fee: UInt32.from(1000),
+        mintingIsAllowed: Bool(false),
       }).pack()
     );
     this.account.permissions.set({
@@ -143,26 +148,82 @@ export class BondingCurveAdmin
   }
 
   @method
-  async initialize() {
+  async initialize(props: BondingCurveAdminInitializeProps) {
+    const {
+      tokenAddress,
+      feeMaster,
+      startPrice,
+      curveK,
+      fee,
+      launchFee,
+      numberOfNewAccounts,
+    } = props;
     this.account.provedState.requireEquals(Bool(false));
-    const accountUpdate = AccountUpdate.createSigned(
+    this.token.set(tokenAddress);
+    this.feeMaster.set(feeMaster);
+    this.curve.set(
+      new BondingCurveParams({
+        startPrice,
+        curveK,
+        fee,
+        mintingIsAllowed: Bool(false),
+      }).pack()
+    );
+
+    /*
+      We cannot constrain the circulating supply of the token,
+      as the error Can't transfer to/from the circulation account
+      is thrown for ANY AccountUpdate for the circulation tracking account
+      so we keep the copy if the circulation amount  here and sync sometimes
+      in the case the user burns tokens without calling the redeem method
+    */
+    const supplyUpdate = AccountUpdate.createSigned(
       this.address,
       this.deriveTokenId()
     );
     let permissions = Permissions.default();
     permissions.send = Permissions.none();
     permissions.setPermissions = Permissions.impossible();
-    accountUpdate.account.permissions.set(permissions);
+    supplyUpdate.account.permissions.set(permissions);
+
+    const payment = launchFee.add(
+      numberOfNewAccounts.mul(UInt64.from(1_000_000_000))
+    );
+    const owner = this.sender.getUnconstrained();
+    const ownerUpdate = AccountUpdate.create(owner);
+    ownerUpdate.requireSignature();
+    this.owner.set(owner);
+    ownerUpdate.body.useFullCommitment = Bool(true);
+    ownerUpdate.account.balance.requireBetween(payment, UInt64.MAXINT());
+    ownerUpdate.balance.subInPlace(payment);
+    const feeUpdate = AccountUpdate.create(feeMaster);
+    feeUpdate.balance.addInPlace(launchFee);
   }
 
-  @method async mint(amount: UInt64, price: UInt64) {
+  @method async mint(to: PublicKey, amount: UInt64, price: UInt64) {
     this.insideMint.getAndRequireEquals().assertEquals(Bool(false));
     this.insideMint.set(Bool(true));
     const tokenAddress = this.token.getAndRequireEquals();
     const token = new BondingCurveFungibleToken(tokenAddress);
-    const { startPrice, curveK, fee } = BondingCurveParams.unpack(
-      this.curve.getAndRequireEquals()
+    const { startPrice, curveK, fee, mintingIsAllowed } =
+      BondingCurveParams.unpack(this.curve.getAndRequireEquals());
+    const buyer = this.sender.getUnconstrained();
+    const buyerUpdate = AccountUpdate.create(buyer);
+    buyerUpdate.requireSignature();
+    buyerUpdate.body.useFullCommitment = Bool(true);
+    const owner = this.owner.getAndRequireEquals();
+    const isOwner = owner.equals(buyer);
+    const canMint = isOwner.or(mintingIsAllowed);
+    canMint.assertTrue("Minting is disabled for this token");
+    this.curve.set(
+      new BondingCurveParams({
+        startPrice,
+        curveK,
+        fee,
+        mintingIsAllowed: Bool(true),
+      }).pack()
     );
+
     /*
      * (price - startPrice) / curveK = totalSupply
      * (3 MINA - 1 MINA) / 1 MINA = 2 * 100_000 = 200_000 tokens
@@ -212,10 +273,6 @@ export class BondingCurveAdmin
       .assertGreaterThanOrEqual(price.value.mul(amount.value));
     paymentField.assertLessThan(UInt64.MAXINT().value);
     const payment = UInt64.Unsafe.fromField(paymentField);
-    const buyer = this.sender.getUnconstrained();
-    const buyerUpdate = AccountUpdate.create(buyer);
-    buyerUpdate.requireSignature();
-    buyerUpdate.body.useFullCommitment = Bool(true);
 
     const feePaymentField = Provable.witness(Field, () => {
       let feePayment = (payment.toBigInt() * fee.toBigint()) / 100_000n;
@@ -238,7 +295,7 @@ export class BondingCurveAdmin
       feePayment
     );
 
-    const tokenUpdate = await token.mint(buyer, amount);
+    const tokenUpdate = await token.mint(to, amount);
     const isNew = tokenUpdate.account.isNew.get();
     const totalPayment = payment
       .add(feePayment)
@@ -255,6 +312,7 @@ export class BondingCurveAdmin
     this.emitEvent(
       "mint",
       new BondingMintEvent({
+        to,
         amount,
         price,
         payment,
@@ -272,7 +330,14 @@ export class BondingCurveAdmin
     const tokenAddress = this.token.getAndRequireEquals();
     const token = new BondingCurveFungibleToken(tokenAddress);
 
-    const balance = this.account.balance.get();
+    const balance = await Provable.witnessAsync(UInt64, async () => {
+      await fetchAccount({
+        publicKey: this.address,
+        tokenId: this.tokenId,
+      });
+      const balance = Mina.getAccount(this.address, this.tokenId).balance;
+      return balance;
+    });
     slippage.assertLessThan(UInt32.from(1000));
     const minBalanceField = Provable.witness(Field, () => {
       let minBalance =
@@ -300,11 +365,17 @@ export class BondingCurveAdmin
     const minBalance = UInt64.Unsafe.fromField(minBalanceField);
     this.account.balance.requireBetween(minBalance, UInt64.MAXINT());
 
-    const supplyUpdate = AccountUpdate.create(
-      this.address,
-      this.deriveTokenId()
-    );
-    const supply = supplyUpdate.account.balance.get();
+    const supply = await Provable.witnessAsync(UInt64, async () => {
+      await fetchAccount({
+        publicKey: this.address,
+        tokenId: this.deriveTokenId(),
+      });
+      const balance = Mina.getAccount(
+        this.address,
+        this.deriveTokenId()
+      ).balance;
+      return balance;
+    });
     supply.assertGreaterThanOrEqual(amount);
     supply.assertGreaterThan(UInt64.zero);
     const maxSupplyField = Provable.witness(Field, () =>
@@ -317,6 +388,10 @@ export class BondingCurveAdmin
       );
     maxSupplyField.assertLessThan(UInt64.MAXINT().value);
     const maxSupply = UInt64.Unsafe.fromField(maxSupplyField);
+    const supplyUpdate = AccountUpdate.create(
+      this.address,
+      this.deriveTokenId()
+    );
     supplyUpdate.account.balance.requireBetween(UInt64.zero, maxSupply);
     supplyUpdate.balanceChange = Int64.fromUnsigned(amount).neg();
 
@@ -335,7 +410,12 @@ export class BondingCurveAdmin
       .mul(minPrice.value)
       .assertLessThanOrEqual(paymentField.mul(Field.from(10 ** 9)));
     const payment = UInt64.Unsafe.fromField(paymentField);
-    const { fee } = BondingCurveParams.unpack(this.curve.getAndRequireEquals());
+    const { fee, mintingIsAllowed } = BondingCurveParams.unpack(
+      this.curve.getAndRequireEquals()
+    );
+    mintingIsAllowed.assertTrue(
+      "Minting is disabled for this token, nothing to redeem"
+    );
     let feePayment = Provable.witness(UInt64, () => {
       let feePayment = (payment.toBigInt() * fee.toBigint()) / 100_000n;
       if (feePayment * 100_000n !== payment.toBigInt() * fee.toBigint()) {
@@ -351,7 +431,6 @@ export class BondingCurveAdmin
       UInt64.from(100_000_000),
       feePayment
     );
-
     const seller = this.sender.getUnconstrained();
     const sellerUpdate = AccountUpdate.create(seller);
     const isNew = sellerUpdate.account.isNew.getAndRequireEquals();
@@ -360,7 +439,6 @@ export class BondingCurveAdmin
       UInt64.from(1_000_000_000),
       UInt64.zero
     );
-
     payment.assertGreaterThan(feePayment.add(accountCreationFee));
     sellerUpdate.requireSignature();
     sellerUpdate.body.useFullCommitment = Bool(true);
@@ -383,6 +461,7 @@ export class BondingCurveAdmin
     this.emitEvent(
       "redeem",
       new BondingRedeemEvent({
+        seller,
         amount,
         payment,
         minBalance,
@@ -390,6 +469,25 @@ export class BondingCurveAdmin
         fee: feePayment,
       })
     );
+  }
+
+  /**
+   * In case the user burned tokens without calling the redeem method,
+   * we need to sync the supply to the actual circulated supply
+   */
+
+  @method async sync() {
+    const tokenAddress = this.token.getAndRequireEquals();
+    const token = new BondingCurveFungibleToken(tokenAddress);
+    const supplyUpdate = AccountUpdate.create(
+      this.address,
+      this.deriveTokenId()
+    );
+    const circulatingSupply = await token.getBalanceOf(tokenAddress);
+    const totalSupply = supplyUpdate.account.balance.getAndRequireEquals();
+    supplyUpdate.balanceChange = Int64.fromUnsigned(
+      totalSupply.sub(circulatingSupply)
+    ).neg();
   }
 
   /** Update the verification key.

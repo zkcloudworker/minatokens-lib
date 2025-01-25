@@ -24,6 +24,12 @@ __export(index_exports, {
   AdvancedFungibleToken: () => AdvancedFungibleToken,
   BalanceChangeEvent: () => BalanceChangeEvent,
   BidEvent: () => BidEvent,
+  BondingCurveAdmin: () => BondingCurveAdmin,
+  BondingCurveAdminInitializeProps: () => BondingCurveAdminInitializeProps,
+  BondingCurveFungibleToken: () => BondingCurveFungibleToken,
+  BondingCurveParams: () => BondingCurveParams,
+  BondingMintEvent: () => BondingMintEvent,
+  BondingRedeemEvent: () => BondingRedeemEvent,
   BurnEvent: () => BurnEvent,
   FungibleToken: () => FungibleToken,
   FungibleTokenAdmin: () => FungibleTokenAdmin,
@@ -1102,12 +1108,427 @@ var FungibleTokenOfferContract = class extends import_o1js6.SmartContract {
   (0, import_tslib6.__metadata)("design:paramtypes", [import_storage4.Whitelist]),
   (0, import_tslib6.__metadata)("design:returntype", Promise)
 ], FungibleTokenOfferContract.prototype, "updateWhitelist", null);
+
+// dist/node/BondingCurveAdmin.js
+var import_tslib7 = require("tslib");
+var import_o1js7 = require("o1js");
+var import_token = require("@minatokens/token");
+var BondingCurveParams = class _BondingCurveParams extends (0, import_o1js7.Struct)({
+  startPrice: import_o1js7.UInt64,
+  curveK: import_o1js7.UInt64,
+  fee: import_o1js7.UInt32,
+  // 1000 = 1%
+  mintingIsAllowed: import_o1js7.Bool
+}) {
+  pack() {
+    return import_o1js7.Field.fromBits([
+      ...this.startPrice.value.toBits(64),
+      ...this.curveK.value.toBits(64),
+      ...this.fee.value.toBits(32),
+      this.mintingIsAllowed
+    ]);
+  }
+  static unpack(field) {
+    const bits = field.toBits(64 + 64 + 32 + 1);
+    const startPrice = import_o1js7.UInt64.Unsafe.fromField(import_o1js7.Field.fromBits(bits.slice(0, 64)));
+    const curveK = import_o1js7.UInt64.Unsafe.fromField(import_o1js7.Field.fromBits(bits.slice(64, 64 + 64)));
+    const fee = import_o1js7.UInt32.Unsafe.fromField(import_o1js7.Field.fromBits(bits.slice(64 + 64, 64 + 64 + 32)));
+    const mintingIsAllowed = bits[64 + 64 + 32];
+    return new _BondingCurveParams({
+      startPrice,
+      curveK,
+      fee,
+      mintingIsAllowed
+    });
+  }
+};
+var BondingMintEvent = class extends (0, import_o1js7.Struct)({
+  to: import_o1js7.PublicKey,
+  amount: import_o1js7.UInt64,
+  price: import_o1js7.UInt64,
+  payment: import_o1js7.UInt64,
+  fee: import_o1js7.UInt64
+}) {
+};
+var BondingRedeemEvent = class extends (0, import_o1js7.Struct)({
+  seller: import_o1js7.PublicKey,
+  amount: import_o1js7.UInt64,
+  payment: import_o1js7.UInt64,
+  minBalance: import_o1js7.UInt64,
+  maxSupply: import_o1js7.UInt64,
+  fee: import_o1js7.UInt64
+}) {
+};
+var BondingCurveAdminInitializeProps = class extends (0, import_o1js7.Struct)({
+  tokenAddress: import_o1js7.PublicKey,
+  startPrice: import_o1js7.UInt64,
+  curveK: import_o1js7.UInt64,
+  feeMaster: import_o1js7.PublicKey,
+  fee: import_o1js7.UInt32,
+  // 1000 = 1%
+  launchFee: import_o1js7.UInt64,
+  numberOfNewAccounts: import_o1js7.UInt64
+}) {
+};
+var BondingCurveAdmin = class extends import_o1js7.TokenContract {
+  constructor() {
+    super(...arguments);
+    this.owner = (0, import_o1js7.State)(import_o1js7.PublicKey.empty());
+    this.token = (0, import_o1js7.State)(import_o1js7.PublicKey.empty());
+    this.feeMaster = (0, import_o1js7.State)(import_o1js7.PublicKey.empty());
+    this.curve = (0, import_o1js7.State)();
+    this.insideMint = (0, import_o1js7.State)((0, import_o1js7.Bool)(false));
+    this.events = {
+      mint: BondingMintEvent,
+      redeem: BondingRedeemEvent
+    };
+  }
+  async deploy(props) {
+    await super.deploy(props);
+    this.curve.set(new BondingCurveParams({
+      startPrice: import_o1js7.UInt64.from(1e4),
+      curveK: import_o1js7.UInt64.from(1e4),
+      fee: import_o1js7.UInt32.from(1e3),
+      mintingIsAllowed: (0, import_o1js7.Bool)(false)
+    }).pack());
+    this.account.permissions.set({
+      ...import_o1js7.Permissions.default(),
+      setVerificationKey: import_o1js7.Permissions.VerificationKey.impossibleDuringCurrentVersion(),
+      setPermissions: import_o1js7.Permissions.impossible(),
+      send: import_o1js7.Permissions.proof()
+    });
+  }
+  async approveBase(forest) {
+    throw Error("Transfer not allowed");
+  }
+  async initialize(props) {
+    const { tokenAddress, feeMaster, startPrice, curveK, fee, launchFee, numberOfNewAccounts } = props;
+    this.account.provedState.requireEquals((0, import_o1js7.Bool)(false));
+    this.token.set(tokenAddress);
+    this.feeMaster.set(feeMaster);
+    this.curve.set(new BondingCurveParams({
+      startPrice,
+      curveK,
+      fee,
+      mintingIsAllowed: (0, import_o1js7.Bool)(false)
+    }).pack());
+    const supplyUpdate = import_o1js7.AccountUpdate.createSigned(this.address, this.deriveTokenId());
+    let permissions = import_o1js7.Permissions.default();
+    permissions.send = import_o1js7.Permissions.none();
+    permissions.setPermissions = import_o1js7.Permissions.impossible();
+    supplyUpdate.account.permissions.set(permissions);
+    const payment = launchFee.add(numberOfNewAccounts.mul(import_o1js7.UInt64.from(1e9)));
+    const owner = this.sender.getUnconstrained();
+    const ownerUpdate = import_o1js7.AccountUpdate.create(owner);
+    ownerUpdate.requireSignature();
+    this.owner.set(owner);
+    ownerUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+    ownerUpdate.account.balance.requireBetween(payment, import_o1js7.UInt64.MAXINT());
+    ownerUpdate.balance.subInPlace(payment);
+    const feeUpdate = import_o1js7.AccountUpdate.create(feeMaster);
+    feeUpdate.balance.addInPlace(launchFee);
+  }
+  async mint(to, amount, price) {
+    this.insideMint.getAndRequireEquals().assertEquals((0, import_o1js7.Bool)(false));
+    this.insideMint.set((0, import_o1js7.Bool)(true));
+    const tokenAddress = this.token.getAndRequireEquals();
+    const token = new BondingCurveFungibleToken(tokenAddress);
+    const { startPrice, curveK, fee, mintingIsAllowed } = BondingCurveParams.unpack(this.curve.getAndRequireEquals());
+    const buyer = this.sender.getUnconstrained();
+    const buyerUpdate = import_o1js7.AccountUpdate.create(buyer);
+    buyerUpdate.requireSignature();
+    buyerUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+    const owner = this.owner.getAndRequireEquals();
+    const isOwner = owner.equals(buyer);
+    const canMint = isOwner.or(mintingIsAllowed);
+    canMint.assertTrue("Minting is disabled for this token");
+    this.curve.set(new BondingCurveParams({
+      startPrice,
+      curveK,
+      fee,
+      mintingIsAllowed: (0, import_o1js7.Bool)(true)
+    }).pack());
+    const maximumSupplyField = import_o1js7.Provable.witness(import_o1js7.Field, () => import_o1js7.Field.from((price.toBigInt() - startPrice.toBigInt()) * 10n ** 14n / curveK.toBigInt()));
+    maximumSupplyField.mul(curveK.value).add(startPrice.value.mul(import_o1js7.Field.from(10 ** 14))).assertLessThanOrEqual(price.value.mul(import_o1js7.Field.from(10 ** 14)));
+    maximumSupplyField.assertLessThan(import_o1js7.UInt64.MAXINT().value);
+    const maximumSupply = import_o1js7.UInt64.Unsafe.fromField(maximumSupplyField);
+    const supplyUpdate = import_o1js7.AccountUpdate.create(this.address, this.deriveTokenId());
+    supplyUpdate.account.balance.requireBetween(import_o1js7.UInt64.zero, maximumSupply);
+    amount.assertLessThanOrEqual(import_o1js7.UInt64.from(2n ** 62n));
+    supplyUpdate.balanceChange = import_o1js7.Int64.fromUnsigned(amount);
+    const paymentField = import_o1js7.Provable.witness(import_o1js7.Field, () => {
+      let payment2 = price.toBigInt() * amount.toBigInt() / 10n ** 9n;
+      if (payment2 * 10n ** 9n !== price.toBigInt() * amount.toBigInt()) {
+        payment2++;
+      }
+      if (payment2 * 10n ** 9n < price.toBigInt() * amount.toBigInt()) {
+        throw Error("Payment calculation failed");
+      }
+      return import_o1js7.Field.from(payment2);
+    });
+    paymentField.mul(import_o1js7.Field.from(10 ** 9)).assertGreaterThanOrEqual(price.value.mul(amount.value));
+    paymentField.assertLessThan(import_o1js7.UInt64.MAXINT().value);
+    const payment = import_o1js7.UInt64.Unsafe.fromField(paymentField);
+    const feePaymentField = import_o1js7.Provable.witness(import_o1js7.Field, () => {
+      let feePayment2 = payment.toBigInt() * fee.toBigint() / 100000n;
+      if (feePayment2 * 100000n !== payment.toBigInt() * fee.toBigint()) {
+        feePayment2++;
+      }
+      if (feePayment2 * 100000n < payment.toBigInt() * fee.toBigint()) {
+        throw Error("Fee calculation failed");
+      }
+      return import_o1js7.Field.from(feePayment2);
+    });
+    feePaymentField.mul(import_o1js7.Field.from(1e5)).assertGreaterThanOrEqual(payment.value.mul(fee.value));
+    feePaymentField.assertLessThan(import_o1js7.UInt64.MAXINT().value);
+    let feePayment = import_o1js7.UInt64.Unsafe.fromField(feePaymentField);
+    feePayment = import_o1js7.Provable.if(feePayment.lessThan(import_o1js7.UInt64.from(1e8)), import_o1js7.UInt64.from(1e8), feePayment);
+    const tokenUpdate = await token.mint(to, amount);
+    const isNew = tokenUpdate.account.isNew.get();
+    const totalPayment = payment.add(feePayment).add(import_o1js7.Provable.if(isNew, import_o1js7.UInt64.from(1e9), import_o1js7.UInt64.zero));
+    buyerUpdate.account.balance.requireBetween(totalPayment, import_o1js7.UInt64.MAXINT());
+    buyerUpdate.balance.subInPlace(totalPayment);
+    this.balance.addInPlace(payment);
+    const feeUpdate = import_o1js7.AccountUpdate.create(this.feeMaster.getAndRequireEquals());
+    feeUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+    feeUpdate.balance.addInPlace(feePayment);
+    this.emitEvent("mint", new BondingMintEvent({
+      to,
+      amount,
+      price,
+      payment,
+      fee: feePayment
+    }));
+  }
+  /*
+    In case of other txs being included in the same block, the balance and supply may change.
+    We need to ensure that the balance is at least minBalance and the supply is at most maxSupply.
+    It is recommended to put 5% buffer for minBalance and 5% buffer for maxSupply for tx to succeed.
+  */
+  async redeem(amount, minPrice, slippage) {
+    const tokenAddress = this.token.getAndRequireEquals();
+    const token = new BondingCurveFungibleToken(tokenAddress);
+    const balance = await import_o1js7.Provable.witnessAsync(import_o1js7.UInt64, async () => {
+      await (0, import_o1js7.fetchAccount)({
+        publicKey: this.address,
+        tokenId: this.tokenId
+      });
+      const balance2 = import_o1js7.Mina.getAccount(this.address, this.tokenId).balance;
+      return balance2;
+    });
+    slippage.assertLessThan(import_o1js7.UInt32.from(1e3));
+    const minBalanceField = import_o1js7.Provable.witness(import_o1js7.Field, () => {
+      let minBalance2 = balance.toBigInt() * (1000n - slippage.toBigint()) / 1000n;
+      if (minBalance2 * 1000n !== balance.toBigInt() * (1000n - slippage.toBigint())) {
+        minBalance2++;
+      }
+      if (minBalance2 * 1000n < balance.toBigInt() * (1000n - slippage.toBigint())) {
+        throw Error("Min balance calculation failed");
+      }
+      return import_o1js7.Field.from(minBalance2);
+    });
+    minBalanceField.mul(import_o1js7.Field.from(1e3)).add(balance.value.mul(slippage.value)).assertGreaterThanOrEqual(balance.value.mul(import_o1js7.Field.from(1e3)));
+    minBalanceField.assertLessThan(import_o1js7.UInt64.MAXINT().value);
+    const minBalance = import_o1js7.UInt64.Unsafe.fromField(minBalanceField);
+    this.account.balance.requireBetween(minBalance, import_o1js7.UInt64.MAXINT());
+    const supply = await import_o1js7.Provable.witnessAsync(import_o1js7.UInt64, async () => {
+      await (0, import_o1js7.fetchAccount)({
+        publicKey: this.address,
+        tokenId: this.deriveTokenId()
+      });
+      const balance2 = import_o1js7.Mina.getAccount(this.address, this.deriveTokenId()).balance;
+      return balance2;
+    });
+    supply.assertGreaterThanOrEqual(amount);
+    supply.assertGreaterThan(import_o1js7.UInt64.zero);
+    const maxSupplyField = import_o1js7.Provable.witness(import_o1js7.Field, () => import_o1js7.Field.from(supply.toBigInt() * (1000n + slippage.toBigint()) / 1000n));
+    maxSupplyField.mul(import_o1js7.Field.from(1e3)).assertLessThanOrEqual(supply.value.mul(import_o1js7.Field.from(1e3).add(slippage.value)));
+    maxSupplyField.assertLessThan(import_o1js7.UInt64.MAXINT().value);
+    const maxSupply = import_o1js7.UInt64.Unsafe.fromField(maxSupplyField);
+    const supplyUpdate = import_o1js7.AccountUpdate.create(this.address, this.deriveTokenId());
+    supplyUpdate.account.balance.requireBetween(import_o1js7.UInt64.zero, maxSupply);
+    supplyUpdate.balanceChange = import_o1js7.Int64.fromUnsigned(amount).neg();
+    const paymentField = import_o1js7.Provable.witness(import_o1js7.Field, () => import_o1js7.Field.from(minBalance.toBigInt() * amount.toBigInt() / maxSupply.toBigInt()));
+    paymentField.mul(maxSupply.value).assertLessThanOrEqual(minBalance.value.mul(amount.value));
+    paymentField.assertLessThan(import_o1js7.Field.from(2n ** 62n));
+    amount.value.mul(minPrice.value).assertLessThanOrEqual(paymentField.mul(import_o1js7.Field.from(10 ** 9)));
+    const payment = import_o1js7.UInt64.Unsafe.fromField(paymentField);
+    const { fee, mintingIsAllowed } = BondingCurveParams.unpack(this.curve.getAndRequireEquals());
+    mintingIsAllowed.assertTrue("Minting is disabled for this token, nothing to redeem");
+    let feePayment = import_o1js7.Provable.witness(import_o1js7.UInt64, () => {
+      let feePayment2 = payment.toBigInt() * fee.toBigint() / 100000n;
+      if (feePayment2 * 100000n !== payment.toBigInt() * fee.toBigint()) {
+        feePayment2++;
+      }
+      if (feePayment2 * 100000n < payment.toBigInt() * fee.toBigint()) {
+        throw Error("Fee calculation failed");
+      }
+      return import_o1js7.UInt64.from(feePayment2);
+    });
+    feePayment = import_o1js7.Provable.if(feePayment.lessThan(import_o1js7.UInt64.from(1e8)), import_o1js7.UInt64.from(1e8), feePayment);
+    const seller = this.sender.getUnconstrained();
+    const sellerUpdate = import_o1js7.AccountUpdate.create(seller);
+    const isNew = sellerUpdate.account.isNew.getAndRequireEquals();
+    const accountCreationFee = import_o1js7.Provable.if(isNew, import_o1js7.UInt64.from(1e9), import_o1js7.UInt64.zero);
+    payment.assertGreaterThan(feePayment.add(accountCreationFee));
+    sellerUpdate.requireSignature();
+    sellerUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+    const totalPayment = import_o1js7.Provable.witness(import_o1js7.UInt64, () => import_o1js7.UInt64.from(payment.toBigInt() - feePayment.toBigInt() - accountCreationFee.toBigInt()));
+    totalPayment.add(feePayment).add(accountCreationFee).assertEquals(payment);
+    sellerUpdate.balance.addInPlace(totalPayment);
+    const feeUpdate = import_o1js7.AccountUpdate.create(this.feeMaster.getAndRequireEquals());
+    feeUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+    feeUpdate.balance.addInPlace(feePayment);
+    this.balance.subInPlace(payment);
+    await token.burn(seller, amount);
+    this.emitEvent("redeem", new BondingRedeemEvent({
+      seller,
+      amount,
+      payment,
+      minBalance,
+      maxSupply,
+      fee: feePayment
+    }));
+  }
+  /**
+   * In case the user burned tokens without calling the redeem method,
+   * we need to sync the supply to the actual circulated supply
+   */
+  async sync() {
+    const tokenAddress = this.token.getAndRequireEquals();
+    const token = new BondingCurveFungibleToken(tokenAddress);
+    const supplyUpdate = import_o1js7.AccountUpdate.create(this.address, this.deriveTokenId());
+    const circulatingSupply = await token.getBalanceOf(tokenAddress);
+    const totalSupply = supplyUpdate.account.balance.getAndRequireEquals();
+    supplyUpdate.balanceChange = import_o1js7.Int64.fromUnsigned(totalSupply.sub(circulatingSupply)).neg();
+  }
+  /** Update the verification key.
+   * Note that because we have set the permissions for setting the verification key to `impossibleDuringCurrentVersion()`, this will only be possible in case of a protocol update that requires an update.
+   */
+  async updateVerificationKey(vk) {
+    this.account.verificationKey.set(vk);
+  }
+  ensureOwnerSignature() {
+    const owner = this.owner.getAndRequireEquals();
+    const update = import_o1js7.AccountUpdate.createSigned(owner);
+    update.body.useFullCommitment = (0, import_o1js7.Bool)(true);
+    return update;
+  }
+  async canMint(_accountUpdate) {
+    this.insideMint.requireEquals((0, import_o1js7.Bool)(true));
+    this.insideMint.set((0, import_o1js7.Bool)(false));
+    return (0, import_o1js7.Bool)(true);
+  }
+  async canChangeAdmin(_admin) {
+    this.ensureOwnerSignature();
+    return (0, import_o1js7.Bool)(true);
+  }
+  async canPause() {
+    this.ensureOwnerSignature();
+    return (0, import_o1js7.Bool)(true);
+  }
+  async canResume() {
+    this.ensureOwnerSignature();
+    return (0, import_o1js7.Bool)(true);
+  }
+  async canChangeVerificationKey(_vk) {
+    this.ensureOwnerSignature();
+    return (0, import_o1js7.Bool)(true);
+  }
+};
+(0, import_tslib7.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.PublicKey),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], BondingCurveAdmin.prototype, "owner", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.PublicKey),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], BondingCurveAdmin.prototype, "token", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.PublicKey),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], BondingCurveAdmin.prototype, "feeMaster", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.Field),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], BondingCurveAdmin.prototype, "curve", void 0);
+(0, import_tslib7.__decorate)([
+  (0, import_o1js7.state)(import_o1js7.Bool),
+  (0, import_tslib7.__metadata)("design:type", Object)
+], BondingCurveAdmin.prototype, "insideMint", void 0);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [BondingCurveAdminInitializeProps]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "initialize", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.PublicKey, import_o1js7.UInt64, import_o1js7.UInt64]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "mint", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.UInt64, import_o1js7.UInt64, import_o1js7.UInt32]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "redeem", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", []),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "sync", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method,
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.VerificationKey]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "updateVerificationKey", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.AccountUpdate]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "canMint", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.PublicKey]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "canChangeAdmin", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", []),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "canPause", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", []),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "canResume", null);
+(0, import_tslib7.__decorate)([
+  import_o1js7.method.returns(import_o1js7.Bool),
+  (0, import_tslib7.__metadata)("design:type", Function),
+  (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.VerificationKey]),
+  (0, import_tslib7.__metadata)("design:returntype", Promise)
+], BondingCurveAdmin.prototype, "canChangeVerificationKey", null);
+var BondingCurveFungibleToken = (0, import_token.FungibleTokenContract)(BondingCurveAdmin);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AdvancedAdminData,
   AdvancedFungibleToken,
   BalanceChangeEvent,
   BidEvent,
+  BondingCurveAdmin,
+  BondingCurveAdminInitializeProps,
+  BondingCurveFungibleToken,
+  BondingCurveParams,
+  BondingMintEvent,
+  BondingRedeemEvent,
   BurnEvent,
   FungibleToken,
   FungibleTokenAdmin,
