@@ -3,7 +3,7 @@ title: VerificationKeyUpgradeData
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.VerificationKeyUpgradeData
-order: 358
+order: 364
 ---
 
 # Class: VerificationKeyUpgradeData

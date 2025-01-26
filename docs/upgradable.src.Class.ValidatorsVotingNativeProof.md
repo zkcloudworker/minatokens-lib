@@ -3,7 +3,7 @@ title: ValidatorsVotingNativeProof
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsVotingNativeProof
-order: 355
+order: 361
 ---
 
 # Class: ValidatorsVotingNativeProof

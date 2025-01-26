@@ -3,7 +3,7 @@ title: FungibleTokenContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Function.FungibleTokenContract
-order: 344
+order: 350
 ---
 
 # Function: FungibleTokenContract()

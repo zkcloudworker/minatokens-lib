@@ -14,7 +14,7 @@ type DefineUpdateFactory = (params: {
  }) => NFTUpdateContractConstructor;
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:21
+Defined in: [packages/nft/src/interfaces/update.ts:21](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L21)
 
 ## Parameters
 

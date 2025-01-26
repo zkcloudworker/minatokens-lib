@@ -3,7 +3,7 @@ title: FungibleTokenBidContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenBidContract
-order: 326
+order: 331
 ---
 
 # Class: FungibleTokenBidContract

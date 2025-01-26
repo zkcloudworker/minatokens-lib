@@ -3,7 +3,7 @@ title: UpgradableContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.TypeAlias.UpgradableContract
-order: 361
+order: 367
 ---
 
 # Type Alias: UpgradableContract

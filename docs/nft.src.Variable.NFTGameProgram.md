@@ -20,7 +20,7 @@ const NFTGameProgram: {} & {
 };
 ```
 
-Defined in: packages/nft/src/zkprogram-example/game.ts:17
+Defined in: [packages/nft/src/zkprogram-example/game.ts:17](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/zkprogram-example/game.ts#L17)
 
 Defines the NFTProgram ZkProgram with methods for updating NFT metadata.
 

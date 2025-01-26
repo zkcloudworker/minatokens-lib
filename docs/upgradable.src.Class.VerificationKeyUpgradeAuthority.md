@@ -3,7 +3,7 @@ title: VerificationKeyUpgradeAuthority
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.VerificationKeyUpgradeAuthority
-order: 357
+order: 363
 ---
 
 # Class: VerificationKeyUpgradeAuthority

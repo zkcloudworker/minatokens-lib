@@ -3,7 +3,7 @@ title: BurnEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.BurnEvent
-order: 323
+order: 328
 ---
 
 # Class: BurnEvent

@@ -3,7 +3,7 @@ title: ValidatorDecisionType
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.TypeAlias.ValidatorDecisionType
-order: 364
+order: 370
 ---
 
 # Type Alias: ValidatorDecisionType

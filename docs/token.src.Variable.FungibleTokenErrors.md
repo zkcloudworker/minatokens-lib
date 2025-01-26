@@ -3,7 +3,7 @@ title: FungibleTokenErrors
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Variable.FungibleTokenErrors
-order: 343
+order: 349
 ---
 
 # Variable: FungibleTokenErrors

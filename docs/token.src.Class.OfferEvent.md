@@ -3,7 +3,7 @@ title: OfferEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.OfferEvent
-order: 330
+order: 335
 ---
 
 # Class: OfferEvent
