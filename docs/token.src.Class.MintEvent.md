@@ -3,7 +3,7 @@ title: MintEvent
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.MintEvent
-order: 329
+order: 334
 ---
 
 # Class: MintEvent

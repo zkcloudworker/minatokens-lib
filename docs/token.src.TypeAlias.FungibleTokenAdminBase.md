@@ -3,7 +3,7 @@ title: FungibleTokenAdminBase
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.TypeAlias.FungibleTokenAdminBase
-order: 339
+order: 344
 ---
 
 # Type Alias: FungibleTokenAdminBase

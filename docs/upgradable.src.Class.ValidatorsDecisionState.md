@@ -3,7 +3,7 @@ title: ValidatorsDecisionState
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.ValidatorsDecisionState
-order: 351
+order: 357
 ---
 
 # Class: ValidatorsDecisionState

@@ -3,7 +3,7 @@ title: FungibleToken
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Variable.FungibleToken
-order: 342
+order: 348
 ---
 
 # Variable: FungibleToken

@@ -12,7 +12,7 @@ order: 257
 type NFTUpdateContractConstructor = (address: PublicKey) => NFTUpdateBase;
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:52
+Defined in: [packages/nft/src/interfaces/update.ts:52](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L52)
 
 Defines a constructor for contracts implementing `NFTUpdateBase`, accepting an `address` public key and returning an instance of `NFTUpdateBase`.
 

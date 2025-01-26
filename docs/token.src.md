@@ -14,6 +14,11 @@ order: 7
 - [AdvancedAdminData](tokensrcclassadvancedadmindata)
 - [BalanceChangeEvent](tokensrcclassbalancechangeevent)
 - [BidEvent](tokensrcclassbidevent)
+- [BondingCurveAdmin](tokensrcclassbondingcurveadmin)
+- [BondingCurveAdminInitializeProps](tokensrcclassbondingcurveadmininitializeprops)
+- [BondingCurveParams](tokensrcclassbondingcurveparams)
+- [BondingMintEvent](tokensrcclassbondingmintevent)
+- [BondingRedeemEvent](tokensrcclassbondingredeemevent)
 - [BurnEvent](tokensrcclassburnevent)
 - [FungibleTokenAdmin](tokensrcclassfungibletokenadmin)
 - [FungibleTokenAdvancedAdmin](tokensrcclassfungibletokenadvancedadmin)
@@ -42,6 +47,7 @@ order: 7
 ## Variables
 
 - [AdvancedFungibleToken](tokensrcvariableadvancedfungibletoken)
+- [BondingCurveFungibleToken](tokensrcvariablebondingcurvefungibletoken)
 - [FungibleToken](tokensrcvariablefungibletoken)
 - [FungibleTokenErrors](tokensrcvariablefungibletokenerrors)
 

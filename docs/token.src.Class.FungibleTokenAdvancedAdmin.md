@@ -3,7 +3,7 @@ title: FungibleTokenAdvancedAdmin
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenAdvancedAdmin
-order: 325
+order: 330
 ---
 
 # Class: FungibleTokenAdvancedAdmin

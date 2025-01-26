@@ -3,7 +3,7 @@ title: FungibleTokenClaimContract
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Class.FungibleTokenClaimContract
-order: 327
+order: 332
 ---
 
 # Class: FungibleTokenClaimContract

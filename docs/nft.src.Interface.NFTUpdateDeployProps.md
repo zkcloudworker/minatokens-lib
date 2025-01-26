@@ -13,7 +13,7 @@ order: 237
 - admin:  PublicKey; [↗](#admin)
 - uri:  string; [↗](#uri)
 
-Defined in: packages/nft/src/interfaces/update.ts:54
+Defined in: [packages/nft/src/interfaces/update.ts:54](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L54)
 
 ## Extends
 
@@ -27,7 +27,7 @@ Defined in: packages/nft/src/interfaces/update.ts:54
 admin: PublicKey;
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:55
+Defined in: [packages/nft/src/interfaces/update.ts:55](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L55)
 
 ***
 
@@ -37,4 +37,4 @@ Defined in: packages/nft/src/interfaces/update.ts:55
 uri: string;
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:56
+Defined in: [packages/nft/src/interfaces/update.ts:56](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L56)

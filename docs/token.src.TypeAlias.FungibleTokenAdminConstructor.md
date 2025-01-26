@@ -3,7 +3,7 @@ title: FungibleTokenAdminConstructor
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.TypeAlias.FungibleTokenAdminConstructor
-order: 340
+order: 345
 ---
 
 # Type Alias: FungibleTokenAdminConstructor()

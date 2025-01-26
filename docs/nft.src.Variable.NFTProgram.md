@@ -20,7 +20,7 @@ const NFTProgram: {} & {
 };
 ```
 
-Defined in: packages/nft/src/zkprogram-example/update.ts:16
+Defined in: [packages/nft/src/zkprogram-example/update.ts:16](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/zkprogram-example/update.ts#L16)
 
 Defines the NFTProgram ZkProgram with methods for updating NFT metadata.
 

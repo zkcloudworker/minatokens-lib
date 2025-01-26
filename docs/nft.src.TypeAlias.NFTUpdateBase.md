@@ -14,7 +14,7 @@ type NFTUpdateBase = SmartContract & {
 };
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:28
+Defined in: [packages/nft/src/interfaces/update.ts:28](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L28)
 
 The `NFTUpdateBase` interface defines the update functionalities required for managing an NFT update
 

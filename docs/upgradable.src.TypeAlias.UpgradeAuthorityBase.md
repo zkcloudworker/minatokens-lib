@@ -3,7 +3,7 @@ title: UpgradeAuthorityBase
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.TypeAlias.UpgradeAuthorityBase
-order: 362
+order: 368
 ---
 
 # Type Alias: UpgradeAuthorityBase

@@ -3,7 +3,7 @@ title: FungibleTokenOfferContractDeployProps
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Interface.FungibleTokenOfferContractDeployProps
-order: 337
+order: 342
 ---
 
 # Interface: FungibleTokenOfferContractDeployProps

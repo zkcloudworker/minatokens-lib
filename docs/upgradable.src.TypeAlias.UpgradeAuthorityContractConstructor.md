@@ -3,7 +3,7 @@ title: UpgradeAuthorityContractConstructor
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.TypeAlias.UpgradeAuthorityContractConstructor
-order: 363
+order: 369
 ---
 
 # Type Alias: UpgradeAuthorityContractConstructor()

@@ -3,7 +3,7 @@ title: UpgradeAuthorityDatabase
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: upgradable.src.Class.UpgradeAuthorityDatabase
-order: 347
+order: 353
 ---
 
 # Class: UpgradeAuthorityDatabase

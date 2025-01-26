@@ -3,7 +3,7 @@ title: FungibleTokenAdminDeployProps
 category: 6749c4dba3a7a4005bae1197
 hidden: false
 slug: token.src.Interface.FungibleTokenAdminDeployProps
-order: 333
+order: 338
 ---
 
 # Interface: FungibleTokenAdminDeployProps

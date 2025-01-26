@@ -19,7 +19,7 @@ order: 212
 - deploy() [↗](#deploy)
 - ensureOwnerSignature() [↗](#ensureownersignature)
 
-Defined in: packages/nft/src/interfaces/update.ts:62
+Defined in: [packages/nft/src/interfaces/update.ts:62](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L62)
 
 The **NFTStandardUpdate** contract is the default implementation of the `NFTUpdateBase` interface.
 
@@ -69,7 +69,7 @@ SmartContract.constructor
 admin: State<PublicKey>;
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:66
+Defined in: [packages/nft/src/interfaces/update.ts:66](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L66)
 
 The public key of the contract's administrator.
 
@@ -85,7 +85,7 @@ canUpdate(
 output: NFTState): Promise<Bool>
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:95
+Defined in: [packages/nft/src/interfaces/update.ts:95](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L95)
 
 Checks if an NFT can be updated from its current state (`input`) to a new state (`output`).
 
@@ -135,7 +135,7 @@ NFTUpdateBase.canUpdate
 deploy(props: NFTUpdateDeployProps): Promise<void>
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:72
+Defined in: [packages/nft/src/interfaces/update.ts:72](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L72)
 
 Deploys the contract with initial settings.
 
@@ -171,7 +171,7 @@ SmartContract.deploy
 ensureOwnerSignature(): Promise<AccountUpdate>
 ```
 
-Defined in: packages/nft/src/interfaces/update.ts:87
+Defined in: [packages/nft/src/interfaces/update.ts:87](https://github.com/zkcloudworker/minatokens-lib/blob/main/packages/nft/src/interfaces/update.ts#L87)
 
 Ensures that the transaction is authorized by the contract owner.
 
