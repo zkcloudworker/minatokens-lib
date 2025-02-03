@@ -109,7 +109,7 @@ export class BondingCurveAdminInitializeProps extends Struct({
   numberOfNewAccounts: UInt64,
 }) {}
 
-export class BondingCurveAdmin
+export class FungibleTokenBondingCurveAdmin
   extends TokenContract
   implements FungibleTokenAdminBase
 {
@@ -537,5 +537,6 @@ export class BondingCurveAdmin
   }
 }
 
-export const BondingCurveFungibleToken =
-  FungibleTokenContract(BondingCurveAdmin);
+export const BondingCurveFungibleToken = FungibleTokenContract(
+  FungibleTokenBondingCurveAdmin
+);

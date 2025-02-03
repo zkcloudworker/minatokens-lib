@@ -38,6 +38,7 @@ paths:
               oneOf:
                 - $ref: "#/components/schemas/LaunchTokenStandardAdminParams"
                 - $ref: "#/components/schemas/LaunchTokenAdvancedAdminParams"
+                - $ref: "#/components/schemas/LaunchTokenBondingCurveAdminParams"
       responses:
         "200":
           description: Successful deployment of a new token.
@@ -1186,6 +1187,8 @@ components:
       enum:
         - "token:launch"
         - "token:mint"
+        - "token:burn"
+        - "token:redeem"
         - "token:transfer"
         - "token:bid:create"
         - "token:offer:create"
@@ -1256,6 +1259,7 @@ components:
               enum:
                 - standard
                 - advanced
+                - bondingCurve
               description: The type of admin contract to use.
             symbol:
               type: string
@@ -1303,6 +1307,57 @@ components:
               type: number
               format: double
               description: The amount of tokens to mint.
+            price:
+              type: number
+              format: double
+              description: The price of the token in the bonding curve.
+    TokenBurnTransactionParams:
+      allOf:
+        - $ref: "#/components/schemas/DeployedTokenTransactionBaseParams"
+        - type: object
+          required:
+            - from
+            - amount
+          properties:
+            txType:
+              type: string
+              enum:
+                - "token:burn"
+              description: Must be "token:burn"
+            from:
+              type: string
+              description: The address from which tokens are to be burned.
+            amount:
+              type: number
+              format: double
+              description: The amount of tokens to burn.
+    TokenRedeemTransactionParams:
+      allOf:
+        - $ref: "#/components/schemas/DeployedTokenTransactionBaseParams"
+        - type: object
+          required:
+            - amount
+            - price
+          properties:
+            txType:
+              type: string
+              enum:
+                - "token:redeem"
+              description: Must be "token:redeem"
+            amount:
+              type: number
+              format: double
+              description: The amount of tokens to redeem.
+            price:
+              type: number
+              format: double
+              description: The minimum price of the tokens to be redeemed.
+            slippage:
+              type: integer
+              format: int32
+              minimum: 0
+              maximum: 999
+              description: The maximum slippage allowed for the redemption, default is 50 (5%).
     TokenTransferTransactionParams:
       allOf:
         - $ref: "#/components/schemas/DeployedTokenTransactionBaseParams"
@@ -1554,6 +1609,8 @@ components:
       allOf:
         - $ref: "#/components/schemas/LaunchTokenTransactionBaseParams"
         - type: object
+          required:
+            - adminContract
           properties:
             adminContract:
               type: string
@@ -1589,6 +1646,18 @@ components:
               type: number
               format: double
               description: Optional. Maximum total supply. Uses UInt64.MAXINT() if not provided.
+    LaunchTokenBondingCurveAdminParams:
+      allOf:
+        - $ref: "#/components/schemas/LaunchTokenTransactionBaseParams"
+        - type: object
+          required:
+            - adminContract
+          properties:
+            adminContract:
+              type: string
+              enum:
+                - bondingCurve
+              description: Must be "bondingCurve" for bonding curve admin contract.
     TokenInfo:
       type: object
       properties:
@@ -1728,6 +1797,8 @@ components:
         - $ref: "#/components/schemas/LaunchTokenStandardAdminParams"
         - $ref: "#/components/schemas/LaunchTokenAdvancedAdminParams"
         - $ref: "#/components/schemas/TokenMintTransactionParams"
+        - $ref: "#/components/schemas/TokenBurnTransactionParams"
+        - $ref: "#/components/schemas/TokenRedeemTransactionParams"
         - $ref: "#/components/schemas/TokenTransferTransactionParams"
         - $ref: "#/components/schemas/TokenAirdropTransactionParams"
         - $ref: "#/components/schemas/TokenOfferTransactionParams"
