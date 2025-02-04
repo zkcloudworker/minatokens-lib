@@ -2,7 +2,6 @@ import { Struct, Field, PublicKey, Signature, ZkProgram, Poseidon, SelfProof, UI
 import { Storage } from "@minatokens/storage";
 import { PublicKeyOption } from "./upgradable.js";
 import MinaSigner from "mina-signer";
-const chain = "zeko";
 export { ValidatorsList, UpgradeAuthorityDatabase, ValidatorsState, ValidatorsDecision, ValidatorDecisionType, ValidatorsDecisionState, ValidatorsVoting, ValidatorsVotingProof, ValidatorsVotingNativeProof, UpgradeDatabaseState, UpgradeDatabaseStatePacked, ChainId, };
 const { IndexedMerkleMap } = Experimental;
 const VALIDATORS_LIST_HEIGHT = 10;

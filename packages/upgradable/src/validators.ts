@@ -21,9 +21,6 @@ import { Storage } from "@minatokens/storage";
 import { PublicKeyOption } from "./upgradable.js";
 import MinaSigner from "mina-signer";
 
-type Chain = "devnet" | "zeko";
-const chain: Chain = "zeko" as Chain;
-
 export {
   ValidatorsList,
   UpgradeAuthorityDatabase,

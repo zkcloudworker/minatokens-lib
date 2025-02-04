@@ -1,7 +1,7 @@
 {
   "name": "minatokens-lib",
   "description": "MinaTokens API Library",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "author": "DFST",
   "devDependencies": {
     "@types/node": "^22.10.3",
