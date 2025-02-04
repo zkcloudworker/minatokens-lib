@@ -6,7 +6,7 @@ export function config({
   throwOnError,
 }: {
   apiKey: string;
-  chain?: "devnet" | "zeko";
+  chain?: "mainnet" | "devnet" | "zeko";
   throwOnError?: boolean;
 }) {
   client.setConfig({
@@ -16,6 +16,8 @@ export function config({
     baseUrl:
       chain === "zeko"
         ? "https://zekotokens.com/api/v1/"
+        : chain === "devnet"
+        ? "https://devnet.minatokens.com/api/v1/"
         : "https://minatokens.com/api/v1/",
     throwOnError: throwOnError ?? true,
   });

@@ -6,7 +6,9 @@ export function config({ apiKey, chain, throwOnError, }) {
         },
         baseUrl: chain === "zeko"
             ? "https://zekotokens.com/api/v1/"
-            : "https://minatokens.com/api/v1/",
+            : chain === "devnet"
+                ? "https://devnet.minatokens.com/api/v1/"
+                : "https://minatokens.com/api/v1/",
         throwOnError: throwOnError ?? true,
     });
 }

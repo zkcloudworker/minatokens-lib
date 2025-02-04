@@ -184,7 +184,7 @@ function config({ apiKey, chain, throwOnError }) {
     headers: {
       "x-api-key": apiKey
     },
-    baseUrl: chain === "zeko" ? "https://zekotokens.com/api/v1/" : "https://minatokens.com/api/v1/",
+    baseUrl: chain === "zeko" ? "https://zekotokens.com/api/v1/" : chain === "devnet" ? "https://devnet.minatokens.com/api/v1/" : "https://minatokens.com/api/v1/",
     throwOnError: throwOnError ?? true
   });
 }
