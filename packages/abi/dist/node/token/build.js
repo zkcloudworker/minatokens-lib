@@ -1,12 +1,11 @@
 import { Whitelist } from "@minatokens/storage";
 import { fetchMinaAccount } from "../fetch.js";
-import { FungibleToken, AdvancedFungibleToken, FungibleTokenAdmin, FungibleTokenAdvancedAdmin, FungibleTokenBidContract, FungibleTokenOfferContract, } from "@minatokens/token";
+import { FungibleToken, AdvancedFungibleToken, BondingCurveFungibleToken, FungibleTokenAdmin, FungibleTokenAdvancedAdmin, FungibleTokenBidContract, FungibleTokenOfferContract, FungibleTokenBondingCurveAdmin, } from "@minatokens/token";
 import { tokenVerificationKeys } from "../vk/index.js";
-import { PublicKey, Mina, AccountUpdate, UInt64, UInt8, Bool, Struct, Field, TokenId, } from "o1js";
+import { PublicKey, Mina, AccountUpdate, UInt64, UInt8, Bool, Struct, Field, TokenId, UInt32, } from "o1js";
 export async function buildTokenLaunchTransaction(params) {
     const { chain, args } = params;
     const { uri, symbol, memo, nonce, adminContract: adminType } = args;
-    const isAdvanced = adminType === "advanced";
     if (memo && typeof memo !== "string")
         throw new Error("Memo must be a string");
     if (memo && memo.length > 30)
@@ -28,10 +27,16 @@ export async function buildTokenLaunchTransaction(params) {
     if (!args.adminContractAddress ||
         typeof args.adminContractAddress !== "string")
         throw new Error("adminContractAddress is required");
-    const adminContract = isAdvanced
+    const adminContract = adminType === "advanced"
         ? FungibleTokenAdvancedAdmin
-        : FungibleTokenAdmin;
-    const tokenContract = isAdvanced ? AdvancedFungibleToken : FungibleToken;
+        : adminType === "bondingCurve"
+            ? FungibleTokenBondingCurveAdmin
+            : FungibleTokenAdmin;
+    const tokenContract = adminType === "advanced"
+        ? AdvancedFungibleToken
+        : adminType === "bondingCurve"
+            ? BondingCurveFungibleToken
+            : FungibleToken;
     const vk = tokenVerificationKeys[chain === "mainnet" ? "mainnet" : "devnet"].vk;
     if (!vk ||
         !vk.FungibleTokenOfferContract ||
@@ -46,6 +51,9 @@ export async function buildTokenLaunchTransaction(params) {
         !vk.FungibleTokenAdmin ||
         !vk.FungibleTokenAdmin.hash ||
         !vk.FungibleTokenAdmin.data ||
+        !vk.FungibleTokenBondingCurveAdmin ||
+        !vk.FungibleTokenBondingCurveAdmin.hash ||
+        !vk.FungibleTokenBondingCurveAdmin.data ||
         !vk.AdvancedFungibleToken ||
         !vk.AdvancedFungibleToken.hash ||
         !vk.AdvancedFungibleToken.data ||
@@ -53,12 +61,16 @@ export async function buildTokenLaunchTransaction(params) {
         !vk.FungibleToken.hash ||
         !vk.FungibleToken.data)
         throw new Error("Cannot get verification key from vk");
-    const adminVerificationKey = isAdvanced
+    const adminVerificationKey = adminType === "advanced"
         ? vk.FungibleTokenAdvancedAdmin
-        : vk.FungibleTokenAdmin;
-    const tokenVerificationKey = isAdvanced
+        : adminType === "bondingCurve"
+            ? vk.FungibleTokenBondingCurveAdmin
+            : vk.FungibleTokenAdmin;
+    const tokenVerificationKey = adminType === "advanced"
         ? vk.AdvancedFungibleToken
-        : vk.FungibleToken;
+        : adminType === "bondingCurve"
+            ? vk.BondingCurveFungibleToken
+            : vk.FungibleToken;
     if (!adminVerificationKey || !tokenVerificationKey)
         throw new Error("Cannot get verification keys");
     await fetchMinaAccount({
@@ -101,31 +113,46 @@ export async function buildTokenLaunchTransaction(params) {
         : Bool(false);
     const decimals = UInt8.from(args.decimals ? Math.round(args.decimals) : 9);
     const tx = await Mina.transaction({ sender, fee, memo: memo ?? `launch ${symbol}`, nonce }, async () => {
-        const feeAccountUpdate = AccountUpdate.createSigned(sender);
-        feeAccountUpdate.balance.subInPlace(3_000_000_000 + (isAdvanced ? 1_000_000_000 : 0));
-        if (provingFee && provingKey)
-            feeAccountUpdate.send({
-                to: provingKey,
-                amount: provingFee,
-            });
-        if (developerAddress && developerFee) {
-            feeAccountUpdate.send({
-                to: developerAddress,
-                amount: developerFee,
+        if (zkAdmin instanceof FungibleTokenBondingCurveAdmin) {
+            await zkAdmin.deploy({});
+            zkAdmin.account.tokenSymbol.set("BC");
+            await zkAdmin.initialize({
+                tokenAddress,
+                startPrice: UInt64.from(10_000),
+                curveK: UInt64.from(10_000),
+                feeMaster: provingKey,
+                fee: UInt32.from(1000), // 1000 = 1%
+                launchFee: UInt64.from(10_000_000_000),
+                numberOfNewAccounts: UInt64.from(4),
             });
         }
-        await zkAdmin.deploy({
-            adminPublicKey: sender,
-            tokenContract: tokenAddress,
-            verificationKey: adminVerificationKey,
-            whitelist,
-            totalSupply,
-            requireAdminSignatureForMint,
-            anyoneCanMint,
-        });
-        if (isAdvanced) {
-            const adminUpdate = AccountUpdate.create(adminContractAddress, TokenId.derive(adminContractAddress));
-            zkAdmin.approve(adminUpdate);
+        else {
+            const feeAccountUpdate = AccountUpdate.createSigned(sender);
+            feeAccountUpdate.balance.subInPlace(3_000_000_000 + (adminType === "advanced" ? 1_000_000_000 : 0));
+            if (provingFee && provingKey)
+                feeAccountUpdate.send({
+                    to: provingKey,
+                    amount: provingFee,
+                });
+            if (developerAddress && developerFee) {
+                feeAccountUpdate.send({
+                    to: developerAddress,
+                    amount: developerFee,
+                });
+            }
+            await zkAdmin.deploy({
+                adminPublicKey: sender,
+                tokenContract: tokenAddress,
+                verificationKey: adminVerificationKey,
+                whitelist,
+                totalSupply,
+                requireAdminSignatureForMint,
+                anyoneCanMint,
+            });
+            if (adminType === "advanced") {
+                const adminUpdate = AccountUpdate.create(adminContractAddress, TokenId.derive(adminContractAddress));
+                zkAdmin.approve(adminUpdate);
+            }
         }
         zkAdmin.account.zkappUri.set(uri);
         await zkToken.deploy({
@@ -142,14 +169,14 @@ export async function buildTokenLaunchTransaction(params) {
         Bool(false));
     });
     return {
-        request: isAdvanced
+        request: adminType === "advanced"
             ? {
                 ...args,
                 whitelist: whitelist.toString(),
             }
             : args,
         tx,
-        isAdvanced,
+        adminType,
         verificationKeyHashes: [
             adminVerificationKey.hash,
             tokenVerificationKey.hash,
@@ -191,8 +218,16 @@ export async function buildTokenTransaction(params) {
             txType === "token:airdrop" ||
             txType === "token:mint"))
         throw new Error("To address is required");
+    const from = "from" in args && args.from ? PublicKey.fromBase58(args.from) : undefined;
+    if (!from && txType === "token:burn")
+        throw new Error("From address is required for token:burn");
     const amount = "amount" in args ? UInt64.from(Math.round(args.amount)) : undefined;
-    const price = "price" in args ? UInt64.from(Math.round(args.price)) : undefined;
+    const price = "price" in args && args.price
+        ? UInt64.from(Math.round(args.price))
+        : undefined;
+    const slippage = "slippage" in args
+        ? UInt32.from(Math.round(args.slippage ?? 50))
+        : undefined;
     await fetchMinaAccount({
         publicKey: sender,
         force: true,
@@ -200,7 +235,7 @@ export async function buildTokenTransaction(params) {
     if (!Mina.hasAccount(sender)) {
         throw new Error("Sender does not have account");
     }
-    const { symbol, adminContractAddress, adminAddress, isAdvanced, isToNewAccount, verificationKeyHashes, } = await getTokenSymbolAndAdmin({
+    const { symbol, adminContractAddress, adminAddress, adminType, isToNewAccount, verificationKeyHashes, } = await getTokenSymbolAndAdmin({
         txType,
         tokenAddress,
         chain,
@@ -224,9 +259,13 @@ export async function buildTokenTransaction(params) {
         : undefined;
     //const adminContract = new FungibleTokenAdmin(adminContractAddress);
     const advancedAdminContract = new FungibleTokenAdvancedAdmin(adminContractAddress);
-    const tokenContract = isAdvanced && txType === "token:mint"
+    const bondingCurveAdminContract = new FungibleTokenBondingCurveAdmin(adminContractAddress);
+    const tokenContract = adminType === "advanced" && txType === "token:mint"
         ? AdvancedFungibleToken
-        : FungibleToken;
+        : adminType === "bondingCurve" &&
+            (txType === "token:mint" || txType === "token:redeem")
+            ? BondingCurveFungibleToken
+            : FungibleToken;
     if ((txType === "token:admin:whitelist" ||
         txType === "token:bid:whitelist" ||
         txType === "token:offer:whitelist") &&
@@ -242,7 +281,7 @@ export async function buildTokenTransaction(params) {
     const zkToken = new tokenContract(tokenAddress);
     const tokenId = zkToken.deriveTokenId();
     if (txType === "token:mint" &&
-        isAdvanced === false &&
+        adminType === "standard" &&
         adminAddress.toBase58() !== sender.toBase58())
         throw new Error("Invalid sender for FungibleToken mint with standard admin");
     await fetchMinaAccount({
@@ -251,12 +290,18 @@ export async function buildTokenTransaction(params) {
         force: [
             "token:transfer",
             "token:airdrop",
-            "token:mint",
         ].includes(txType),
     });
     if (to) {
         await fetchMinaAccount({
             publicKey: to,
+            tokenId,
+            force: false,
+        });
+    }
+    if (from) {
+        await fetchMinaAccount({
+            publicKey: from,
             tokenId,
             force: false,
         });
@@ -303,6 +348,9 @@ export async function buildTokenTransaction(params) {
         !vk.FungibleTokenAdvancedAdmin ||
         !vk.FungibleTokenAdvancedAdmin.hash ||
         !vk.FungibleTokenAdvancedAdmin.data ||
+        !vk.FungibleTokenBondingCurveAdmin ||
+        !vk.FungibleTokenBondingCurveAdmin.hash ||
+        !vk.FungibleTokenBondingCurveAdmin.data ||
         !vk.FungibleTokenAdmin ||
         !vk.FungibleTokenAdmin.hash ||
         !vk.FungibleTokenAdmin.data ||
@@ -343,6 +391,19 @@ export async function buildTokenTransaction(params) {
         });
         isNewSellAccount = !Mina.hasAccount(buyer, tokenId);
     }
+    if (txType === "token:burn") {
+        await fetchMinaAccount({
+            publicKey: sender,
+            force: true,
+        });
+        await fetchMinaAccount({
+            publicKey: sender,
+            tokenId,
+            force: false,
+        });
+        if (!Mina.hasAccount(sender, tokenId))
+            throw new Error("Sender does not have tokens to burn");
+    }
     const isNewTransferMintAccount = (txType === "token:transfer" ||
         txType === "token:airdrop" ||
         txType === "token:mint") &&
@@ -355,7 +416,7 @@ export async function buildTokenTransaction(params) {
         (isNewTransferMintAccount ? 1_000_000_000 : 0) +
         (isToNewAccount &&
             txType === "token:mint" &&
-            isAdvanced &&
+            adminType === "advanced" &&
             advancedAdminContract.whitelist.get().isSome().toBoolean()
             ? 1_000_000_000
             : 0);
@@ -384,6 +445,8 @@ export async function buildTokenTransaction(params) {
     }
     switch (txType) {
         case "token:mint":
+        case "token:burn":
+        case "token:redeem":
         case "token:transfer":
         case "token:airdrop":
         case "token:offer:create":
@@ -417,7 +480,25 @@ export async function buildTokenTransaction(params) {
                     throw new Error("Error: Amount is required");
                 if (to === undefined)
                     throw new Error("Error: To address is required");
-                await zkToken.mint(to, amount);
+                if (adminType === "bondingCurve") {
+                    if (price === undefined)
+                        throw new Error("Error: Price is required for bonding curve mint");
+                    await bondingCurveAdminContract.mint(to, amount, price);
+                }
+                else {
+                    await zkToken.mint(to, amount);
+                }
+                break;
+            case "token:redeem":
+                if (adminType !== "bondingCurve")
+                    throw new Error("Error: Invalid admin type for redeem");
+                if (amount === undefined)
+                    throw new Error("Error: Amount is required");
+                if (price === undefined)
+                    throw new Error("Error: Price is required");
+                if (slippage === undefined)
+                    throw new Error("Error: Slippage is required");
+                await bondingCurveAdminContract.redeem(amount, price, slippage);
                 break;
             case "token:transfer":
                 if (amount === undefined)
@@ -425,6 +506,13 @@ export async function buildTokenTransaction(params) {
                 if (to === undefined)
                     throw new Error("Error: From address is required");
                 await zkToken.transfer(sender, to, amount);
+                break;
+            case "token:burn":
+                if (amount === undefined)
+                    throw new Error("Error: Amount is required");
+                if (from === undefined)
+                    throw new Error("Error: From address is required");
+                await zkToken.burn(from, amount);
                 break;
             case "token:offer:create":
                 if (price === undefined)
@@ -511,7 +599,7 @@ export async function buildTokenTransaction(params) {
                 //await zkToken.approveAccountUpdate(bidContract.self);
                 break;
             case "token:admin:whitelist":
-                if (!isAdvanced)
+                if (adminType !== "advanced")
                     throw new Error("Invalid admin type for updateAdminWhitelist");
                 await advancedAdminContract.updateWhitelist(whitelist);
                 break;
@@ -541,7 +629,7 @@ export async function buildTokenTransaction(params) {
             }
             : args,
         tx,
-        isAdvanced,
+        adminType,
         adminContractAddress,
         adminAddress,
         symbol,
@@ -608,14 +696,19 @@ export async function getTokenSymbolAndAdmin(params) {
     if (!verificationKeyHashes.includes(adminVerificationKey.hash.toJSON())) {
         verificationKeyHashes.push(adminVerificationKey.hash.toJSON());
     }
-    let isAdvanced = false;
+    let adminType = "unknown";
     if (vk.FungibleTokenAdvancedAdmin.hash === adminVerificationKey.hash.toJSON() &&
         vk.FungibleTokenAdvancedAdmin.data === adminVerificationKey.data) {
-        isAdvanced = true;
+        adminType = "advanced";
     }
     else if (vk.FungibleTokenAdmin.hash === adminVerificationKey.hash.toJSON() &&
         vk.FungibleTokenAdmin.data === adminVerificationKey.data) {
-        isAdvanced = false;
+        adminType = "standard";
+    }
+    else if (vk.FungibleTokenBondingCurveAdmin.hash ===
+        adminVerificationKey.hash.toJSON() &&
+        vk.FungibleTokenBondingCurveAdmin.data === adminVerificationKey.data) {
+        adminType = "bondingCurve";
     }
     else {
         console.error("Unknown admin verification key", {
@@ -626,7 +719,7 @@ export async function getTokenSymbolAndAdmin(params) {
     }
     let isToNewAccount = undefined;
     if (to) {
-        if (isAdvanced) {
+        if (adminType === "advanced") {
             const adminTokenId = TokenId.derive(adminContractPublicKey);
             await fetchMinaAccount({
                 publicKey: to,
@@ -634,6 +727,14 @@ export async function getTokenSymbolAndAdmin(params) {
                 force: false,
             });
             isToNewAccount = !Mina.hasAccount(to, adminTokenId);
+        }
+        if (adminType === "bondingCurve") {
+            const adminTokenId = TokenId.derive(adminContractPublicKey);
+            await fetchMinaAccount({
+                publicKey: adminContractPublicKey,
+                tokenId: adminTokenId,
+                force: true,
+            });
         }
     }
     const adminAddress0 = adminContract.zkapp?.appState[0];
@@ -670,7 +771,7 @@ export async function getTokenSymbolAndAdmin(params) {
         adminContractAddress: adminContractPublicKey,
         adminAddress: adminAddress,
         symbol,
-        isAdvanced,
+        adminType,
         isToNewAccount,
         verificationKeyHashes,
     };

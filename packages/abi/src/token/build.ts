@@ -334,7 +334,7 @@ export async function buildTokenTransaction(params: {
   const from =
     "from" in args && args.from ? PublicKey.fromBase58(args.from) : undefined;
   if (!from && txType === "token:burn")
-    throw new Error("From address is required");
+    throw new Error("From address is required for token:burn");
 
   const amount =
     "amount" in args ? UInt64.from(Math.round(args.amount)) : undefined;
@@ -556,6 +556,20 @@ export async function buildTokenTransaction(params: {
     isNewSellAccount = !Mina.hasAccount(buyer, tokenId);
   }
 
+  if (txType === "token:burn") {
+    await fetchMinaAccount({
+      publicKey: sender,
+      force: true,
+    });
+    await fetchMinaAccount({
+      publicKey: sender,
+      tokenId,
+      force: false,
+    });
+    if (!Mina.hasAccount(sender, tokenId))
+      throw new Error("Sender does not have tokens to burn");
+  }
+
   const isNewTransferMintAccount =
     (txType === "token:transfer" ||
       txType === "token:airdrop" ||
@@ -615,6 +629,8 @@ export async function buildTokenTransaction(params: {
 
   switch (txType) {
     case "token:mint":
+    case "token:burn":
+    case "token:redeem":
     case "token:transfer":
     case "token:airdrop":
     case "token:offer:create":
@@ -679,6 +695,13 @@ export async function buildTokenTransaction(params: {
         if (to === undefined)
           throw new Error("Error: From address is required");
         await zkToken.transfer(sender, to, amount);
+        break;
+
+      case "token:burn":
+        if (amount === undefined) throw new Error("Error: Amount is required");
+        if (from === undefined)
+          throw new Error("Error: From address is required");
+        await zkToken.burn(from, amount);
         break;
 
       case "token:offer:create":

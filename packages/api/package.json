@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/api",
   "description": "MinaTokens API",
-  "version": "0.15.3",
+  "version": "0.16.1",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "dependencies": {
@@ -54,7 +54,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
     "generate": "npm run validate && openapi-ts && rm src/client/index.ts && node replace-import.cjs && npm run build",
-    "release": "npm run build && npm publish --access public",
+    "release": "npm publish --access public",
     "validate": "swagger-cli validate open-api.yaml"
   },
   "type": "module",

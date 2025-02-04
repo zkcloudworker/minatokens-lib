@@ -1,28 +1,29 @@
-import { TokenTransactionType, TokenTransactionParams, LaunchTokenAdvancedAdminParams, LaunchTokenStandardAdminParams } from "@minatokens/api";
+import { TokenTransactionType, TokenTransactionParams, LaunchTokenAdvancedAdminParams, LaunchTokenStandardAdminParams, LaunchTokenBondingCurveAdminParams } from "@minatokens/api";
 import { blockchain } from "../types.js";
 import { PublicKey, Transaction } from "o1js";
+export type AdminType = "standard" | "advanced" | "bondingCurve" | "unknown";
 export declare function buildTokenLaunchTransaction(params: {
     chain: blockchain;
-    args: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
+    args: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | LaunchTokenBondingCurveAdminParams;
     developerAddress?: string;
     provingKey?: string;
     provingFee?: number;
 }): Promise<{
-    request: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams;
+    request: LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | LaunchTokenBondingCurveAdminParams;
     tx: Transaction<false, false>;
-    isAdvanced: boolean;
+    adminType: AdminType;
     verificationKeyHashes: string[];
 }>;
 export declare function buildTokenTransaction(params: {
     chain: blockchain;
-    args: Exclude<TokenTransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
+    args: Exclude<TokenTransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | LaunchTokenBondingCurveAdminParams>;
     developerAddress?: string;
     provingKey?: string;
     provingFee?: number;
 }): Promise<{
-    request: Exclude<TokenTransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams>;
+    request: Exclude<TokenTransactionParams, LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | LaunchTokenBondingCurveAdminParams>;
     tx: Transaction<false, false>;
-    isAdvanced: boolean;
+    adminType: AdminType;
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
     symbol: string;
@@ -39,7 +40,7 @@ export declare function getTokenSymbolAndAdmin(params: {
     adminContractAddress: PublicKey;
     adminAddress: PublicKey;
     symbol: string;
-    isAdvanced: boolean;
+    adminType: AdminType;
     isToNewAccount?: boolean;
     verificationKeyHashes: string[];
 }>;
