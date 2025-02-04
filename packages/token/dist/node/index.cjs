@@ -24,7 +24,6 @@ __export(index_exports, {
   AdvancedFungibleToken: () => AdvancedFungibleToken,
   BalanceChangeEvent: () => BalanceChangeEvent,
   BidEvent: () => BidEvent,
-  BondingCurveAdmin: () => BondingCurveAdmin,
   BondingCurveAdminInitializeProps: () => BondingCurveAdminInitializeProps,
   BondingCurveFungibleToken: () => BondingCurveFungibleToken,
   BondingCurveParams: () => BondingCurveParams,
@@ -35,6 +34,7 @@ __export(index_exports, {
   FungibleTokenAdmin: () => FungibleTokenAdmin,
   FungibleTokenAdvancedAdmin: () => FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract: () => FungibleTokenBidContract,
+  FungibleTokenBondingCurveAdmin: () => FungibleTokenBondingCurveAdmin,
   FungibleTokenClaimContract: () => FungibleTokenClaimContract,
   FungibleTokenContract: () => FungibleTokenContract,
   FungibleTokenErrors: () => FungibleTokenErrors,
@@ -1170,7 +1170,7 @@ var BondingCurveAdminInitializeProps = class extends (0, import_o1js7.Struct)({
   numberOfNewAccounts: import_o1js7.UInt64
 }) {
 };
-var BondingCurveAdmin = class extends import_o1js7.TokenContract {
+var FungibleTokenBondingCurveAdmin = class extends import_o1js7.TokenContract {
   constructor() {
     super(...arguments);
     this.owner = (0, import_o1js7.State)(import_o1js7.PublicKey.empty());
@@ -1439,91 +1439,90 @@ var BondingCurveAdmin = class extends import_o1js7.TokenContract {
 (0, import_tslib7.__decorate)([
   (0, import_o1js7.state)(import_o1js7.PublicKey),
   (0, import_tslib7.__metadata)("design:type", Object)
-], BondingCurveAdmin.prototype, "owner", void 0);
+], FungibleTokenBondingCurveAdmin.prototype, "owner", void 0);
 (0, import_tslib7.__decorate)([
   (0, import_o1js7.state)(import_o1js7.PublicKey),
   (0, import_tslib7.__metadata)("design:type", Object)
-], BondingCurveAdmin.prototype, "token", void 0);
+], FungibleTokenBondingCurveAdmin.prototype, "token", void 0);
 (0, import_tslib7.__decorate)([
   (0, import_o1js7.state)(import_o1js7.PublicKey),
   (0, import_tslib7.__metadata)("design:type", Object)
-], BondingCurveAdmin.prototype, "feeMaster", void 0);
+], FungibleTokenBondingCurveAdmin.prototype, "feeMaster", void 0);
 (0, import_tslib7.__decorate)([
   (0, import_o1js7.state)(import_o1js7.Field),
   (0, import_tslib7.__metadata)("design:type", Object)
-], BondingCurveAdmin.prototype, "curve", void 0);
+], FungibleTokenBondingCurveAdmin.prototype, "curve", void 0);
 (0, import_tslib7.__decorate)([
   (0, import_o1js7.state)(import_o1js7.Bool),
   (0, import_tslib7.__metadata)("design:type", Object)
-], BondingCurveAdmin.prototype, "insideMint", void 0);
+], FungibleTokenBondingCurveAdmin.prototype, "insideMint", void 0);
 (0, import_tslib7.__decorate)([
   import_o1js7.method,
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [BondingCurveAdminInitializeProps]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "initialize", null);
+], FungibleTokenBondingCurveAdmin.prototype, "initialize", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method,
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.PublicKey, import_o1js7.UInt64, import_o1js7.UInt64]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "mint", null);
+], FungibleTokenBondingCurveAdmin.prototype, "mint", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method,
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.UInt64, import_o1js7.UInt64, import_o1js7.UInt32]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "redeem", null);
+], FungibleTokenBondingCurveAdmin.prototype, "redeem", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method,
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", []),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "sync", null);
+], FungibleTokenBondingCurveAdmin.prototype, "sync", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method,
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.VerificationKey]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "updateVerificationKey", null);
+], FungibleTokenBondingCurveAdmin.prototype, "updateVerificationKey", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method.returns(import_o1js7.Bool),
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.AccountUpdate]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "canMint", null);
+], FungibleTokenBondingCurveAdmin.prototype, "canMint", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method.returns(import_o1js7.Bool),
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.PublicKey]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "canChangeAdmin", null);
+], FungibleTokenBondingCurveAdmin.prototype, "canChangeAdmin", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method.returns(import_o1js7.Bool),
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", []),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "canPause", null);
+], FungibleTokenBondingCurveAdmin.prototype, "canPause", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method.returns(import_o1js7.Bool),
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", []),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "canResume", null);
+], FungibleTokenBondingCurveAdmin.prototype, "canResume", null);
 (0, import_tslib7.__decorate)([
   import_o1js7.method.returns(import_o1js7.Bool),
   (0, import_tslib7.__metadata)("design:type", Function),
   (0, import_tslib7.__metadata)("design:paramtypes", [import_o1js7.VerificationKey]),
   (0, import_tslib7.__metadata)("design:returntype", Promise)
-], BondingCurveAdmin.prototype, "canChangeVerificationKey", null);
-var BondingCurveFungibleToken = (0, import_token.FungibleTokenContract)(BondingCurveAdmin);
+], FungibleTokenBondingCurveAdmin.prototype, "canChangeVerificationKey", null);
+var BondingCurveFungibleToken = (0, import_token.FungibleTokenContract)(FungibleTokenBondingCurveAdmin);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AdvancedAdminData,
   AdvancedFungibleToken,
   BalanceChangeEvent,
   BidEvent,
-  BondingCurveAdmin,
   BondingCurveAdminInitializeProps,
   BondingCurveFungibleToken,
   BondingCurveParams,
@@ -1534,6 +1533,7 @@ var BondingCurveFungibleToken = (0, import_token.FungibleTokenContract)(BondingC
   FungibleTokenAdmin,
   FungibleTokenAdvancedAdmin,
   FungibleTokenBidContract,
+  FungibleTokenBondingCurveAdmin,
   FungibleTokenClaimContract,
   FungibleTokenContract,
   FungibleTokenErrors,

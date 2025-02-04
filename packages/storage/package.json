@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/storage",
   "description": "MinaTokens Storage Library",
-  "version": "0.15.3",
+  "version": "0.16.1",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "dependencies": {
@@ -54,7 +54,7 @@
   "repository": "zkcloudworker/minatokens-lib.git",
   "scripts": {
     "build": "rm -rf dist && tsc && tsc --build tsconfig.web.json && node build-cjs.js",
-    "release": "npm run build && npm publish --access public"
+    "release": "npm publish --access public"
   },
   "type": "module",
   "types": "./dist/node/index.d.ts"

@@ -167,16 +167,26 @@ export type adminContract = 'advanced';
  * Specifies who can mint tokens.
  */
 export type canMint = 'whitelist' | 'anyone';
+export type LaunchTokenBondingCurveAdminParams = LaunchTokenTransactionBaseParams & {
+    /**
+     * Must be "bondingCurve" for bonding curve admin contract.
+     */
+    adminContract: 'bondingCurve';
+};
+/**
+ * Must be "bondingCurve" for bonding curve admin contract.
+ */
+export type adminContract2 = 'bondingCurve';
 export type LaunchTokenStandardAdminParams = LaunchTokenTransactionBaseParams & {
     /**
      * Must be "standard" for standard admin contract.
      */
-    adminContract?: 'standard';
+    adminContract: 'standard';
 };
 /**
  * Must be "standard" for standard admin contract.
  */
-export type adminContract2 = 'standard';
+export type adminContract3 = 'standard';
 export type LaunchTokenTransactionBaseParams = TokenTransactionBaseParams & {
     /**
      * Must be "token:launch"
@@ -185,7 +195,7 @@ export type LaunchTokenTransactionBaseParams = TokenTransactionBaseParams & {
     /**
      * The type of admin contract to use.
      */
-    adminContract: 'standard' | 'advanced';
+    adminContract: 'standard' | 'advanced' | 'bondingCurve';
     /**
      * The symbol of the token.
      */
@@ -222,7 +232,7 @@ export type txType = 'token:launch';
 /**
  * The type of admin contract to use.
  */
-export type adminContract3 = 'standard' | 'advanced';
+export type adminContract4 = 'standard' | 'advanced' | 'bondingCurve';
 export type NFTRequestAnswer = {
     contractAddress?: string;
     nftAddress?: string;
@@ -343,6 +353,24 @@ export type TokenBidTransactionParams = DeployedTokenTransactionBaseParams & {
  * Must be "token:bid:create"
  */
 export type txType3 = 'token:bid:create';
+export type TokenBurnTransactionParams = DeployedTokenTransactionBaseParams & {
+    /**
+     * Must be "token:burn"
+     */
+    txType?: 'token:burn';
+    /**
+     * The address from which tokens are to be burned.
+     */
+    from: string;
+    /**
+     * The amount of tokens to burn.
+     */
+    amount: number;
+};
+/**
+ * Must be "token:burn"
+ */
+export type txType4 = 'token:burn';
 export type TokenBuyTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:offer:buy"
@@ -360,7 +388,7 @@ export type TokenBuyTransactionParams = DeployedTokenTransactionBaseParams & {
 /**
  * Must be "token:offer:buy"
  */
-export type txType4 = 'token:offer:buy';
+export type txType5 = 'token:offer:buy';
 export type TokenInfo = {
     /**
      * The symbol of the token.
@@ -434,11 +462,15 @@ export type TokenMintTransactionParams = DeployedTokenTransactionBaseParams & {
      * The amount of tokens to mint.
      */
     amount: number;
+    /**
+     * The price of the token in the bonding curve.
+     */
+    price?: number;
 };
 /**
  * Must be "token:mint"
  */
-export type txType5 = 'token:mint';
+export type txType6 = 'token:mint';
 export type TokenOfferTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:offer:create"
@@ -465,7 +497,29 @@ export type TokenOfferTransactionParams = DeployedTokenTransactionBaseParams & {
 /**
  * Must be "token:offer:create"
  */
-export type txType6 = 'token:offer:create';
+export type txType7 = 'token:offer:create';
+export type TokenRedeemTransactionParams = DeployedTokenTransactionBaseParams & {
+    /**
+     * Must be "token:redeem"
+     */
+    txType?: 'token:redeem';
+    /**
+     * The amount of tokens to redeem.
+     */
+    amount: number;
+    /**
+     * The minimum price of the tokens to be redeemed.
+     */
+    price: number;
+    /**
+     * The maximum slippage allowed for the redemption, default is 50 (5%).
+     */
+    slippage?: number;
+};
+/**
+ * Must be "token:redeem"
+ */
+export type txType8 = 'token:redeem';
 export type TokenSellTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:bid:sell"
@@ -483,7 +537,7 @@ export type TokenSellTransactionParams = DeployedTokenTransactionBaseParams & {
 /**
  * Must be "token:bid:sell"
  */
-export type txType7 = 'token:bid:sell';
+export type txType9 = 'token:bid:sell';
 export type TokenState = {
     /**
      * The address of the token contract.
@@ -607,14 +661,14 @@ export type TokenTransactionBaseParams = {
      */
     developerFee?: number;
 };
-export type TokenTransactionParams = LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | TokenMintTransactionParams | TokenTransferTransactionParams | TokenAirdropTransactionParams | TokenOfferTransactionParams | TokenBidTransactionParams | TokenBuyTransactionParams | TokenSellTransactionParams | TokenWithdrawBidTransactionParams | TokenWithdrawOfferTransactionParams | TokenUpdateBidWhitelistTransactionParams | TokenUpdateOfferWhitelistTransactionParams | TokenUpdateAdminWhitelistTransactionParams;
+export type TokenTransactionParams = LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | TokenMintTransactionParams | TokenBurnTransactionParams | TokenRedeemTransactionParams | TokenTransferTransactionParams | TokenAirdropTransactionParams | TokenOfferTransactionParams | TokenBidTransactionParams | TokenBuyTransactionParams | TokenSellTransactionParams | TokenWithdrawBidTransactionParams | TokenWithdrawOfferTransactionParams | TokenUpdateBidWhitelistTransactionParams | TokenUpdateOfferWhitelistTransactionParams | TokenUpdateAdminWhitelistTransactionParams;
 export type TokenTransactions = {
     /**
      * Array of token transactions.
      */
     txs: Array<TokenTransaction>;
 };
-export type TokenTransactionType = 'token:launch' | 'token:mint' | 'token:transfer' | 'token:bid:create' | 'token:offer:create' | 'token:offer:buy' | 'token:bid:sell' | 'token:airdrop' | 'token:bid:withdraw' | 'token:offer:withdraw' | 'token:bid:whitelist' | 'token:offer:whitelist' | 'token:admin:whitelist';
+export type TokenTransactionType = 'token:launch' | 'token:mint' | 'token:burn' | 'token:redeem' | 'token:transfer' | 'token:bid:create' | 'token:offer:create' | 'token:offer:buy' | 'token:bid:sell' | 'token:airdrop' | 'token:bid:withdraw' | 'token:offer:withdraw' | 'token:bid:whitelist' | 'token:offer:whitelist' | 'token:admin:whitelist';
 export type TokenTransferTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:transfer"
@@ -632,7 +686,7 @@ export type TokenTransferTransactionParams = DeployedTokenTransactionBaseParams 
 /**
  * Must be "token:transfer"
  */
-export type txType8 = 'token:transfer';
+export type txType10 = 'token:transfer';
 export type TokenUpdateAdminWhitelistTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:admin:whitelist"
@@ -650,7 +704,7 @@ export type TokenUpdateAdminWhitelistTransactionParams = DeployedTokenTransactio
 /**
  * Must be "token:admin:whitelist"
  */
-export type txType9 = 'token:admin:whitelist';
+export type txType11 = 'token:admin:whitelist';
 export type TokenUpdateBidWhitelistTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:bid:whitelist"
@@ -668,7 +722,7 @@ export type TokenUpdateBidWhitelistTransactionParams = DeployedTokenTransactionB
 /**
  * Must be "token:bid:whitelist"
  */
-export type txType10 = 'token:bid:whitelist';
+export type txType12 = 'token:bid:whitelist';
 export type TokenUpdateOfferWhitelistTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:offer:whitelist"
@@ -686,7 +740,7 @@ export type TokenUpdateOfferWhitelistTransactionParams = DeployedTokenTransactio
 /**
  * Must be "token:offer:whitelist"
  */
-export type txType11 = 'token:offer:whitelist';
+export type txType13 = 'token:offer:whitelist';
 export type TokenWithdrawBidTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:bid:withdraw"
@@ -704,7 +758,7 @@ export type TokenWithdrawBidTransactionParams = DeployedTokenTransactionBasePara
 /**
  * Must be "token:bid:withdraw"
  */
-export type txType12 = 'token:bid:withdraw';
+export type txType14 = 'token:bid:withdraw';
 export type TokenWithdrawOfferTransactionParams = DeployedTokenTransactionBaseParams & {
     /**
      * Must be "token:offer:withdraw"
@@ -722,7 +776,7 @@ export type TokenWithdrawOfferTransactionParams = DeployedTokenTransactionBasePa
 /**
  * Must be "token:offer:withdraw"
  */
-export type txType13 = 'token:offer:withdraw';
+export type txType15 = 'token:offer:withdraw';
 export type TransactionPayloads = {
     /**
      * The address initiating the transaction.
@@ -898,7 +952,7 @@ export type Whitelist = Array<{
     amount?: number;
 }> | string;
 export type LaunchTokenData = {
-    body: (LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams);
+    body: (LaunchTokenStandardAdminParams | LaunchTokenAdvancedAdminParams | LaunchTokenBondingCurveAdminParams);
 };
 export type LaunchTokenResponse = (TokenTransaction);
 export type LaunchTokenError = (ErrorResponse);

@@ -10,7 +10,7 @@ import {
   FungibleTokenBidContract,
   FungibleTokenOfferContract,
   FungibleTokenClaimContract,
-  BondingCurveAdmin,
+  FungibleTokenBondingCurveAdmin,
   BondingCurveFungibleToken,
 } from "@minatokens/token";
 import {
@@ -88,7 +88,11 @@ const contracts: {
     contract: BondingCurveFungibleToken,
     type: "token",
   },
-  { name: "BondingCurveAdmin", contract: BondingCurveAdmin, type: "admin" },
+  {
+    name: "FungibleTokenBondingCurveAdmin",
+    contract: FungibleTokenBondingCurveAdmin,
+    type: "admin",
+  },
   { name: "FungibleTokenAdmin", contract: FungibleTokenAdmin, type: "admin" },
   {
     name: "AdvancedFungibleToken",
