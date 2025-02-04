@@ -21,6 +21,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   airdropTokens: () => airdropTokens,
+  burnTokens: () => burnTokens,
   buyTokens: () => buyTokens,
   client: () => client,
   config: () => config,
@@ -33,6 +34,7 @@ __export(index_exports, {
   launchToken: () => launchToken,
   mintTokens: () => mintTokens,
   prove: () => prove,
+  redeemTokens: () => redeemTokens,
   sellTokens: () => sellTokens,
   tokenBid: () => tokenBid,
   tokenOffer: () => tokenOffer,
@@ -121,6 +123,18 @@ var airdropTokens = (options) => {
   return (options?.client ?? client).post({
     ...options,
     url: "/token/airdrop"
+  });
+};
+var redeemTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/redeem"
+  });
+};
+var burnTokens = (options) => {
+  return (options?.client ?? client).post({
+    ...options,
+    url: "/token/burn"
   });
 };
 var tokenBid = (options) => {
@@ -243,6 +257,7 @@ async function sleep(ms) {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   airdropTokens,
+  burnTokens,
   buyTokens,
   client,
   config,
@@ -255,6 +270,7 @@ async function sleep(ms) {
   launchToken,
   mintTokens,
   prove,
+  redeemTokens,
   sellTokens,
   tokenBid,
   tokenOffer,
