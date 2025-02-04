@@ -37,7 +37,7 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // dist/node/fee.js
-var LAUNCH_FEE = 1e9;
+var LAUNCH_FEE = 1e10;
 var TRANSACTION_FEE = 1e8;
 
 // dist/node/token/build.js
@@ -333,8 +333,17 @@ async function buildTokenLaunchTransaction(params) {
   const decimals = import_o1js2.UInt8.from(args.decimals ? Math.round(args.decimals) : 9);
   const tx = await import_o1js2.Mina.transaction({ sender, fee, memo: memo ?? `launch ${symbol}`, nonce }, async () => {
     if (zkAdmin instanceof import_token.FungibleTokenBondingCurveAdmin) {
-      await zkAdmin.deploy({});
+      console.log("deploying bonding curve admin", {
+        verificationKey: adminVerificationKey.hash,
+        tokenAddress: tokenAddress.toBase58(),
+        feeMaster: provingKey.toBase58(),
+        adminContractAddress: adminContractAddress.toBase58()
+      });
+      await zkAdmin.deploy({
+        verificationKey: adminVerificationKey
+      });
       zkAdmin.account.tokenSymbol.set("BC");
+      zkAdmin.account.zkappUri.set(uri);
       await zkAdmin.initialize({
         tokenAddress,
         startPrice: import_o1js2.UInt64.from(1e4),
@@ -372,8 +381,8 @@ async function buildTokenLaunchTransaction(params) {
         const adminUpdate = import_o1js2.AccountUpdate.create(adminContractAddress, import_o1js2.TokenId.derive(adminContractAddress));
         zkAdmin.approve(adminUpdate);
       }
+      zkAdmin.account.zkappUri.set(uri);
     }
-    zkAdmin.account.zkappUri.set(uri);
     await zkToken.deploy({
       symbol,
       src: uri,
@@ -430,7 +439,7 @@ async function buildTokenTransaction(params) {
     throw new Error("From address is required for token:burn");
   const amount = "amount" in args ? import_o1js2.UInt64.from(Math.round(args.amount)) : void 0;
   const price = "price" in args && args.price ? import_o1js2.UInt64.from(Math.round(args.price)) : void 0;
-  const slippage = "slippage" in args ? import_o1js2.UInt32.from(Math.round(args.slippage ?? 50)) : void 0;
+  const slippage = import_o1js2.UInt32.from(Math.round("slippage" in args && args.slippage !== void 0 ? args.slippage : 50));
   await fetchMinaAccount({
     publicKey: sender,
     force: true
@@ -589,20 +598,22 @@ async function buildTokenTransaction(params) {
       break;
   }
   const tx = await import_o1js2.Mina.transaction({ sender, fee, memo, nonce }, async () => {
-    const feeAccountUpdate = import_o1js2.AccountUpdate.createSigned(sender);
-    if (accountCreationFee > 0) {
-      feeAccountUpdate.balance.subInPlace(accountCreationFee);
-    }
-    if (provingKey && provingFee)
-      feeAccountUpdate.send({
-        to: provingKey,
-        amount: provingFee
-      });
-    if (developerAddress && developerFee) {
-      feeAccountUpdate.send({
-        to: developerAddress,
-        amount: developerFee
-      });
+    if (adminType !== "bondingCurve" || txType !== "token:mint" && txType !== "token:redeem") {
+      const feeAccountUpdate = import_o1js2.AccountUpdate.createSigned(sender);
+      if (accountCreationFee > 0) {
+        feeAccountUpdate.balance.subInPlace(accountCreationFee);
+      }
+      if (provingKey && provingFee)
+        feeAccountUpdate.send({
+          to: provingKey,
+          amount: provingFee
+        });
+      if (developerAddress && developerFee) {
+        feeAccountUpdate.send({
+          to: developerAddress,
+          amount: developerFee
+        });
+      }
     }
     switch (txType) {
       case "token:mint":
@@ -895,7 +906,9 @@ var tokenContracts = {
   FungibleToken: import_token2.FungibleToken,
   FungibleTokenAdmin: import_token2.FungibleTokenAdmin,
   AdvancedFungibleToken: import_token2.AdvancedFungibleToken,
+  BondingCurveFungibleToken: import_token2.BondingCurveFungibleToken,
   FungibleTokenAdvancedAdmin: import_token2.FungibleTokenAdvancedAdmin,
+  FungibleTokenBondingCurveAdmin: import_token2.FungibleTokenBondingCurveAdmin,
   FungibleTokenBidContract: import_token2.FungibleTokenBidContract,
   FungibleTokenOfferContract: import_token2.FungibleTokenOfferContract,
   FungibleTokenClaimContract: import_token2.FungibleTokenClaimContract
