@@ -1375,8 +1375,11 @@ var FungibleTokenBondingCurveAdmin = class extends import_o1js7.TokenContract {
     feePayment = import_o1js7.Provable.if(feePayment.lessThan(import_o1js7.UInt64.from(1e8)), import_o1js7.UInt64.from(1e8), feePayment);
     const seller = this.sender.getUnconstrained();
     const sellerUpdate = import_o1js7.AccountUpdate.create(seller);
-    const isNew = import_o1js7.Provable.witness(import_o1js7.Bool, () => {
-      return (0, import_o1js7.Bool)(!import_o1js7.Mina.hasAccount(seller));
+    const isNew = await import_o1js7.Provable.witnessAsync(import_o1js7.Bool, async () => {
+      const sellerAccount = await (0, import_o1js7.fetchAccount)({
+        publicKey: seller
+      });
+      return (0, import_o1js7.Bool)(sellerAccount.account === void 0);
     });
     sellerUpdate.account.isNew.requireEquals(isNew);
     const accountCreationFee = import_o1js7.Provable.if(isNew, import_o1js7.UInt64.from(1e9), import_o1js7.UInt64.zero);

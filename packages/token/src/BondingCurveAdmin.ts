@@ -438,8 +438,11 @@ export class FungibleTokenBondingCurveAdmin
     );
     const seller = this.sender.getUnconstrained();
     const sellerUpdate = AccountUpdate.create(seller);
-    const isNew = Provable.witness(Bool, () => {
-      return Bool(!Mina.hasAccount(seller));
+    const isNew = await Provable.witnessAsync(Bool, async () => {
+      const sellerAccount = await fetchAccount({
+        publicKey: seller,
+      });
+      return Bool(sellerAccount.account === undefined);
     });
 
     sellerUpdate.account.isNew.requireEquals(isNew);

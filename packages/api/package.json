@@ -1,7 +1,7 @@
 {
   "name": "@minatokens/api",
   "description": "MinaTokens API",
-  "version": "0.16.14",
+  "version": "0.16.16",
   "author": "DFST",
   "bugs": "https://github.com/zkcloudworker/minatokens-lib/issues",
   "dependencies": {
