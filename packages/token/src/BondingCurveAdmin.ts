@@ -237,12 +237,15 @@ export class FungibleTokenBondingCurveAdmin
      *
      */
 
-    const maximumSupplyField = Provable.witness(Field, () =>
-      Field.from(
+    const maximumSupplyField = Provable.witness(Field, () => {
+      if (price.toBigInt() < startPrice.toBigInt()) {
+        throw Error("Price must be greater than or equal to the start price");
+      }
+      return Field.from(
         ((price.toBigInt() - startPrice.toBigInt()) * 10n ** 14n) /
           curveK.toBigInt()
-      )
-    );
+      );
+    });
 
     maximumSupplyField
       .mul(curveK.value)
@@ -336,6 +339,7 @@ export class FungibleTokenBondingCurveAdmin
         tokenId: this.tokenId,
       });
       const balance = Mina.getAccount(this.address, this.tokenId).balance;
+      console.log("redeem: balance", balance.toBigInt());
       return balance;
     });
     slippage.assertLessThan(UInt32.from(1000));
@@ -374,6 +378,7 @@ export class FungibleTokenBondingCurveAdmin
         this.address,
         this.deriveTokenId()
       ).balance;
+      console.log("redeem: supply", balance.toBigInt());
       return balance;
     });
     supply.assertGreaterThanOrEqual(amount);
@@ -433,7 +438,14 @@ export class FungibleTokenBondingCurveAdmin
     );
     const seller = this.sender.getUnconstrained();
     const sellerUpdate = AccountUpdate.create(seller);
-    const isNew = sellerUpdate.account.isNew.getAndRequireEquals();
+    const isNew = await Provable.witnessAsync(Bool, async () => {
+      const sellerAccount = await fetchAccount({
+        publicKey: seller,
+      });
+      return Bool(sellerAccount.account === undefined);
+    });
+
+    sellerUpdate.account.isNew.requireEquals(isNew);
     const accountCreationFee = Provable.if(
       isNew,
       UInt64.from(1_000_000_000),
@@ -442,13 +454,49 @@ export class FungibleTokenBondingCurveAdmin
     payment.assertGreaterThan(feePayment.add(accountCreationFee));
     sellerUpdate.requireSignature();
     sellerUpdate.body.useFullCommitment = Bool(true);
-    const totalPayment = Provable.witness(UInt64, () =>
-      UInt64.from(
+    const totalPayment = Provable.witness(UInt64, () => {
+      if (
+        payment.toBigInt() <
+        feePayment.toBigInt() + accountCreationFee.toBigInt()
+      ) {
+        console.error(
+          `The redeem amount ${
+            Number(payment.toBigInt() / 10n ** 6n) / 1000
+          } MINA is too low to cover the fee ${
+            Number(feePayment.toBigInt() / 10n ** 6n) / 1000
+          } MINA and account creation fee ${
+            Number(accountCreationFee.toBigInt() / 10n ** 6n) / 1000
+          } MINA for the account ${seller.toBase58()}`,
+          {
+            payment: payment.toBigInt(),
+            feePayment: feePayment.toBigInt(),
+            accountCreationFee: accountCreationFee.toBigInt(),
+            minBalance: minBalance.toBigInt(),
+            maxSupply: maxSupply.toBigInt(),
+            supply: supply.toBigInt(),
+            amount: amount.toBigInt(),
+            balance: balance.toBigInt(),
+            tokenAddress: tokenAddress.toBase58(),
+            seller: seller.toBase58(),
+            isNew: isNew.toBoolean(),
+          }
+        );
+        throw Error(
+          `The redeem amount ${
+            Number(payment.toBigInt() / 10n ** 6n) / 1000
+          } MINA is too low to cover the fee ${
+            Number(feePayment.toBigInt() / 10n ** 6n) / 1000
+          } MINA and account creation fee ${
+            Number(accountCreationFee.toBigInt() / 10n ** 6n) / 1000
+          } MINA for the account ${seller.toBase58()}`
+        );
+      }
+      return UInt64.from(
         payment.toBigInt() -
           feePayment.toBigInt() -
           accountCreationFee.toBigInt()
-      )
-    );
+      );
+    });
     totalPayment.add(feePayment).add(accountCreationFee).assertEquals(payment);
     sellerUpdate.balance.addInPlace(totalPayment);
     const feeUpdate = AccountUpdate.create(

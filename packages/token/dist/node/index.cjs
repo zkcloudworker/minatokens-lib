@@ -1248,7 +1248,12 @@ var FungibleTokenBondingCurveAdmin = class extends import_o1js7.TokenContract {
       fee,
       mintingIsAllowed: (0, import_o1js7.Bool)(true)
     }).pack());
-    const maximumSupplyField = import_o1js7.Provable.witness(import_o1js7.Field, () => import_o1js7.Field.from((price.toBigInt() - startPrice.toBigInt()) * 10n ** 14n / curveK.toBigInt()));
+    const maximumSupplyField = import_o1js7.Provable.witness(import_o1js7.Field, () => {
+      if (price.toBigInt() < startPrice.toBigInt()) {
+        throw Error("Price must be greater than or equal to the start price");
+      }
+      return import_o1js7.Field.from((price.toBigInt() - startPrice.toBigInt()) * 10n ** 14n / curveK.toBigInt());
+    });
     maximumSupplyField.mul(curveK.value).add(startPrice.value.mul(import_o1js7.Field.from(10 ** 14))).assertLessThanOrEqual(price.value.mul(import_o1js7.Field.from(10 ** 14)));
     maximumSupplyField.assertLessThan(import_o1js7.UInt64.MAXINT().value);
     const maximumSupply = import_o1js7.UInt64.Unsafe.fromField(maximumSupplyField);
@@ -1314,6 +1319,7 @@ var FungibleTokenBondingCurveAdmin = class extends import_o1js7.TokenContract {
         tokenId: this.tokenId
       });
       const balance2 = import_o1js7.Mina.getAccount(this.address, this.tokenId).balance;
+      console.log("redeem: balance", balance2.toBigInt());
       return balance2;
     });
     slippage.assertLessThan(import_o1js7.UInt32.from(1e3));
@@ -1337,6 +1343,7 @@ var FungibleTokenBondingCurveAdmin = class extends import_o1js7.TokenContract {
         tokenId: this.deriveTokenId()
       });
       const balance2 = import_o1js7.Mina.getAccount(this.address, this.deriveTokenId()).balance;
+      console.log("redeem: supply", balance2.toBigInt());
       return balance2;
     });
     supply.assertGreaterThanOrEqual(amount);
@@ -1368,12 +1375,36 @@ var FungibleTokenBondingCurveAdmin = class extends import_o1js7.TokenContract {
     feePayment = import_o1js7.Provable.if(feePayment.lessThan(import_o1js7.UInt64.from(1e8)), import_o1js7.UInt64.from(1e8), feePayment);
     const seller = this.sender.getUnconstrained();
     const sellerUpdate = import_o1js7.AccountUpdate.create(seller);
-    const isNew = sellerUpdate.account.isNew.getAndRequireEquals();
+    const isNew = await import_o1js7.Provable.witnessAsync(import_o1js7.Bool, async () => {
+      const sellerAccount = await (0, import_o1js7.fetchAccount)({
+        publicKey: seller
+      });
+      return (0, import_o1js7.Bool)(sellerAccount.account === void 0);
+    });
+    sellerUpdate.account.isNew.requireEquals(isNew);
     const accountCreationFee = import_o1js7.Provable.if(isNew, import_o1js7.UInt64.from(1e9), import_o1js7.UInt64.zero);
     payment.assertGreaterThan(feePayment.add(accountCreationFee));
     sellerUpdate.requireSignature();
     sellerUpdate.body.useFullCommitment = (0, import_o1js7.Bool)(true);
-    const totalPayment = import_o1js7.Provable.witness(import_o1js7.UInt64, () => import_o1js7.UInt64.from(payment.toBigInt() - feePayment.toBigInt() - accountCreationFee.toBigInt()));
+    const totalPayment = import_o1js7.Provable.witness(import_o1js7.UInt64, () => {
+      if (payment.toBigInt() < feePayment.toBigInt() + accountCreationFee.toBigInt()) {
+        console.error(`The redeem amount ${Number(payment.toBigInt() / 10n ** 6n) / 1e3} MINA is too low to cover the fee ${Number(feePayment.toBigInt() / 10n ** 6n) / 1e3} MINA and account creation fee ${Number(accountCreationFee.toBigInt() / 10n ** 6n) / 1e3} MINA for the account ${seller.toBase58()}`, {
+          payment: payment.toBigInt(),
+          feePayment: feePayment.toBigInt(),
+          accountCreationFee: accountCreationFee.toBigInt(),
+          minBalance: minBalance.toBigInt(),
+          maxSupply: maxSupply.toBigInt(),
+          supply: supply.toBigInt(),
+          amount: amount.toBigInt(),
+          balance: balance.toBigInt(),
+          tokenAddress: tokenAddress.toBase58(),
+          seller: seller.toBase58(),
+          isNew: isNew.toBoolean()
+        });
+        throw Error(`The redeem amount ${Number(payment.toBigInt() / 10n ** 6n) / 1e3} MINA is too low to cover the fee ${Number(feePayment.toBigInt() / 10n ** 6n) / 1e3} MINA and account creation fee ${Number(accountCreationFee.toBigInt() / 10n ** 6n) / 1e3} MINA for the account ${seller.toBase58()}`);
+      }
+      return import_o1js7.UInt64.from(payment.toBigInt() - feePayment.toBigInt() - accountCreationFee.toBigInt());
+    });
     totalPayment.add(feePayment).add(accountCreationFee).assertEquals(payment);
     sellerUpdate.balance.addInPlace(totalPayment);
     const feeUpdate = import_o1js7.AccountUpdate.create(this.feeMaster.getAndRequireEquals());

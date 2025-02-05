@@ -2,9 +2,11 @@ openapi: 3.1.0
 info:
   title: MinaTokens API
   description: API for interacting with Mina Fungible Tokens and NFTs.
-  version: "0.12.5"
+  version: "0.16.3"
 servers:
   - url: https://minatokens.com/api/v1/
+    description: Mina Mainnet
+  - url: https://devnet.minatokens.com/api/v1/
     description: Mina Devnet
   - url: https://zekotokens.com/api/v1/
     description: Zeko Devnet
@@ -545,6 +547,116 @@ paths:
                         walletPayload:
                           transaction: '{"feePayer":{"body":{"publicKey":"B62qmoZqb..."}' # Truncated for brevity
                       # Additional transactions as per the airdrop operation
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /token/redeem:
+    post:
+      tags:
+        - Fungible Token
+      summary: Redeem tokens for a MINA (applicable for Fungible Tokens with Bonding Curve Admin)
+      description: |
+        The `redeem` endpoint allows users to redeem tokens of a fungible token on the Mina blockchain for a MINA.
+        The sender must have sufficient balance and appropriate permissions to perform the transfer.
+      operationId: redeemTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenRedeemTransactionParams"
+            examples:
+              redeemRequestExample:
+                summary: Example of a redeem request
+                value:
+                  txType: redeem
+                  sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  amount: 50000000000
+                  price: 20000
+      responses:
+        "200":
+          description: Successfully built redeem transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+              examples:
+                redeemResponseExample:
+                  summary: Example of a successful redeem response
+                  value:
+                    txType: redeem
+                    sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                    nonce: 55
+                    memo: redeem 50 TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":{"publicKey":"B62qmoZqbXP3zRDF..."}' # Truncated for brevity
+                    # Additional fields as per the TokenTransaction schema
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /token/burn:
+    post:
+      tags:
+        - Fungible Token
+      summary: Burn tokens from one address.
+      description: |
+        The `burn` endpoint allows users to burn tokens of a fungible token on the Mina blockchain from one address.
+        The sender must have sufficient balance and appropriate permissions to perform the burn.
+      operationId: burnTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenBurnTransactionParams"
+            examples:
+              burnRequestExample:
+                summary: Example of a burn request
+                value:
+                  txType: burn
+                  sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  tokenAddress: B62qmvJRT6DJsmBQmnTJ8vKSCNedhw1UczhgkCRgckaGB9fRhJ4Sa3J
+                  from: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                  amount: 50000000000
+      responses:
+        "200":
+          description: Successfully built burn transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenTransaction"
+              examples:
+                burnResponseExample:
+                  summary: Example of a successful burn response
+                  value:
+                    txType: burn
+                    sender: B62qmoZqbXP3zRDFiVhczH6XXzHN2jhEq6dT9XqZ4trc1Y8oXyCAJgK
+                    nonce: 55
+                    memo: burn 50 TEST7
+                    fee: "100000000"
+                    walletPayload:
+                      transaction: '{"feePayer":{"body":{"publicKey":"B62qmoZqbXP3zRDF..."}' # Truncated for brevity
+                    # Additional fields as per the TokenTransaction schema
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":

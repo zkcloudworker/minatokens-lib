@@ -1,5 +1,5 @@
 import { type OptionsLegacyParser } from '@hey-api/client-fetch';
-import type { LaunchTokenData, GetContractInfoData, GetContractInfoResponse, GetNftV2InfoData, FaucetData, GetTokenInfoData, GetTokenBalanceData, ProveData, GetProofData, TxStatusData, MintTokensData, TransferTokensData, AirdropTokensData, TokenBidData, TokenOfferData, BuyTokensData, SellTokensData, WithdrawTokenBidData, WithdrawTokenOfferData, UpdateTokenBidWhitelistData, UpdateTokenOfferWhitelistData, UpdateTokenAdminWhitelistData } from './types.gen.js';
+import type { LaunchTokenData, GetContractInfoData, GetContractInfoResponse, GetNftV2InfoData, FaucetData, GetTokenInfoData, GetTokenBalanceData, ProveData, GetProofData, TxStatusData, MintTokensData, TransferTokensData, AirdropTokensData, RedeemTokensData, BurnTokensData, TokenBidData, TokenOfferData, BuyTokensData, SellTokensData, WithdrawTokenBidData, WithdrawTokenOfferData, UpdateTokenBidWhitelistData, UpdateTokenOfferWhitelistData, UpdateTokenAdminWhitelistData } from './types.gen.js';
 export declare const client: import("@hey-api/client-fetch").Client<Request, Response, unknown, import("@hey-api/client-fetch").RequestOptions<boolean, string>>;
 /**
  * Deploy a new fungible token contract.
@@ -78,6 +78,20 @@ export declare const transferTokens: <ThrowOnError extends boolean = false>(opti
  *
  */
 export declare const airdropTokens: <ThrowOnError extends boolean = false>(options: OptionsLegacyParser<AirdropTokensData, ThrowOnError>) => import("@hey-api/client-fetch").RequestResult<import("./types.gen.js").AirdropTransactionResponse, import("./types.gen.js").ErrorResponse, ThrowOnError>;
+/**
+ * Redeem tokens for a MINA (applicable for Fungible Tokens with Bonding Curve Admin)
+ * The `redeem` endpoint allows users to redeem tokens of a fungible token on the Mina blockchain for a MINA.
+ * The sender must have sufficient balance and appropriate permissions to perform the transfer.
+ *
+ */
+export declare const redeemTokens: <ThrowOnError extends boolean = false>(options: OptionsLegacyParser<RedeemTokensData, ThrowOnError>) => import("@hey-api/client-fetch").RequestResult<import("./types.gen.js").TokenTransaction, import("./types.gen.js").ErrorResponse, ThrowOnError>;
+/**
+ * Burn tokens from one address.
+ * The `burn` endpoint allows users to burn tokens of a fungible token on the Mina blockchain from one address.
+ * The sender must have sufficient balance and appropriate permissions to perform the burn.
+ *
+ */
+export declare const burnTokens: <ThrowOnError extends boolean = false>(options: OptionsLegacyParser<BurnTokensData, ThrowOnError>) => import("@hey-api/client-fetch").RequestResult<import("./types.gen.js").TokenTransaction, import("./types.gen.js").ErrorResponse, ThrowOnError>;
 /**
  * Place a bid on a token
  * Allows users to place a bid on an token.

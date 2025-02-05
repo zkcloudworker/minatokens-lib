@@ -114,8 +114,17 @@ export async function buildTokenLaunchTransaction(params) {
     const decimals = UInt8.from(args.decimals ? Math.round(args.decimals) : 9);
     const tx = await Mina.transaction({ sender, fee, memo: memo ?? `launch ${symbol}`, nonce }, async () => {
         if (zkAdmin instanceof FungibleTokenBondingCurveAdmin) {
-            await zkAdmin.deploy({});
+            console.log("deploying bonding curve admin", {
+                verificationKey: adminVerificationKey.hash,
+                tokenAddress: tokenAddress.toBase58(),
+                feeMaster: provingKey.toBase58(),
+                adminContractAddress: adminContractAddress.toBase58(),
+            });
+            await zkAdmin.deploy({
+                verificationKey: adminVerificationKey,
+            });
             zkAdmin.account.tokenSymbol.set("BC");
+            zkAdmin.account.zkappUri.set(uri);
             await zkAdmin.initialize({
                 tokenAddress,
                 startPrice: UInt64.from(10_000),
@@ -153,8 +162,8 @@ export async function buildTokenLaunchTransaction(params) {
                 const adminUpdate = AccountUpdate.create(adminContractAddress, TokenId.derive(adminContractAddress));
                 zkAdmin.approve(adminUpdate);
             }
+            zkAdmin.account.zkappUri.set(uri);
         }
-        zkAdmin.account.zkappUri.set(uri);
         await zkToken.deploy({
             symbol,
             src: uri,
@@ -225,9 +234,7 @@ export async function buildTokenTransaction(params) {
     const price = "price" in args && args.price
         ? UInt64.from(Math.round(args.price))
         : undefined;
-    const slippage = "slippage" in args
-        ? UInt32.from(Math.round(args.slippage ?? 50))
-        : undefined;
+    const slippage = UInt32.from(Math.round("slippage" in args && args.slippage !== undefined ? args.slippage : 50));
     await fetchMinaAccount({
         publicKey: sender,
         force: true,
@@ -459,20 +466,23 @@ export async function buildTokenTransaction(params) {
             break;
     }
     const tx = await Mina.transaction({ sender, fee, memo, nonce }, async () => {
-        const feeAccountUpdate = AccountUpdate.createSigned(sender);
-        if (accountCreationFee > 0) {
-            feeAccountUpdate.balance.subInPlace(accountCreationFee);
-        }
-        if (provingKey && provingFee)
-            feeAccountUpdate.send({
-                to: provingKey,
-                amount: provingFee,
-            });
-        if (developerAddress && developerFee) {
-            feeAccountUpdate.send({
-                to: developerAddress,
-                amount: developerFee,
-            });
+        if (adminType !== "bondingCurve" ||
+            (txType !== "token:mint" && txType !== "token:redeem")) {
+            const feeAccountUpdate = AccountUpdate.createSigned(sender);
+            if (accountCreationFee > 0) {
+                feeAccountUpdate.balance.subInPlace(accountCreationFee);
+            }
+            if (provingKey && provingFee)
+                feeAccountUpdate.send({
+                    to: provingKey,
+                    amount: provingFee,
+                });
+            if (developerAddress && developerFee) {
+                feeAccountUpdate.send({
+                    to: developerAddress,
+                    amount: developerFee,
+                });
+            }
         }
         switch (txType) {
             case "token:mint":

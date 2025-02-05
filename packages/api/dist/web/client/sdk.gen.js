@@ -139,6 +139,30 @@ export const airdropTokens = (options) => {
     });
 };
 /**
+ * Redeem tokens for a MINA (applicable for Fungible Tokens with Bonding Curve Admin)
+ * The `redeem` endpoint allows users to redeem tokens of a fungible token on the Mina blockchain for a MINA.
+ * The sender must have sufficient balance and appropriate permissions to perform the transfer.
+ *
+ */
+export const redeemTokens = (options) => {
+    return (options?.client ?? client).post({
+        ...options,
+        url: '/token/redeem'
+    });
+};
+/**
+ * Burn tokens from one address.
+ * The `burn` endpoint allows users to burn tokens of a fungible token on the Mina blockchain from one address.
+ * The sender must have sufficient balance and appropriate permissions to perform the burn.
+ *
+ */
+export const burnTokens = (options) => {
+    return (options?.client ?? client).post({
+        ...options,
+        url: '/token/burn'
+    });
+};
+/**
  * Place a bid on a token
  * Allows users to place a bid on an token.
  *

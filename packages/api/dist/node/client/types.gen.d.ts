@@ -1011,6 +1011,16 @@ export type AirdropTokensData = {
 };
 export type AirdropTokensResponse = (AirdropTransactionResponse);
 export type AirdropTokensError = (ErrorResponse);
+export type RedeemTokensData = {
+    body: TokenRedeemTransactionParams;
+};
+export type RedeemTokensResponse = (TokenTransaction);
+export type RedeemTokensError = (ErrorResponse);
+export type BurnTokensData = {
+    body: TokenBurnTransactionParams;
+};
+export type BurnTokensResponse = (TokenTransaction);
+export type BurnTokensError = (ErrorResponse);
 export type TokenBidData = {
     body: TokenBidTransactionParams;
 };
